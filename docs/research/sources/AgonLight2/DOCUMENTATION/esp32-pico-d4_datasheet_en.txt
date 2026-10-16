@@ -1,0 +1,1127 @@
+ESP32­PICO­D4
+Datasheet
+
+
+
+
+                                Version 2.0
+                                Espressif Systems
+                                Copyright © 2022
+
+
+
+
+            www.espressif.com
+About This Document
+This document provides an introduction to the specifications of the ESP32-PICO-D4 module.
+
+
+Document Updates
+Please always refer to the latest version on https://www.espressif.com/en/support/download/documents.
+
+
+Revision History
+For revision history of this document, please refer to the last page.
+
+
+Documentation Change Notification
+Espressif provides email notifications to keep customers updated on changes to technical documentation.
+Please subscribe at www.espressif.com/en/subscribe. Note that you need to update your subscription to receive
+notifications of new products you are not currently subscribed to.
+
+
+Certification
+Download certificates for Espressif products from www.espressif.com/en/certificates.
+Contents
+
+1     Overview                              6
+
+2     Pin Definitions                       8
+2.1   Pin Layout                            8
+2.2   Pin Description                       8
+2.3   Strapping Pins                        10
+
+3     Functional Descriptions               12
+3.1   CPU and Internal Memory               12
+3.2   External Flash and SRAM               12
+3.3   Crystal Oscillators                   12
+3.4   RTC and Power Consumption             12
+
+4     Peripherals and Sensors               14
+
+
+5     Electrical Characteristics            15
+5.1   Absolute Maximum Ratings              15
+5.2   Recommended Operating Conditions      15
+5.3   DC Characteristics (3.3 V, 25 °C)     15
+5.4   Wi-Fi Radio                           16
+5.5   Bluetooth LE Radio                    17
+      5.5.1   Receiver                      17
+      5.5.2   Transmitter                   17
+5.6   Reflow Profile                        18
+
+6     Schematics                            19
+
+7     Peripheral Schematics                 20
+
+
+8     Package Information                   21
+
+
+9     Related Documentation and Resources   24
+
+Revision History                            25
+List of Tables
+ 1   ESP32-PICO-D4 Specifications        6
+ 2   Pin Description                     8
+ 3   Strapping Pins                      11
+ 4   Absolute Maximum Ratings            15
+ 5   Recommended Operating Conditions    15
+ 6   DC Characteristics (3.3 V, 25 °C)   15
+ 7   Wi-Fi Radio Characteristics         16
+ 8   Receiver Characteristics – BLE      17
+ 9   Transmitter Characteristics – BLE   17
+List of Figures
+ 1   ESP32-PICO-D4 Pin Layout (Top View)          8
+ 2   Reflow Profile                               18
+ 3   ESP32-PICO-D4 Module Schematics              19
+ 4   ESP32-PICO-D4 Module Peripheral Schematics   20
+ 5   ESP32-PICO-D4 Package                        21
+ 6   ESP32-PICO-D4 PCB Land Pattern               22
+ 7   ESP32-PICO-D4 STENCIL                        23
+1 Overview
+
+
+
+1 Overview
+The ESP32-PICO-D4 is a System-in-Package (SiP) module that is based on ESP32, providing complete Wi-Fi
+and Bluetooth® functionalities. The module has a size as small as (7.000±0.100) mm × (7.000±0.100) mm ×
+(0.940±0.100) mm, thus requiring minimal PCB area. The module integrates a 4-MB SPI flash.
+
+At the core of this module is the ESP32 chip*, which is a single 2.4 GHz Wi-Fi and Bluetooth combo chip
+designed with TSMC’s 40 nm ultra-low power technology. ESP32-PICO-D4 integrates all peripheral components
+seamlessly, including a crystal oscillator, flash, filter capacitors and RF matching links in one single package, see
+Section 6: Schematics. Given that no other peripheral components are involved, module welding and testing is
+not required either. As such, ESP32-PICO-D4 reduces the complexity of supply chain and improves control
+efficiency.
+
+With its ultra-small size, robust performance and low-energy consumption, ESP32-PICO-D4 is well suited for any
+space-limited or battery-operated applications, such as wearable electronics, medical equipment, sensors and
+other IoT products.
+
+  Note:
+  * For details on ESP32, please refer to the document ESP32 Datasheet.
+
+
+
+Table 1 provides the specifications of the ESP32-PICO-D4 module.
+
+                                       Table 1: ESP32­PICO­D4 Specifications
+
+ Categories       Items                                  Specifications
+ Certification    Bluetooth certification                BQB
+                                                         802.11 b/g/n (802.11n up to 150 Mbps)
+                  Protocols                              A-MPDU and A-MSDU aggregation and 0.4 µs guard interval
+ Wi-Fi
+                                                         support
+                  Center frequency range of oper-
+                                                         2412 ~ 2484 MHz
+                  ating channel
+                  Protocols                              Bluetooth V4.2 BR/EDR and Bluetooth LE specification
+                                                         NZIF receiver with –97 dBm sensitivity
+ Bluetooth        Radio                                  Class-1, class-2 and class-3 transmitter
+                                                         AFH
+                  Audio                                  CVSD and SBC
+                                                         ADC, DAC, touch sensor, SD/SDIO/MMC Host Controller,
+                                                         SPI, SDIO/SPI Slave Controller, EMAC, motor PWM, LED
+                  Module interfaces                      PWM, UART, I2C, I2S, infrared remote controller, GPIO,
+                                                         pulse counter, TWAI® (compatible with ISO 11898-1, i.e.
+                                                         CAN Specification 2.0)
+                  On-chip sensor                         Hall sensor
+ Hardware         Integrated crystal                     40 MHz crystal
+                  Integrated SPI flash                   4 MB
+                  Operating voltage/Power supply         3.0 V ~ 3.6 V
+                  Operating current                      Average: 80 mA
+
+
+
+
+Espressif Systems                                          6                              ESP32-PICO-D4 Datasheet v2.0
+                                            Submit Documentation Feedback
+1 Overview
+
+
+ Categories     Items                              Specifications
+                Minimum current delivered by
+                                                   500 mA
+                power supply
+                Operating ambient temperature      –40 °C ~ 85 °C
+                Package size                       (7.000±0.100) mm×(7.000±0.100) mm×(0.940±0.100) mm
+                Moisture sensitivity level (MSL)   Level 3
+
+
+
+
+Espressif Systems                                    7                        ESP32-PICO-D4 Datasheet v2.0
+                                        Submit Documentation Feedback
+2 Pin Definitions
+
+
+
+2 Pin Definitions
+
+2.1 Pin Layout
+
+
+
+
+                             CAP1_NC   CAP2_NC           XTAL_P_NC   XTAL_N_NC                                                     VDD3P3_CPU
+                                                 VDDA                            VDDA   IO21         U0TXD   U0RXD   IO22   IO19
+
+                             48        47        46      45          44          43     42           41      40      39     38     37
+
+
+
+             VDDA        1                                                                                                                           36   IO23
+
+           LNA_IN        2                                                                                                                           35   IO18
+
+          VDDA3P3        3                                                                                                                           34   IO5
+
+          VDDA3P3        4                                                                                                                           33   SD1
+
+        SENSOR_VP        5                                                                                                                           32   SD0
+
+    SENSOR_CAPP          6                                                                                                                           31   CLK
+                                                                                 49 GND
+    SENSOR_CAPN          7                                                                                                                           30   CMD
+
+       SENSOR_VN         8                                                                                                                           29   SD3
+
+               EN        9                                                                                                                           28   SD2
+
+              IO34   10                                                                                                                              27   IO17
+
+              IO35   11                                                                                                                              26   VDD_SDIO
+
+              IO32   12                                                                                                                              25   IO16
+
+
+
+                             13        14        15      16          17          18     19           20      21      22     23     24
+
+
+                             IO33      IO25      IO26    IO27        IO14        IO12
+
+
+                                                                                        VDD3P3_RTC
+                                                                                                     IO13    IO15    IO2    IO0    IO4
+
+
+
+
+                             Figure 1: ESP32­PICO­D4 Pin Layout (Top View)
+
+
+
+2.2 Pin Description
+The ESP32-PICO-D4 module has 48 pins. See pin definitions in Table 2.
+
+                                                        Table 2: Pin Description
+
+ Name                No.     Type                Function
+ VDDA                1       P                   Analog power supply (2.3 V ~ 3.6 V)
+ LNA_IN              2       I/O                 RF input and output
+
+
+Espressif Systems                                                                  8                                                            ESP32-PICO-D4 Datasheet v2.0
+                                                  Submit Documentation Feedback
+2 Pin Definitions
+
+
+ Name               No.   Type   Function
+ VDDA3P3            3     P      Analog power supply (2.3 V ~ 3.6 V)
+ VDDA3P3            4     P      Analog power supply (2.3 V ~ 3.6 V)
+ SENSOR_VP          5     I      GPIO36, ADC1_CH0, RTC_GPIO0
+ SENSOR_CAPP        6     I      GPIO37, ADC1_CH1, RTC_GPIO1
+ SENSOR_CAPN        7     I      GPIO38, ADC1_CH2, RTC_GPIO2
+ SENSOR_VN          8     I      GPIO39, ADC1_CH3, RTC_GPIO3
+                                 High: On; enables the module
+ EN                 9     I      Low: Off; the module powers off
+                                 Note: Do not leave this pin floating.
+ IO34               10    I      GPIO34, ADC1_CH6, RTC_GPIO4
+ IO35               11    I      GPIO35, ADC1_CH7, RTC_GPIO5
+                                 GPIO32, 32K_XP (32.768 kHz crystal oscillator input), ADC1_CH4,
+ IO32               12    I/O
+                                 TOUCH9, RTC_GPIO9
+                                 GPIO33, 32K_XN (32.768 kHz crystal oscillator output), ADC1_CH5,
+ IO33               13    I/O
+                                 TOUCH8, RTC_GPIO8
+ IO25               14    I/O    GPIO25, DAC_1, ADC2_CH8, RTC_GPIO6, EMAC_RXD0
+ IO26               15    I/O    GPIO26, DAC_2, ADC2_CH9, RTC_GPIO7, EMAC_RXD1
+ IO27               16    I/O    GPIO27, ADC2_CH7, TOUCH7, RTC_GPIO17, EMAC_RX_DV
+                                 GPIO14, ADC2_CH6, TOUCH6, RTC_GPIO16, MTMS, HSPICLK,
+ IO14               17    I/O
+                                 HS2_CLK, SD_CLK, EMAC_TXD2
+                                 GPIO12, ADC2_CH5, TOUCH5, RTC_GPIO15, MTDI, HSPIQ,
+ IO12               18    I/O
+                                 HS2_DATA2, SD_DATA2, EMAC_TXD3
+ VDD3P3_RTC         19    P      Input power supply for RTC IO (3.0 V ~ 3.6 V)
+                                 GPIO13, ADC2_CH4, TOUCH4, RTC_GPIO14, MTCK, HSPID,
+ IO13               20    I/O
+                                 HS2_DATA3, SD_DATA3, EMAC_RX_ER
+                                 GPIO15, ADC2_CH3, TOUCH3, RTC_GPIO13, MTDO, HSPICS0,
+ IO15               21    I/O
+                                 HS2_CMD, SD_CMD, EMAC_RXD3
+                                 GPIO2, ADC2_CH2, TOUCH2, RTC_GPIO12, HSPIWP, HS2_DATA0,
+ IO2                22    I/O
+                                 SD_DATA0
+                                 GPIO0, ADC2_CH1, TOUCH1, RTC_GPIO11, CLK_OUT1,
+ IO0                23    I/O
+                                 EMAC_TX_CLK
+                                 GPIO4, ADC2_CH0, TOUCH0, RTC_GPIO10, HSPIHD, HS2_DATA1,
+ IO4                24    I/O
+                                 SD_DATA1, EMAC_TX_ER
+ IO16               25    I/O    GPIO16, HS1_DATA4, U2RXD, EMAC_CLK_OUT
+ VDD_SDIO           26    P      Output power supply. See note 1 under the table.
+ IO17               27    I/O    GPIO17, HS1_DATA5, U2TXD, EMAC_CLK_OUT_180
+ SD2                28    I/O    GPIO9, SD_DATA2, SPIHD, HS1_DATA2, U1RXD
+ SD3                29    I/O    GPIO10, SD_DATA3, SPIWP, HS1_DATA3, U1TXD
+ CMD                30    I/O    GPIO11, SD_CMD, SPICS0, HS1_CMD, U1RTS
+ CLK                31    I/O    GPIO6, SD_CLK, SPICLK, HS1_CLK, U1CTS
+ SD0                32    I/O    GPIO7, SD_DATA0, SPIQ, HS1_DATA0, U2RTS
+ SD1                33    I/O    GPIO8, SD_DATA1, SPID, HS1_DATA1, U2CTS
+ IO5                34    I/O    GPIO5, VSPICS0, HS1_DATA6, EMAC_RX_CLK
+ IO18               35    I/O    GPIO18, VSPICLK, HS1_DATA7
+
+
+Espressif Systems                                9                               ESP32-PICO-D4 Datasheet v2.0
+                                  Submit Documentation Feedback
+2 Pin Definitions
+
+
+ Name                 No.       Type       Function
+ IO23                 36        I/O        GPIO23, VSPID, HS1_STROBE
+ VDD3P3_CPU           37        P          Input power supply for CPU IO (1.8 V ~ 3.6 V)
+ IO19                 38        I/O        GPIO19, VSPIQ, U0CTS, EMAC_TXD0
+ IO22                 39        I/O        GPIO22, VSPIWP, U0RTS, EMAC_TXD1
+ U0RXD                40        I/O        GPIO3, U0RXD, CLK_OUT2
+ U0TXD                41        I/O        GPIO1, U0TXD, CLK_OUT3, EMAC_RXD2
+ IO21                 42        I/O        GPIO21, VSPIHD, EMAC_TX_EN
+ VDDA                 43        P          Analog power supply (2.3 V ~ 3.6 V)
+ XTAL_N_NC            44        -          NC
+ XTAL_P_NC            45        -          NC
+ VDDA                 46        P          Analog power supply (2.3 V ~ 3.6 V)
+ CAP2_NC              47        -          NC
+ CAP1_NC              48        -          NC
+
+
+  Notice:
+
+     1. Note that the embedded flash is connected to VDD_SDIO which is driven directly by VDD3P3_RTC through a 6 Ω
+        resistor. Due to this resistor, there is some voltage drop on this pin from VDD3P3_RTC.
+
+     2. Pins IO16, IO17, CMD, CLK, SD0 and SD1 are used to connect the embedded flash, and can not be used for
+        other purposes. For details, please see Section 6 Schematics.
+
+     3. For connecting external PSRAM, SD3 (GPIO10) is recommended for PSRAM_CS. For details, please see Section
+        7 Peripheral Schematics.
+
+
+
+
+2.3 Strapping Pins
+ESP32 has five strapping pins, which can be seen in Chapter 6 Schematics:
+
+   • MTDI
+
+   • GPIO0
+
+   • GPIO2
+
+   • MTDO
+
+   • GPIO5
+
+Software can read the values of these five bits from register ”GPIO_STRAPPING”.
+
+During the chip’s system reset release (power-on-reset, RTC watchdog reset and brownout reset), the latches of
+the strapping pins sample the voltage level as strapping bits of ”0” or ”1”, and hold these bits until the chip is
+powered down or shut down. The strapping bits configure the device’s boot mode, the operating voltage of
+VDD_SDIO and other initial system settings.
+
+Each strapping pin is connected to its internal pull-up/pull-down during the chip reset. Consequently, if a
+strapping pin is unconnected or the connected external circuit is high-impedance, the internal weak
+pull-up/pull-down will determine the default input level of the strapping pins.
+
+To change the strapping bit values, users can apply the external pull-down/pull-up resistances, or use the host
+MCU’s GPIOs to control the voltage level of these pins when powering on ESP32.
+
+
+Espressif Systems                                           10                                    ESP32-PICO-D4 Datasheet v2.0
+                                            Submit Documentation Feedback
+2 Pin Definitions
+
+
+After reset release, the strapping pins work as normal-function pins.
+
+Refer to Table 3 for a detailed boot-mode configuration by strapping pins.
+
+                                                Table 3: Strapping Pins
+
+                                           Voltage of Internal LDO (VDD_SDIO)
+                 Pin          Default                   3.3 V                            1.8 V
+                 MTDI       Pull-down                    0                                 1
+                                                        Booting Mode
+                 Pin          Default                 SPI Boot                     Download Boot
+                 GPIO0        Pull-up                    1                                 0
+                 GPIO2      Pull-down                Don’t-care                            0
+                         Enabling/Disabling Debugging Log Print over U0TXD During Booting
+                 Pin          Default               U0TXD Active                      U0TXD Silent
+                 MTDO         Pull-up                    1                                 0
+                                                    Timing of SDIO Slave
+                                           FE Sampling       FE Sampling   RE Sampling         RE Sampling
+                 Pin          Default       FE Output        RE Output       FE Output           RE Output
+                 MTDO         Pull-up           0                    0            1                  1
+                 GPIO5        Pull-up           0                    1            0                  1
+
+
+
+  Note:
+      • Firmware can configure register bits to change the settings of ”Voltage of Internal LDO (VDD_SDIO)” and ”Timing
+          of SDIO Slave”, after booting.
+
+      • The operating voltage of ESP32-PICO-D4’s integrated external SPI flash is 3.3 V. Therefore, the strapping pin MTDI
+          should hold bit ”0” during the module power-on reset.
+
+
+
+
+Espressif Systems                                               11                               ESP32-PICO-D4 Datasheet v2.0
+                                              Submit Documentation Feedback
+3 Functional Descriptions
+
+
+
+3 Functional Descriptions
+This chapter describes the modules integrated in ESP32-PICO-D4, and their functions.
+
+
+3.1 CPU and Internal Memory
+ESP32 contains two low-power Xtensa® 32-bit LX6 microprocessors. The internal memory includes:
+
+   • 448 KB of ROM for booting and core functions.
+
+   • 520 KB of on-chip SRAM for data and instructions.
+
+   • 8 KB of SRAM in RTC, which is called RTC FAST Memory and can be used for data storage; it is accessed
+     by the main CPU during RTC Boot from the Deep-sleep mode.
+
+   • 8 KB of SRAM in RTC, which is called RTC SLOW Memory and can be accessed by the co-processor
+     during the Deep-sleep mode.
+
+   • 1 Kbit of eFuse: 256 bits are used for the system (MAC address and chip configuration) and the remaining
+     768 bits are reserved for customer applications, including flash-encryption and chip-ID.
+
+
+3.2 External Flash and SRAM
+ESP32 supports multiple external QSPI flash and SRAM chips. More details can be found in Chapter SPI in the
+ESP32 Technical Reference Manual. ESP32 also supports hardware encryption/decryption based on AES to
+protect developers’ programs and data in flash.
+
+ESP32 can access the external QSPI flash and SRAM through high-speed caches.
+
+   • The external flash can be mapped into CPU instruction memory space and read-only memory space
+     simultaneously.
+
+         – When external flash is mapped into CPU instruction memory space, up to 11 MB + 248 KB can be
+           mapped at a time. Note that if more than 3 MB + 248 KB are mapped, cache performance will be
+           reduced due to speculative reads by the CPU.
+
+         – When external flash is mapped into read-only data memory space, up to 4 MB can be mapped at a
+           time. 8-bit, 16-bit and 32-bit reads are supported.
+
+   • External SRAM can be mapped into CPU data memory space. Up to 4 MB can be mapped at a time.
+     8-bit, 16-bit and 32-bit reads and writes are supported.
+
+The ESP32-PICO-D4 module integrates 4 MB of external SPI flash.
+
+
+3.3 Crystal Oscillators
+ESP32-PICO-D4 integrates a 40 MHz crystal oscillator.
+
+
+3.4 RTC and Power Consumption
+With the use of advanced power-management technologies, ESP32 can switch between different power
+modes.
+
+
+
+
+Espressif Systems                                       12                            ESP32-PICO-D4 Datasheet v2.0
+                                         Submit Documentation Feedback
+3 Functional Descriptions
+
+
+For details on ESP32’s power consumption in different power modes, please refer to section ”RTC and
+Low-Power Management” in ESP32 Datasheet.
+
+
+
+
+Espressif Systems                                    13                            ESP32-PICO-D4 Datasheet v2.0
+                                       Submit Documentation Feedback
+4 Peripherals and Sensors
+
+
+
+4 Peripherals and Sensors
+Please refer to Section Peripherals and Sensors in ESP32 Datasheet.
+
+  Note:
+
+     • Pins IO16, IO17, CMD, CLK, SD0 and SD1 are used for connecting the embedded flash, and are not recommended
+          for other uses. For details, please see Section 6 Schematics.
+
+     • For connecting external PSRAM, SD3 (GPIO10) is recommended for PSRAM_CS. For details, please see Section
+          7 Peripheral Schematics.
+
+
+
+
+Espressif Systems                                             14                        ESP32-PICO-D4 Datasheet v2.0
+                                              Submit Documentation Feedback
+5 Electrical Characteristics
+
+
+
+5 Electrical Characteristics
+
+5.1 Absolute Maximum Ratings
+Stresses beyond the absolute maximum ratings listed in the table below may cause permanent damage to the
+device. These are stress ratings only, and do not refer to the functional operation of the device that should follow
+the recommended operating conditions.
+
+                                          Table 4: Absolute Maximum Ratings
+
+ Symbol                           Parameter                            Min                Max                      Unit
+ VDD33                            Power supply voltage                 –0.3               3.6                      V
+           1
+ Ioutput                          Cumulative IO output current         -                  1,100                    mA
+ Tstore                           Storage temperature                  –40                85                       °C
+
+     1. The module worked properly after a 24-hour test in ambient temperature at 25 °C, and the IOs in three domains
+        (VDD3P3_RTC, VDD3P3_CPU, VDD_SDIO) output high logic level to ground. Please note that pins occupied by flash
+        and/or PSRAM in the VDD_SDIO power domain were excluded from the test.
+     2. Please see Appendix IO_MUX of ESP32 Datasheet for IO’s power domain.
+
+
+
+
+5.2 Recommended Operating Conditions
+
+                                    Table 5: Recommended Operating Conditions
+
+ Symbol             Parameter                                          Min          Typical           Max                    Unit
+ VDD33              Power supply voltage                               3.0          3.3               3.6                    V
+ IV DD              Current delivered by external power supply         0.5          -                 -                      A
+ T                  Operating ambient temperature                      –40          -                 85                     °C
+
+
+5.3 DC Characteristics (3.3 V, 25 °C)
+
+                                           Table 6: DC Characteristics (3.3 V, 25 °C)
+
+ Symbol                                       Parameter                                   Min                 Typ       Max              Unit
+ CIN            Pin capacitance                                                           -                   2         -                pF
+                                                                                                          1                      1
+ VIH            High-level input voltage                                                  0.75×VDD            -         VDD +0.3         V
+                                                                                                                                     1
+ VIL            Low-level input voltage                                                   –0.3                -         0.25×VDD         V
+ IIH            High-level input current                                                  -                   -         50               nA
+ IIL            Low-level input current                                                   -                   -         50               nA
+ VOH            High-level output voltage                                                 0.8×VDD1            -         -                V
+ VOL            Low-level output voltage                                                  -                   -         0.1×VDD1         V
+                High-level source current          VDD3P3_CPU power domain 1, 2           -                   40        -                mA
+                      1                                                          1, 2
+                (VDD = 3.3 V, VOH >= 2.64 V,       VDD3P3_RTC power domain                -                   40        -                mA
+ IOH
+                output drive strength set to the
+                                                   VDD_SDIO power domain 1, 3             -                   20        -                mA
+                maximum)
+
+
+
+
+Espressif Systems                                          15                                   ESP32-PICO-D4 Datasheet v2.0
+                                             Submit Documentation Feedback
+5 Electrical Characteristics
+
+
+ Symbol                                      Parameter                                     Min             Typ       Max       Unit
+               Low-level sink current
+ IOL           (VDD1 = 3.3 V, VOL = 0.495 V,                                               -               28        -         mA
+               output drive strength set to the maximum)
+ RP U          Resistance of internal pull-up resistor                                     -               45        -         kΩ
+ RP D          Resistance of internal pull-down resistor                                   -               45        -         kΩ
+ VIL_nRST      Low-level input voltage of CHIP_PU to power off the chip                    -               -         0.6       V
+
+Notes:
+
+  1. Please see Appendix IO_MUX of ESP32 Datasheet for IO’s power domain. VDD is the I/O voltage for a particular power
+     domain of pins.
+  2. For VDD3P3_CPU and VDD3P3_RTC power domain, per-pin current sourced in the same domain is gradually reduced
+     from around 40 mA to around 29 mA, VOH >=2.64 V, as the number of current-source pins increases.
+  3. Pins occupied by flash and/or PSRAM in the VDD_SDIO power domain were excluded from the test.
+
+
+
+
+5.4 Wi­Fi Radio
+
+                                         Table 7: Wi­Fi Radio Characteristics
+
+ Description                                           Min                 Typical         Max                  Unit
+ Center frequency range of operating channel           2412                -               2484                 MHz
+ note1
+
+ Output impedance note2                                -                   50              -                    Ω
+                                                                   note3
+                                                      TX power
+ Output power of PA for 72.2 Mbps                      13                  14              15                   dBm
+ Output power of PA for 11b mode                       19.5                20              20.5                 dBm
+                                                           Sensitivity
+ DSSS, 1 Mbps                                          -                   –98             -                    dBm
+ CCK, 11 Mbps                                          -                   –91             -                    dBm
+ OFDM, 6 Mbps                                          -                   –93             -                    dBm
+ OFDM, 54 Mbps                                         -                   –75             -                    dBm
+ HT20, MCS0                                            -                   –93             -                    dBm
+ HT20, MCS7                                            -                   –73             -                    dBm
+ HT40, MCS0                                            -                   –90             -                    dBm
+ HT40, MCS7                                            -                   –70             -                    dBm
+ MCS32                                                 -                   –89             -                    dBm
+                                               Adjacent channel rejection
+ OFDM, 6 Mbps                                          -                   37              -                    dB
+ OFDM, 54 Mbps                                         -                   21              -                    dB
+ HT20, MCS0                                            -                   37              -                    dB
+ HT20, MCS7                                            -                   20              -                    dB
+  1. Device should operate in the center frequency range allocated by regional regulatory authorities. Target center
+     frequency range is configurable by software.
+  2. For the modules that use external antennas, the output impedance is 50 Ω. For other modules without external
+     antennas, users do not need to concern about the output impedance.
+  3. Target TX power is configurable based on device or certification requirements.
+
+
+Espressif Systems                                             16                                ESP32-PICO-D4 Datasheet v2.0
+                                            Submit Documentation Feedback
+5 Electrical Characteristics
+
+
+
+5.5 Bluetooth LE Radio
+5.5.1 Receiver
+
+                                     Table 8: Receiver Characteristics – BLE
+
+ Parameter                                         Conditions               Min     Typ       Max        Unit
+ Sensitivity @30.8% PER                            -                        -       –97       -          dBm
+ Maximum received signal @30.8% PER                -                        0       -         -          dBm
+ Co-channel C/I                                    -                        -       +10       -          dB
+                                                   F = F0 + 1 MHz           -       –5        -          dB
+                                                   F = F0 – 1 MHz           -       –5        -          dB
+                                                   F = F0 + 2 MHz           -       –25       -          dB
+ Adjacent channel selectivity C/I
+                                                   F = F0 – 2 MHz           -       –35       -          dB
+                                                   F = F0 + 3 MHz           -       –25       -          dB
+                                                   F = F0 – 3 MHz           -       –45       -          dB
+                                                   30 MHz ~ 2000 MHz        –10     -         -          dBm
+                                                   2000 MHz ~ 2400 MHz      –27     -         -          dBm
+ Out-of-band blocking performance
+                                                   2500 MHz ~ 3000 MHz      –27     -         -          dBm
+                                                   3000 MHz ~ 12.5 GHz      –10     -         -          dBm
+ Intermodulation                                   -                        –36     -         -          dBm
+
+
+
+5.5.2 Transmitter
+
+                                    Table 9: Transmitter Characteristics – BLE
+
+  Parameter                                   Conditions            Min     Typ         Max       Unit
+  RF transmit power                           -                     -       0           -         dBm
+  Gain control step                           -                     -       3           -         dBm
+  RF power control range                      -                     –12     -           +9        dBm
+                                              F = F0 ± 2 MHz        -       –52         -         dBm
+  Adjacent channel transmit power             F = F0 ± 3 MHz        -       –58         -         dBm
+                                              F = F0 ± > 3 MHz      -       –60         -         dBm
+  ∆ f 1avg                                    -                     -       -           265       kHz
+  ∆ f 2max                                    -                     247     -           -         kHz
+  ∆ f 2avg /∆ f 1avg                          -                     -       –0.92       -         -
+  ICFT                                        -                     -       –10         -         kHz
+  Drift rate                                  -                     -       0.7         -         kHz/50 µs
+  Drift                                       -                     -       2           -         kHz
+
+
+
+
+Espressif Systems                                      17                           ESP32-PICO-D4 Datasheet v2.0
+                                          Submit Documentation Feedback
+5 Electrical Characteristics
+
+
+
+5.6 Reflow Profile
+
+
+
+
+   Temperature (℃)
+
+                                                                                                   Peak Temp.
+                                                                                                   235 ~ 250 ℃
+   250
+                                               Preheating zone                                  Reflow zone            Cooling zone
+                                         150 ~ 200 ℃      60 ~ 120 s                          !217 ℃ 60 ~ 90 s          –1 ~ –5 ℃/s
+   217
+   200
+                                                                                                   Soldering time
+                                                                                                       > 30 s
+
+                         Ramp-up zone
+                           1 ~ 3 ℃/s
+   100
+
+
+
+    50
+
+    25
+                                                                                                                       Time (sec.)
+             0
+                     0              50                 100               150            200                      250
+
+            Ramp-up zone — Temp.: 25 ~ 150 ℃ Time: 60 ~ 90 s Ramp-up rate: 1 ~ 3 ℃/s
+            Preheating zone — Temp.: 150 ~ 200 ℃ Time: 60 ~ 120 s
+            Reflow zone — Temp.: >217 ℃ 7LPH60 ~ 90 s; Peak Temp.: 235 ~ 250 ℃ Time: 30 ~ 70 s
+            Cooling zone — Peak Temp. ~ 180 ℃ Ramp-down rate: –1 ~ –5 ℃/s
+            Solder — Sn-Ag-Cu (SAC305) lead-free solder alloy
+
+
+
+                                                             Figure 2: Reflow Profile
+
+  Note:
+  Solder the module in a single reflow.
+
+
+
+
+Espressif Systems                                                      18                               ESP32-PICO-D4 Datasheet v2.0
+                                                        Submit Documentation Feedback
+6 Schematics
+                                                                            Figure 3: ESP32­PICO­D4 Module Schematics
+ 6 Schematics
+Espressif Systems                19                 ESP32-PICO-D4 Datasheet v2.0
+                    Submit Documentation Feedback
+    7 Peripheral Schematics
+
+
+
+    7 5
+      Peripheral Schematics
+                   4                                                                                            3                                         2                                                          1
+
+
+
+
+D      VDD33                                                                                                                                           VDD33
+                                                                                                                                                                                                                                      D
+                                                                                                                                                                       JP2
+                                                                                                                                          IO21                     1
+                                                                                                                                          U0TXD                    2   1
+                                                                                                                                          U0RXD                    3   2
+                                 C1                  C2
+                                                                                                                                          IO22                     4   3
+                                 10uF/6.3V(10%)      0.1uF/6.3V(10%)                                                                      IO19                         4
+                                                                                                                                                                       UART
+
+                                GND               GND                   GND            49                                                                 GND
+                                                                                              48
+                                                                                              47
+                                                                                              46
+                                                                                              45
+                                                                                              44
+                                                                                              43
+                                                                                              42
+                                                                                              41
+                                                                                              40
+                                                                                                                                     VDD33
+                                                                                              39
+                                                                                              38
+                                                                                              37
+                                                                                                    CAP1_NC
+                                                                                        GND
+                                                                                                    CAP2_NC
+                                                                                                       VDDA                                                                                              VDD_SDIO
+                                                                                                  XTAL_P_NC
+                                                                                                  XTAL_N_NC
+                                                                                                       VDDA
+                                                                                                        IO21                                                                                                  C5
+                                                                                                      U0TXD                                                                                                                     GND
+                                                                                                      U0RXD
+                                                                                                        IO22
+                                                                                                        IO19                                                                                                  0.1uF/6.3V(10%)
+                                                                             1                   VDD3P3_CPU                    36                          PSRAM_CS           1                      8
+        ANT                                                                                                                               IO23
+               1         ANT1     L1           TBD        LAN_IN             2     VDDA                              IO23      35         IO18             SIO1               2   CS#       VDD      7        SIO3
+               2                                                             3     LNA_IN                            IO18      34         IO5              SIO2               3   SO/SIO1 SIO3       6        SCLK
+C                           C3                 C4                            4     VDDA3P3                             IO5     33         SIO0                                4   SIO2     SCLK      5        SIO0                    C
+                                                          SENSOR_VP          5     VDDA3P3                            SD1      32         SIO2                                    VSS    SI/SIO0
+                           TBD                 TBD        SENSOR_CAPP        6     SENSOR_VP                          SD0      31         SCLK                                    U2         pSRAM
+                                                          SENSOR_CAPN        7     SENSOR_CAPP                        CLK      30         SIO3
+                                                          SENSOR_VN          8     SENSOR_CAPN                       CMD       29         PSRAM_CS             GND
+                    GND         GND                       EN                 9     SENSOR_VN                          SD3      28         IO9
+                                                  GND                              EN                                 SD2
+                                                          IO34              10                                                 27         SIO1
+                                                          IO35              11     IO34                              IO17      26
+                                                          IO32              12     IO35                          VDD_SDIO      25         FLASH_CS
+                                                                                   IO32                              IO16
+                                                                                                 IO33
+                                                                                                 IO25
+                                                                                                 IO26
+                                                                                                 IO27                               VDD_SDIO
+                                                                                                 IO14
+                                                                                                 IO12
+                                                                                                 VDD3P3_RTC
+                                                                                                 IO13                                                     SPI/QPI             ESP32-PICO-D4 Flash(3.3V)       pSRAM(3.3V)
+                                                                                                 IO15
+                                      VDD33                                                      IO2
+                                                                                                 IO0                                                   Interface Signal        Module Pin   (Internal)Signal (External) Signal
+                                                                                                 IO4
+                                                                                                                                     VDD33                 Clock                       CLK           CLK                 SCLK
+                                                                                  U1          13
+                                                                                              14
+                                                                                              15
+                                                                                              16
+                                                                                              17
+                                                                                              18               ESP32-PICO-D4
+                                                                                              19
+                                                                                              20
+                                                                                              21
+                                                                                              22
+                                                                                              23
+                                                                                              24
+                                                                                                                                                     Flash Chip Select             IO16            FLASH_CS               -
+                                         R2
+                                                                                                                                                     pSRAM Chip Select                 SD3               -           PSRAM_CS
+B                  SW1
+                                         TBD                                                                                                                                                                                          B
+                                                                                                                                                        SI/SIO[0]                      SD1               SI              SIO0
+                                         R3          0R(1%)        EN                         IO33    IO13
+                                                                                              IO25
+                                                                                              IO26    IO15
+                                                                                              IO27    IO2
+                                                                                                      IO0                                                SO/SIO[1]                 IO17                  SO              SIO1
+            Reset Button                                                                      IO14
+                                                                                              IO12    IO4
+                                                                                                                     JP1
+                                         C6                                 JP3                                                                                                                                          SIO2
+                                                                                                                                                         WP/SIO[2]                     SD0               WP
+                                                                                   1                             1
+                                         TBD                                  1    2                             2   1
+                                                                              2                                      2                                  HOLD/SIO[3]                    CMD           HOLD                SIO3
+                                                                                   3
+                                                                              3    4                             Boot Option
+                                                                              4
+      GND                             GND                                   JTAG                         GND
+
+
+
+
+                                                           Figure 4: ESP32­PICO­D4 Module Peripheral Schematics
+A                                                                                                                                                                                                                                     A
+
+      Note:
+      To ensure the power supply to the ESP32 chip during power-up, it is advised to add an RC delay circuit at the EN pin. The
+                   5                                                    4                                       3                                         2                                                          1
+      recommended setting for the RC delay circuit is usually R = 10 kΩ and C = 1 µF. However, specific parameters should
+      be adjusted based on the power-up timing of the module and the power-up and reset sequence timing of the chip. For
+      ESP32’s power-up and reset sequence timing diagram, please refer to Section Power Scheme in ESP32 Datasheet.
+
+
+
+
+    Espressif Systems                                                                                          20                                                            ESP32-PICO-D4 Datasheet v2.0
+                                                                                              Submit Documentation Feedback
+8 Package Information
+
+
+
+8 Package Information
+
+
+
+
+                        Figure 5: ESP32­PICO­D4 Package
+
+
+
+
+Espressif Systems                       21                 ESP32-PICO-D4 Datasheet v2.0
+                           Submit Documentation Feedback
+8 Package Information
+
+
+
+
+                    48                                                     37
+
+
+
+          1                                                                         36
+                    C0.5               GND Via Ø0.25
+
+
+
+
+                                               49
+                                                                                      0.50      2.10   4.00   4.50   6.73
+
+
+
+
+                                                                                          R0.
+                                                                                             05
+                     0.25
+
+
+          12                                                                         25
+        0.68
+
+
+
+
+                    13                           0.50                      24
+                                                 2.10
+                                                 4.00
+                                                 4.50
+                                                 6.73
+
+
+
+
+                                                                           Copper
+                            0.78
+
+
+                                                                           Solder mask opening
+           0.35
+
+                            0.68                                           Via
+                                        0.25
+
+         Details of recommended copper-defined pad.                        Unit: mm
+                                                                           Tolerance: +/- 0.05 mm
+
+
+      Notes:
+       1. It is recommended to use copper-defined pad for Pin 1 to Pin 48 and
+            solder-mask-defined pad for Pin 49 (thermal pad).
+       2. This drawing is subject to change without notice.
+
+
+                                   Figure 6: ESP32­PICO­D4 PCB Land Pattern
+
+
+Espressif Systems                                       22                           ESP32-PICO-D4 Datasheet v2.0
+                                           Submit Documentation Feedback
+8 Package Information
+
+
+
+
+                                                                    0.30   1.80    2.40   3.90   6.05   7.00   7.71
+
+
+
+
+                                   0.30
+
+                                   1.80
+
+                                   2.40
+                                   3.90
+                                   6.05
+                                   7.00
+                                   7.71
+
+
+
+
+                                                           Copper
+     Notes:
+      1. It is recommended to use a stencil of 80 um
+           thickness.                                      Paste mask opening
+      2. This drawing is subject to change without
+           notice.
+                                                           Recommended via drill size: 0.25 mm
+
+                                                           Unit: mm
+                                                           Tolerance: +/- 0.05 mm
+
+
+
+
+                              Figure 7: ESP32­PICO­D4 STENCIL
+
+
+Espressif Systems                              23                                 ESP32-PICO-D4 Datasheet v2.0
+                                  Submit Documentation Feedback
+9 Related Documentation and Resources
+
+
+
+9 Related Documentation and Resources
+Related Documentation
+   • ESP32 Technical Reference Manual – Detailed information on how to use the ESP32 memory and peripherals.
+   • ESP32 Hardware Design Guidelines – Guidelines on how to integrate the ESP32 into your hardware product.
+   • ESP32 ECO and Workarounds for Bugs – Correction of ESP32 design errors.
+   • Certificates
+     https://espressif.com/en/support/documents/certificates
+   • ESP32 Product/Process Change Notifications (PCN)
+     https://espressif.com/en/support/documents/pcns
+   • ESP32 Advisories – Information on security, bugs, compatibility, component reliability.
+     https://espressif.com/en/support/documents/advisories
+   • Documentation Updates and Update Notification Subscription
+     https://espressif.com/en/support/download/documents
+
+Developer Zone
+   • ESP-IDF Programming Guide for ESP32 – Extensive documentation for the ESP-IDF development framework.
+   • ESP-IDF and other development frameworks on GitHub.
+     https://github.com/espressif
+   • ESP32 BBS Forum – Engineer-to-Engineer (E2E) Community for Espressif products where you can post questions,
+     share knowledge, explore ideas, and help solve problems with fellow engineers.
+     https://esp32.com/
+   • The ESP Journal – Best Practices, Articles, and Notes from Espressif folks.
+     https://blog.espressif.com/
+   • See the tabs SDKs and Demos, Apps, Tools, AT Firmware.
+     https://espressif.com/en/support/download/sdks-demos
+
+Products
+   • ESP32 Series SoCs – Browse through all ESP32 SoCs.
+     https://espressif.com/en/products/socs?id=ESP32
+   • ESP32 Series Modules – Browse through all ESP32-based modules.
+     https://espressif.com/en/products/modules?id=ESP32
+   • ESP32 Series DevKits – Browse through all ESP32-based devkits.
+     https://espressif.com/en/products/devkits?id=ESP32
+   • ESP Product Selector – Find an Espressif hardware product suitable for your needs by comparing or applying filters.
+     https://products.espressif.com/#/product-selector?language=en
+
+Contact Us
+   • See the tabs Sales Questions, Technical Enquiries, Circuit Schematic & PCB Design Review, Get Samples
+     (Online stores), Become Our Supplier, Comments & Suggestions.
+     https://espressif.com/en/contact-us/sales-questions
+
+
+
+
+Espressif Systems                                           24                                 ESP32-PICO-D4 Datasheet v2.0
+                                            Submit Documentation Feedback
+Revision History
+
+
+
+Revision History
+
+ Date          Version   Release notes
+                         Upgraded document formatting
+ 2022.04       v2.0      Updated the description to TWAI® in Table 1
+                         Updated Table 4
+                         Deleted Reset Circuit and Discharge Circuit for VDD33 Rail.
+ 2021.02       V1.9      Modified the note below Figure 2: Reflow Profile.
+                         Updated the trade mark from TWAI™ to TWAI® .
+                         Added TWAITM in Table 1.
+                         Updated Table 2.
+ 2020.11       V1.8
+                         Updated the C value in RC circuit from 0.1 µF to 1 µF.
+                         Added Figure 6 and Figure 7.
+                            • Changed the voltage range of pin VDD3P3_RTC to be consistent with the
+                                  supply voltage range.
+ 2019.12       V1.7         • Added a note about pin VDD_SDIO under Table 2.2.
+                            • Added a note under Figure 2: Reflow Profile.
+                            • Added documentation feedback link.
+                            • Changed the supply voltage range from 2.7 V ~ 3.6 V to 3.0 V ~ 3.6 V;
+                            • Added Bluetooth certification and Moisture sensitivity level (MSL) 3 in Table 1
+                                  ESP32-PICO-D4 Specifications;
+ 2019.09       V1.6         • Added notes about ”Operating frequency range” and ”TX power” under Table
+                                  7 Wi-Fi Radio Characteristics;
+                            • Updated Section 7 Peripheral Schematics and added a note about RC delay
+                                  circuit under it.
+                         Updated the note under Table 2 and that in Section 4;
+                         Updated the ESP32-PICO-D4 Module Peripheral Schematics in Chapter 7 by adding
+ 2019.01       V1.5
+                         the connection between the module and external PSRAM;
+                         Changed the RF power control range in Table 9 from –12 ~ +12 to –12 ~ +9 dBm.
+                         Removed software-specific information from Table 1: ESP32-PICO-D4 Specifica-
+                         tions;
+ 2018.10       V1.4
+                         Added ”Cumulative IO output current” entry to Table 4: Absolute Maximum Ratings;
+                         Added more parameters to Table 6: DC Characteristics.
+
+
+
+
+Espressif Systems                                          25                          ESP32-PICO-D4 Datasheet v2.0
+                                             Submit Documentation Feedback
+Revision History
+
+
+ Date          Version   Release notes
+                            • Changed the voltage range of VDD3P3_RTC from 1.8-3.6V to 2.3-3.6V in Ta-
+                               ble 2: Pin Description;
+                            • Changed the voltage range of VDD_SDIO from ”1.8V or the same voltage as
+                               VDD3P3_RTC” to ”the same voltage as VDD3P3_RTC” in Table 2: Pin De-
+                               scription;
+                            • Deleted the content about temperature sensor and LNA pre-amplifier;
+                            • Updated Chapter 3: Functional Description;
+                            • Updated the note in Chapter 4: Peripherals and Sensors;
+ 2018.06       V1.3
+                            • Deleted the note on pad49 and added two other notes in Chapter 7: Peripheral
+                               Schematics;
+                         Changes to electrical characteristics:
+                            • Updated Table 4: Absolute Maximum Ratings;
+                            • Added Table 5: Recommended Operating Conditions;
+                            • Added Table 6: DC Characteristics;
+                            • Updated the values of ”Gain control step”, ”Adjacent channel transmit power”
+                               in Table 9: Transmitter Characteristics - BLE.
+                         Updated the pin description of VDD_SDIO in Section 2.2;
+                         Updated the ESP32-PICO-D4 Pin Layout in Section 2.1;
+ 2018.03       V1.2
+                         Updated the ESP32-PICO-D4 Module Schematics in Chapter 6;
+                         Updated the ESP32-PICO-D4 Module Peripheral Schematics in Chapter 7.
+                         Operating voltage/power supply range updated to 2.7 ~ 3.6V;
+ 2017.09       V1.1
+                         Added a note in Chapter 7.
+ 2017.08       V1.0      First release.
+
+
+
+
+Espressif Systems                                        26                         ESP32-PICO-D4 Datasheet v2.0
+                                            Submit Documentation Feedback
+                    Disclaimer and Copyright Notice
+                    Information in this document, including URL references, is subject to change without notice.
+                    ALL THIRD PARTY’S INFORMATION IN THIS DOCUMENT IS PROVIDED AS IS WITH NO
+                    WARRANTIES TO ITS AUTHENTICITY AND ACCURACY.
+                    NO WARRANTY IS PROVIDED TO THIS DOCUMENT FOR ITS MERCHANTABILITY, NON-
+                    INFRINGEMENT, FITNESS FOR ANY PARTICULAR PURPOSE, NOR DOES ANY WARRANTY
+                    OTHERWISE ARISING OUT OF ANY PROPOSAL, SPECIFICATION OR SAMPLE.
+                    All liability, including liability for infringement of any proprietary rights, relating to use of information
+                    in this document is disclaimed. No licenses express or implied, by estoppel or otherwise, to any
+                    intellectual property rights are granted herein.
+                    The Wi-Fi Alliance Member logo is a trademark of the Wi-Fi Alliance. The Bluetooth logo is a
+                    registered trademark of Bluetooth SIG.
+                    All trade names, trademarks and registered trademarks mentioned in this document are property
+www.espressif.com   of their respective owners, and are hereby acknowledged.
+                    Copyright © 2022 Espressif Systems (Shanghai) Co., Ltd. All rights reserved.
+

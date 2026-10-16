@@ -1,0 +1,13 @@
+{"checkpoint": "observe-usb-disconnect-and-reappearance", "status": "running"}
+USB removal observed
+{"checkpoint": "observe-usb-disconnect-and-reappearance", "status": "passed", "elapsed_ms": 179709.528}
+{"checkpoint": "attach-no-host-upload", "status": "running"}
+{"checkpoint": "attach-no-host-upload", "status": "passed", "elapsed_ms": 35969.17}
+{"checkpoint": "confirmed-sd-slot-A", "status": "running"}
+{"checkpoint": "confirmed-sd-slot-A", "status": "passed", "elapsed_ms": 342.521}
+{"checkpoint": "persisted-deferred-service-and-dependent", "status": "running"}
+{"checkpoint": "persisted-deferred-service-and-dependent", "status": "passed", "elapsed_ms": 42.425}
+{"checkpoint": "resources", "status": "running"}
+{"checkpoint": "resources", "status": "passed", "elapsed_ms": 50.894}
+{"checkpoint": "vdp-mode-and-no-receive-drops", "status": "running"}
+{"checkpoint": "vdp-mode-and-no-receive-drops", "status": "passed", "elapsed_ms": 40.278}

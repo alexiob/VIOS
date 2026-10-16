@@ -1,0 +1,7 @@
+full inspections 5
+full inspections 10
+full inspections 15
+full inspections 20
+full inspections 25
+full inspections 30
+Inspection, pause/resume, RAM identity, Forth hook, both engines, CLI and MCP passed.

@@ -1,0 +1,286 @@
+{
+  "started_unix": 1792138439.917572,
+  "image": "build/vios.bin",
+  "sha256": "6b2e03cacdf82083795b09a36584b39c23d0f8a0f40f3e18f0b45e7568dade7d",
+  "size": 19921,
+  "identity": "ID 0007 REV AA STAT 18",
+  "mapping": "CS0 00 0B 08 01",
+  "readback_sha256": "6b2e03cacdf82083795b09a36584b39c23d0f8a0f40f3e18f0b45e7568dade7d",
+  "boot": "GO 040000 USB/UART bridge 115200\r\n\r\nVIOS Forth 24 / Agon Light 2\r\nvios> ",
+  "checks": [
+    {
+      "engine": "C",
+      "source": ": SQUARE DUP * ; 7 SQUARE . CR",
+      "response": ": SQUARE DUP * ; 7 SQUARE . CR\r\n49 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "C",
+      "source": ": ABS DUP 0 < IF NEGATE THEN ; -7 ABS SQUARE . CR",
+      "response": ": ABS DUP 0 < IF NEGATE THEN ; -7 ABS SQUARE . CR\r\n49 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "C",
+      "source": ": SUM 0 SWAP 0 DO I + LOOP ; 10 SUM . CR",
+      "response": ": SUM 0 SWAP 0 DO I + LOOP ; 10 SUM . CR\r\n45 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "C",
+      "source": ": DOWN BEGIN 1- DUP 0= UNTIL ; 12 DOWN . CR",
+      "response": ": DOWN BEGIN 1- DUP 0= UNTIL ; 12 DOWN . CR\r\n0 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "C",
+      "source": ": INNER 0 SWAP 0 DO I + LOOP ; : NEST 0 6 1 DO I INNER + LOOP ; NEST . CR",
+      "response": ": INNER 0 SWAP 0 DO I + LOOP ; : NEST 0 6 1 DO I INNER + LOOP ; NEST . CR\r\n20 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "C",
+      "source": "VARIABLE X 123456 X ! X @ . CR",
+      "response": "VARIABLE X 123456 X ! X @ . CR\r\n123456 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "C",
+      "source": "$FFFFFF 1 + . $800000 0 < . $7FFFFF -1 < . CR",
+      "response": "$FFFFFF 1 + . $800000 0 < . $7FFFFF -1 < . CR\r\n0 -1 0 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "C",
+      "source": "-7 3 / . -7 3 MOD . 1 23 LSHIFT . $800000 23 RSHIFT . CR",
+      "response": "-7 3 / . -7 3 MOD . 1 23 LSHIFT . $800000 23 RSHIFT . CR\r\n-2 -1 -8388608 1 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "C",
+      "source": ": RTEST 7 >R 2 R> + ; RTEST . CR",
+      "response": ": RTEST 7 >R 2 R> + ; RTEST . CR\r\n9 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "C",
+      "source": "' SQUARE DROP",
+      "response": "' SQUARE DROP\r\nok\r\nvios> "
+    },
+    {
+      "engine": "C",
+      "source": "4 ' SQUARE EXECUTE . CR",
+      "response": "4 ' SQUARE EXECUTE . CR\r\n16 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "C",
+      "source": ": ONE 11 ; : TWO 22 ; DEFER SERVICE ' ONE IS SERVICE : CLIENT SERVICE . ; CLIENT CR ' TWO IS SERVICE CLIENT CR",
+      "response": ": ONE 11 ; : TWO 22 ; DEFER SERVICE ' ONE IS SERVICE : CLIENT SERVICE . ; CLIENT CR ' TWO IS SERVICE CLIENT CR\r\n11 \r\n22 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "C",
+      "source": ": BAD 1 MISSING ;",
+      "response": ": BAD 1 MISSING ;\r\nerror: unknown word: MISSING\r\nvios> "
+    },
+    {
+      "engine": "C",
+      "source": "BAD",
+      "response": "BAD\r\nerror: unknown word: BAD\r\nvios> "
+    },
+    {
+      "engine": "C",
+      "source": "DROP DROP",
+      "response": "DROP DROP\r\nerror: data stack underflow\r\nvios> "
+    },
+    {
+      "engine": "C",
+      "source": "1 0 /",
+      "response": "1 0 /\r\nerror: arithmetic error\r\nvios> "
+    },
+    {
+      "engine": "C",
+      "source": "3 4 + . CR",
+      "response": "3 4 + . CR\r\n7 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "C",
+      "source": "SEE CLIENT",
+      "response": "SEE CLIENT\r\n: CLIENT SERVICE . ; \r\nword CLIENT xt 57 kind 1 token 289305 direct 306214 token-bytes 6 direct-bytes 13\r\nok\r\nvios> "
+    },
+    {
+      "engine": "TOKEN",
+      "source": ": SQUARE DUP * ; 7 SQUARE . CR",
+      "response": ": SQUARE DUP * ; 7 SQUARE . CR\r\n49 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "TOKEN",
+      "source": ": ABS DUP 0 < IF NEGATE THEN ; -7 ABS SQUARE . CR",
+      "response": ": ABS DUP 0 < IF NEGATE THEN ; -7 ABS SQUARE . CR\r\n49 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "TOKEN",
+      "source": ": SUM 0 SWAP 0 DO I + LOOP ; 10 SUM . CR",
+      "response": ": SUM 0 SWAP 0 DO I + LOOP ; 10 SUM . CR\r\n45 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "TOKEN",
+      "source": ": DOWN BEGIN 1- DUP 0= UNTIL ; 12 DOWN . CR",
+      "response": ": DOWN BEGIN 1- DUP 0= UNTIL ; 12 DOWN . CR\r\n0 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "TOKEN",
+      "source": ": INNER 0 SWAP 0 DO I + LOOP ; : NEST 0 6 1 DO I INNER + LOOP ; NEST . CR",
+      "response": ": INNER 0 SWAP 0 DO I + LOOP ; : NEST 0 6 1 DO I INNER + LOOP ; NEST . CR\r\n20 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "TOKEN",
+      "source": "VARIABLE X 123456 X ! X @ . CR",
+      "response": "VARIABLE X 123456 X ! X @ . CR\r\n123456 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "TOKEN",
+      "source": "$FFFFFF 1 + . $800000 0 < . $7FFFFF -1 < . CR",
+      "response": "$FFFFFF 1 + . $800000 0 < . $7FFFFF -1 < . CR\r\n0 -1 0 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "TOKEN",
+      "source": "-7 3 / . -7 3 MOD . 1 23 LSHIFT . $800000 23 RSHIFT . CR",
+      "response": "-7 3 / . -7 3 MOD . 1 23 LSHIFT . $800000 23 RSHIFT . CR\r\n-2 -1 -8388608 1 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "TOKEN",
+      "source": ": RTEST 7 >R 2 R> + ; RTEST . CR",
+      "response": ": RTEST 7 >R 2 R> + ; RTEST . CR\r\n9 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "TOKEN",
+      "source": "' SQUARE DROP",
+      "response": "' SQUARE DROP\r\nok\r\nvios> "
+    },
+    {
+      "engine": "TOKEN",
+      "source": "4 ' SQUARE EXECUTE . CR",
+      "response": "4 ' SQUARE EXECUTE . CR\r\n16 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "TOKEN",
+      "source": ": ONE 11 ; : TWO 22 ; DEFER SERVICE ' ONE IS SERVICE : CLIENT SERVICE . ; CLIENT CR ' TWO IS SERVICE CLIENT CR",
+      "response": ": ONE 11 ; : TWO 22 ; DEFER SERVICE ' ONE IS SERVICE : CLIENT SERVICE . ; CLIENT CR ' TWO IS SERVICE CLIENT CR\r\n11 \r\n22 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "TOKEN",
+      "source": ": BAD 1 MISSING ;",
+      "response": ": BAD 1 MISSING ;\r\nerror: unknown word: MISSING\r\nvios> "
+    },
+    {
+      "engine": "TOKEN",
+      "source": "BAD",
+      "response": "BAD\r\nerror: unknown word: BAD\r\nvios> "
+    },
+    {
+      "engine": "TOKEN",
+      "source": "DROP DROP",
+      "response": "DROP DROP\r\nerror: data stack underflow\r\nvios> "
+    },
+    {
+      "engine": "TOKEN",
+      "source": "1 0 /",
+      "response": "1 0 /\r\nerror: arithmetic error\r\nvios> "
+    },
+    {
+      "engine": "TOKEN",
+      "source": "3 4 + . CR",
+      "response": "3 4 + . CR\r\n7 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "TOKEN",
+      "source": "SEE CLIENT",
+      "response": "SEE CLIENT\r\n: CLIENT SERVICE . ; \r\nword CLIENT xt 69 kind 1 token 289430 direct 306487 token-bytes 6 direct-bytes 13\r\nok\r\nvios> "
+    },
+    {
+      "engine": "DIRECT",
+      "source": ": SQUARE DUP * ; 7 SQUARE . CR",
+      "response": ": SQUARE DUP * ; 7 SQUARE . CR\r\n49 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "DIRECT",
+      "source": ": ABS DUP 0 < IF NEGATE THEN ; -7 ABS SQUARE . CR",
+      "response": ": ABS DUP 0 < IF NEGATE THEN ; -7 ABS SQUARE . CR\r\n49 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "DIRECT",
+      "source": ": SUM 0 SWAP 0 DO I + LOOP ; 10 SUM . CR",
+      "response": ": SUM 0 SWAP 0 DO I + LOOP ; 10 SUM . CR\r\n45 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "DIRECT",
+      "source": ": DOWN BEGIN 1- DUP 0= UNTIL ; 12 DOWN . CR",
+      "response": ": DOWN BEGIN 1- DUP 0= UNTIL ; 12 DOWN . CR\r\n0 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "DIRECT",
+      "source": ": INNER 0 SWAP 0 DO I + LOOP ; : NEST 0 6 1 DO I INNER + LOOP ; NEST . CR",
+      "response": ": INNER 0 SWAP 0 DO I + LOOP ; : NEST 0 6 1 DO I INNER + LOOP ; NEST . CR\r\n20 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "DIRECT",
+      "source": "VARIABLE X 123456 X ! X @ . CR",
+      "response": "VARIABLE X 123456 X ! X @ . CR\r\n123456 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "DIRECT",
+      "source": "$FFFFFF 1 + . $800000 0 < . $7FFFFF -1 < . CR",
+      "response": "$FFFFFF 1 + . $800000 0 < . $7FFFFF -1 < . CR\r\n0 -1 0 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "DIRECT",
+      "source": "-7 3 / . -7 3 MOD . 1 23 LSHIFT . $800000 23 RSHIFT . CR",
+      "response": "-7 3 / . -7 3 MOD . 1 23 LSHIFT . $800000 23 RSHIFT . CR\r\n-2 -1 -8388608 1 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "DIRECT",
+      "source": ": RTEST 7 >R 2 R> + ; RTEST . CR",
+      "response": ": RTEST 7 >R 2 R> + ; RTEST . CR\r\n9 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "DIRECT",
+      "source": "' SQUARE DROP",
+      "response": "' SQUARE DROP\r\nok\r\nvios> "
+    },
+    {
+      "engine": "DIRECT",
+      "source": "4 ' SQUARE EXECUTE . CR",
+      "response": "4 ' SQUARE EXECUTE . CR\r\n16 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "DIRECT",
+      "source": ": ONE 11 ; : TWO 22 ; DEFER SERVICE ' ONE IS SERVICE : CLIENT SERVICE . ; CLIENT CR ' TWO IS SERVICE CLIENT CR",
+      "response": ": ONE 11 ; : TWO 22 ; DEFER SERVICE ' ONE IS SERVICE : CLIENT SERVICE . ; CLIENT CR ' TWO IS SERVICE CLIENT CR\r\n11 \r\n22 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "DIRECT",
+      "source": ": BAD 1 MISSING ;",
+      "response": ": BAD 1 MISSING ;\r\nerror: unknown word: MISSING\r\nvios> "
+    },
+    {
+      "engine": "DIRECT",
+      "source": "BAD",
+      "response": "BAD\r\nerror: unknown word: BAD\r\nvios> "
+    },
+    {
+      "engine": "DIRECT",
+      "source": "DROP DROP",
+      "response": "DROP DROP\r\nerror: data stack underflow\r\nvios> "
+    },
+    {
+      "engine": "DIRECT",
+      "source": "1 0 /",
+      "response": "1 0 /\r\nerror: arithmetic error\r\nvios> "
+    },
+    {
+      "engine": "DIRECT",
+      "source": "3 4 + . CR",
+      "response": "3 4 + . CR\r\n7 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "DIRECT",
+      "source": "SEE CLIENT",
+      "response": "SEE CLIENT\r\n: CLIENT SERVICE . ; \r\nword CLIENT xt 81 kind 1 token 289555 direct 306760 token-bytes 6 direct-bytes 13\r\nok\r\nvios> "
+    }
+  ],
+  "benchmark": "BENCH\r\nBENCH VIOS checked24+peaks timer_hz=288000 wrap_ticks=65536 samples=9\r\nTIMER read-pair-ticks=0\r\nEMPTY engine=0 median=33\r\nSAMPLE engine=0 word=BM-ARITH n=25 result=3 ticks=1992,1992,1992,1993,1992,1992,1992,1992,1993 median=1992\r\nSAMPLE engine=0 word=BM-ARITH n=50 result=0 ticks=3905,3905,3905,3905,3905,3905,3905,3905,3905 median=3905\r\nSAMPLE engine=0 word=BM-ARITH n=100 result=0 ticks=7731,7731,7731,7731,7731,7731,7731,7731,7731 median=7731\r\nSAMPLE engine=0 word=BM-CALL n=25 result=75 ticks=1342,1342,1342,1342,1342,1342,1342,1342,1342 median=1342\r\nSAMPLE engine=0 word=BM-CALL n=50 result=150 ticks=2606,2606,2606,2605,2605,2605,2605,2606,2606 median=2606\r\nSAMPLE engine=0 word=BM-CALL n=100 result=300 ticks=5134,5134,5134,5133,5134,5134,5134,5134,5133 median=5134\r\nSAMPLE engine=0 word=BM-BRANCH n=25 result=49 ticks=2097,2097,2096,2097,2097,2097,2096,2097,2097 median=2097\r\nSAMPLE engine=0 word=BM-BRANCH n=50 result=100 ticks=4120,4120,4120,4120,4120,4120,4120,4120,4120 median=4120\r\nSAMPLE engine=0 word=BM-BRANCH n=100 result=200 ticks=8159,8159,8160,8159,8160,8159,8159,8159,8159 median=8159\r\nSAMPLE engine=0 word=BM-LOOP n=25 result=300 ticks=883,884,884,884,883,883,883,884,884 median=884\r\nSAMPLE engine=0 word=BM-LOOP n=50 result=1225 ticks=1689,1689,1690,1689,1689,1690,1689,1689,1690 median=1689\r\nSAMPLE engine=0 word=BM-LOOP n=100 result=4950 ticks=3301,3301,3301,3301,3301,3301,3301,3301,3301 median=3301\r\nSAMPLE engine=0 word=BM-MEM n=25 result=25 ticks=2138,2138,2138,2138,2139,2139,2138,2138,2138 median=2138\r\nSAMPLE engine=0 word=BM-MEM n=50 result=50 ticks=4162,4163,4162,4162,4163,4162,4162,4163,4162 median=4162\r\nSAMPLE engine=0 word=BM-MEM n=100 result=100 ticks=8210,8210,8210,8210,8210,8210,8210,8210,8209 median=8210\r\nEMPTY engine=1 median=33\r\nSAMPLE engine=1 word=BM-ARITH n=25 result=3 ticks=640,640,640,640,640,640,640,640,640 median=640\r\nSAMPLE engine=1 word=BM-ARITH n=50 result=0 ticks=1235,1235,1235,1235,1236,1236,1236,1235,1235 median=1235\r\nSAMPLE engine=1 word=BM-ARITH n=100 result=0 ticks=2426,2426,2426,2426,2426,2426,2427,2426,2427 median=2426\r\nSAMPLE engine=1 word=BM-CALL n=25 result=75 ticks=460,460,461,460,460,461,460,460,461 median=460\r\nSAMPLE engine=1 word=BM-CALL n=50 result=150 ticks=877,877,878,878,878,877,877,877,878 median=877\r\nSAMPLE engine=1 word=BM-CALL n=100 result=300 ticks=1712,1712,1711,1712,1712,1712,1712,1711,1712 median=1712\r\nSAMPLE engine=1 word=BM-BRANCH n=25 result=49 ticks=617,617,617,617,617,617,617,618,618 median=617\r\nSAMPLE engine=1 word=BM-BRANCH n=50 result=100 ticks=1190,1190,1190,1190,1189,1189,1189,1189,1189 median=1189\r\nSAMPLE engine=1 word=BM-BRANCH n=100 result=200 ticks=2332,2332,2332,2332,2332,2333,2333,2333,2333 median=2332\r\nSAMPLE engine=1 word=BM-LOOP n=25 result=300 ticks=325,325,325,324,324,324,325,325,325 median=325\r\nSAMPLE engine=1 word=BM-LOOP n=50 result=1225 ticks=606,607,606,606,606,607,606,606,606 median=606\r\nSAMPLE engine=1 word=BM-LOOP n=100 result=4950 ticks=1170,1169,1169,1169,1169,1169,1169,1169,1169 median=1169\r\nSAMPLE engine=1 word=BM-MEM n=25 result=25 ticks=607,607,607,607,607,607,607,607,608 median=607\r\nSAMPLE engine=1 word=BM-MEM n=50 result=50 ticks=1165,1164,1164,1164,1164,1165,1164,1164,1165 median=1164\r\nSAMPLE engine=1 word=BM-MEM n=100 result=100 ticks=2277,2278,2278,2278,2278,2278,2278,2277,2277 median=2278\r\nEMPTY engine=2 median=33\r\nSAMPLE engine=2 word=BM-ARITH n=25 result=3 ticks=562,562,562,562,562,562,562,562,561 median=562\r\nSAMPLE engine=2 word=BM-ARITH n=50 result=0 ticks=1080,1080,1080,1080,1081,1081,1080,1080,1080 median=1080\r\nSAMPLE engine=2 word=BM-ARITH n=100 result=0 ticks=2118,2118,2118,2118,2118,2118,2118,2117,2118 median=2118\r\nSAMPLE engine=2 word=BM-CALL n=25 result=75 ticks=399,399,399,400,400,399,399,400,400 median=399\r\nSAMPLE engine=2 word=BM-CALL n=50 result=150 ticks=757,757,757,757,757,757,757,757,757 median=757\r\nSAMPLE engine=2 word=BM-CALL n=100 result=300 ticks=1474,1474,1474,1474,1474,1474,1474,1474,1474 median=1474\r\nSAMPLE engine=2 word=BM-BRANCH n=25 result=49 ticks=534,534,534,533,534,534,534,533,534 median=534\r\nSAMPLE engine=2 word=BM-BRANCH n=50 result=100 ticks=1024,1024,1024,1024,1024,1024,1024,1024,1023 median=1024\r\nSAMPLE engine=2 word=BM-BRANCH n=100 result=200 ticks=2003,2003,2003,2002,2002,2002,2002,2003,2003 median=2003\r\nSAMPLE engine=2 word=BM-LOOP n=25 result=300 ticks=290,290,290,290,290,290,290,290,290 median=290\r\nSAMPLE engine=2 word=BM-LOOP n=50 result=1225 ticks=539,538,539,539,539,539,538,539,539 median=539\r\nSAMPLE engine=2 word=BM-LOOP n=100 result=4950 ticks=1037,1037,1036,1036,1036,1036,1037,1037,1037 median=1037\r\nSAMPLE engine=2 word=BM-MEM n=25 result=25 ticks=528,528,528,527,528,528,528,528,527 median=528\r\nSAMPLE engine=2 word=BM-MEM n=50 result=50 ticks=1008,1007,1008,1008,1008,1008,1008,1008,1008 median=1008\r\nSAMPLE engine=2 word=BM-MEM n=100 result=100 ticks=1968,1968,1968,1968,1968,1969,1968,1968,1968 median=1968\r\nCOMPILE chars=39 ticks=903\r\nCODE token-bytes=689 direct-bytes=1692\r\nBENCH DONE\r\nok\r\nvios> ",
+  "resources": "RESOURCES\r\nengine DIRECT words 90/128 token-bytes 689 direct-bytes 1692 data-bytes 24 source-bytes 1194 data-peak 4 return-peak 2\r\nok\r\nvios> ",
+  "verified": true,
+  "finished_unix": 1792138475.446672
+}

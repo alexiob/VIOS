@@ -1,0 +1,190 @@
+{
+  "schema": 1,
+  "started_utc": "2026-10-16T10:42:16.056889+00:00",
+  "namespace": "SDBACK1",
+  "phases": [
+    "read-only-sd-backup",
+    "reboot"
+  ],
+  "status": "passed",
+  "hardware_run": true,
+  "checks": [
+    {
+      "name": "temporary-module-buffer",
+      "status": "passed",
+      "result": {
+        "address": 350954,
+        "reserved_bytes": 1025,
+        "temporary_module": "SDBACKTEMP"
+      },
+      "elapsed_ms": 1991.548
+    },
+    {
+      "name": "backup-/VIOS/A9BA189F/8E362F26.VIM",
+      "status": "passed",
+      "result": {
+        "sd_path": "/VIOS/A9BA189F/8E362F26.VIM",
+        "host_path": "artifacts/vios-resident-2026-10-16/sd-startup/VIOS/A9BA189F/8E362F26.VIM",
+        "size": 324,
+        "sha256": "3c8bacb166e7e7229712adddf418564a473be30257cfde814b0b96c50b7c7d9e",
+        "format_crc_verified": true
+      },
+      "elapsed_ms": 431.04
+    },
+    {
+      "name": "backup-/VIOS/A9BA189F/E7253C6E.VIM",
+      "status": "passed",
+      "result": {
+        "sd_path": "/VIOS/A9BA189F/E7253C6E.VIM",
+        "host_path": "artifacts/vios-resident-2026-10-16/sd-startup/VIOS/A9BA189F/E7253C6E.VIM",
+        "size": 324,
+        "sha256": "a2fe0841d8ba3732bcb52e8e2ee3c6587e6f33f8028d3fa0d8b551fa92dea010",
+        "format_crc_verified": true
+      },
+      "elapsed_ms": 431.7
+    },
+    {
+      "name": "backup-/VIOS/B360CCE2/3BC9C813.VIM",
+      "status": "passed",
+      "result": {
+        "sd_path": "/VIOS/B360CCE2/3BC9C813.VIM",
+        "host_path": "artifacts/vios-resident-2026-10-16/sd-startup/VIOS/B360CCE2/3BC9C813.VIM",
+        "size": 311,
+        "sha256": "82cb79bb9bcf8b1679012d8a02209c017f37336c300db9cf69f4e5850bda1646",
+        "format_crc_verified": true
+      },
+      "elapsed_ms": 431.143
+    },
+    {
+      "name": "backup-/VIOS/B360CCE2/E9393509.VIM",
+      "status": "passed",
+      "result": {
+        "sd_path": "/VIOS/B360CCE2/E9393509.VIM",
+        "host_path": "artifacts/vios-resident-2026-10-16/sd-startup/VIOS/B360CCE2/E9393509.VIM",
+        "size": 311,
+        "sha256": "bea2bbc35de2a76c9b5e4abfa4921cfa92356fe913de0a5cc7137a69b538f524",
+        "format_crc_verified": true
+      },
+      "elapsed_ms": 425.331
+    },
+    {
+      "name": "backup-/VIOS/CDD1B05F/1FCD271D.VIM",
+      "status": "passed",
+      "result": {
+        "sd_path": "/VIOS/CDD1B05F/1FCD271D.VIM",
+        "host_path": "artifacts/vios-resident-2026-10-16/sd-startup/VIOS/CDD1B05F/1FCD271D.VIM",
+        "size": 297,
+        "sha256": "209eb4b9e8c4a5b6df8ff96decef6d1045f55ccb58afd9893db66bee95565c90",
+        "format_crc_verified": true
+      },
+      "elapsed_ms": 419.317
+    },
+    {
+      "name": "backup-/VIOS/BOOT_A.VIB",
+      "status": "passed",
+      "result": {
+        "sd_path": "/VIOS/BOOT_A.VIB",
+        "host_path": "artifacts/vios-resident-2026-10-16/sd-startup/VIOS/BOOT_A.VIB",
+        "size": 512,
+        "sha256": "adb985a84a8b4839e21e77bb46fc55bcb95815d7729330b07d795589a6e23e84",
+        "format_crc_verified": true
+      },
+      "elapsed_ms": 462.185
+    },
+    {
+      "name": "backup-/VIOS/BOOT_B.VIB",
+      "status": "passed",
+      "result": {
+        "sd_path": "/VIOS/BOOT_B.VIB",
+        "host_path": "artifacts/vios-resident-2026-10-16/sd-startup/VIOS/BOOT_B.VIB",
+        "size": 512,
+        "sha256": "fd726d72b6b809223a09c8a29d852b279bfb75c2135bbe22785f28d7368247b5",
+        "format_crc_verified": true
+      },
+      "elapsed_ms": 470.649
+    },
+    {
+      "name": "backup-/VIOS/BOOT0.REC",
+      "status": "passed",
+      "result": {
+        "sd_path": "/VIOS/BOOT0.REC",
+        "host_path": "artifacts/vios-resident-2026-10-16/sd-startup/VIOS/BOOT0.REC",
+        "size": 32,
+        "sha256": "96ffd0bde55babb93bdbc25a792232d61a11727ad6a62e2124d6d31f7cc5f037",
+        "format_crc_verified": true
+      },
+      "elapsed_ms": 259.929
+    },
+    {
+      "name": "backup-/VIOS/BOOT1.REC",
+      "status": "passed",
+      "result": {
+        "sd_path": "/VIOS/BOOT1.REC",
+        "host_path": "artifacts/vios-resident-2026-10-16/sd-startup/VIOS/BOOT1.REC",
+        "size": 32,
+        "sha256": "3f5800f19b3aeb40c52f276dc3d98b76c11d890246fb6c7da0338b1d20753e0d",
+        "format_crc_verified": true
+      },
+      "elapsed_ms": 261.349
+    },
+    {
+      "name": "explicit-mcp-reboot-to-reclaim-temporary-buffer",
+      "status": "passed",
+      "result": {
+        "rebooted": true,
+        "forced": false,
+        "output": "boot confirmed A\r\n\r\nVIOS Forth 24 / Agon Light 2\r\nvios> @2D13F159 !00000000 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "connected": true,
+        "identity": "ID 0007 REV AA STAT 18"
+      },
+      "elapsed_ms": 35950.288
+    },
+    {
+      "name": "confirmed-startup-preserved",
+      "status": "passed",
+      "result": {
+        "output": "BOOT-STATUS\r\nboot confirmed A candidate NONE state CLEAN current A generation 7\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "boot": {
+          "confirmed": "A",
+          "candidate": "NONE",
+          "state": "CLEAN",
+          "current": "A",
+          "generation": 7
+        }
+      },
+      "elapsed_ms": 342.999
+    },
+    {
+      "name": "clean-resources",
+      "status": "passed",
+      "result": {
+        "output": "RESOURCES\r\nengine DIRECT words 77/128 token-bytes 312 direct-bytes 947 data-bytes 24 source-bytes 281 data-peak 2 return-peak 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "resources": {
+          "engine": "DIRECT",
+          "words": "77/128",
+          "token-bytes": 312,
+          "direct-bytes": 947,
+          "data-bytes": 24,
+          "source-bytes": 281,
+          "data-peak": 2,
+          "return-peak": 0
+        }
+      },
+      "elapsed_ms": 51.162
+    }
+  ],
+  "limits": [
+    "VDP replies do not prove visible or audible physical output",
+    "Boot phase changes startup only from an unconfirmed clean baseline",
+    "No flash write, ROM helper upload, image deployment or file cleanup"
+  ]
+}

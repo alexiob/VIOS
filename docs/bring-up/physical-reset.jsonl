@@ -1,0 +1,56 @@
+{"time": 1792132521.216375, "direction": "rx", "hex": "65", "text": "e"}
+{"time": 1792132521.216506, "direction": "rx", "hex": "7473204a756e20203820323031362030303a32323a35370d0a0d0a7273743a", "text": "ts Jun  8 2016 00:22:57\r\n\r\nrst:"}
+{"time": 1792132521.2191849, "direction": "rx", "hex": "30", "text": "0"}
+{"time": 1792132521.2192278, "direction": "rx", "hex": "78312028504f5745524f4e5f5245534554292c626f6f743a30783132202853", "text": "x1 (POWERON_RESET),boot:0x12 (S"}
+{"time": 1792132521.222002, "direction": "rx", "hex": "50", "text": "P"}
+{"time": 1792132521.222029, "direction": "rx", "hex": "495f464153545f464c4153485f424f4f54290d0a636f6e6669677369703a20", "text": "I_FAST_FLASH_BOOT)\r\nconfigsip: "}
+{"time": 1792132521.224742, "direction": "rx", "hex": "31", "text": "1"}
+{"time": 1792132521.2247648, "direction": "rx", "hex": "38383737373534322c2053504957503a307865650d0a636c6b5f6472763a30", "text": "88777542, SPIWP:0xee\r\nclk_drv:0"}
+{"time": 1792132521.227632, "direction": "rx", "hex": "78", "text": "x"}
+{"time": 1792132521.227682, "direction": "rx", "hex": "30302c715f6472763a307830302c645f6472763a307830302c6373305f6472", "text": "00,q_drv:0x00,d_drv:0x00,cs0_dr"}
+{"time": 1792132521.2303739, "direction": "rx", "hex": "76", "text": "v"}
+{"time": 1792132521.230419, "direction": "rx", "hex": "3a307830302c68645f6472763a307830302c77705f6472763a307830300d0a", "text": ":0x00,hd_drv:0x00,wp_drv:0x00\r\n"}
+{"time": 1792132521.233137, "direction": "rx", "hex": "6d", "text": "m"}
+{"time": 1792132521.233175, "direction": "rx", "hex": "6f64653a44494f2c20636c6f636b206469763a310d0a6c6f61643a30783366", "text": "ode:DIO, clock div:1\r\nload:0x3f"}
+{"time": 1792132521.235986, "direction": "rx", "hex": "66", "text": "f"}
+{"time": 1792132521.236011, "direction": "rx", "hex": "66303033302c6c656e3a313334340d0a6c6f61643a30783430303738303030", "text": "f0030,len:1344\r\nload:0x40078000"}
+{"time": 1792132521.238768, "direction": "rx", "hex": "2c", "text": ","}
+{"time": 1792132521.238791, "direction": "rx", "hex": "6c656e3a31333836340d0a6c6f61643a307834303038303430302c6c656e3a", "text": "len:13864\r\nload:0x40080400,len:"}
+{"time": 1792132521.242838, "direction": "rx", "hex": "33", "text": "3"}
+{"time": 1792132521.2428968, "direction": "rx", "hex": "3630380d0a656e74727920307834303038303566300d0a", "text": "608\r\nentry 0x400805f0\r\n"}
+{"time": 1792132521.450005, "direction": "rx", "hex": "45", "text": "E"}
+{"time": 1792132521.450227, "direction": "rx", "hex": "202832333329206573705f636f72655f64756d705f666cc1e6f842e9204e6f", "text": " (233) esp_core_dump_fl\ufffd\ufffd\ufffdB\ufffd No"}
+{"time": 1792132521.452786, "direction": "rx", "hex": "20", "text": " "}
+{"time": 1792132521.452968, "direction": "rx", "hex": "636f72652064756d7020706172746974696f6e20666f756e64210d0a452028", "text": "core dump partition found!\r\nE ("}
+{"time": 1792132521.455511, "direction": "rx", "hex": "32", "text": "2"}
+{"time": 1792132521.4557, "direction": "rx", "hex": "333329206573705f636f72655f64756d705f666c6173683a204e6f20636f72", "text": "33) esp_core_dump_flash: No cor"}
+{"time": 1792132521.460726, "direction": "rx", "hex": "65", "text": "e"}
+{"time": 1792132521.460984, "direction": "rx", "hex": "2064756d7020706172746974696f6e20666f756e64210d0a", "text": " dump partition found!\r\n"}
+{"time": 1792132529.03892, "direction": "rx", "hex": "65", "text": "e"}
+{"time": 1792132529.039383, "direction": "rx", "hex": "7473204a756e20203820323031362030303a32323a35370d0a0d0a7273743a", "text": "ts Jun  8 2016 00:22:57\r\n\r\nrst:"}
+{"time": 1792132529.041505, "direction": "rx", "hex": "30", "text": "0"}
+{"time": 1792132529.0418391, "direction": "rx", "hex": "78312028504f5745524f4e5f5245534554292c626f6f743a30783132202853", "text": "x1 (POWERON_RESET),boot:0x12 (S"}
+{"time": 1792132529.0448089, "direction": "rx", "hex": "50", "text": "P"}
+{"time": 1792132529.045113, "direction": "rx", "hex": "495f464153545f464c4153485f424f4f54290d0a636f6e6669677369703a20", "text": "I_FAST_FLASH_BOOT)\r\nconfigsip: "}
+{"time": 1792132529.047127, "direction": "rx", "hex": "31", "text": "1"}
+{"time": 1792132529.04723, "direction": "rx", "hex": "38383737373534322c2053504957503a307865650d0a636c6b5f6472763a30", "text": "88777542, SPIWP:0xee\r\nclk_drv:0"}
+{"time": 1792132529.049727, "direction": "rx", "hex": "78", "text": "x"}
+{"time": 1792132529.049767, "direction": "rx", "hex": "30302c715f6472763a307830302c645f6472763a307830302c6373305f6472", "text": "00,q_drv:0x00,d_drv:0x00,cs0_dr"}
+{"time": 1792132529.052663, "direction": "rx", "hex": "76", "text": "v"}
+{"time": 1792132529.052833, "direction": "rx", "hex": "3a307830302c68645f6472763a307830302c77705f6472763a307830300d0a", "text": ":0x00,hd_drv:0x00,wp_drv:0x00\r\n"}
+{"time": 1792132529.0554729, "direction": "rx", "hex": "6d", "text": "m"}
+{"time": 1792132529.055767, "direction": "rx", "hex": "6f64653a44494f2c20636c6f636b206469763a310d0a6c6f61643a30783366", "text": "ode:DIO, clock div:1\r\nload:0x3f"}
+{"time": 1792132529.058235, "direction": "rx", "hex": "66", "text": "f"}
+{"time": 1792132529.058374, "direction": "rx", "hex": "66303033302c6c656e3a313334340d0a6c6f61643a30783430303738303030", "text": "f0030,len:1344\r\nload:0x40078000"}
+{"time": 1792132529.061145, "direction": "rx", "hex": "2c", "text": ","}
+{"time": 1792132529.062814, "direction": "rx", "hex": "6c656e3a31333836340d0a6c6f61643a307834303038303430302c6c656e3a", "text": "len:13864\r\nload:0x40080400,len:"}
+{"time": 1792132529.065891, "direction": "rx", "hex": "33", "text": "3"}
+{"time": 1792132529.066067, "direction": "rx", "hex": "3630380d0a656e74727920307834303038303566300d0a", "text": "608\r\nentry 0x400805f0\r\n"}
+{"time": 1792132529.272747, "direction": "rx", "hex": "45", "text": "E"}
+{"time": 1792132529.272854, "direction": "rx", "hex": "202832333329206573705f636f72655f64756d705f666cc1e6f8a1e9204e6f", "text": " (233) esp_core_dump_fl\ufffd\ufffd\ufffd\ufffd\ufffd No"}
+{"time": 1792132529.274973, "direction": "rx", "hex": "20", "text": " "}
+{"time": 1792132529.274996, "direction": "rx", "hex": "636f72652064756d7020706172746974696f6e20666f756e64210d0a452028", "text": "core dump partition found!\r\nE ("}
+{"time": 1792132529.27777, "direction": "rx", "hex": "32", "text": "2"}
+{"time": 1792132529.277824, "direction": "rx", "hex": "333329206573705f636f72655f64756d705f666c6173683a204e6f20636f72", "text": "33) esp_core_dump_flash: No cor"}
+{"time": 1792132529.2819479, "direction": "rx", "hex": "65", "text": "e"}
+{"time": 1792132529.281982, "direction": "rx", "hex": "2064756d7020706172746974696f6e20666f756e64210d0a", "text": " dump partition found!\r\n"}

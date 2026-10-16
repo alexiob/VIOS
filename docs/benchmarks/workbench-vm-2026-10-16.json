@@ -1,0 +1,1883 @@
+{
+  "before": {
+    "timer_hz": 288000,
+    "samples_per_condition": 9,
+    "conditions": 45,
+    "largest_sample_ticks": 12203,
+    "all_scaling_checks_passed": true,
+    "workloads": [
+      {
+        "word": "BM-ARITH",
+        "c_ticks": 11123,
+        "token_ticks": 2441,
+        "direct_ticks": 2133,
+        "token_ms": 8.475694444444445,
+        "direct_ms": 7.40625,
+        "direct_time_reduction_percent": 12.617779598525193,
+        "direct_vs_c_speedup": 5.214721050164088
+      },
+      {
+        "word": "BM-BRANCH",
+        "c_ticks": 11856,
+        "token_ticks": 2349,
+        "direct_ticks": 2019,
+        "token_ms": 8.15625,
+        "direct_ms": 7.010416666666667,
+        "direct_time_reduction_percent": 14.048531289910605,
+        "direct_vs_c_speedup": 5.872213967310549
+      },
+      {
+        "word": "BM-CALL",
+        "c_ticks": 7608,
+        "token_ticks": 1725,
+        "direct_ticks": 1488,
+        "token_ms": 5.989583333333333,
+        "direct_ms": 5.166666666666667,
+        "direct_time_reduction_percent": 13.73913043478261,
+        "direct_vs_c_speedup": 5.112903225806452
+      },
+      {
+        "word": "BM-LOOP",
+        "c_ticks": 4566,
+        "token_ticks": 1183,
+        "direct_ticks": 1050,
+        "token_ms": 4.107638888888889,
+        "direct_ms": 3.6458333333333335,
+        "direct_time_reduction_percent": 11.24260355029586,
+        "direct_vs_c_speedup": 4.348571428571429
+      },
+      {
+        "word": "BM-MEM",
+        "c_ticks": 12202,
+        "token_ticks": 2290,
+        "direct_ticks": 1980,
+        "token_ms": 7.951388888888889,
+        "direct_ms": 6.875,
+        "direct_time_reduction_percent": 13.53711790393013,
+        "direct_vs_c_speedup": 6.1626262626262625
+      }
+    ],
+    "raw": [
+      {
+        "engine": 0,
+        "word": "BM-ARITH",
+        "n": 25,
+        "result": 3,
+        "ticks": [
+          2868,
+          2868,
+          2868,
+          2868,
+          2868,
+          2868,
+          2867,
+          2867,
+          2867
+        ],
+        "median": 2868
+      },
+      {
+        "engine": 0,
+        "word": "BM-ARITH",
+        "n": 50,
+        "result": 0,
+        "ticks": [
+          5620,
+          5620,
+          5620,
+          5620,
+          5620,
+          5620,
+          5620,
+          5620,
+          5620
+        ],
+        "median": 5620
+      },
+      {
+        "engine": 0,
+        "word": "BM-ARITH",
+        "n": 100,
+        "result": 0,
+        "ticks": [
+          11123,
+          11123,
+          11123,
+          11123,
+          11123,
+          11123,
+          11124,
+          11124,
+          11124
+        ],
+        "median": 11123
+      },
+      {
+        "engine": 0,
+        "word": "BM-CALL",
+        "n": 25,
+        "result": 75,
+        "ticks": [
+          1987,
+          1987,
+          1987,
+          1987,
+          1986,
+          1986,
+          1986,
+          1986,
+          1986
+        ],
+        "median": 1986
+      },
+      {
+        "engine": 0,
+        "word": "BM-CALL",
+        "n": 50,
+        "result": 150,
+        "ticks": [
+          3860,
+          3860,
+          3860,
+          3861,
+          3860,
+          3860,
+          3861,
+          3860,
+          3860
+        ],
+        "median": 3860
+      },
+      {
+        "engine": 0,
+        "word": "BM-CALL",
+        "n": 100,
+        "result": 300,
+        "ticks": [
+          7608,
+          7608,
+          7608,
+          7608,
+          7608,
+          7608,
+          7608,
+          7608,
+          7608
+        ],
+        "median": 7608
+      },
+      {
+        "engine": 0,
+        "word": "BM-BRANCH",
+        "n": 25,
+        "result": 49,
+        "ticks": [
+          3046,
+          3046,
+          3046,
+          3047,
+          3046,
+          3046,
+          3047,
+          3046,
+          3046
+        ],
+        "median": 3046
+      },
+      {
+        "engine": 0,
+        "word": "BM-BRANCH",
+        "n": 50,
+        "result": 100,
+        "ticks": [
+          5987,
+          5987,
+          5987,
+          5987,
+          5987,
+          5987,
+          5988,
+          5987,
+          5987
+        ],
+        "median": 5987
+      },
+      {
+        "engine": 0,
+        "word": "BM-BRANCH",
+        "n": 100,
+        "result": 200,
+        "ticks": [
+          11855,
+          11855,
+          11855,
+          11856,
+          11856,
+          11856,
+          11856,
+          11856,
+          11856
+        ],
+        "median": 11856
+      },
+      {
+        "engine": 0,
+        "word": "BM-LOOP",
+        "n": 25,
+        "result": 300,
+        "ticks": [
+          1226,
+          1226,
+          1226,
+          1226,
+          1226,
+          1226,
+          1226,
+          1226,
+          1226
+        ],
+        "median": 1226
+      },
+      {
+        "engine": 0,
+        "word": "BM-LOOP",
+        "n": 50,
+        "result": 1225,
+        "ticks": [
+          2340,
+          2339,
+          2339,
+          2339,
+          2339,
+          2340,
+          2339,
+          2339,
+          2340
+        ],
+        "median": 2339
+      },
+      {
+        "engine": 0,
+        "word": "BM-LOOP",
+        "n": 100,
+        "result": 4950,
+        "ticks": [
+          4566,
+          4566,
+          4566,
+          4566,
+          4565,
+          4566,
+          4566,
+          4566,
+          4566
+        ],
+        "median": 4566
+      },
+      {
+        "engine": 0,
+        "word": "BM-MEM",
+        "n": 25,
+        "result": 25,
+        "ticks": [
+          3177,
+          3177,
+          3177,
+          3177,
+          3177,
+          3177,
+          3177,
+          3177,
+          3177
+        ],
+        "median": 3177
+      },
+      {
+        "engine": 0,
+        "word": "BM-MEM",
+        "n": 50,
+        "result": 50,
+        "ticks": [
+          6186,
+          6186,
+          6186,
+          6186,
+          6185,
+          6186,
+          6186,
+          6186,
+          6186
+        ],
+        "median": 6186
+      },
+      {
+        "engine": 0,
+        "word": "BM-MEM",
+        "n": 100,
+        "result": 100,
+        "ticks": [
+          12202,
+          12202,
+          12203,
+          12202,
+          12202,
+          12203,
+          12202,
+          12202,
+          12202
+        ],
+        "median": 12202
+      },
+      {
+        "engine": 1,
+        "word": "BM-ARITH",
+        "n": 25,
+        "result": 3,
+        "ticks": [
+          655,
+          655,
+          655,
+          656,
+          655,
+          656,
+          655,
+          655,
+          655
+        ],
+        "median": 655
+      },
+      {
+        "engine": 1,
+        "word": "BM-ARITH",
+        "n": 50,
+        "result": 0,
+        "ticks": [
+          1250,
+          1250,
+          1251,
+          1251,
+          1250,
+          1250,
+          1250,
+          1251,
+          1251
+        ],
+        "median": 1250
+      },
+      {
+        "engine": 1,
+        "word": "BM-ARITH",
+        "n": 100,
+        "result": 0,
+        "ticks": [
+          2441,
+          2441,
+          2441,
+          2441,
+          2441,
+          2441,
+          2441,
+          2442,
+          2441
+        ],
+        "median": 2441
+      },
+      {
+        "engine": 1,
+        "word": "BM-CALL",
+        "n": 25,
+        "result": 75,
+        "ticks": [
+          474,
+          474,
+          474,
+          474,
+          474,
+          474,
+          474,
+          474,
+          474
+        ],
+        "median": 474
+      },
+      {
+        "engine": 1,
+        "word": "BM-CALL",
+        "n": 50,
+        "result": 150,
+        "ticks": [
+          891,
+          891,
+          891,
+          891,
+          891,
+          891,
+          891,
+          891,
+          892
+        ],
+        "median": 891
+      },
+      {
+        "engine": 1,
+        "word": "BM-CALL",
+        "n": 100,
+        "result": 300,
+        "ticks": [
+          1725,
+          1725,
+          1725,
+          1726,
+          1726,
+          1726,
+          1725,
+          1725,
+          1725
+        ],
+        "median": 1725
+      },
+      {
+        "engine": 1,
+        "word": "BM-BRANCH",
+        "n": 25,
+        "result": 49,
+        "ticks": [
+          634,
+          633,
+          634,
+          634,
+          634,
+          634,
+          633,
+          634,
+          634
+        ],
+        "median": 634
+      },
+      {
+        "engine": 1,
+        "word": "BM-BRANCH",
+        "n": 50,
+        "result": 100,
+        "ticks": [
+          1206,
+          1205,
+          1206,
+          1206,
+          1206,
+          1206,
+          1205,
+          1206,
+          1206
+        ],
+        "median": 1206
+      },
+      {
+        "engine": 1,
+        "word": "BM-BRANCH",
+        "n": 100,
+        "result": 200,
+        "ticks": [
+          2348,
+          2348,
+          2349,
+          2349,
+          2349,
+          2349,
+          2348,
+          2349,
+          2349
+        ],
+        "median": 2349
+      },
+      {
+        "engine": 1,
+        "word": "BM-LOOP",
+        "n": 25,
+        "result": 300,
+        "ticks": [
+          338,
+          338,
+          339,
+          338,
+          338,
+          338,
+          339,
+          338,
+          338
+        ],
+        "median": 338
+      },
+      {
+        "engine": 1,
+        "word": "BM-LOOP",
+        "n": 50,
+        "result": 1225,
+        "ticks": [
+          620,
+          620,
+          620,
+          620,
+          620,
+          620,
+          620,
+          620,
+          620
+        ],
+        "median": 620
+      },
+      {
+        "engine": 1,
+        "word": "BM-LOOP",
+        "n": 100,
+        "result": 4950,
+        "ticks": [
+          1183,
+          1184,
+          1183,
+          1183,
+          1184,
+          1183,
+          1183,
+          1184,
+          1183
+        ],
+        "median": 1183
+      },
+      {
+        "engine": 1,
+        "word": "BM-MEM",
+        "n": 25,
+        "result": 25,
+        "ticks": [
+          620,
+          620,
+          620,
+          620,
+          620,
+          620,
+          619,
+          620,
+          620
+        ],
+        "median": 620
+      },
+      {
+        "engine": 1,
+        "word": "BM-MEM",
+        "n": 50,
+        "result": 50,
+        "ticks": [
+          1177,
+          1176,
+          1176,
+          1176,
+          1176,
+          1176,
+          1177,
+          1177,
+          1177
+        ],
+        "median": 1176
+      },
+      {
+        "engine": 1,
+        "word": "BM-MEM",
+        "n": 100,
+        "result": 100,
+        "ticks": [
+          2290,
+          2289,
+          2290,
+          2290,
+          2290,
+          2290,
+          2290,
+          2289,
+          2290
+        ],
+        "median": 2290
+      },
+      {
+        "engine": 2,
+        "word": "BM-ARITH",
+        "n": 25,
+        "result": 3,
+        "ticks": [
+          577,
+          577,
+          577,
+          577,
+          577,
+          577,
+          577,
+          577,
+          577
+        ],
+        "median": 577
+      },
+      {
+        "engine": 2,
+        "word": "BM-ARITH",
+        "n": 50,
+        "result": 0,
+        "ticks": [
+          1096,
+          1095,
+          1095,
+          1096,
+          1096,
+          1095,
+          1095,
+          1096,
+          1096
+        ],
+        "median": 1096
+      },
+      {
+        "engine": 2,
+        "word": "BM-ARITH",
+        "n": 100,
+        "result": 0,
+        "ticks": [
+          2133,
+          2133,
+          2133,
+          2133,
+          2133,
+          2133,
+          2133,
+          2133,
+          2133
+        ],
+        "median": 2133
+      },
+      {
+        "engine": 2,
+        "word": "BM-CALL",
+        "n": 25,
+        "result": 75,
+        "ticks": [
+          413,
+          413,
+          413,
+          413,
+          413,
+          413,
+          413,
+          413,
+          413
+        ],
+        "median": 413
+      },
+      {
+        "engine": 2,
+        "word": "BM-CALL",
+        "n": 50,
+        "result": 150,
+        "ticks": [
+          771,
+          771,
+          772,
+          771,
+          772,
+          771,
+          771,
+          771,
+          771
+        ],
+        "median": 771
+      },
+      {
+        "engine": 2,
+        "word": "BM-CALL",
+        "n": 100,
+        "result": 300,
+        "ticks": [
+          1487,
+          1487,
+          1487,
+          1487,
+          1488,
+          1488,
+          1488,
+          1488,
+          1488
+        ],
+        "median": 1488
+      },
+      {
+        "engine": 2,
+        "word": "BM-BRANCH",
+        "n": 25,
+        "result": 49,
+        "ticks": [
+          550,
+          550,
+          550,
+          550,
+          550,
+          550,
+          550,
+          550,
+          550
+        ],
+        "median": 550
+      },
+      {
+        "engine": 2,
+        "word": "BM-BRANCH",
+        "n": 50,
+        "result": 100,
+        "ticks": [
+          1040,
+          1040,
+          1040,
+          1040,
+          1040,
+          1040,
+          1039,
+          1040,
+          1040
+        ],
+        "median": 1040
+      },
+      {
+        "engine": 2,
+        "word": "BM-BRANCH",
+        "n": 100,
+        "result": 200,
+        "ticks": [
+          2019,
+          2019,
+          2019,
+          2018,
+          2018,
+          2019,
+          2019,
+          2019,
+          2019
+        ],
+        "median": 2019
+      },
+      {
+        "engine": 2,
+        "word": "BM-LOOP",
+        "n": 25,
+        "result": 300,
+        "ticks": [
+          304,
+          304,
+          304,
+          304,
+          304,
+          304,
+          304,
+          304,
+          304
+        ],
+        "median": 304
+      },
+      {
+        "engine": 2,
+        "word": "BM-LOOP",
+        "n": 50,
+        "result": 1225,
+        "ticks": [
+          553,
+          552,
+          552,
+          552,
+          553,
+          553,
+          553,
+          552,
+          552
+        ],
+        "median": 552
+      },
+      {
+        "engine": 2,
+        "word": "BM-LOOP",
+        "n": 100,
+        "result": 4950,
+        "ticks": [
+          1051,
+          1050,
+          1051,
+          1050,
+          1050,
+          1050,
+          1050,
+          1050,
+          1050
+        ],
+        "median": 1050
+      },
+      {
+        "engine": 2,
+        "word": "BM-MEM",
+        "n": 25,
+        "result": 25,
+        "ticks": [
+          540,
+          541,
+          540,
+          541,
+          540,
+          541,
+          540,
+          540,
+          540
+        ],
+        "median": 540
+      },
+      {
+        "engine": 2,
+        "word": "BM-MEM",
+        "n": 50,
+        "result": 50,
+        "ticks": [
+          1021,
+          1020,
+          1021,
+          1020,
+          1020,
+          1020,
+          1020,
+          1020,
+          1020
+        ],
+        "median": 1020
+      },
+      {
+        "engine": 2,
+        "word": "BM-MEM",
+        "n": 100,
+        "result": 100,
+        "ticks": [
+          1980,
+          1980,
+          1981,
+          1981,
+          1980,
+          1980,
+          1981,
+          1980,
+          1980
+        ],
+        "median": 1980
+      }
+    ]
+  },
+  "after_with_workbench_open": {
+    "timer_hz": 288000,
+    "samples_per_condition": 9,
+    "conditions": 45,
+    "largest_sample_ticks": 12214,
+    "all_scaling_checks_passed": true,
+    "workloads": [
+      {
+        "word": "BM-ARITH",
+        "c_ticks": 11138,
+        "token_ticks": 2455,
+        "direct_ticks": 2147,
+        "token_ms": 8.524305555555555,
+        "direct_ms": 7.454861111111111,
+        "direct_time_reduction_percent": 12.545824847250508,
+        "direct_vs_c_speedup": 5.187703772706102
+      },
+      {
+        "word": "BM-BRANCH",
+        "c_ticks": 11872,
+        "token_ticks": 2365,
+        "direct_ticks": 2035,
+        "token_ms": 8.211805555555555,
+        "direct_ms": 7.065972222222222,
+        "direct_time_reduction_percent": 13.953488372093027,
+        "direct_vs_c_speedup": 5.833906633906634
+      },
+      {
+        "word": "BM-CALL",
+        "c_ticks": 7620,
+        "token_ticks": 1738,
+        "direct_ticks": 1500,
+        "token_ms": 6.034722222222222,
+        "direct_ms": 5.208333333333333,
+        "direct_time_reduction_percent": 13.693901035673184,
+        "direct_vs_c_speedup": 5.08
+      },
+      {
+        "word": "BM-LOOP",
+        "c_ticks": 4579,
+        "token_ticks": 1196,
+        "direct_ticks": 1063,
+        "token_ms": 4.152777777777778,
+        "direct_ms": 3.6909722222222223,
+        "direct_time_reduction_percent": 11.12040133779264,
+        "direct_vs_c_speedup": 4.307619943555974
+      },
+      {
+        "word": "BM-MEM",
+        "c_ticks": 12213,
+        "token_ticks": 2300,
+        "direct_ticks": 1991,
+        "token_ms": 7.986111111111111,
+        "direct_ms": 6.913194444444445,
+        "direct_time_reduction_percent": 13.43478260869565,
+        "direct_vs_c_speedup": 6.134103465595178
+      }
+    ],
+    "raw": [
+      {
+        "engine": 0,
+        "word": "BM-ARITH",
+        "n": 25,
+        "result": 3,
+        "ticks": [
+          2882,
+          2882,
+          2882,
+          2882,
+          2882,
+          2882,
+          2882,
+          2882,
+          2882
+        ],
+        "median": 2882
+      },
+      {
+        "engine": 0,
+        "word": "BM-ARITH",
+        "n": 50,
+        "result": 0,
+        "ticks": [
+          5634,
+          5634,
+          5634,
+          5634,
+          5634,
+          5634,
+          5634,
+          5634,
+          5634
+        ],
+        "median": 5634
+      },
+      {
+        "engine": 0,
+        "word": "BM-ARITH",
+        "n": 100,
+        "result": 0,
+        "ticks": [
+          11138,
+          11138,
+          11138,
+          11138,
+          11138,
+          11138,
+          11137,
+          11138,
+          11138
+        ],
+        "median": 11138
+      },
+      {
+        "engine": 0,
+        "word": "BM-CALL",
+        "n": 25,
+        "result": 75,
+        "ticks": [
+          1999,
+          1999,
+          1999,
+          1999,
+          1999,
+          1999,
+          1999,
+          1999,
+          1999
+        ],
+        "median": 1999
+      },
+      {
+        "engine": 0,
+        "word": "BM-CALL",
+        "n": 50,
+        "result": 150,
+        "ticks": [
+          3873,
+          3873,
+          3873,
+          3873,
+          3873,
+          3873,
+          3873,
+          3872,
+          3873
+        ],
+        "median": 3873
+      },
+      {
+        "engine": 0,
+        "word": "BM-CALL",
+        "n": 100,
+        "result": 300,
+        "ticks": [
+          7620,
+          7620,
+          7620,
+          7620,
+          7620,
+          7620,
+          7620,
+          7620,
+          7620
+        ],
+        "median": 7620
+      },
+      {
+        "engine": 0,
+        "word": "BM-BRANCH",
+        "n": 25,
+        "result": 49,
+        "ticks": [
+          3062,
+          3063,
+          3062,
+          3062,
+          3063,
+          3062,
+          3062,
+          3063,
+          3062
+        ],
+        "median": 3062
+      },
+      {
+        "engine": 0,
+        "word": "BM-BRANCH",
+        "n": 50,
+        "result": 100,
+        "ticks": [
+          6004,
+          6003,
+          6003,
+          6003,
+          6003,
+          6003,
+          6003,
+          6003,
+          6004
+        ],
+        "median": 6003
+      },
+      {
+        "engine": 0,
+        "word": "BM-BRANCH",
+        "n": 100,
+        "result": 200,
+        "ticks": [
+          11872,
+          11872,
+          11872,
+          11872,
+          11872,
+          11872,
+          11872,
+          11872,
+          11872
+        ],
+        "median": 11872
+      },
+      {
+        "engine": 0,
+        "word": "BM-LOOP",
+        "n": 25,
+        "result": 300,
+        "ticks": [
+          1238,
+          1238,
+          1238,
+          1238,
+          1238,
+          1238,
+          1239,
+          1239,
+          1239
+        ],
+        "median": 1238
+      },
+      {
+        "engine": 0,
+        "word": "BM-LOOP",
+        "n": 50,
+        "result": 1225,
+        "ticks": [
+          2352,
+          2352,
+          2352,
+          2351,
+          2352,
+          2352,
+          2352,
+          2352,
+          2351
+        ],
+        "median": 2352
+      },
+      {
+        "engine": 0,
+        "word": "BM-LOOP",
+        "n": 100,
+        "result": 4950,
+        "ticks": [
+          4579,
+          4579,
+          4578,
+          4578,
+          4579,
+          4579,
+          4578,
+          4578,
+          4579
+        ],
+        "median": 4579
+      },
+      {
+        "engine": 0,
+        "word": "BM-MEM",
+        "n": 25,
+        "result": 25,
+        "ticks": [
+          3189,
+          3189,
+          3189,
+          3188,
+          3188,
+          3188,
+          3188,
+          3189,
+          3189
+        ],
+        "median": 3189
+      },
+      {
+        "engine": 0,
+        "word": "BM-MEM",
+        "n": 50,
+        "result": 50,
+        "ticks": [
+          6197,
+          6197,
+          6197,
+          6197,
+          6197,
+          6197,
+          6197,
+          6197,
+          6197
+        ],
+        "median": 6197
+      },
+      {
+        "engine": 0,
+        "word": "BM-MEM",
+        "n": 100,
+        "result": 100,
+        "ticks": [
+          12213,
+          12213,
+          12213,
+          12213,
+          12213,
+          12213,
+          12214,
+          12213,
+          12213
+        ],
+        "median": 12213
+      },
+      {
+        "engine": 1,
+        "word": "BM-ARITH",
+        "n": 25,
+        "result": 3,
+        "ticks": [
+          670,
+          669,
+          669,
+          669,
+          670,
+          670,
+          669,
+          669,
+          669
+        ],
+        "median": 669
+      },
+      {
+        "engine": 1,
+        "word": "BM-ARITH",
+        "n": 50,
+        "result": 0,
+        "ticks": [
+          1264,
+          1264,
+          1265,
+          1265,
+          1265,
+          1265,
+          1265,
+          1265,
+          1265
+        ],
+        "median": 1265
+      },
+      {
+        "engine": 1,
+        "word": "BM-ARITH",
+        "n": 100,
+        "result": 0,
+        "ticks": [
+          2455,
+          2456,
+          2455,
+          2455,
+          2456,
+          2456,
+          2455,
+          2455,
+          2456
+        ],
+        "median": 2455
+      },
+      {
+        "engine": 1,
+        "word": "BM-CALL",
+        "n": 25,
+        "result": 75,
+        "ticks": [
+          487,
+          486,
+          486,
+          486,
+          486,
+          487,
+          487,
+          487,
+          486
+        ],
+        "median": 486
+      },
+      {
+        "engine": 1,
+        "word": "BM-CALL",
+        "n": 50,
+        "result": 150,
+        "ticks": [
+          904,
+          904,
+          904,
+          904,
+          904,
+          904,
+          904,
+          904,
+          904
+        ],
+        "median": 904
+      },
+      {
+        "engine": 1,
+        "word": "BM-CALL",
+        "n": 100,
+        "result": 300,
+        "ticks": [
+          1738,
+          1738,
+          1738,
+          1738,
+          1738,
+          1738,
+          1738,
+          1738,
+          1738
+        ],
+        "median": 1738
+      },
+      {
+        "engine": 1,
+        "word": "BM-BRANCH",
+        "n": 25,
+        "result": 49,
+        "ticks": [
+          650,
+          650,
+          650,
+          650,
+          650,
+          649,
+          650,
+          650,
+          650
+        ],
+        "median": 650
+      },
+      {
+        "engine": 1,
+        "word": "BM-BRANCH",
+        "n": 50,
+        "result": 100,
+        "ticks": [
+          1222,
+          1222,
+          1222,
+          1222,
+          1222,
+          1222,
+          1222,
+          1222,
+          1222
+        ],
+        "median": 1222
+      },
+      {
+        "engine": 1,
+        "word": "BM-BRANCH",
+        "n": 100,
+        "result": 200,
+        "ticks": [
+          2365,
+          2365,
+          2365,
+          2364,
+          2365,
+          2365,
+          2365,
+          2364,
+          2365
+        ],
+        "median": 2365
+      },
+      {
+        "engine": 1,
+        "word": "BM-LOOP",
+        "n": 25,
+        "result": 300,
+        "ticks": [
+          351,
+          351,
+          351,
+          351,
+          350,
+          351,
+          351,
+          351,
+          351
+        ],
+        "median": 351
+      },
+      {
+        "engine": 1,
+        "word": "BM-LOOP",
+        "n": 50,
+        "result": 1225,
+        "ticks": [
+          632,
+          632,
+          632,
+          632,
+          632,
+          632,
+          633,
+          633,
+          633
+        ],
+        "median": 632
+      },
+      {
+        "engine": 1,
+        "word": "BM-LOOP",
+        "n": 100,
+        "result": 4950,
+        "ticks": [
+          1195,
+          1196,
+          1196,
+          1196,
+          1196,
+          1195,
+          1196,
+          1196,
+          1196
+        ],
+        "median": 1196
+      },
+      {
+        "engine": 1,
+        "word": "BM-MEM",
+        "n": 25,
+        "result": 25,
+        "ticks": [
+          631,
+          631,
+          631,
+          630,
+          630,
+          630,
+          631,
+          631,
+          631
+        ],
+        "median": 631
+      },
+      {
+        "engine": 1,
+        "word": "BM-MEM",
+        "n": 50,
+        "result": 50,
+        "ticks": [
+          1187,
+          1187,
+          1187,
+          1188,
+          1187,
+          1187,
+          1188,
+          1188,
+          1187
+        ],
+        "median": 1187
+      },
+      {
+        "engine": 1,
+        "word": "BM-MEM",
+        "n": 100,
+        "result": 100,
+        "ticks": [
+          2300,
+          2300,
+          2300,
+          2300,
+          2300,
+          2300,
+          2300,
+          2300,
+          2300
+        ],
+        "median": 2300
+      },
+      {
+        "engine": 2,
+        "word": "BM-ARITH",
+        "n": 25,
+        "result": 3,
+        "ticks": [
+          591,
+          591,
+          591,
+          591,
+          591,
+          591,
+          591,
+          591,
+          591
+        ],
+        "median": 591
+      },
+      {
+        "engine": 2,
+        "word": "BM-ARITH",
+        "n": 50,
+        "result": 0,
+        "ticks": [
+          1110,
+          1109,
+          1109,
+          1109,
+          1109,
+          1110,
+          1110,
+          1110,
+          1110
+        ],
+        "median": 1110
+      },
+      {
+        "engine": 2,
+        "word": "BM-ARITH",
+        "n": 100,
+        "result": 0,
+        "ticks": [
+          2147,
+          2147,
+          2147,
+          2147,
+          2148,
+          2147,
+          2147,
+          2147,
+          2147
+        ],
+        "median": 2147
+      },
+      {
+        "engine": 2,
+        "word": "BM-CALL",
+        "n": 25,
+        "result": 75,
+        "ticks": [
+          426,
+          426,
+          426,
+          426,
+          426,
+          426,
+          426,
+          426,
+          426
+        ],
+        "median": 426
+      },
+      {
+        "engine": 2,
+        "word": "BM-CALL",
+        "n": 50,
+        "result": 150,
+        "ticks": [
+          784,
+          784,
+          784,
+          784,
+          784,
+          783,
+          784,
+          784,
+          784
+        ],
+        "median": 784
+      },
+      {
+        "engine": 2,
+        "word": "BM-CALL",
+        "n": 100,
+        "result": 300,
+        "ticks": [
+          1500,
+          1500,
+          1500,
+          1501,
+          1500,
+          1500,
+          1500,
+          1500,
+          1500
+        ],
+        "median": 1500
+      },
+      {
+        "engine": 2,
+        "word": "BM-BRANCH",
+        "n": 25,
+        "result": 49,
+        "ticks": [
+          566,
+          567,
+          566,
+          566,
+          566,
+          566,
+          566,
+          566,
+          567
+        ],
+        "median": 566
+      },
+      {
+        "engine": 2,
+        "word": "BM-BRANCH",
+        "n": 50,
+        "result": 100,
+        "ticks": [
+          1056,
+          1055,
+          1056,
+          1056,
+          1056,
+          1056,
+          1056,
+          1056,
+          1056
+        ],
+        "median": 1056
+      },
+      {
+        "engine": 2,
+        "word": "BM-BRANCH",
+        "n": 100,
+        "result": 200,
+        "ticks": [
+          2035,
+          2035,
+          2035,
+          2035,
+          2035,
+          2035,
+          2034,
+          2035,
+          2035
+        ],
+        "median": 2035
+      },
+      {
+        "engine": 2,
+        "word": "BM-LOOP",
+        "n": 25,
+        "result": 300,
+        "ticks": [
+          317,
+          316,
+          316,
+          316,
+          316,
+          316,
+          316,
+          317,
+          316
+        ],
+        "median": 316
+      },
+      {
+        "engine": 2,
+        "word": "BM-LOOP",
+        "n": 50,
+        "result": 1225,
+        "ticks": [
+          565,
+          565,
+          565,
+          565,
+          565,
+          565,
+          565,
+          565,
+          565
+        ],
+        "median": 565
+      },
+      {
+        "engine": 2,
+        "word": "BM-LOOP",
+        "n": 100,
+        "result": 4950,
+        "ticks": [
+          1063,
+          1063,
+          1063,
+          1063,
+          1063,
+          1063,
+          1063,
+          1063,
+          1062
+        ],
+        "median": 1063
+      },
+      {
+        "engine": 2,
+        "word": "BM-MEM",
+        "n": 25,
+        "result": 25,
+        "ticks": [
+          551,
+          551,
+          550,
+          551,
+          551,
+          551,
+          551,
+          551,
+          551
+        ],
+        "median": 551
+      },
+      {
+        "engine": 2,
+        "word": "BM-MEM",
+        "n": 50,
+        "result": 50,
+        "ticks": [
+          1031,
+          1031,
+          1031,
+          1031,
+          1031,
+          1031,
+          1031,
+          1031,
+          1031
+        ],
+        "median": 1031
+      },
+      {
+        "engine": 2,
+        "word": "BM-MEM",
+        "n": 100,
+        "result": 100,
+        "ticks": [
+          1991,
+          1991,
+          1991,
+          1991,
+          1992,
+          1991,
+          1992,
+          1991,
+          1991
+        ],
+        "median": 1991
+      }
+    ]
+  },
+  "direct_changes": [
+    {
+      "word": "BM-ARITH",
+      "before_direct_ticks": 2133,
+      "after_direct_ticks": 2147,
+      "change_percent": 0.6563525550867366
+    },
+    {
+      "word": "BM-BRANCH",
+      "before_direct_ticks": 2019,
+      "after_direct_ticks": 2035,
+      "change_percent": 0.7924715205547272
+    },
+    {
+      "word": "BM-CALL",
+      "before_direct_ticks": 1488,
+      "after_direct_ticks": 1500,
+      "change_percent": 0.8064516129032251
+    },
+    {
+      "word": "BM-LOOP",
+      "before_direct_ticks": 1050,
+      "after_direct_ticks": 1063,
+      "change_percent": 1.2380952380952381
+    },
+    {
+      "word": "BM-MEM",
+      "before_direct_ticks": 1980,
+      "after_direct_ticks": 1991,
+      "change_percent": 0.5555555555555536
+    }
+  ],
+  "slope_comparison": [
+    {
+      "engine": 0,
+      "word": "BM-ARITH",
+      "before_50_to_100": 5503,
+      "after_50_to_100": 5504,
+      "difference_ticks": 1
+    },
+    {
+      "engine": 0,
+      "word": "BM-BRANCH",
+      "before_50_to_100": 5869,
+      "after_50_to_100": 5869,
+      "difference_ticks": 0
+    },
+    {
+      "engine": 0,
+      "word": "BM-CALL",
+      "before_50_to_100": 3748,
+      "after_50_to_100": 3747,
+      "difference_ticks": -1
+    },
+    {
+      "engine": 0,
+      "word": "BM-LOOP",
+      "before_50_to_100": 2227,
+      "after_50_to_100": 2227,
+      "difference_ticks": 0
+    },
+    {
+      "engine": 0,
+      "word": "BM-MEM",
+      "before_50_to_100": 6016,
+      "after_50_to_100": 6016,
+      "difference_ticks": 0
+    },
+    {
+      "engine": 1,
+      "word": "BM-ARITH",
+      "before_50_to_100": 1191,
+      "after_50_to_100": 1190,
+      "difference_ticks": -1
+    },
+    {
+      "engine": 1,
+      "word": "BM-BRANCH",
+      "before_50_to_100": 1143,
+      "after_50_to_100": 1143,
+      "difference_ticks": 0
+    },
+    {
+      "engine": 1,
+      "word": "BM-CALL",
+      "before_50_to_100": 834,
+      "after_50_to_100": 834,
+      "difference_ticks": 0
+    },
+    {
+      "engine": 1,
+      "word": "BM-LOOP",
+      "before_50_to_100": 563,
+      "after_50_to_100": 564,
+      "difference_ticks": 1
+    },
+    {
+      "engine": 1,
+      "word": "BM-MEM",
+      "before_50_to_100": 1114,
+      "after_50_to_100": 1113,
+      "difference_ticks": -1
+    },
+    {
+      "engine": 2,
+      "word": "BM-ARITH",
+      "before_50_to_100": 1037,
+      "after_50_to_100": 1037,
+      "difference_ticks": 0
+    },
+    {
+      "engine": 2,
+      "word": "BM-BRANCH",
+      "before_50_to_100": 979,
+      "after_50_to_100": 979,
+      "difference_ticks": 0
+    },
+    {
+      "engine": 2,
+      "word": "BM-CALL",
+      "before_50_to_100": 717,
+      "after_50_to_100": 716,
+      "difference_ticks": -1
+    },
+    {
+      "engine": 2,
+      "word": "BM-LOOP",
+      "before_50_to_100": 498,
+      "after_50_to_100": 498,
+      "difference_ticks": 0
+    },
+    {
+      "engine": 2,
+      "word": "BM-MEM",
+      "before_50_to_100": 960,
+      "after_50_to_100": 960,
+      "difference_ticks": 0
+    }
+  ]
+}

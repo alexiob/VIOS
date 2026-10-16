@@ -1,0 +1,8 @@
+{
+  "utc": "2026-10-16T12:57:27.843932+00:00",
+  "path": "backups/esp32/pre-vios-source-rows-app0-2026-10-16.bin",
+  "offset": 65536,
+  "size": 663472,
+  "sha256": "b8d884a1733505de995ee94f5585abaa6ed9ee9986468529cb32dc9fc3fefb2f",
+  "verification": "fresh app0 read matches preceding accepted incremental build"
+}

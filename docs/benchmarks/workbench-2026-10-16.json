@@ -1,0 +1,133 @@
+{
+  "timer_hz": 288000,
+  "uart_baud": 115200,
+  "cpu_sha256": "36fb5f932f477a182a556ae45f033820d0ce250396718fa0a795d77323383bbe",
+  "benchmarks": {
+    "full_repaint": {
+      "cells": 1547,
+      "spans": 368,
+      "batches": 33,
+      "bytes": 4123,
+      "elapsed_ticks": 144943,
+      "pending": 0,
+      "target_render_ms": 503.274306,
+      "host_elapsed_ms": 1604.4,
+      "wire_min_ms_8n1": 357.899306,
+      "fence": "0 0 CHAR@ DROP (VDP 0x83 reply)"
+    },
+    "unchanged": {
+      "cells": 0,
+      "spans": 0,
+      "batches": 0,
+      "bytes": 0,
+      "elapsed_ticks": 0,
+      "pending": 0,
+      "target_render_ms": 0.0,
+      "host_elapsed_ms": 741.302,
+      "wire_min_ms_8n1": 0.0,
+      "fence": "0 0 CHAR@ DROP (VDP 0x83 reply)"
+    },
+    "one_character_edit": {
+      "cells": 4,
+      "spans": 4,
+      "batches": 1,
+      "bytes": 32,
+      "elapsed_ticks": 1214,
+      "pending": 0,
+      "target_render_ms": 4.215278,
+      "host_elapsed_ms": 1367.492,
+      "wire_min_ms_8n1": 2.777778,
+      "fence": "0 0 CHAR@ DROP (VDP 0x83 reply)"
+    },
+    "browser_selection": {
+      "cells": 11,
+      "spans": 4,
+      "batches": 1,
+      "bytes": 39,
+      "elapsed_ticks": 1371,
+      "pending": 0,
+      "target_render_ms": 4.760417,
+      "host_elapsed_ms": 1024.962,
+      "wire_min_ms_8n1": 3.385417,
+      "fence": "0 0 CHAR@ DROP (VDP 0x83 reply)"
+    },
+    "source_scroll_one_row": {
+      "cells": 69,
+      "spans": 43,
+      "batches": 3,
+      "bytes": 370,
+      "elapsed_ticks": 14633,
+      "pending": 0,
+      "target_render_ms": 50.809028,
+      "host_elapsed_ms": 1079.17,
+      "wire_min_ms_8n1": 32.118056,
+      "fence": "0 0 CHAR@ DROP (VDP 0x83 reply)"
+    }
+  },
+  "prior_full_scan_benchmarks": {
+    "full_repaint": {
+      "cells": 1547,
+      "spans": 368,
+      "batches": 33,
+      "bytes": 4123,
+      "elapsed_ticks": 155023,
+      "pending": 0,
+      "target_render_ms": 538.274306,
+      "host_elapsed_ms": 1793.264,
+      "wire_min_ms_8n1": 357.899306,
+      "fence": "0 0 CHAR@ DROP (VDP 0x83 reply)"
+    },
+    "unchanged": {
+      "cells": 0,
+      "spans": 0,
+      "batches": 0,
+      "bytes": 0,
+      "elapsed_ticks": 0,
+      "pending": 0,
+      "target_render_ms": 0.0,
+      "host_elapsed_ms": 695.062,
+      "wire_min_ms_8n1": 0.0,
+      "fence": "0 0 CHAR@ DROP (VDP 0x83 reply)"
+    },
+    "one_character_edit": {
+      "cells": 4,
+      "spans": 4,
+      "batches": 1,
+      "bytes": 32,
+      "elapsed_ticks": 29061,
+      "pending": 0,
+      "target_render_ms": 100.90625,
+      "host_elapsed_ms": 1851.652,
+      "wire_min_ms_8n1": 2.777778,
+      "fence": "0 0 CHAR@ DROP (VDP 0x83 reply)"
+    },
+    "browser_selection": {
+      "cells": 11,
+      "spans": 4,
+      "batches": 1,
+      "bytes": 39,
+      "elapsed_ticks": 6609,
+      "pending": 0,
+      "target_render_ms": 22.947917,
+      "host_elapsed_ms": 1142.154,
+      "wire_min_ms_8n1": 3.385417,
+      "fence": "0 0 CHAR@ DROP (VDP 0x83 reply)"
+    },
+    "source_scroll_one_row": {
+      "cells": 69,
+      "spans": 43,
+      "batches": 3,
+      "bytes": 370,
+      "elapsed_ticks": 40166,
+      "pending": 0,
+      "target_render_ms": 139.465278,
+      "host_elapsed_ms": 1274.722,
+      "wire_min_ms_8n1": 32.118056,
+      "fence": "0 0 CHAR@ DROP (VDP 0x83 reply)"
+    }
+  },
+  "compose_median_ticks": 50416,
+  "compose_clock_crosscheck_ms": 177,
+  "hardware_report": "docs/bring-up/vios-workbench-hardware-run4.json",
+  "extra_report": "docs/bring-up/vios-workbench-extra-acceptance.json"
+}

@@ -1,0 +1,264 @@
+{
+  "schema": 1,
+  "started_utc": "2026-10-16T11:14:02.420205+00:00",
+  "status": "failed",
+  "transport": "existing TCP harness 127.0.0.1:8765",
+  "module": "WBM1P",
+  "timer_hz": 288000,
+  "vdp_uart_baud": 115200,
+  "events": [
+    {
+      "tool": "connect",
+      "arguments": {},
+      "started_utc": "2026-10-16T11:14:02.423128+00:00",
+      "result": {
+        "connected": true,
+        "already_connected": true,
+        "compiling": false,
+        "pending": false,
+        "identity": null
+      },
+      "host_elapsed_ms": 0.192
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-STATUS",
+        "timeout": 30
+      },
+      "started_utc": "2026-10-16T11:14:02.423619+00:00",
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 1 catalog 153 open 0 draft 0 dirty 0 staged 0 active 0 saved 0 length 0 cursor 0 selection 0 browser 0 focus 0 words 80 words_max 512 module - version - test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_elapsed_ms": 71.137
+    },
+    {
+      "tool": "modules",
+      "arguments": {},
+      "started_utc": "2026-10-16T11:14:02.495434+00:00",
+      "result": {
+        "output": "MODULES\r\nmodule LIVE1I version 11 crc32 4203863728 bytes 33 deps 0 active 1 previous 0\r\nmodule LIVE1P version 11 crc32 2732385733 bytes 60 deps 1 active 1 previous 0\r\ndependency LIVE1P module LIVE1I crc32 4203863728\r\nmodule LIVE1D version 11 crc32 1721124452 bytes 47 deps 2 active 1 previous 0\r\ndependency LIVE1D module LIVE1I crc32 4203863728\r\ndependency LIVE1D module LIVE1P crc32 2732385733\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "modules": [
+          {
+            "name": "LIVE1I",
+            "version": "11",
+            "crc32": 4203863728,
+            "bytes": 33,
+            "dependency_count": 0,
+            "active": true,
+            "previous": false,
+            "dependencies": []
+          },
+          {
+            "name": "LIVE1P",
+            "version": "11",
+            "crc32": 2732385733,
+            "bytes": 60,
+            "dependency_count": 1,
+            "active": true,
+            "previous": false,
+            "dependencies": [
+              {
+                "name": "LIVE1I",
+                "crc32": 4203863728
+              }
+            ]
+          },
+          {
+            "name": "LIVE1D",
+            "version": "11",
+            "crc32": 1721124452,
+            "bytes": 47,
+            "dependency_count": 2,
+            "active": true,
+            "previous": false,
+            "dependencies": [
+              {
+                "name": "LIVE1I",
+                "crc32": 4203863728
+              },
+              {
+                "name": "LIVE1P",
+                "crc32": 2732385733
+              }
+            ]
+          }
+        ]
+      },
+      "host_elapsed_ms": 74.845
+    },
+    {
+      "tool": "stacks",
+      "arguments": {},
+      "started_utc": "2026-10-16T11:14:02.570830+00:00",
+      "result": {
+        "output": ".S\r\n<0> \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "data_stack": {
+          "depth_text": "0",
+          "values_text": []
+        }
+      },
+      "host_elapsed_ms": 27.418
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "BASE @ DUP DECIMAL . BASE ! CR",
+        "timeout": 30
+      },
+      "started_utc": "2026-10-16T11:14:02.598771+00:00",
+      "result": {
+        "output": "BASE @ DUP DECIMAL . BASE ! CR\r\n10 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_elapsed_ms": 41.639
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "$13579B $2468AC HEX",
+        "timeout": 30
+      },
+      "started_utc": "2026-10-16T11:14:02.641101+00:00",
+      "result": {
+        "output": "$13579B $2468AC HEX\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_elapsed_ms": 34.144
+    },
+    {
+      "tool": "stacks",
+      "arguments": {},
+      "started_utc": "2026-10-16T11:14:02.675907+00:00",
+      "result": {
+        "output": ".S\r\n<2> 13579B 2468AC \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "data_stack": {
+          "depth_text": "2",
+          "values_text": [
+            "13579B",
+            "2468AC"
+          ]
+        }
+      },
+      "host_elapsed_ms": 30.681
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-RENDER-STATS RESET",
+        "timeout": 30
+      },
+      "started_utc": "2026-10-16T11:14:02.707318+00:00",
+      "result": {
+        "output": "WB-RENDER-STATS RESET\r\nWB-RENDER-STATS cells 0 spans 0 batches 0 bytes 0 elapsed_ticks 0 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_elapsed_ms": 116.753
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-OPEN",
+        "timeout": 30
+      },
+      "started_utc": "2026-10-16T11:14:02.824786+00:00",
+      "result": {
+        "output": "WB-OPEN\r\nWB-STATUS revision 1 catalog 153 open 1 draft 0 dirty 0 staged 0 active 0 saved 0 length 0 cursor 0 selection 0 browser 0 focus 0 words 80 words_max 512 module - version - test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_elapsed_ms": 190.696
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-FLUSH",
+        "timeout": 30
+      },
+      "started_utc": "2026-10-16T11:14:03.016831+00:00",
+      "result": {
+        "output": "WB-FLUSH\r\nWB-FLUSH elapsed_ms 722 bytes 930 spans 91 batches 8 cells 293 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_elapsed_ms": 847.368
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "0 0 CHAR@ DROP",
+        "timeout": 30
+      },
+      "started_utc": "2026-10-16T11:14:03.865614+00:00",
+      "result": {
+        "output": "@6BCF5118 !B34",
+        "ok": false,
+        "pending": true,
+        "compiling": false,
+        "remaining_source": "",
+        "error": "Evaluation still pending; use console_input for KEY, then await_result"
+      },
+      "exception": "evaluate did not return to a synchronized idle interpreter: {'output': '@6BCF5118 !B34', 'ok': False, 'pending': True, 'compiling': False, 'remaining_source': '', 'error': 'Evaluation still pending; use console_input for KEY, then await_result'}",
+      "host_elapsed_ms": 30083.84
+    }
+  ],
+  "benchmarks": {},
+  "limits": [
+    "VDP replies do not prove a physical display or keyboard is attached",
+    "Host elapsed includes TCP/harness/CLI/fence round trips",
+    "Target ticks sum bounded native-render calls, excluding idle gaps",
+    "Creates RAM module/words only; no SD or boot edits; no deployment or recovery"
+  ],
+  "initial": {
+    "base": 10,
+    "stack": {
+      "depth_text": "0",
+      "values_text": []
+    },
+    "workbench": {
+      "revision": 1,
+      "catalog": "153",
+      "open": 0,
+      "draft": 0,
+      "dirty": 0,
+      "staged": "0",
+      "active": 0,
+      "saved": "0",
+      "length": 0,
+      "cursor": 0,
+      "selection": "0",
+      "browser": "0",
+      "focus": 0,
+      "words": "80",
+      "words_max": "512",
+      "module": "",
+      "version": "",
+      "test": "",
+      "error": ""
+    }
+  },
+  "cleanup_note": "Connection/state uncertain; no cleanup request was sent",
+  "error": "evaluate did not return to a synchronized idle interpreter: {'output': '@6BCF5118 !B34', 'ok': False, 'pending': True, 'compiling': False, 'remaining_source': '', 'error': 'Evaluation still pending; use console_input for KEY, then await_result'}",
+  "error_type": "CheckFailed",
+  "finished_utc": "2026-10-16T11:14:33.950983+00:00"
+}

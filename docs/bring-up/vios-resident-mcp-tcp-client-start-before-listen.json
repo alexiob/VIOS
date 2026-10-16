@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "started_utc": "2026-10-16T10:38:47.479512+00:00",
+  "namespace": "MCP1",
+  "phases": [
+    "tcp"
+  ],
+  "status": "failed",
+  "hardware_run": true,
+  "checks": [],
+  "limits": [
+    "VDP replies do not prove visible or audible physical output",
+    "Boot phase changes startup only from an unconfirmed clean baseline",
+    "No flash write, ROM helper upload, image deployment or file cleanup"
+  ],
+  "error": "TCP ConnectionRefusedError before any RPC: detached server process did not remain alive",
+  "note": "Diagnostic startup attempt only; foreground persistent server and fresh acceptance report used afterward"
+}

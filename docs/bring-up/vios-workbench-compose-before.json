@@ -1,0 +1,157 @@
+{
+  "open": {
+    "output": "WB-OPEN\r\nWB-STATUS revision 32 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 1462 selection 1 browser 1 focus 1 words 82 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> ",
+    "ok": true,
+    "compiling": false,
+    "pending": false,
+    "workbench": {
+      "revision": 32,
+      "catalog": 155,
+      "open": true,
+      "draft": true,
+      "dirty": true,
+      "staged": false,
+      "active": false,
+      "saved": false,
+      "length": 1969,
+      "cursor": 1462,
+      "selection": 1,
+      "browser": 1,
+      "focus": 1,
+      "words": 82,
+      "words_max": 512,
+      "module": "WBM1P",
+      "version": "1.0",
+      "test": "",
+      "error": ""
+    }
+  },
+  "samples": [
+    {
+      "ticks": [
+        50303
+      ],
+      "result": {
+        "output": "TIMER@ WB-VIEW 0 0 TIMER@ - $FFFF AND . CR\r\n50303 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    },
+    {
+      "ticks": [
+        50299
+      ],
+      "result": {
+        "output": "TIMER@ WB-VIEW 0 0 TIMER@ - $FFFF AND . CR\r\n50299 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    },
+    {
+      "ticks": [
+        50296
+      ],
+      "result": {
+        "output": "TIMER@ WB-VIEW 0 0 TIMER@ - $FFFF AND . CR\r\n50296 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    },
+    {
+      "ticks": [
+        50291
+      ],
+      "result": {
+        "output": "TIMER@ WB-VIEW 0 0 TIMER@ - $FFFF AND . CR\r\n50291 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    },
+    {
+      "ticks": [
+        50287
+      ],
+      "result": {
+        "output": "TIMER@ WB-VIEW 0 0 TIMER@ - $FFFF AND . CR\r\n50287 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    },
+    {
+      "ticks": [
+        50264
+      ],
+      "result": {
+        "output": "TIMER@ WB-VIEW 0 0 TIMER@ - $FFFF AND . CR\r\n50264 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    },
+    {
+      "ticks": [
+        50277
+      ],
+      "result": {
+        "output": "TIMER@ WB-VIEW 0 0 TIMER@ - $FFFF AND . CR\r\n50277 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    },
+    {
+      "ticks": [
+        50272
+      ],
+      "result": {
+        "output": "TIMER@ WB-VIEW 0 0 TIMER@ - $FFFF AND . CR\r\n50272 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    },
+    {
+      "ticks": [
+        50268
+      ],
+      "result": {
+        "output": "TIMER@ WB-VIEW 0 0 TIMER@ - $FFFF AND . CR\r\n50268 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    }
+  ],
+  "close": {
+    "output": "WB-CLOSE\r\nWB-STATUS revision 32 catalog 155 open 0 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 1462 selection 1 browser 1 focus 1 words 82 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> ",
+    "ok": true,
+    "compiling": false,
+    "pending": false,
+    "workbench": {
+      "revision": 32,
+      "catalog": 155,
+      "open": false,
+      "draft": true,
+      "dirty": true,
+      "staged": false,
+      "active": false,
+      "saved": false,
+      "length": 1969,
+      "cursor": 1462,
+      "selection": 1,
+      "browser": 1,
+      "focus": 1,
+      "words": 82,
+      "words_max": 512,
+      "module": "WBM1P",
+      "version": "1.0",
+      "test": "",
+      "error": ""
+    }
+  }
+}

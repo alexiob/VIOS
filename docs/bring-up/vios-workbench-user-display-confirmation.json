@@ -1,0 +1,6 @@
+{
+  "status": "user_reported_and_keyboard_packets_observed",
+  "reported_text": "I have connected vga display and keyboard: the display shows the inspector in text mode and the keyboard seems to work",
+  "recorded_utc": "2026-10-16T11:47:48.991132+00:00",
+  "scope": "Human confirms visible inspector and apparent keyboard operation; automated eight-cell framebuffer checks are separate."
+}

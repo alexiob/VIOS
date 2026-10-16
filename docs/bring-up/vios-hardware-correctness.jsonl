@@ -1,0 +1,17 @@
+{"time": 1792137146.967663, "direction": "rx", "hex": "41", "text": "A"}
+{"time": 1792137146.967956, "direction": "rx", "hex": "4d206f6e6c793b20493d6964656e746966790d0a", "text": "M only; I=identify\r\n"}
+{"time": 1792137147.180011, "direction": "tx", "hex": "49", "text": "I"}
+{"time": 1792137147.18558, "direction": "rx", "hex": "49", "text": "I"}
+{"time": 1792137147.1856792, "direction": "rx", "hex": "4420303030372052455620414120535441542031380d0a", "text": "D 0007 REV AA STAT 18\r\n"}
+{"time": 1792137147.185775, "direction": "tx", "hex": "48", "text": "H"}
+{"time": 1792137147.189664, "direction": "rx", "hex": "52", "text": "R"}
+{"time": 1792137147.189874, "direction": "rx", "hex": "45475320393820303035343630203030303030302030303039303020303030", "text": "EGS 98 005460 000000 000900 000"}
+{"time": 1792137147.1923132, "direction": "rx", "hex": "30", "text": "0"}
+{"time": 1792137147.192398, "direction": "rx", "hex": "3031203042464643412030424646454520304246464335203030394636360d", "text": "01 0BFFCA 0BFFEE 0BFFC5 009F66\r"}
+{"time": 1792137147.194315, "direction": "rx", "hex": "0a", "text": "\n"}
+{"time": 1792137147.194378, "direction": "tx", "hex": "44", "text": "D"}
+{"time": 1792137147.2028108, "direction": "rx", "hex": "43", "text": "C"}
+{"time": 1792137147.202878, "direction": "rx", "hex": "53302030302030422030382030310d0a45525220756e737570706f72746564", "text": "S0 00 0B 08 01\r\nERR unsupported"}
+{"time": 1792137147.202931, "direction": "tx", "hex": "1d1d1d", "text": "\u001d\u001d\u001d"}
+{"time": 1792137147.20573, "direction": "rx", "hex": "20", "text": " "}
+{"time": 1792137147.205794, "direction": "rx", "hex": "52414d206d617070696e670d0a", "text": "RAM mapping\r\n"}

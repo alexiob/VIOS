@@ -1,0 +1,118 @@
+{
+  "schema": 1,
+  "started_utc": "2026-10-16T10:14:02.689652+00:00",
+  "namespace": "RXTEST1",
+  "phases": [
+    "diagnostic"
+  ],
+  "status": "failed",
+  "hardware_run": true,
+  "checks": [
+    {
+      "name": "temporary-ram-upload",
+      "status": "passed",
+      "result": {
+        "identity": "ID 0007 REV AA STAT 98",
+        "mapping": "CS0 04 0B 08 01",
+        "readback_sha256": "927658d5aae44a50403b17f17a8d7b27ff69dddb7ff171442daf02cd486e80dd",
+        "boot": "GO 040000 USB/UART bridge 115200\r\nboot recovery: built-in kernel, no valid source bundle\r\n\r\nVIOS Forth 24 / Agon Light 2\r\nvios> "
+      },
+      "elapsed_ms": 66710.461
+    },
+    {
+      "name": "attach",
+      "status": "passed",
+      "result": {
+        "output": "\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "connected": true,
+        "identity": "ID 0007 REV AA STAT 18"
+      },
+      "elapsed_ms": 41.577
+    },
+    {
+      "name": "paced-max-0",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "elapsed_ms": 384.228
+    },
+    {
+      "name": "paced-max-1",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "elapsed_ms": 391.709
+    },
+    {
+      "name": "paced-max-2",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "elapsed_ms": 396.59
+    },
+    {
+      "name": "paced-max-3",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "elapsed_ms": 391.905
+    },
+    {
+      "name": "paced-max-4",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "elapsed_ms": 404.493
+    },
+    {
+      "name": "burst-max-0",
+      "status": "passed",
+      "result": {
+        "output": "@2F784E42 !B27A1267 DECIMAL 123 456 + . CR                                                                                                                                                                                                     ",
+        "ok": false,
+        "pending": true,
+        "compiling": false,
+        "remaining_source": "",
+        "error": "Evaluation still pending; use console_input for KEY, then await_result"
+      },
+      "elapsed_ms": 15076.603
+    },
+    {
+      "name": "burst-max-1",
+      "status": "failed",
+      "error": "Board must be deployed, running and synchronized; await pending work or redeploy",
+      "error_type": "RuntimeError",
+      "elapsed_ms": 0.103
+    }
+  ],
+  "limits": [
+    "VDP replies do not prove visible or audible physical output",
+    "Boot phase changes startup only from an unconfirmed clean baseline",
+    "No flash write, ROM helper upload, image deployment or file cleanup"
+  ],
+  "temporary_cpu_deploy": true,
+  "error": "RuntimeError('Board must be deployed, running and synchronized; await pending work or redeploy')"
+}

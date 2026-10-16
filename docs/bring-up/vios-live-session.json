@@ -1,0 +1,110 @@
+{
+  "endpoint": "127.0.0.1:8765",
+  "fast_console": true,
+  "events": [
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "initialize",
+        "params": {
+          "protocolVersion": "2025-11-25",
+          "capabilities": {},
+          "clientInfo": {
+            "name": "vios-live-session",
+            "version": "1"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "result": {
+          "protocolVersion": "2025-11-25",
+          "capabilities": {
+            "tools": {}
+          },
+          "serverInfo": {
+            "name": "vios-harness",
+            "version": "0.1.0"
+          },
+          "instructions": "Call deploy explicitly once; one board session persists across tools. Source uses printable ASCII lines <=245 bytes. After timeout, use console_input for KEY and await_result; no new source is queued."
+        }
+      }
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 2,
+        "method": "tools/call",
+        "params": {
+          "name": "deploy",
+          "arguments": {}
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 2,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"identity\": \"ID 0007 REV AA STAT 18\", \"mapping\": \"CS0 00 0B 08 01\", \"readback_sha256\": \"6b2e03cacdf82083795b09a36584b39c23d0f8a0f40f3e18f0b45e7568dade7d\", \"boot\": \"GO 040000 USB/UART bridge 115200\\r\\n\\r\\nVIOS Forth 24 / Agon Light 2\\r\\nvios> \"}"
+            }
+          ],
+          "isError": false
+        }
+      }
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 3,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": ": VIOS-READY 1 ;\nVIOS-READY ."
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 3,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \": VIOS-READY 1 ;\\r\\n\\r\\nok\\r\\nvios> VIOS-READY .\\r\\n1 \\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      }
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 4,
+        "method": "tools/call",
+        "params": {
+          "name": "resources",
+          "arguments": {}
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 4,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"RESOURCES\\r\\nengine DIRECT words 46/128 token-bytes 143 direct-bytes 535 data-bytes 3 source-bytes 190 data-peak 1 return-peak 0\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false, \"resources\": {\"engine\": \"DIRECT\", \"words\": \"46/128\", \"token-bytes\": 143, \"direct-bytes\": 535, \"data-bytes\": 3, \"source-bytes\": 190, \"data-peak\": 1, \"return-peak\": 0}}"
+            }
+          ],
+          "isError": false
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,1787 @@
+{
+  "transport": "stdio",
+  "passed": true,
+  "deploy": {
+    "identity": "ID 0007 REV AA STAT 18",
+    "mapping": "CS0 00 0B 08 01",
+    "readback_sha256": "6b2e03cacdf82083795b09a36584b39c23d0f8a0f40f3e18f0b45e7568dade7d",
+    "boot": "GO 040000 USB/UART bridge 115200\r\n\r\nVIOS Forth 24 / Agon Light 2\r\nvios> "
+  },
+  "latency": {
+    "evaluate": {
+      "samples_ms": [
+        132.04712499282323,
+        123.88454101164825,
+        131.89358299132437,
+        120.75854098657146,
+        126.25250002020039,
+        131.09704200178385,
+        125.40912500116974,
+        128.4381249861326,
+        133.8118330168072
+      ],
+      "median_ms": 128.4381249861326
+    },
+    "inspect_word": {
+      "samples_ms": [
+        187.98074999358505,
+        186.38825000380166,
+        197.27979198796675,
+        196.3360839872621,
+        177.943167014746,
+        182.61049999273382,
+        182.0309580070898,
+        181.06870801420882,
+        193.20970799890347
+      ],
+      "median_ms": 186.38825000380166
+    },
+    "resources": {
+      "samples_ms": [
+        130.53620798746124,
+        125.793999992311,
+        127.14083300670609,
+        131.70154197723605,
+        129.70020802458748,
+        133.80654098000377,
+        136.45804199040867,
+        125.12774998322129,
+        129.44320900714956
+      ],
+      "median_ms": 129.70020802458748
+    }
+  },
+  "events": [
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "initialize",
+        "params": {
+          "protocolVersion": "2025-11-25",
+          "capabilities": {},
+          "clientInfo": {
+            "name": "vios-real-hardware-check",
+            "version": "1"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "result": {
+          "protocolVersion": "2025-11-25",
+          "capabilities": {
+            "tools": {}
+          },
+          "serverInfo": {
+            "name": "vios-harness",
+            "version": "0.1.0"
+          },
+          "instructions": "Call deploy explicitly once; one board session persists across tools. Source uses printable ASCII lines <=245 bytes. After timeout, use console_input for KEY and await_result; no new source is queued."
+        }
+      },
+      "milliseconds": 45.21108401240781
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 2,
+        "method": "tools/list",
+        "params": {}
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 2,
+        "result": {
+          "tools": [
+            {
+              "name": "deploy",
+              "description": "Explicitly load the ESP32 RAM bridge and readback-verify VIOS RAM; resets VIOS state.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "additionalProperties": false
+              }
+            },
+            {
+              "name": "evaluate",
+              "description": "Evaluate bounded ASCII Forth lines, preserving definitions/stacks and multiline compilation.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "source": {
+                    "type": "string",
+                    "maxLength": 65536
+                  },
+                  "timeout": {
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "maximum": 300
+                  }
+                },
+                "required": [
+                  "source"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "name": "await_result",
+              "description": "Wait for a timed-out evaluation to complete without queuing source or nonce input.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "timeout": {
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "maximum": 300
+                  }
+                },
+                "required": [],
+                "additionalProperties": false
+              }
+            },
+            {
+              "name": "console_input",
+              "description": "Send 1..16 explicit bytes to a pending evaluation, for example a Forth KEY.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "hex": {
+                    "type": "string",
+                    "pattern": "^(?:[0-9a-fA-F]{2}){1,16}$"
+                  }
+                },
+                "required": [
+                  "hex"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "name": "words",
+              "description": "List the resident dictionary.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "additionalProperties": false
+              }
+            },
+            {
+              "name": "inspect_word",
+              "description": "Read SEE source and word/address metadata.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 31
+                  }
+                },
+                "required": [
+                  "name"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "name": "stacks",
+              "description": "Inspect the data stack using .S.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "additionalProperties": false
+              }
+            },
+            {
+              "name": "resources",
+              "description": "Inspect dictionary and observed VM resources.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "additionalProperties": false
+              }
+            },
+            {
+              "name": "benchmark",
+              "description": "Run validated hardware benchmarks; may take up to 120 seconds.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "additionalProperties": false
+              }
+            },
+            {
+              "name": "abort",
+              "description": "Cancel input/current definition at the idle REPL. Pending KEY/wedges require console input or debug/redeploy.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "additionalProperties": false
+              }
+            },
+            {
+              "name": "debug_registers",
+              "description": "Briefly debug-pause to read CPU registers, preserving prior pause state.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "additionalProperties": false
+              }
+            },
+            {
+              "name": "memory_read",
+              "description": "Read 1..65536 RAM bytes from 0x40000..0xBFFFF with debug CRC checking.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "address": {
+                    "type": "integer",
+                    "minimum": 262144,
+                    "maximum": 786431
+                  },
+                  "count": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 65536
+                  }
+                },
+                "required": [
+                  "address"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "name": "memory_write",
+              "description": "Write and readback-verify 1..256 RAM bytes below 0xAF000. Trusted systems operation.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "address": {
+                    "type": "integer",
+                    "minimum": 262144,
+                    "maximum": 716799
+                  },
+                  "hex": {
+                    "type": "string",
+                    "pattern": "^(?:[0-9a-fA-F]{2}){1,256}$"
+                  }
+                },
+                "required": [
+                  "address",
+                  "hex"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "name": "resume",
+              "description": "Resume existing CPU PC/UART bridge after a debug pause; does not reboot.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "additionalProperties": false
+              }
+            }
+          ]
+        }
+      },
+      "milliseconds": 0.13649999164044857
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 3,
+        "method": "tools/call",
+        "params": {
+          "name": "deploy",
+          "arguments": {}
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 3,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"identity\": \"ID 0007 REV AA STAT 18\", \"mapping\": \"CS0 00 0B 08 01\", \"readback_sha256\": \"6b2e03cacdf82083795b09a36584b39c23d0f8a0f40f3e18f0b45e7568dade7d\", \"boot\": \"GO 040000 USB/UART bridge 115200\\r\\n\\r\\nVIOS Forth 24 / Agon Light 2\\r\\nvios> \"}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 13324.039708008058
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 4,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": ": HARNESS-SQUARE DUP * ;"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 4,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \": HARNESS-SQUARE DUP * ;\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 203.71112501015887
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 5,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "9 HARNESS-SQUARE ."
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 5,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"9 HARNESS-SQUARE .\\r\\n81 \\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 171.05687499861233
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 6,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "HEX A"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 6,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"HEX A\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 96.5231670124922
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 7,
+        "method": "tools/call",
+        "params": {
+          "name": "inspect_word",
+          "arguments": {
+            "name": "HARNESS-SQUARE"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 7,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"SEE HARNESS-SQUARE\\r\\n: HARNESS-SQUARE DUP * ; \\r\\nword HARNESS-SQUARE xt 46 kind 1 token 289186 direct 305954 token-bytes 3 direct-bytes 13\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false, \"word\": {\"name\": \"HARNESS-SQUARE\", \"xt\": 46, \"kind\": 1, \"token\": 289186, \"direct\": 305954, \"token-bytes\": 3, \"direct-bytes\": 13}}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 182.33270800556056
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 8,
+        "method": "tools/call",
+        "params": {
+          "name": "resources",
+          "arguments": {}
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 8,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"RESOURCES\\r\\nengine DIRECT words 46/128 token-bytes 141 direct-bytes 535 data-bytes 3 source-bytes 198 data-peak 2 return-peak 0\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false, \"resources\": {\"engine\": \"DIRECT\", \"words\": \"46/128\", \"token-bytes\": 141, \"direct-bytes\": 535, \"data-bytes\": 3, \"source-bytes\": 198, \"data-peak\": 2, \"return-peak\": 0}}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 125.74341701110825
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 9,
+        "method": "tools/call",
+        "params": {
+          "name": "stacks",
+          "arguments": {}
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 9,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \".S\\r\\n<1> A \\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false, \"data_stack\": {\"depth_text\": \"1\", \"values_text\": [\"A\"]}}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 82.00745799695142
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 10,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": ". DECIMAL"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 10,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \". DECIMAL\\r\\nA \\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 118.71191600221209
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 11,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": ": MULTI-HARNESS\n7 8 +"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 11,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \": MULTI-HARNESS\\r\\n\\r\\nok\\r\\ncompile> 7 8 +\\r\\n\\r\\nok\\r\\ncompile> \", \"ok\": true, \"compiling\": true, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 255.3683329897467
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 12,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": ";\nMULTI-HARNESS ."
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 12,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \";\\r\\n\\r\\nok\\r\\nvios> MULTI-HARNESS .\\r\\n15 \\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 237.57008300162852
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 13,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "DEFER SERVICE\n' HARNESS-SQUARE IS SERVICE\n: CLIENT SERVICE ;\n3 CLIENT ."
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 13,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"DEFER SERVICE\\r\\n\\r\\nok\\r\\nvios> ' HARNESS-SQUARE IS SERVICE\\r\\n\\r\\nok\\r\\nvios> : CLIENT SERVICE ;\\r\\n\\r\\nok\\r\\nvios> 3 CLIENT .\\r\\n9 \\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 684.4467500050087
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 14,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "' MULTI-HARNESS IS SERVICE\nCLIENT ."
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 14,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"' MULTI-HARNESS IS SERVICE\\r\\n\\r\\nok\\r\\nvios> CLIENT .\\r\\n15 \\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 338.0917910253629
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 15,
+        "method": "tools/call",
+        "params": {
+          "name": "words",
+          "arguments": {}
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 15,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"WORDS\\r\\n DUP DROP SWAP OVER + - * / MOD AND OR XOR INVERT = < U< 0= @ ! C@ C! EMIT . CR KEY >R R> R@ I EXECUTE LSHIFT RSHIFT DEPTH BASE 1+ 1- NEGATE 2DUP 2DROP CELLS CELL+ TRUE FALSE HEX DECIMAL HARNESS-SQUARE MULTI-HARNESS SERVICE CLIENT \\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false, \"words\": [\"DUP\", \"DROP\", \"SWAP\", \"OVER\", \"+\", \"-\", \"*\", \"/\", \"MOD\", \"AND\", \"OR\", \"XOR\", \"INVERT\", \"=\", \"<\", \"U<\", \"0=\", \"@\", \"!\", \"C@\", \"C!\", \"EMIT\", \".\", \"CR\", \"KEY\", \">R\", \"R>\", \"R@\", \"I\", \"EXECUTE\", \"LSHIFT\", \"RSHIFT\", \"DEPTH\", \"BASE\", \"1+\", \"1-\", \"NEGATE\", \"2DUP\", \"2DROP\", \"CELLS\", \"CELL+\", \"TRUE\", \"FALSE\", \"HEX\", \"DECIMAL\", \"HARNESS-SQUARE\", \"MULTI-HARNESS\", \"SERVICE\", \"CLIENT\"]}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 110.82687499583699
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 16,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "NO-SUCH-HARNESS-WORD"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 16,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"NO-SUCH-HARNESS-WORD\\r\\nerror: unknown word: NO-SUCH-HARNESS-WORD\\r\\n\\r\\nerror\\r\\nvios> \", \"ok\": false, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": true
+        }
+      },
+      "milliseconds": 202.9387090005912
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 17,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 17,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 118.28754199086688
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 18,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": ": DISCARDED 1"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 18,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \": DISCARDED 1\\r\\n\\r\\nok\\r\\ncompile> \", \"ok\": true, \"compiling\": true, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 144.67166698887013
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 19,
+        "method": "tools/call",
+        "params": {
+          "name": "abort",
+          "arguments": {}
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 19,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"\\r\\naborted\\r\\nvios> @7C6DF30B \\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 66.62887500715442
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 20,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "2 3 + ."
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 20,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"2 3 + .\\r\\n5 \\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 103.92699998919852
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 21,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "KEY .",
+            "timeout": 0.2
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 21,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"@6A436035 KEY .\\r\\n\", \"ok\": false, \"pending\": true, \"compiling\": false, \"remaining_source\": \"\", \"error\": \"Evaluation still pending; use console_input for KEY, then await_result\"}"
+            }
+          ],
+          "isError": true
+        }
+      },
+      "milliseconds": 310.2615420066286
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 22,
+        "method": "tools/call",
+        "params": {
+          "name": "console_input",
+          "arguments": {
+            "hex": "41"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 22,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"sent\": 1, \"pending\": true}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 4.578833002597094
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 23,
+        "method": "tools/call",
+        "params": {
+          "name": "await_result",
+          "arguments": {}
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 23,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"KEY .\\r\\n65 \\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 5.3909590060357
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 24,
+        "method": "tools/call",
+        "params": {
+          "name": "debug_registers",
+          "arguments": {}
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 24,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"status\": 152, \"registers\": {\"af\": 33280, \"bc\": 0, \"de\": 16777215, \"hl\": 16777215, \"ix\": 720890, \"iy\": 720610, \"sp\": 720592, \"pc\": 276214}, \"raw\": \"REGS 98 008200 000000 FFFFFF FFFFFF 0AFFFA 0AFEE2 0AFED0 0436F6\"}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 21.702583006117493
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 25,
+        "method": "tools/call",
+        "params": {
+          "name": "memory_read",
+          "arguments": {
+            "address": 524288,
+            "count": 8
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 25,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"address\": 524288, \"count\": 8, \"hex\": \"00ca44019f26efe9\", \"crc32\": \"7d350039\"}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 23.86820799438283
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 26,
+        "method": "tools/call",
+        "params": {
+          "name": "memory_write",
+          "arguments": {
+            "address": 524288,
+            "hex": "0123456789abcdef"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 26,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"address\": 524288, \"count\": 8, \"verified\": true, \"crc32\": \"28c7d1ae\"}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 41.406292002648115
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 27,
+        "method": "tools/call",
+        "params": {
+          "name": "memory_read",
+          "arguments": {
+            "address": 524288,
+            "count": 8
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 27,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"address\": 524288, \"count\": 8, \"hex\": \"0123456789abcdef\", \"crc32\": \"28c7d1ae\"}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 20.885958016151562
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 28,
+        "method": "tools/call",
+        "params": {
+          "name": "memory_write",
+          "arguments": {
+            "address": 524288,
+            "hex": "00ca44019f26efe9"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 28,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"address\": 524288, \"count\": 8, \"verified\": true, \"crc32\": \"7d350039\"}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 32.973375025903806
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 29,
+        "method": "tools/call",
+        "params": {
+          "name": "memory_read",
+          "arguments": {
+            "address": 786431,
+            "count": 2
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 29,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "Requested range is outside permitted RAM"
+            }
+          ],
+          "isError": true
+        }
+      },
+      "milliseconds": 0.28074998408555984
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 30,
+        "method": "tools/call",
+        "params": {
+          "name": "resume",
+          "arguments": {}
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 30,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"paused\": false, \"compiling\": false, \"synchronized\": true}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 0.19650001195259392
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 31,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "11 HARNESS-SQUARE ."
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 31,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"11 HARNESS-SQUARE .\\r\\n121 \\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 174.56254200078547
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 32,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 32,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 132.04712499282323
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 33,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 33,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 123.88454101164825
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 34,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 34,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 131.89358299132437
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 35,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 35,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 120.75854098657146
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 36,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 36,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 126.25250002020039
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 37,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 37,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 131.09704200178385
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 38,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 38,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 125.40912500116974
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 39,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 39,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 128.4381249861326
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 40,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 40,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 133.8118330168072
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 41,
+        "method": "tools/call",
+        "params": {
+          "name": "inspect_word",
+          "arguments": {
+            "name": "HARNESS-SQUARE"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 41,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"SEE HARNESS-SQUARE\\r\\n: HARNESS-SQUARE DUP * ; \\r\\nword HARNESS-SQUARE xt 46 kind 1 token 289186 direct 305954 token-bytes 3 direct-bytes 13\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false, \"word\": {\"name\": \"HARNESS-SQUARE\", \"xt\": 46, \"kind\": 1, \"token\": 289186, \"direct\": 305954, \"token-bytes\": 3, \"direct-bytes\": 13}}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 187.98074999358505
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 42,
+        "method": "tools/call",
+        "params": {
+          "name": "inspect_word",
+          "arguments": {
+            "name": "HARNESS-SQUARE"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 42,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"SEE HARNESS-SQUARE\\r\\n: HARNESS-SQUARE DUP * ; \\r\\nword HARNESS-SQUARE xt 46 kind 1 token 289186 direct 305954 token-bytes 3 direct-bytes 13\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false, \"word\": {\"name\": \"HARNESS-SQUARE\", \"xt\": 46, \"kind\": 1, \"token\": 289186, \"direct\": 305954, \"token-bytes\": 3, \"direct-bytes\": 13}}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 186.38825000380166
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 43,
+        "method": "tools/call",
+        "params": {
+          "name": "inspect_word",
+          "arguments": {
+            "name": "HARNESS-SQUARE"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 43,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"SEE HARNESS-SQUARE\\r\\n: HARNESS-SQUARE DUP * ; \\r\\nword HARNESS-SQUARE xt 46 kind 1 token 289186 direct 305954 token-bytes 3 direct-bytes 13\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false, \"word\": {\"name\": \"HARNESS-SQUARE\", \"xt\": 46, \"kind\": 1, \"token\": 289186, \"direct\": 305954, \"token-bytes\": 3, \"direct-bytes\": 13}}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 197.27979198796675
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 44,
+        "method": "tools/call",
+        "params": {
+          "name": "inspect_word",
+          "arguments": {
+            "name": "HARNESS-SQUARE"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 44,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"SEE HARNESS-SQUARE\\r\\n: HARNESS-SQUARE DUP * ; \\r\\nword HARNESS-SQUARE xt 46 kind 1 token 289186 direct 305954 token-bytes 3 direct-bytes 13\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false, \"word\": {\"name\": \"HARNESS-SQUARE\", \"xt\": 46, \"kind\": 1, \"token\": 289186, \"direct\": 305954, \"token-bytes\": 3, \"direct-bytes\": 13}}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 196.3360839872621
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 45,
+        "method": "tools/call",
+        "params": {
+          "name": "inspect_word",
+          "arguments": {
+            "name": "HARNESS-SQUARE"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 45,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"SEE HARNESS-SQUARE\\r\\n: HARNESS-SQUARE DUP * ; \\r\\nword HARNESS-SQUARE xt 46 kind 1 token 289186 direct 305954 token-bytes 3 direct-bytes 13\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false, \"word\": {\"name\": \"HARNESS-SQUARE\", \"xt\": 46, \"kind\": 1, \"token\": 289186, \"direct\": 305954, \"token-bytes\": 3, \"direct-bytes\": 13}}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 177.943167014746
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 46,
+        "method": "tools/call",
+        "params": {
+          "name": "inspect_word",
+          "arguments": {
+            "name": "HARNESS-SQUARE"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 46,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"SEE HARNESS-SQUARE\\r\\n: HARNESS-SQUARE DUP * ; \\r\\nword HARNESS-SQUARE xt 46 kind 1 token 289186 direct 305954 token-bytes 3 direct-bytes 13\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false, \"word\": {\"name\": \"HARNESS-SQUARE\", \"xt\": 46, \"kind\": 1, \"token\": 289186, \"direct\": 305954, \"token-bytes\": 3, \"direct-bytes\": 13}}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 182.61049999273382
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 47,
+        "method": "tools/call",
+        "params": {
+          "name": "inspect_word",
+          "arguments": {
+            "name": "HARNESS-SQUARE"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 47,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"SEE HARNESS-SQUARE\\r\\n: HARNESS-SQUARE DUP * ; \\r\\nword HARNESS-SQUARE xt 46 kind 1 token 289186 direct 305954 token-bytes 3 direct-bytes 13\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false, \"word\": {\"name\": \"HARNESS-SQUARE\", \"xt\": 46, \"kind\": 1, \"token\": 289186, \"direct\": 305954, \"token-bytes\": 3, \"direct-bytes\": 13}}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 182.0309580070898
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 48,
+        "method": "tools/call",
+        "params": {
+          "name": "inspect_word",
+          "arguments": {
+            "name": "HARNESS-SQUARE"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 48,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"SEE HARNESS-SQUARE\\r\\n: HARNESS-SQUARE DUP * ; \\r\\nword HARNESS-SQUARE xt 46 kind 1 token 289186 direct 305954 token-bytes 3 direct-bytes 13\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false, \"word\": {\"name\": \"HARNESS-SQUARE\", \"xt\": 46, \"kind\": 1, \"token\": 289186, \"direct\": 305954, \"token-bytes\": 3, \"direct-bytes\": 13}}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 181.06870801420882
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 49,
+        "method": "tools/call",
+        "params": {
+          "name": "inspect_word",
+          "arguments": {
+            "name": "HARNESS-SQUARE"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 49,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"SEE HARNESS-SQUARE\\r\\n: HARNESS-SQUARE DUP * ; \\r\\nword HARNESS-SQUARE xt 46 kind 1 token 289186 direct 305954 token-bytes 3 direct-bytes 13\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false, \"word\": {\"name\": \"HARNESS-SQUARE\", \"xt\": 46, \"kind\": 1, \"token\": 289186, \"direct\": 305954, \"token-bytes\": 3, \"direct-bytes\": 13}}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 193.20970799890347
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 50,
+        "method": "tools/call",
+        "params": {
+          "name": "resources",
+          "arguments": {}
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 50,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"RESOURCES\\r\\nengine DIRECT words 49/128 token-bytes 161 direct-bytes 580 data-bytes 6 source-bytes 241 data-peak 2 return-peak 0\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false, \"resources\": {\"engine\": \"DIRECT\", \"words\": \"49/128\", \"token-bytes\": 161, \"direct-bytes\": 580, \"data-bytes\": 6, \"source-bytes\": 241, \"data-peak\": 2, \"return-peak\": 0}}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 130.53620798746124
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 51,
+        "method": "tools/call",
+        "params": {
+          "name": "resources",
+          "arguments": {}
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 51,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"RESOURCES\\r\\nengine DIRECT words 49/128 token-bytes 161 direct-bytes 580 data-bytes 6 source-bytes 241 data-peak 2 return-peak 0\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false, \"resources\": {\"engine\": \"DIRECT\", \"words\": \"49/128\", \"token-bytes\": 161, \"direct-bytes\": 580, \"data-bytes\": 6, \"source-bytes\": 241, \"data-peak\": 2, \"return-peak\": 0}}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 125.793999992311
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 52,
+        "method": "tools/call",
+        "params": {
+          "name": "resources",
+          "arguments": {}
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 52,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"RESOURCES\\r\\nengine DIRECT words 49/128 token-bytes 161 direct-bytes 580 data-bytes 6 source-bytes 241 data-peak 2 return-peak 0\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false, \"resources\": {\"engine\": \"DIRECT\", \"words\": \"49/128\", \"token-bytes\": 161, \"direct-bytes\": 580, \"data-bytes\": 6, \"source-bytes\": 241, \"data-peak\": 2, \"return-peak\": 0}}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 127.14083300670609
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 53,
+        "method": "tools/call",
+        "params": {
+          "name": "resources",
+          "arguments": {}
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 53,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"RESOURCES\\r\\nengine DIRECT words 49/128 token-bytes 161 direct-bytes 580 data-bytes 6 source-bytes 241 data-peak 2 return-peak 0\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false, \"resources\": {\"engine\": \"DIRECT\", \"words\": \"49/128\", \"token-bytes\": 161, \"direct-bytes\": 580, \"data-bytes\": 6, \"source-bytes\": 241, \"data-peak\": 2, \"return-peak\": 0}}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 131.70154197723605
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 54,
+        "method": "tools/call",
+        "params": {
+          "name": "resources",
+          "arguments": {}
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 54,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"RESOURCES\\r\\nengine DIRECT words 49/128 token-bytes 161 direct-bytes 580 data-bytes 6 source-bytes 241 data-peak 2 return-peak 0\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false, \"resources\": {\"engine\": \"DIRECT\", \"words\": \"49/128\", \"token-bytes\": 161, \"direct-bytes\": 580, \"data-bytes\": 6, \"source-bytes\": 241, \"data-peak\": 2, \"return-peak\": 0}}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 129.70020802458748
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 55,
+        "method": "tools/call",
+        "params": {
+          "name": "resources",
+          "arguments": {}
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 55,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"RESOURCES\\r\\nengine DIRECT words 49/128 token-bytes 161 direct-bytes 580 data-bytes 6 source-bytes 241 data-peak 2 return-peak 0\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false, \"resources\": {\"engine\": \"DIRECT\", \"words\": \"49/128\", \"token-bytes\": 161, \"direct-bytes\": 580, \"data-bytes\": 6, \"source-bytes\": 241, \"data-peak\": 2, \"return-peak\": 0}}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 133.80654098000377
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 56,
+        "method": "tools/call",
+        "params": {
+          "name": "resources",
+          "arguments": {}
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 56,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"RESOURCES\\r\\nengine DIRECT words 49/128 token-bytes 161 direct-bytes 580 data-bytes 6 source-bytes 241 data-peak 2 return-peak 0\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false, \"resources\": {\"engine\": \"DIRECT\", \"words\": \"49/128\", \"token-bytes\": 161, \"direct-bytes\": 580, \"data-bytes\": 6, \"source-bytes\": 241, \"data-peak\": 2, \"return-peak\": 0}}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 136.45804199040867
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 57,
+        "method": "tools/call",
+        "params": {
+          "name": "resources",
+          "arguments": {}
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 57,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"RESOURCES\\r\\nengine DIRECT words 49/128 token-bytes 161 direct-bytes 580 data-bytes 6 source-bytes 241 data-peak 2 return-peak 0\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false, \"resources\": {\"engine\": \"DIRECT\", \"words\": \"49/128\", \"token-bytes\": 161, \"direct-bytes\": 580, \"data-bytes\": 6, \"source-bytes\": 241, \"data-peak\": 2, \"return-peak\": 0}}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 125.12774998322129
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 58,
+        "method": "tools/call",
+        "params": {
+          "name": "resources",
+          "arguments": {}
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 58,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"RESOURCES\\r\\nengine DIRECT words 49/128 token-bytes 161 direct-bytes 580 data-bytes 6 source-bytes 241 data-peak 2 return-peak 0\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false, \"resources\": {\"engine\": \"DIRECT\", \"words\": \"49/128\", \"token-bytes\": 161, \"direct-bytes\": 580, \"data-bytes\": 6, \"source-bytes\": 241, \"data-peak\": 2, \"return-peak\": 0}}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 129.44320900714956
+    }
+  ]
+}

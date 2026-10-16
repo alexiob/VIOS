@@ -1,0 +1,43 @@
+{
+  "bytes": 4194304,
+  "sha256": "69fd4cecc5be741231aa263ce7fe87049ff7936b122546337434bd1e50a5b7d9",
+  "bootloader_and_partition_table_unchanged": true,
+  "current_app0_matches_vendor_1_04": true,
+  "partitions": [
+    {
+      "type": 1,
+      "subtype": 2,
+      "offset": 36864,
+      "size": 20480,
+      "label": "nvs"
+    },
+    {
+      "type": 1,
+      "subtype": 0,
+      "offset": 57344,
+      "size": 8192,
+      "label": "otadata"
+    },
+    {
+      "type": 0,
+      "subtype": 16,
+      "offset": 65536,
+      "size": 1310720,
+      "label": "app0"
+    },
+    {
+      "type": 0,
+      "subtype": 17,
+      "offset": 1376256,
+      "size": 1310720,
+      "label": "app1"
+    },
+    {
+      "type": 1,
+      "subtype": 130,
+      "offset": 2686976,
+      "size": 1507328,
+      "label": "spiffs"
+    }
+  ]
+}

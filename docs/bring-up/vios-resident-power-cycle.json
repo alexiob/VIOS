@@ -1,0 +1,106 @@
+{
+  "schema": 1,
+  "started_utc": "2026-10-16T10:34:42.821725+00:00",
+  "namespace": "POWER1",
+  "phases": [
+    "physical-power-cycle"
+  ],
+  "status": "passed",
+  "hardware_run": true,
+  "checks": [
+    {
+      "name": "observe-usb-disconnect-and-reappearance",
+      "status": "passed",
+      "result": {
+        "physical_usb_removal_observed": true,
+        "absence_seconds": 13.206,
+        "port": "/dev/cu.usbserial-22430",
+        "assumption": "User disconnects all board power, including any battery, for this test"
+      },
+      "elapsed_ms": 179709.528
+    },
+    {
+      "name": "attach-no-host-upload",
+      "status": "passed",
+      "result": {
+        "output": "boot confirmed A\r\n\r\nVIOS Forth 24 / Agon Light 2\r\nvios> @D384A8B8 !00000000 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "connected": true,
+        "identity": "ID 0007 REV AA STAT 18"
+      },
+      "elapsed_ms": 35969.17
+    },
+    {
+      "name": "confirmed-sd-slot-A",
+      "status": "passed",
+      "result": {
+        "output": "BOOT-STATUS\r\nboot confirmed A candidate NONE state CLEAN current A generation 7\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "boot": {
+          "confirmed": "A",
+          "candidate": "NONE",
+          "state": "CLEAN",
+          "current": "A",
+          "generation": 7
+        }
+      },
+      "elapsed_ms": 342.521
+    },
+    {
+      "name": "persisted-deferred-service-and-dependent",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL LIVE1-C . LIVE1-D . CR\r\n11 12 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          11,
+          12
+        ]
+      },
+      "elapsed_ms": 42.425
+    },
+    {
+      "name": "resources",
+      "status": "passed",
+      "result": {
+        "output": "RESOURCES\r\nengine DIRECT words 77/128 token-bytes 312 direct-bytes 947 data-bytes 24 source-bytes 281 data-peak 2 return-peak 3\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "resources": {
+          "engine": "DIRECT",
+          "words": "77/128",
+          "token-bytes": 312,
+          "direct-bytes": 947,
+          "data-bytes": 24,
+          "source-bytes": 281,
+          "data-peak": 2,
+          "return-peak": 3
+        }
+      },
+      "elapsed_ms": 50.894
+    },
+    {
+      "name": "vdp-mode-and-no-receive-drops",
+      "status": "passed",
+      "result": {
+        "output": "VDP-INFO\r\nvdp width 640 height 480 colours 4 mode 1 console-dropped 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "elapsed_ms": 40.278
+    }
+  ],
+  "limits": [
+    "VDP replies do not prove visible or audible physical output",
+    "Boot phase changes startup only from an unconfirmed clean baseline",
+    "No flash write, ROM helper upload, image deployment or file cleanup"
+  ]
+}

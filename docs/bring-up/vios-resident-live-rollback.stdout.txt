@@ -1,0 +1,16 @@
+{"checkpoint": "initial-v1", "status": "running"}
+{"checkpoint": "initial-v1", "status": "passed", "elapsed_ms": 42.523}
+{"checkpoint": "stage-v2", "status": "running"}
+{"checkpoint": "stage-v2", "status": "passed", "elapsed_ms": 300.881}
+{"checkpoint": "activate-v2", "status": "running"}
+{"checkpoint": "activate-v2", "status": "passed", "elapsed_ms": 138.87}
+{"checkpoint": "live-caller-and-dependent-observe-v2", "status": "running"}
+{"checkpoint": "live-caller-and-dependent-observe-v2", "status": "passed", "elapsed_ms": 44.738}
+{"checkpoint": "strict-lifo-rollback", "status": "running"}
+{"checkpoint": "strict-lifo-rollback", "status": "passed", "elapsed_ms": 59.569}
+{"checkpoint": "live-caller-and-dependent-restored-v1", "status": "running"}
+{"checkpoint": "live-caller-and-dependent-restored-v1", "status": "passed", "elapsed_ms": 42.98}
+{"checkpoint": "exact-source-restored", "status": "running"}
+{"checkpoint": "exact-source-restored", "status": "passed", "elapsed_ms": 60.065}
+{"checkpoint": "resources-restored", "status": "running"}
+{"checkpoint": "resources-restored", "status": "passed", "elapsed_ms": 51.304}

@@ -1,0 +1,19 @@
+var NAVTREEINDEX12 =
+{
+"vgabasecontroller_8h.html":[8,0,0,2,21],
+"vgabasecontroller_8h_source.html":[8,0,0,2,21],
+"vgacontroller_8cpp_source.html":[8,0,0,2,22],
+"vgacontroller_8h.html":[8,0,0,2,23],
+"vgacontroller_8h_source.html":[8,0,0,2,23],
+"vgadirectcontroller_8cpp_source.html":[8,0,0,2,24],
+"vgadirectcontroller_8h.html":[8,0,0,2,25],
+"vgadirectcontroller_8h.html#a04b3b9bd6028ea949f5596a52b203777":[8,0,0,2,25,1],
+"vgadirectcontroller_8h_source.html":[8,0,0,2,25],
+"vgapalettedcontroller_8cpp_source.html":[8,0,0,2,26],
+"vgapalettedcontroller_8h.html":[8,0,0,2,27],
+"vgapalettedcontroller_8h_source.html":[8,0,0,2,27],
+"vgatextcontroller_8cpp_source.html":[8,0,0,2,28],
+"vgatextcontroller_8h.html":[8,0,0,2,29],
+"vgatextcontroller_8h_source.html":[8,0,0,2,29],
+"vttest.html":[4]
+};

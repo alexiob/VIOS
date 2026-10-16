@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/artifacts/vios-resident-2026-10-16/backup-sd-startup.py", line 22, in <module>
+    c.initialize();synchronized(c.tool('connect'))
+                   ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/tools/vios_resident_acceptance.py", line 46, in synchronized
+    require(isinstance(result, dict) and result.get('ok') is True,
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            'Device command failed: ' + repr(result))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/tools/vios_resident_acceptance.py", line 42, in require
+    raise AcceptanceError(message)
+vios_resident_acceptance.AcceptanceError: Device command failed: {'connected': True, 'already_connected': True, 'compiling': False, 'pending': False, 'identity': 'ID 0007 REV AA STAT 18'}

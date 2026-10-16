@@ -1,0 +1,76 @@
+Connecting....
+Detecting chip type... ESP32
+Uploading stub flasher...
+Running stub flasher...
+Stub flasher running.
+SAVED 000000 1/64 sha256=ad6687cd04cf49570970edd8e0247ad38a1c0bf074ef2f5382d1f25f1034f8ac
+SAVED 010000 2/64 sha256=f6fdd8b48fa587c820ec388f80a7137081f610e531783605492f8216352a18b0
+SAVED 020000 3/64 sha256=58d49b7b991d4374aed9fd3b5815f3898f564de2197eff017ddedd2cf0890bd1
+SAVED 030000 4/64 sha256=3c48904daa72a85dd420aa7149d7e44ee4a071ef71184f2faa619fa9a6748126
+SAVED 040000 5/64 sha256=f4531d5d8f059e09f2fd77bd3204660706430860de17bd43c658d65f972a04f0
+SAVED 050000 6/64 sha256=9fae44238a3b1855c814a99d822aecaede9924a26161e76eed6eac909ef81b83
+SAVED 060000 7/64 sha256=507a4d115677ba68c225694a38049225bb631092c414e5948cf705a785f7d908
+SAVED 070000 8/64 sha256=d2340dc123d9f65be4f7514993472583c680366dc512c0d5f99e9cca6a1564f1
+SAVED 080000 9/64 sha256=71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063
+SAVED 090000 10/64 sha256=71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063
+SAVED 0a0000 11/64 sha256=71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063
+SAVED 0b0000 12/64 sha256=71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063
+SAVED 0c0000 13/64 sha256=71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063
+SAVED 0d0000 14/64 sha256=71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063
+SAVED 0e0000 15/64 sha256=71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063
+SAVED 0f0000 16/64 sha256=71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063
+SAVED 100000 17/64 sha256=71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063
+SAVED 110000 18/64 sha256=71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063
+SAVED 120000 19/64 sha256=71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063
+SAVED 130000 20/64 sha256=71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063
+SAVED 140000 21/64 sha256=71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063
+SAVED 150000 22/64 sha256=71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063
+RESUME with target-MD5 verification of erased blocks
+Connecting....
+Detecting chip type... ESP32
+Uploading stub flasher...
+Running stub flasher...
+Stub flasher running.
+SAVED 160000 23/64 target-md5-verified-erased
+SAVED 170000 24/64 target-md5-verified-erased
+SAVED 180000 25/64 target-md5-verified-erased
+SAVED 190000 26/64 target-md5-verified-erased
+SAVED 1a0000 27/64 target-md5-verified-erased
+SAVED 1b0000 28/64 target-md5-verified-erased
+SAVED 1c0000 29/64 target-md5-verified-erased
+SAVED 1d0000 30/64 target-md5-verified-erased
+SAVED 1e0000 31/64 target-md5-verified-erased
+SAVED 1f0000 32/64 target-md5-verified-erased
+SAVED 200000 33/64 target-md5-verified-erased
+SAVED 210000 34/64 target-md5-verified-erased
+SAVED 220000 35/64 target-md5-verified-erased
+SAVED 230000 36/64 target-md5-verified-erased
+SAVED 240000 37/64 target-md5-verified-erased
+SAVED 250000 38/64 target-md5-verified-erased
+SAVED 260000 39/64 target-md5-verified-erased
+SAVED 270000 40/64 target-md5-verified-erased
+SAVED 280000 41/64 target-md5-verified-erased
+SAVED 290000 42/64 target-md5-verified-erased
+SAVED 2a0000 43/64 target-md5-verified-erased
+SAVED 2b0000 44/64 target-md5-verified-erased
+SAVED 2c0000 45/64 target-md5-verified-erased
+SAVED 2d0000 46/64 target-md5-verified-erased
+SAVED 2e0000 47/64 target-md5-verified-erased
+SAVED 2f0000 48/64 target-md5-verified-erased
+SAVED 300000 49/64 target-md5-verified-erased
+SAVED 310000 50/64 target-md5-verified-erased
+SAVED 320000 51/64 target-md5-verified-erased
+SAVED 330000 52/64 target-md5-verified-erased
+SAVED 340000 53/64 target-md5-verified-erased
+SAVED 350000 54/64 target-md5-verified-erased
+SAVED 360000 55/64 target-md5-verified-erased
+SAVED 370000 56/64 target-md5-verified-erased
+SAVED 380000 57/64 target-md5-verified-erased
+SAVED 390000 58/64 target-md5-verified-erased
+SAVED 3a0000 59/64 target-md5-verified-erased
+SAVED 3b0000 60/64 target-md5-verified-erased
+SAVED 3c0000 61/64 target-md5-verified-erased
+SAVED 3d0000 62/64 target-md5-verified-erased
+SAVED 3e0000 63/64 target-md5-verified-erased
+SAVED 3f0000 64/64 target-md5-verified-erased
+COMPLETE 4194304 91693875ae044e50eb10d02dd41c6efc528609bdd9b012aab4576b929c535e1c target MD5 171395d009f13c5eba3f921d5e7d745c

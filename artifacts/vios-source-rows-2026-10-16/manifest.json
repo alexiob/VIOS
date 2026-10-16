@@ -1,0 +1,223 @@
+{
+  "schema": 1,
+  "project": "VIOS",
+  "milestone": "source scrolling and newline composition",
+  "created_utc": "2026-10-16T13:03:23.697156+00:00",
+  "status": "accepted_on_hardware_and_resident",
+  "accepted_cpu": {
+    "path": "artifacts/vios-source-rows-2026-10-16/vios-accepted.bin",
+    "size": 105706,
+    "sha256": "7e47cda6905b69bcffadb77e53d02317b5a7b8af1e47c6ad049347880abc0753"
+  },
+  "accepted_firmware": {
+    "path": "artifacts/vios-source-rows-2026-10-16/firmware-accepted.bin",
+    "size": 663952,
+    "sha256": "e0ed0d20b2438e26e47404a152e9aeeeb98268f7c52113fcedec6854a8c845ae"
+  },
+  "native_stage0": {
+    "path": "artifacts/vios-source-rows-2026-10-16/agon-stage0.bin",
+    "size": 46,
+    "sha256": "18b33b49aa06ffd22e68b9ce640904a1d990d994edd509ab98ce96945a08b82f"
+  },
+  "source_files": 5238,
+  "source_manifest": "source-sha256.json",
+  "hardware_reports": [
+    {
+      "path": "docs/bring-up/vios-source-rows-resident-startup.json",
+      "size": 1262,
+      "sha256": "61f27f20a843d53afe8b4e30cf23afbd616311556cb0594b8396ffcd1594a4ed"
+    },
+    {
+      "path": "docs/bring-up/vios-source-rows-resident-hardware.json",
+      "size": 223369,
+      "sha256": "f22029758eb2fc6d6ecde177388ec374aea31821eb0e2c8e6b986eb62c149a95"
+    },
+    {
+      "path": "docs/bring-up/vios-source-rows-resident-focused.json",
+      "size": 1310604,
+      "sha256": "a4b82ff15a787dcfb9dc96299a1d4e6a571b616a173160b51c1e12591559eaed"
+    },
+    {
+      "path": "docs/bring-up/vios-source-rows-control.json",
+      "size": 180290,
+      "sha256": "1343644ca0aba9c790beeb0f6fb0f9cfdea445f620096d8ab48683ce3f5597bf"
+    },
+    {
+      "path": "docs/benchmarks/source-rows-resident-mixed-2026-10-16.json",
+      "size": 193372,
+      "sha256": "bbc28634d205a6454e66f833e5be2e3ef496933fa319761112fbb786fb53dc78"
+    },
+    {
+      "path": "docs/benchmarks/source-rows-resident-native-2026-10-16.json",
+      "size": 195238,
+      "sha256": "0cf8296ba8eaab30288522656dd39b0308d0f599417ebe37125bc126980f5c78"
+    }
+  ],
+  "cpu_layout": {
+    "payload_bytes": 105706,
+    "text_bytes": 105693,
+    "data_bytes": 13,
+    "bss_bytes": 254031,
+    "bss_end": 621881,
+    "stack_bottom": 716800,
+    "stack_top": 720896,
+    "remaining_before_stack_bytes": 94919
+  },
+  "esp32": {
+    "program_bytes": 663581,
+    "static_ram_bytes": 37948,
+    "runtime_allocations_additional": true,
+    "app0_offset": 65536,
+    "app0_limit": 1310720
+  },
+  "verification": {
+    "tests_passed": 163,
+    "native_engine_probes": 146,
+    "resident_workbench_hardware_requests": 355,
+    "resident_glyph_comparisons": 8,
+    "stress_requests_per_benchmark": 50,
+    "maximum_235_byte_requests_per_benchmark": 45,
+    "redraw_requests_per_benchmark": 5,
+    "mcp_tools": 48
+  },
+  "previous_app0_backup": {
+    "path": "backups/esp32/pre-vios-source-rows-app0-2026-10-16.bin",
+    "size": 663472,
+    "sha256": "b8d884a1733505de995ee94f5585abaa6ed9ee9986468529cb32dc9fc3fefb2f"
+  },
+  "previous_release": "artifacts/vios-incremental-2026-10-16/manifest.json",
+  "limitations": [
+    "Full source viewport changes still compose all visible source rows",
+    "Forced full redraw still has full composition and serial transmission cost",
+    "Single 4096-byte draft and one source undo",
+    "Trusted native callbacks and raw VDP require explicit redraw/invalidation",
+    "No Git repository; old immutable releases preserved"
+  ],
+  "files": [
+    {
+      "path": "artifacts/vios-source-rows-2026-10-16/README.md",
+      "size": 1481,
+      "sha256": "81db2e734e788dd3c9ed083cddd9abcd67a2fc1ccc19c32af616b8ac343419c6"
+    },
+    {
+      "path": "artifacts/vios-source-rows-2026-10-16/agon-stage0.bin",
+      "size": 46,
+      "sha256": "18b33b49aa06ffd22e68b9ce640904a1d990d994edd509ab98ce96945a08b82f"
+    },
+    {
+      "path": "artifacts/vios-source-rows-2026-10-16/app0-backup.txt",
+      "size": 14998,
+      "sha256": "af6afa6004db714c3eb4c52d7b85d127bd5f422ae0d707d08564685cdfda5f78"
+    },
+    {
+      "path": "artifacts/vios-source-rows-2026-10-16/app0-flash.txt",
+      "size": 2670,
+      "sha256": "2102441311c017d1e51b05014f6da7952ebda82243a637fa54c491f924e5881a"
+    },
+    {
+      "path": "artifacts/vios-source-rows-2026-10-16/build-manifest-accepted.json",
+      "size": 6766,
+      "sha256": "124f8fb4ea331b98bd5c451e181c5cbc456b9c1f6d6ab2f3e4d24caf686afc90"
+    },
+    {
+      "path": "artifacts/vios-source-rows-2026-10-16/documentation-evidence.tar.gz",
+      "size": 22348017,
+      "sha256": "4dd79f1b8bba79e5b82cfbca1475583415073f57ef521086dc48bd252582b532"
+    },
+    {
+      "path": "artifacts/vios-source-rows-2026-10-16/esp-build.txt",
+      "size": 1995,
+      "sha256": "243845ce0d9eea302ef95d1540476129ab3232d2bf1b1ba4924975c22e091a93"
+    },
+    {
+      "path": "artifacts/vios-source-rows-2026-10-16/firmware-accepted.bin",
+      "size": 663952,
+      "sha256": "e0ed0d20b2438e26e47404a152e9aeeeb98268f7c52113fcedec6854a8c845ae"
+    },
+    {
+      "path": "artifacts/vios-source-rows-2026-10-16/freeze-release.py",
+      "size": 5378,
+      "sha256": "14f01c445ac73c3b541ac27af5e469866dd9f5152b7d3a3900101039f3d26a5e"
+    },
+    {
+      "path": "artifacts/vios-source-rows-2026-10-16/host-native-checks.txt",
+      "size": 26413,
+      "sha256": "eace8052bc8cb3477f9fd22db77b7ddbe40c135be549142bcd0d3755bda6e91e"
+    },
+    {
+      "path": "artifacts/vios-source-rows-2026-10-16/live-serial-at-release.jsonl",
+      "size": 7039394,
+      "sha256": "62b5c282fe2e19ded65a2e4703bf3eb69b8c3960ea1c6b1352a815f74361ac30"
+    },
+    {
+      "path": "artifacts/vios-source-rows-2026-10-16/native-engine-checks.txt",
+      "size": 826,
+      "sha256": "2d83d080db99c4b06bedc34c004f3fe1e9e5aaa80bf4836b7a51ab3fffde34d2"
+    },
+    {
+      "path": "artifacts/vios-source-rows-2026-10-16/restore-and-control.py",
+      "size": 4665,
+      "sha256": "00867d56bf460b85e475ae859bb6c5372e029842f9a2a1cf54121b30cceb258f"
+    },
+    {
+      "path": "artifacts/vios-source-rows-2026-10-16/review/boundary-latest-run.txt",
+      "size": 2680,
+      "sha256": "ad8af1126df4cc6fe305afa9c4bfcc64537e511400a7e08e6906889324fa9d1d"
+    },
+    {
+      "path": "artifacts/vios-source-rows-2026-10-16/review/latest-run.txt",
+      "size": 5672,
+      "sha256": "780a842a15a7249565d718d3d5e1a3e557297837afd9d4a3f7769b6da78e55c6"
+    },
+    {
+      "path": "artifacts/vios-source-rows-2026-10-16/review/review-manifest.json",
+      "size": 1042,
+      "sha256": "fd4d1f5c03f0b211f9e2083aaec855ff3e2274dc4be027a4741f73ba7cd0847e"
+    },
+    {
+      "path": "artifacts/vios-source-rows-2026-10-16/review/run_boundary_review.py",
+      "size": 4213,
+      "sha256": "6cc52eac735bb501b6457b00e2272ae1dad4fd9bdee336a01891f05b78be49df"
+    },
+    {
+      "path": "artifacts/vios-source-rows-2026-10-16/review/run_review.py",
+      "size": 3773,
+      "sha256": "362891eb3c8e8dcf2dfbfd9ccea8050645ea7e2f5ebdeffb92e0c8edd4e0499c"
+    },
+    {
+      "path": "artifacts/vios-source-rows-2026-10-16/review/workbench_differential.c",
+      "size": 5181,
+      "sha256": "d1215038e08c033787f0cca1ce89a943cfe8f8e3f34b8f2fe2ed3e4d894ae5fa"
+    },
+    {
+      "path": "artifacts/vios-source-rows-2026-10-16/source-code.tar.gz",
+      "size": 23692015,
+      "sha256": "e5ece85e024fc2d8fb462ff036f9f2dd391aa8ab0367344bc44b020b86d9d799"
+    },
+    {
+      "path": "artifacts/vios-source-rows-2026-10-16/source-sha256.json",
+      "size": 859238,
+      "sha256": "9f701d54bbff37059777067191a972413bb2bca65364bff7ec283aac816741d2"
+    },
+    {
+      "path": "artifacts/vios-source-rows-2026-10-16/vios-accepted.bin",
+      "size": 105706,
+      "sha256": "7e47cda6905b69bcffadb77e53d02317b5a7b8af1e47c6ad049347880abc0753"
+    },
+    {
+      "path": "artifacts/vios-source-rows-2026-10-16/vios-accepted.elf",
+      "size": 201000,
+      "sha256": "3e6fb8f6e5c85f2f0e46c225e7d82ae659753e12d41116e68790d411a2e5ea05"
+    },
+    {
+      "path": "artifacts/vios-source-rows-2026-10-16/vios-accepted.map",
+      "size": 52068,
+      "sha256": "7050f2f093a81d669b23f98d39d74627ee19a03531bb92560c2231b6a50412e5"
+    },
+    {
+      "path": "artifacts/vios-source-rows-2026-10-16/write-report.py",
+      "size": 7483,
+      "sha256": "64c146a5d955177ab10c306644136326916f62e7f18b6336451c4add6f809c4e"
+    }
+  ]
+}

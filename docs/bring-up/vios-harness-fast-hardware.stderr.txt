@@ -1,0 +1,13 @@
+VIOS TCP listening on 127.0.0.1:64965
+Connecting.....
+Detecting chip type... ESP32
+Loading '/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/build/zdi-loader.bin' to RAM...
+Downloading 516 bytes at 0x3ffcc010 [==============>               ]  50.0%... 
+Downloading 3544 bytes at 0x400be000 [==============================] 100.0%... 
+Loaded 2 segments from '/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/build/zdi-loader.bin' to RAM, executing at 0x400be8cc.
+ID 0007 REV AA STAT 18
+RAM verified 19921 bytes 6b2e03cacdf82083795b09a36584b39c23d0f8a0f40f3e18f0b45e7568dade7d
+GO 040000 USB/UART bridge 115200
+
+VIOS Forth 24 / Agon Light 2
+vios> 

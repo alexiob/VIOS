@@ -1,0 +1,285 @@
+{
+  "started_unix": 1792137434.780202,
+  "image": "build/vios.bin",
+  "sha256": "b8c88d816308bdb8267d689fb2fe3b0b7571ad06132dea6d4964397ead22ccaa",
+  "size": 18929,
+  "identity": "ID 0007 REV AA STAT 18",
+  "mapping": "CS0 00 0B 08 01",
+  "readback_sha256": "b8c88d816308bdb8267d689fb2fe3b0b7571ad06132dea6d4964397ead22ccaa",
+  "boot": "GO 040000 USB/UART bridge 115200\r\n\r\nVIOS Forth 24 / Agon Light 2\r\nvios> ",
+  "checks": [
+    {
+      "engine": "C",
+      "source": ": SQUARE DUP * ; 7 SQUARE . CR",
+      "response": ": SQUARE DUP * ; 7 SQUARE . CR\r\n49 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "C",
+      "source": ": ABS DUP 0 < IF NEGATE THEN ; -7 ABS SQUARE . CR",
+      "response": ": ABS DUP 0 < IF NEGATE THEN ; -7 ABS SQUARE . CR\r\n49 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "C",
+      "source": ": SUM 0 SWAP 0 DO I + LOOP ; 10 SUM . CR",
+      "response": ": SUM 0 SWAP 0 DO I + LOOP ; 10 SUM . CR\r\n45 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "C",
+      "source": ": DOWN BEGIN 1- DUP 0= UNTIL ; 12 DOWN . CR",
+      "response": ": DOWN BEGIN 1- DUP 0= UNTIL ; 12 DOWN . CR\r\n0 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "C",
+      "source": ": INNER 0 SWAP 0 DO I + LOOP ; : NEST 0 6 1 DO I INNER + LOOP ; NEST . CR",
+      "response": ": INNER 0 SWAP 0 DO I + LOOP ; : NEST 0 6 1 DO I INNER + LOOP ; NEST . CR\r\n20 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "C",
+      "source": "VARIABLE X 123456 X ! X @ . CR",
+      "response": "VARIABLE X 123456 X ! X @ . CR\r\n123456 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "C",
+      "source": "$FFFFFF 1 + . $800000 0 < . $7FFFFF -1 < . CR",
+      "response": "$FFFFFF 1 + . $800000 0 < . $7FFFFF -1 < . CR\r\n0 -1 0 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "C",
+      "source": "-7 3 / . -7 3 MOD . 1 23 LSHIFT . $800000 23 RSHIFT . CR",
+      "response": "-7 3 / . -7 3 MOD . 1 23 LSHIFT . $800000 23 RSHIFT . CR\r\n-2 -1 -8388608 1 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "C",
+      "source": ": RTEST 7 >R 2 R> + ; RTEST . CR",
+      "response": ": RTEST 7 >R 2 R> + ; RTEST . CR\r\n9 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "C",
+      "source": "' SQUARE DROP",
+      "response": "' SQUARE DROP\r\nok\r\nvios> "
+    },
+    {
+      "engine": "C",
+      "source": "4 ' SQUARE EXECUTE . CR",
+      "response": "4 ' SQUARE EXECUTE . CR\r\n16 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "C",
+      "source": ": ONE 11 ; : TWO 22 ; DEFER SERVICE ' ONE IS SERVICE : CLIENT SERVICE . ; CLIENT CR ' TWO IS SERVICE CLIENT CR",
+      "response": ": ONE 11 ; : TWO 22 ; DEFER SERVICE ' ONE IS SERVICE : CLIENT SERVICE . ; CLIENT CR ' TWO IS SERVICE CLIENT CR\r\n11 \r\n22 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "C",
+      "source": ": BAD 1 MISSING ;",
+      "response": ": BAD 1 MISSING ;\r\nerror: unknown word: MISSING\r\nvios> "
+    },
+    {
+      "engine": "C",
+      "source": "BAD",
+      "response": "BAD\r\nerror: unknown word: BAD\r\nvios> "
+    },
+    {
+      "engine": "C",
+      "source": "DROP DROP",
+      "response": "DROP DROP\r\nerror: data stack underflow\r\nvios> "
+    },
+    {
+      "engine": "C",
+      "source": "1 0 /",
+      "response": "1 0 /\r\nerror: arithmetic error\r\nvios> "
+    },
+    {
+      "engine": "C",
+      "source": "3 4 + . CR",
+      "response": "3 4 + . CR\r\n7 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "C",
+      "source": "SEE CLIENT",
+      "response": "SEE CLIENT\r\n: CLIENT SERVICE . ; \r\nok\r\nvios> "
+    },
+    {
+      "engine": "TOKEN",
+      "source": ": SQUARE DUP * ; 7 SQUARE . CR",
+      "response": ": SQUARE DUP * ; 7 SQUARE . CR\r\n49 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "TOKEN",
+      "source": ": ABS DUP 0 < IF NEGATE THEN ; -7 ABS SQUARE . CR",
+      "response": ": ABS DUP 0 < IF NEGATE THEN ; -7 ABS SQUARE . CR\r\n49 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "TOKEN",
+      "source": ": SUM 0 SWAP 0 DO I + LOOP ; 10 SUM . CR",
+      "response": ": SUM 0 SWAP 0 DO I + LOOP ; 10 SUM . CR\r\n45 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "TOKEN",
+      "source": ": DOWN BEGIN 1- DUP 0= UNTIL ; 12 DOWN . CR",
+      "response": ": DOWN BEGIN 1- DUP 0= UNTIL ; 12 DOWN . CR\r\n0 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "TOKEN",
+      "source": ": INNER 0 SWAP 0 DO I + LOOP ; : NEST 0 6 1 DO I INNER + LOOP ; NEST . CR",
+      "response": ": INNER 0 SWAP 0 DO I + LOOP ; : NEST 0 6 1 DO I INNER + LOOP ; NEST . CR\r\n20 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "TOKEN",
+      "source": "VARIABLE X 123456 X ! X @ . CR",
+      "response": "VARIABLE X 123456 X ! X @ . CR\r\n123456 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "TOKEN",
+      "source": "$FFFFFF 1 + . $800000 0 < . $7FFFFF -1 < . CR",
+      "response": "$FFFFFF 1 + . $800000 0 < . $7FFFFF -1 < . CR\r\n0 -1 0 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "TOKEN",
+      "source": "-7 3 / . -7 3 MOD . 1 23 LSHIFT . $800000 23 RSHIFT . CR",
+      "response": "-7 3 / . -7 3 MOD . 1 23 LSHIFT . $800000 23 RSHIFT . CR\r\n-2 -1 -8388608 1 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "TOKEN",
+      "source": ": RTEST 7 >R 2 R> + ; RTEST . CR",
+      "response": ": RTEST 7 >R 2 R> + ; RTEST . CR\r\n9 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "TOKEN",
+      "source": "' SQUARE DROP",
+      "response": "' SQUARE DROP\r\nok\r\nvios> "
+    },
+    {
+      "engine": "TOKEN",
+      "source": "4 ' SQUARE EXECUTE . CR",
+      "response": "4 ' SQUARE EXECUTE . CR\r\n16 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "TOKEN",
+      "source": ": ONE 11 ; : TWO 22 ; DEFER SERVICE ' ONE IS SERVICE : CLIENT SERVICE . ; CLIENT CR ' TWO IS SERVICE CLIENT CR",
+      "response": ": ONE 11 ; : TWO 22 ; DEFER SERVICE ' ONE IS SERVICE : CLIENT SERVICE . ; CLIENT CR ' TWO IS SERVICE CLIENT CR\r\n11 \r\n22 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "TOKEN",
+      "source": ": BAD 1 MISSING ;",
+      "response": ": BAD 1 MISSING ;\r\nerror: unknown word: MISSING\r\nvios> "
+    },
+    {
+      "engine": "TOKEN",
+      "source": "BAD",
+      "response": "BAD\r\nerror: unknown word: BAD\r\nvios> "
+    },
+    {
+      "engine": "TOKEN",
+      "source": "DROP DROP",
+      "response": "DROP DROP\r\nerror: data stack underflow\r\nvios> "
+    },
+    {
+      "engine": "TOKEN",
+      "source": "1 0 /",
+      "response": "1 0 /\r\nerror: arithmetic error\r\nvios> "
+    },
+    {
+      "engine": "TOKEN",
+      "source": "3 4 + . CR",
+      "response": "3 4 + . CR\r\n7 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "TOKEN",
+      "source": "SEE CLIENT",
+      "response": "SEE CLIENT\r\n: CLIENT SERVICE . ; \r\nok\r\nvios> "
+    },
+    {
+      "engine": "DIRECT",
+      "source": ": SQUARE DUP * ; 7 SQUARE . CR",
+      "response": ": SQUARE DUP * ; 7 SQUARE . CR\r\n49 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "DIRECT",
+      "source": ": ABS DUP 0 < IF NEGATE THEN ; -7 ABS SQUARE . CR",
+      "response": ": ABS DUP 0 < IF NEGATE THEN ; -7 ABS SQUARE . CR\r\n49 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "DIRECT",
+      "source": ": SUM 0 SWAP 0 DO I + LOOP ; 10 SUM . CR",
+      "response": ": SUM 0 SWAP 0 DO I + LOOP ; 10 SUM . CR\r\n45 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "DIRECT",
+      "source": ": DOWN BEGIN 1- DUP 0= UNTIL ; 12 DOWN . CR",
+      "response": ": DOWN BEGIN 1- DUP 0= UNTIL ; 12 DOWN . CR\r\n0 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "DIRECT",
+      "source": ": INNER 0 SWAP 0 DO I + LOOP ; : NEST 0 6 1 DO I INNER + LOOP ; NEST . CR",
+      "response": ": INNER 0 SWAP 0 DO I + LOOP ; : NEST 0 6 1 DO I INNER + LOOP ; NEST . CR\r\n20 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "DIRECT",
+      "source": "VARIABLE X 123456 X ! X @ . CR",
+      "response": "VARIABLE X 123456 X ! X @ . CR\r\n123456 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "DIRECT",
+      "source": "$FFFFFF 1 + . $800000 0 < . $7FFFFF -1 < . CR",
+      "response": "$FFFFFF 1 + . $800000 0 < . $7FFFFF -1 < . CR\r\n0 -1 0 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "DIRECT",
+      "source": "-7 3 / . -7 3 MOD . 1 23 LSHIFT . $800000 23 RSHIFT . CR",
+      "response": "-7 3 / . -7 3 MOD . 1 23 LSHIFT . $800000 23 RSHIFT . CR\r\n-2 -1 -8388608 1 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "DIRECT",
+      "source": ": RTEST 7 >R 2 R> + ; RTEST . CR",
+      "response": ": RTEST 7 >R 2 R> + ; RTEST . CR\r\n9 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "DIRECT",
+      "source": "' SQUARE DROP",
+      "response": "' SQUARE DROP\r\nok\r\nvios> "
+    },
+    {
+      "engine": "DIRECT",
+      "source": "4 ' SQUARE EXECUTE . CR",
+      "response": "4 ' SQUARE EXECUTE . CR\r\n16 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "DIRECT",
+      "source": ": ONE 11 ; : TWO 22 ; DEFER SERVICE ' ONE IS SERVICE : CLIENT SERVICE . ; CLIENT CR ' TWO IS SERVICE CLIENT CR",
+      "response": ": ONE 11 ; : TWO 22 ; DEFER SERVICE ' ONE IS SERVICE : CLIENT SERVICE . ; CLIENT CR ' TWO IS SERVICE CLIENT CR\r\n11 \r\n22 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "DIRECT",
+      "source": ": BAD 1 MISSING ;",
+      "response": ": BAD 1 MISSING ;\r\nerror: unknown word: MISSING\r\nvios> "
+    },
+    {
+      "engine": "DIRECT",
+      "source": "BAD",
+      "response": "BAD\r\nerror: unknown word: BAD\r\nvios> "
+    },
+    {
+      "engine": "DIRECT",
+      "source": "DROP DROP",
+      "response": "DROP DROP\r\nerror: data stack underflow\r\nvios> "
+    },
+    {
+      "engine": "DIRECT",
+      "source": "1 0 /",
+      "response": "1 0 /\r\nerror: arithmetic error\r\nvios> "
+    },
+    {
+      "engine": "DIRECT",
+      "source": "3 4 + . CR",
+      "response": "3 4 + . CR\r\n7 \r\nok\r\nvios> "
+    },
+    {
+      "engine": "DIRECT",
+      "source": "SEE CLIENT",
+      "response": "SEE CLIENT\r\n: CLIENT SERVICE . ; \r\nok\r\nvios> "
+    }
+  ],
+  "resources": "RESOURCES\r\nengine DIRECT words 81/128 token-bytes 513 direct-bytes 1341 data-bytes 21 source-bytes 884 observed-depth 2 observed-return-depth 1\r\nok\r\nvios> ",
+  "verified": true,
+  "finished_unix": 1792137466.756958
+}

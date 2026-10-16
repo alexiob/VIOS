@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "started_utc": "2026-10-16T10:40:58.395319+00:00",
+  "namespace": "SDBACK1",
+  "phases": [
+    "read-only-sd-backup",
+    "reboot"
+  ],
+  "status": "failed",
+  "hardware_run": true,
+  "checks": [],
+  "limits": [
+    "VDP replies do not prove visible or audible physical output",
+    "Boot phase changes startup only from an unconfirmed clean baseline",
+    "No flash write, ROM helper upload, image deployment or file cleanup"
+  ],
+  "error": "Preflight helper incorrectly required ok on already_connected response; no RAM or SD mutation occurred"
+}

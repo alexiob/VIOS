@@ -1,0 +1,25 @@
+{"time": 1792143804.201334, "direction": "rx", "hex": "41", "text": "A"}
+{"time": 1792143804.201544, "direction": "rx", "hex": "4d206f6e6c793b20493d6964656e746966790d0a696e737472756374696f6e", "text": "M only; I=identify\r\ninstruction"}
+{"time": 1792143804.2041368, "direction": "rx", "hex": "20", "text": " "}
+{"time": 1792143804.204323, "direction": "rx", "hex": "70726f62653b204a3d6275727374204b3d73706c6974204c3d6e6575747261", "text": "probe; J=burst K=split L=neutra"}
+{"time": 1792143804.208514, "direction": "rx", "hex": "6c", "text": "l"}
+{"time": 1792143804.2086751, "direction": "rx", "hex": "204d3d706f73746e6f7020523d72657365742b5352414d0d0a", "text": " M=postnop R=reset+SRAM\r\n"}
+{"time": 1792143804.416974, "direction": "tx", "hex": "32", "text": "2"}
+{"time": 1792143804.418625, "direction": "tx", "hex": "49", "text": "I"}
+{"time": 1792143804.424027, "direction": "rx", "hex": "49", "text": "I"}
+{"time": 1792143804.424305, "direction": "rx", "hex": "4420303030372052455620414120535441542031380d0a", "text": "D 0007 REV AA STAT 18\r\n"}
+{"time": 1792143804.424452, "direction": "tx", "hex": "48", "text": "H"}
+{"time": 1792143804.42873, "direction": "rx", "hex": "52", "text": "R"}
+{"time": 1792143804.428977, "direction": "rx", "hex": "45475320393820303035343030203030303030302030303039303020304246", "text": "EGS 98 005400 000000 000900 0BF"}
+{"time": 1792143804.4314392, "direction": "rx", "hex": "46", "text": "F"}
+{"time": 1792143804.43161, "direction": "rx", "hex": "4442203042464643412030424646454520304246464335203030394638440d", "text": "DB 0BFFCA 0BFFEE 0BFFC5 009F8D\r"}
+{"time": 1792143804.433324, "direction": "rx", "hex": "0a", "text": "\n"}
+{"time": 1792143804.433464, "direction": "tx", "hex": "52", "text": "R"}
+{"time": 1792143804.438827, "direction": "rx", "hex": "52", "text": "R"}
+{"time": 1792143804.4390578, "direction": "rx", "hex": "45534554204245464f52452053544154203938205043203030394638442041", "text": "ESET BEFORE STAT 98 PC 009F8D A"}
+{"time": 1792143804.441674, "direction": "rx", "hex": "46", "text": "F"}
+{"time": 1792143804.441934, "direction": "rx", "hex": "5445522053544154204646", "text": "TER STAT FF"}
+{"time": 1792143804.44474, "direction": "rx", "hex": "20", "text": " "}
+{"time": 1792143804.444896, "direction": "rx", "hex": "5043204646464646460d0a4944204646464620524556204646205354415420", "text": "PC FFFFFF\r\nID FFFF REV FF STAT "}
+{"time": 1792143804.4451032, "direction": "tx", "hex": "53", "text": "S"}
+{"time": 1792143804.447644, "direction": "rx", "hex": "46460d0a52455345542052454753204646204646464646462046464646464620", "text": "FF\r\nRESET REGS FF FFFFFF FFFFFF "}

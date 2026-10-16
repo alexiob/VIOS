@@ -1,0 +1,164 @@
+# AGON dev C/C++ toolchain
+## Status
+Beta
+
+The toolchain is currently compiled for Linux (x86_64 / arm64) and MacOS (arm64) only. Windows is supported using WSL.
+
+## Purpose
+To assemble a C/C++ toolchain, based on modern open-source software that can be ported to many platforms
+## Installation guides
+- [Ubuntu Linux installation guide](docs/install-linux.md)
+- [MacOS installation guide](docs/install-mac.md)
+- [Windows (WSL) installation guide](docs/install-windows-wsl.md)
+
+## Project structure
+A minimum project consists of a Makefile and at least a single source file in the 'src' subdirectory:
+``` 
+project/
+│
+├── Makefile
+└── src/
+    └── main.c
+```
+---
+
+The toolchain expects the following project structure:
+
+``` 
+project/
+│
+├── Makefile
+├── include/
+│   │   Optional directory with project include files, e.g.
+│   └── module.h
+├── src/
+│   │   project source files, e.g.
+│   ├── main.c
+│   └── module.asm
+├── lib/
+│   │   Optional directory with static libraries the
+│   │   project requires, e.g.
+│   ├── libtest.a
+│   └── libsecret.a
+├── obj/
+│   │   objects created by the compiler / assembler
+│   │   this directory will be created automatically
+│   ├── main.o
+│   └── module.o
+└── bin/
+    │   the compiled program is placed here
+    │   this directory will be created automatically
+    └── program.bin
+```
+
+## Compiling programs
+Change directory to the root of your project, compile and link your program with the following command:
+
+``` 
+make
+```
+
+The same command is required to compile any changes to the source file(s).
+
+Clean up the entire build and compile everything from scratch with the following command:
+``` 
+make clean; make
+```
+
+- The 'Makefile' in the root directory of each project provides the required logic to build the project.
+- All source files need to be placed under a project's <b><project_dir>/src</b> directory.
+
+- .c / .cpp / .s / .asm / .src sources will be compiled / assembled directly to an ELF-formatted object file in <b><project_dir>/obj</b>
+
+- The linker will link all objects together with the provided libaries (libc / agon / fp / crt) and create a binary in <b><project_dir>/bin</b>
+
+Check out the provided example programs, which have a slightly different top-level Makefile with options that are similar to what AgDev provides.
+
+## Uploading programs (version 0.18+)
+
+Requires the installation of the hexload client on the Agon - please see [agon-hexload](https://github.com/AgonPlatform/agon-hexload) for details.
+
+With a physical Agon system connected to your Linux PC over USB/Serial, start the hexload receiver on the Agon first (AGON COMMAND)
+```
+hexload vdp
+```
+This will load the binary to memory. If you would like to also write the binary to the SD card, you can use (AGON COMMAND)
+```
+hexload vdp program.bin
+```
+And upload your program from the build folder using
+```
+make upload
+```
+There is no need to separately install a sending script; this is part of the AgonDev toolchain.
+Unless the SERIALPORT parameter is specified in the project Makefile, the USB/Serial port is autodetected from the sending system. An error is given if multiple serial ports are detected.
+
+## Starting the Fab Agon Emulator (version 0.20+)
+
+Requires the installation of the [Fab Agon Emulator](https://github.com/tomm/fab-agon-emulator).
+Set either globally set the environment variable FAE_HOME for all projects, or set the project-specific makefile option FAE_HOME to the Fab Emulator's installation root directory.
+
+Likewise, the option FAE_DEST is used to copy the built program binary to the Emulator's SDcard space. 
+By default, the program binary is copied to the bin folder of the virtual SDcard. If for example the program needs to run from the /mos directory on the Agon, set FAE_DEST to /mos
+
+To build a project, automatically copy the resulting program binary to the given emulator's virtual SD card and start the emulator, use one of these make targets:
+```
+make em
+make emu
+make emulator
+```
+
+## Minimal project Makefile
+Open your favorite editor, enter the following text and save it as 'Makefile' in your project's root directory:
+
+``` 
+NAME=program
+include $(shell agondev-config --makefile)
+``` 
+
+After successful compilation of your program, this example Makefile creates a 'program.bin' file in the <b><project_dir>/bin</b> directory.
+
+## Makefile options
+The following options can be set in the user's project Makefile:
+
+| Option                | Description                                                                                                                                                                                                 |
+|-----------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **NAME**              | Sets the name of the project.                                                                                                                                                                               |
+| **RAM_START**         | Sets the load/start address of the compiled program. Defaults to `0x040000`.                                                                                                                               |
+| **RAM_SIZE**          | Sets the amount of memory available to the program. Defaults to `0x070000`. The init routine sets the stack pointer to `RAM_START + RAM_SIZE`.                                                             |
+| **STACKTOP**          | Sets the stacktop address for the program. Defaults to `0x0B0000` (RAM_START + RAM_SIZE).
+| **LDHAS_ARG_PROCESSING** | Enables command-line argument processing. Default is `0`. Set to `1` to enable additional code for processing redirection and quoting.                                                                    |
+| **LDHAS_EXIT_HANDLER**   | Default is `0`. Set to `1` to print an error message based on the program’s exit code before returning to MOS.                                                                                            |
+| **LIBS**              | Sets flags to link with user-supplied static libraries in the `<project_dir>/lib` directory. Example: `LIBS=-lsecret`. Multiple libraries allowed, e.g., `LIBS="-lsecret -ltest"`.                           |
+| **SERIALPORT**        | Sets the USB/Serial port for uploading to the Agon via the hexload protocol. Can be set to `auto` (default if not specified).                                                                                |
+| **BAUDRATE**          | Sets the baud rate of the USB/Serial port. Default is `115200`.                                                                                                                                             |
+| **FAE_HOME**          | To make use of the 'make emu / make emulator' target, set this to the install directory of the Fab Agon Emulator |
+| **FAE_DEST**          | Sets the target destination inside the FAE SDcard space, defaults to the bin directory                          |
+| **FAE_ARGS**          | Optional arguments to the Fab Agon Emulator, such as '-d'.                                                       |
+
+## Creating static libraries
+Create a separate project for each library, with all the required source files that go into it, and set the NAME option in the Makefile to the required <b>library basename</b>
+
+Create a library with the following command:
+``` 
+make lib
+``` 
+
+If for example the library basename is 'example', the library will be compiled to <b><project_dir>/bin/libexample.a</b>
+
+The compiled library must be manually copied to another project's lib directory for inclusion there. Don't forget to set the LIBS Makefile option in the latter project, e.g. LIBS=-lexample
+
+## Build toolchain from source
+1) clone this repo
+2) Run the make_tools.sh shell script. You need the essentials for compiling and making stuff, e.g. using apt-get install build-essential, but also ninja. This is a hefty build that takes a long time and a lot of memory. About 30min on my AMD 4650, taking up 14-15GB of memory. When it finishes, all binary tools are in the ./release/bin folder
+3) Perform a 'make clean;make all' to build the Agon libraries
+
+## Toolchain components
+- Clang 15.0 C/C++ compiler, emitting ez80 code, forked from (https://github.com/CE-Programming/llvm-project) and patched to output GNU-AS compatible assembly syntax
+- GNU AS assembler, compiled to accept ez80 syntax and output ez80-none-elf objects. Please check the [official manual](https://sourceware.org/binutils/docs-2.25/as/index.html) for syntax and assembler directives
+- GNU LD linker, compiled to link ez80-none-elf objects
+- A significant portion of code from the [AgDev](https://github.com/pcawte/AgDev) toolchain, which is an extension of the [CEDev](https://ce-programming.github.io/toolchain/index.html) toolchain to target the Agon platform
+
+## Known limits
+- My LLVM fork (https://github.com/envenomator/llvm-project) it set up to never output the special 'JQ' meta mnemonic, that a back-end assembler can translate to either 'JR' or 'JP' depending on the distance. Any potential 'JQ' emits are always translated to 'JP', as the GNU Assembler doesn't support 'JQ'. I haven't seen any 'JQ' being emitted in any of my test; it may be that it's behaviour has changed somewhere in the past, however I'd like to make sure it never poses a problem with a GNU Assembler back-end. I do see that the LLVM compiler emits both 'JR' and 'JP' mnemonics where appropriate.
+

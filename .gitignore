@@ -1,0 +1,11 @@
+.venv/
+.tools/
+build/
+tmp/
+__pycache__/
+*.pyc
+.pio/
+.DS_Store
+
+# The frozen release contains the captured log; the live owner keeps appending.
+/docs/bring-up/vios-fast-display-final.serial.jsonl

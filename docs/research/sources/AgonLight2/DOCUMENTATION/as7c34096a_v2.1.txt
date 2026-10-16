@@ -1,0 +1,468 @@
+August 2004                                                                                                          AS7C34096A
+
+                                                                           ®
+
+                                                       3.3V 512K × 8 CMOS SRAM
+
+Features                                                             • Equal access and cycle times
+• Pin compatible to AS7C34096                                        • Easy memory expansion with CE, OE inputs
+• Industrial and commercial temperature                              • TTL-compatible, three-state I/O
+• Organization: 524,288 words × 8 bits                               • JEDEC standard packages
+• Center power and ground pins                                        - 400 mil 36-pin SOJ
+• High speed                                                          - 44-pin TSOP 2
+  - 10/12/15/20 ns address access time                               • ESD protection ≥ 2000 volts
+  - 4/5/6/7 ns output enable access time                             • Latch-up current ≥ 200 mA
+• Low power consumption: ACTIVE
+  - 650 mW / max @ 10 ns
+                                                                     Pin arrangements
+• Low power consumption: STANDBY                                                         36-pin SOJ (400 mil)
+  - 28.8 mW / max CMOS                                                                   A0     1    36        NC
+                                                                                         A1     2    35        A18
+                                                                                         A2     3    34        A17
+                                                                                         A3     4    33        A16
+                                                                                         A4     5    32        A15
+Logic block diagram                                                                      CE     6    31        OE
+                                                                                      I/O1      7    30        I/O8
+                                                                                      I/O2      8    29        I/O7
+                                                                                        VCC     9    28        GND
+                                                                                      GND       10   27        VCC
+  VCC                                                                                 I/O3      11   26        I/O6
+                                                                                      I/O4      12   25        I/O5
+ GND                                                                                    WE      13   24        A14
+                                                                                         A5     14   23        A13
+                           Input buffer                                                  A6     15   22        A12
+                                                                                         A7     16   21        A11
+                                                                                         A8     17   20        A10
+   A0                                                                                    A9     18   19        NC
+   A1                                                         I/O1
+
+
+            Row decoder
+   A2
+
+                                           Sense amp
+   A3                      524,288 × 8
+   A4                          Array
+   A5                                                                                         44-pin TSOP 2
+   A6                      (4,194,304)                                                   NC     1     44       NC
+   A7                                                                                    NC     2     43       NC
+   A8                                                         I/O8                       A0     3     42       NC
+                                                                                         A1     4     41       A18
+   A9                                                                                    A2     5     40       A17
+                                                                                         A3     6     39       A16
+                          Column decoder                    WE                           A4     7     38       A15
+                                                Control                                  CE     8     37       OE
+                                                            OE                        I/O1      9     36       I/O8
+                                                Circuit     CE                        I/O2                     I/O7
+                                                                                                10    35
+                          A10
+                          A11
+                          A12                                                           VCC     11    34       GND
+                          A13
+                          A14
+                          A15
+                          A16                                                         GND       12    33       VCC
+                          A17
+                          A18                                                         I/O3      13    32       I/O6
+                                                                                      I/O4      14    31       I/O5
+                                                                                        WE      15    30       A14
+                                                                                        A5      16    29       A13
+                                                                                        A6      17    28       A12
+                                                                                        A7      18    27       A11
+                                                                                        A8      19    26       A10
+                                                                                        A9      20    25       NC
+                                                                                         NC     21    24       NC
+                                                                                         NC     22    23       NC
+
+
+
+
+     Selection guide
+                                                                     –10        –12            –15               –20                Unit
+        Maximum address access time                                   10         12             15                20                 ns
+        Maximum outputenable access time                               4          5              6                 7                 ns
+                                                        Industrial   180        160            140               110                mA
+        Maximum operating current
+                                                       Commercial    170        150            130               100                mA
+        Maximum CMOS standby current                                   8         8               8                 8                mA
+
+
+
+  8/17/04, v. 2.1                                      Alliance Semiconductor                                                     P. 1 of 9
+                                                                                                      Copyright © Alliance Semiconductor. All rights reserved.
+                                                                                                                                         AS7C34096A
+
+                                                                                         ®
+
+
+Functional description
+The AS7C34096A is a high-performance CMOS 4,194,304-bit Static Random Access Memory (SRAM) device organized as
+524,288 words × 8 bits. It is designed for memory applications where fast data access, low power, and simple interfacing are
+desired.
+Equal address access and cycle times (tAA, tRC, tWC) of 10/12/15/20 ns with output enable access times (tOE) of 4/5/6/7 ns are
+ideal for high-performance applications. The chip enable input CE permits easy memory expansion with multiple-bank memory
+systems.
+When CE is high the device enters standby mode. The device is guaranteed not to exceed 28.8mW power consumption in
+CMOS standby mode.
+A write cycle is accomplished by asserting write enable (WE) and chip enable (CE). Data on the input pins I/O1–I/O8 is written
+on the rising edge of WE (write cycle 1) or CE (write cycle 2). To avoid bus contention, external devices should drive I/O pins
+only after outputs have been disabled with output enable (OE) or write enable (WE).
+A read cycle is accomplished by asserting output enable (OE) and chip enable (CE), with write enable (WE) high. The chip
+drives I/O pins with the data word referenced by the input address. When either chip enable or output enable is inactive, or write
+enable is active, output drivers stay in high-impedance mode.
+All chip inputs and outputs are TTL-compatible, and operation is from a single 3.3V supply voltage. This device is available as
+per industry standard 400-mil 36-pin SOJ and 44-pin TSOP 2 packages.
+
+          Absolute maximum ratings
+                         Parameter                                  Symbol                   Min                     Max                      Unit
+           Voltage on VCC relative to GND                             Vt1                    –0.5                     +5.0                     V
+           Voltage on any pin relative to GND                         Vt2                    –0.5                   VCC +0.5                   V
+           Power dissipation                                          PD                      –                       1.0                      W
+           Storage temperature (plastic)                              Tstg                   –65                     +150                      °C
+           Temperature with VCC applied                              Tbias                   –55                     +125                      °C
+           DC current into output (low)                              IOUT                     –                        20                     mA
+
+NOTE: Stresses greater than those listed under Absolute Maximum Ratings may cause permanent damage to the device. This is a stress rating only and func-
+tional operation of the device at these or any other conditions outside those indicated in the operational sections of this specification is not implied. Exposure to
+absolute maximum rating conditions for extended periods may affect reliability.
+
+
+
+Truth table
+          CE                       WE                       OE                                Data                                       Mode
+
+           H                        X                        X                               High Z                            Standby (ISB, ISB1)
+
+            L                       H                        H                               High Z                           Output disable (ICC)
+
+            L                       H                        L                               DOUT                                    Read (ICC)
+
+            L                       L                        X                                DIN                                    Write (ICC)
+Key: X = Don’t care, L = Low, H = High
+
+
+
+
+   8/17/04, v. 2.1                                         Alliance Semiconductor                                                                  P. 2 of 9
+                                                                                                                    AS7C34096A
+
+                                                                            ®
+
+
+
+
+Recommended operating condition
+            Parameter                                  Symbol             Min       Nominal            Max         Unit
+Supply voltage                                     VCC(10/12/15/20)        3.0        3.3              3.6          V
+                                                        VIH**              2.0         –             VCC + 0.5      V
+Input voltage
+                                                        VIL*              –0.5         –               0.8          V
+Ambient operating           commercial                   TA                 0          –                70          °C
+temperature                 industrial                   TA               –40          –                85          °C
+* V min = –1.0V for pulse width less than 5ns.
+** IL
+   VIH max = VCC + 2.0V for pulse width less than 5ns.
+
+
+
+DC operating characteristics (over the operating range)1
+                                                                                           –10     –12     –15     –20
+     Parameter           Symbol                Test conditions                           Min Max Min Max Min Max Min Max Unit
+    Input leakage
+                           |ILI|                                                          –     1       –     1     –        1        –         1   µA
+       current                                VCC = Max, VIN = GND to VCC
+   Output leakage                                   VCC = Max, CE = VIH
+                           |ILO|                                                          –     1       –     1     –        1        –         1   µA
+      current                                       VOUT= GND to VCC
+                                                                                          –    180      –    160    –        140      –       110   mA
+                                           VCC = Max, CE ≤ VIL
+  Operating power                                                           Industrial
+                           ICC
+   supply current                          f = fMax, IOUT = 0mA            Commercial     -    170      -    150    -        130      -       100   mA
+                           ISB                 VCC = Max, CE ≥ VIH, f = fMax              –    60       –    60     –        60       –       60    mA
+
+   Standby power                                        VCC = Max,
+   supply current          ISB1                      CE ≥ VCC – 0.2V,                     –     8       –     8     –        8        –         8   mA
+                                              VIN ≤ 0.2V or VIN ≥ VCC – 0.2V,
+                                                           f=0
+                           VOL                     IOL = 8 mA, VCC = Min                  –    0.4      –    0.4    –        0.4      –       0.4   V
+   Output voltage
+                           VOH                    IOH = –4 mA, VCC = Min                 2.4    –      2.4    –    2.4       –       2.4        –   V
+
+
+
+Capacitance (f = 1MHz, Ta = 25° C, VCC = NOMINAL)2
+                     Parameter                            Symbol         Signals          Test conditions               Max               Unit
+ Input capacitance                                         CIN        A, CE, WE, OE            VIN = 0V                  5                 pF
+ I/O capacitance                                           CI/O            I/O           VIN = VOUT = 0V                 7                 pF
+
+
+
+
+   8/17/04, v. 2.1                                       Alliance Semiconductor                                                   P. 3 of 9
+                                                                                                                            AS7C34096A
+
+                                                                             ®
+
+
+
+
+Read cycle (over the operating range)3,9
+                                                         –10                –12                     –15                 –20
+            Parameter                  Symbol     Min       Max       Min      Max          Min        Max        Min      Max      Unit Notes
+Read cycle time                         tRC        10       –          12        –           15          –         20        –      ns
+Address access time                     tAA        –        10          –        12           –          15         –       20      ns          3
+Chip enable (CE) access time            tACE       –        10          –        12           –          15         –       20      ns          3
+Output enable (OE) access time          tOE        –        4           –        5            –          6          –        7      ns
+Output hold from address change         tOH        3        –           3        –            3          –          3        –      ns          5
+CE Low to output in low Z               tCLZ       3        –           3        –            3          –          3        –      ns      4, 5
+CE High to output in high Z             tCHZ       –        5           –        6            –          7          –        9      ns      4, 5
+OE Low to output in low Z               tOLZ       0        –           0        –            0          –          0        –      ns      4, 5
+OE High to output in high Z             tOHZ       –        5           –        6            –          7          –        9      ns      4, 5
+Power up time                           tPU        0        –           0        –            0          –          0        –      ns      4, 5
+Power down time                         tPD        –        10          –        12           –          15         –       20      ns      4, 5
+
+
+
+Key to switching waveforms
+                        Rising input                             Falling input                               Undefined/don’t care
+
+
+Read waveform 1 (address controlled)3,6,7,9
+                                                   tRC
+  Address
+                                          tAA                                         tOH
+    DOUT                                                                 Data valid
+
+
+
+Read waveform 2 (CE, OE controlled)3,6,8,9
+                                                tRC1
+      CE
+
+                                         tOE
+      OE
+                                           tOLZ                                                   tOHZ
+                                tACE                                                          tCHZ
+   DOUT                                                            Data valid
+                            tCLZ                                                            tPD
+                                                                                                                                         ICC
+  Supply                  tPU
+  current                                 50%                                                 50%                                        ISB
+
+
+
+
+  8/17/04, v. 2.1                                 Alliance Semiconductor                                                            P. 4 of 9
+                                                                                                      AS7C34096A
+
+                                                                    ®
+
+
+
+
+Write cycle (over the operating range)10
+                                              –10                –12               –15             –20
+             Parameter             Symbol Min    Max         Min    Max        Min    Max      Min    Max   Unit Notes
+Write cycle time                    tWC     10         –     12         –      15          –   20     –      ns
+Chip enable (CE) to write end       tCW      7         –      8         –      10          –   12     –      ns
+Address setup to write end          tAW      7         –      8         –      10          –   12     –      ns
+Address setup time                  tAS      0         –      0         –       0          –    0     –      ns
+Write pulse width (OE = high)       tWP1     7         –      8         –      10          –   12     –      ns
+Write pulse width (OE = low         tWP2    10         –     12         –      15          –   20     –      ns
+Address hold from end of write      tAH      0         –      0         –       0          –    0     –      ns
+Write recovery time                 tWR      0         –      0         –       0          –    0     –      ns
+Data valid to write end             tDW      5         –      6         –       7          –    9     –      ns
+Data hold time                      tDH      0         –      0         –       0          –    0     –      ns     4, 5
+Write enable to output in high Z    tWZ      0         5      0         6       0          7    0     9      ns     4, 5
+Output active from write end        tOW      3         –      3         –       3          –    3     –      ns     4, 5
+
+
+
+Write waveform 1 (WE controlled)10
+                                                   tWC
+                                                                                     tWR
+                                                 tAW                                 tAH
+  Address
+                                                       tWP
+      WE
+                             tAS                                  tDW                tDH
+      DIN                                                         Data valid
+                                           tWZ                                 tOW
+
+    DOUT
+
+
+
+
+  8/17/04, v. 2.1                          Alliance Semiconductor                                            P. 5 of 9
+                                                                                                                               AS7C34096A
+
+                                                                                     ®
+
+
+Write waveform 2 (CE controlled)10
+                                                                  tWC
+                                                                                           tWR
+                                                           tAW                             tAH
+ Address
+                                        tAS                      tCW
+         CE
+                                                                  tWP
+        WE
+                                                       tWZ                 tDW                tDH
+        DIN                                                                 Data valid
+
+      DOUT
+
+
+
+
+AC test conditions
+ - Output load: see Figure B.
+ - Input pulse level: GND to 3.0V. See Figures A and B.
+                                                                                                    DOUT
+ - Input rise and fall times: 2 ns. See Figure A.
+ - Input and output timing reference levels: 1.5V.                                            +3.3V
+
+                                                                                              320Ω
+         +3.0V                                                           DOUT                                     Thevenin equivalent:
+                       90%              90%
+                                                                            350Ω              C11                     168Ω
+                  10%                      10%                                                                                 +1.728V
+          GND
+                               2 ns                                                        GND
+                       Figure A: Input pulse                               Figure B: 3.3V Output load
+
+Notes
+1     During VCC power-up, a pull-up resistor to VCC on CE is required to meet ISB specification.
+2     This parameter is sampled, but not 100% tested.
+3     For test conditions, see AC Test Conditions.
+4     tCLZ and tCHZ are specified with CL = 5pF as in Figure B. Transition is measured ±500 mV from steady-state voltage.
+5     This parameter is guaranteed, but not tested.
+6     WE is HIGH for read cycle.
+7     CE and OE are LOW for read cycle.
+8     Address valid prior to or coincident with CE transition Low.
+9     All read cycle timings are referenced from the last valid address to the first transitioning address.
+10    All write cycle timings are referenced from the last valid address to the first transitioning address.
+11    C=30pF, except on High Z and Low Z parameters, where C=5pF.
+
+
+
+
+     8/17/04, v. 2.1                                     Alliance Semiconductor                                                          P. 6 of 9
+                                                                                                          AS7C34096A
+
+                                                                           ®
+
+
+Package dimensions
+
+
+
+
+      44434241403938 37 36 35 34333231 30 29 28 27262524 23                          c
+                                                                                                     44-pin TSOP 2
+                                                                                                  Min(mm) Max(mm)
+                                                                                             A                     1.2
+                         44-pin TSOP 2                              E1 E                     A1     0.05           0.15
+                                                                                             A2     0.95           1.05
+                                                                                             b      0.30           0.45
+       1 2 3 4 5 6 7 8 9 10 111213 14 15 16 17 1819 20 21 22                                 c      0.12           0.21
+                                                                                             d     18.31          18.52
+                                 d
+                                                                                             E1    10.06          10.26
+                                                                                     L       E     11.68          11.94
+        A                                                      A2
+                                                                    0–5°                     e         0.80 (typical)
+            A1                                                                               L      0.40           0.60
+                     b               e
+
+                                                                                                      36-pin SOJ 400
+                                                                                                  Min(mils) Max(mils)
+                                                                                             A     0.128         0.148
+                                                                                             A1    0.025            –
+                                                                                             A2    0.105         0.115
+                         D
+                 e                                                                           b     0.015         0.020
+                                                                     b1
+                                                                                             b1    0.026         0.032
+                             36-pin SOJ    E1 E2                                         A
+                                                        A1                                   c     0.007         0.013
+                                                                           Seating           D      .920          .930
+                                                                    b       Plane
+   Pin 1                                                                                     e     0.045         0.055
+                                                                    c                        E          0.370 BSC
+                                     A2                                                      E1    0.395         0.405
+                                                                                             E2    0.435         0.445
+                                                    E
+
+
+
+
+ 8/17/04, v. 2.1                                        Alliance Semiconductor                                   P. 7 of 9
+                                                                                               AS7C34096A
+
+                                                              ®
+
+
+
+
+  Ordering codes
+   Package Temperature           10 ns           12 ns           15 ns           20 ns
+          Commercial        AS7C34096A-10JC AS7C34096A-12JC AS7C34096A-15JC AS7C34096A-20JC
+     SOJ
+          Industrial        AS7C34096A-10JI AS7C34096A-12JI AS7C34096A-15JI AS7C34096A-20JI
+           Commercial       AS7C34096A-10TC AS7C34096A-12TC AS7C34096A-15TC AS7C34096A-20TC
+   TSOP 2
+          Industrial        AS7C34096A-10TI AS7C34096A-12TI AS7C34096A-15TI AS7C34096A-20TI
+
+Note: Add suffix ‘N’ to the above part number for Lead Free Parts. (Ex: AS7C34096A - 10 TIN)
+
+
+Part numbering system
+ AS7C               X    4096A       –XX               J orT                        X                  X
+            Voltage:                                 Packages:            Temperature ranges:
+ SRAM                 Device
+                             Access time          J: SOJ 400 mil     C: Commercial, 0°C to 70°C N=Lead Free Parts
+ prefix 3 - 3.3V CMOS number
+                                                     T: TSOP 2       I: Industrial, –40°C to 85°C
+
+
+
+
+  8/17/04, v. 2.1                        Alliance Semiconductor                                       P. 8 of 9
+                                                                                                                                             AS7C34096A
+                                                                                            ®
+
+
+
+
+                      ®
+
+
+
+Alliance Semiconductor Corporation                                                                            Copyright © Alliance Semiconductor
+2575, Augustine Drive,                                                                                        All Rights Reserved
+Santa Clara, CA 95054                                                                                         Part Number: AS7C34096A
+Tel: 408 - 855 - 4900                                                                                         Document Version: v. 2.1
+Fax: 408 - 855 - 4999
+www.alsc.com
+
+
+
+© Copyright 2003 Alliance Semiconductor Corporation. All rights reserved. Our three-point logo, our name and Intelliwatt are trademarks or registered
+trademarks of Alliance. All other brand and product names may be the trademarks of their respective companies. Alliance reserves the right to make
+changes to this document and its products at any time without notice. Alliance assumes no responsibility for any errors that may appear in this document.
+The data contained herein represents Alliance's best data and/or estimates at the time of issuance. Alliance reserves the right to change or correct this data at
+any time, without notice. If the product described herein is under development, significant changes to these specifications are possible. The information in
+this product data sheet is intended to be general descriptive information for potential customers and users, and is not intended to operate as, or provide, any
+guarantee or warrantee to any user or customer. Alliance does not assume any responsibility or liability arising out of the application or use of any product
+described herein, and disclaims any express or implied warranties related to the sale and/or use of Alliance products including liability or warranties related
+to fitness for a particular purpose, merchantability, or infringement of any intellectual property rights, except as express agreed to in Alliance's Terms and
+Conditions of Sale (which are available from Alliance). All sales of Alliance products are made exclusively according to Alliance's Terms and Conditions of
+Sale. The purchase of products from Alliance does not convey a license under any patent rights, copyrights; mask works rights, trademarks, or any other
+intellectual property rights of Alliance or third parties. Alliance does not authorize its products for use as critical components in life-supporting systems
+where a malfunction or failure may reasonably be expected to result in significant injury to the user, and the inclusion of Alliance products in such life-
+supporting systems implies that the manufacturer assumes all risk of such use and agrees to indemnify Alliance against all claims arising from such use.
+

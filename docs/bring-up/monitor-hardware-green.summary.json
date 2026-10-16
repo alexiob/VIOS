@@ -1,0 +1,14 @@
+{
+  "started_unix": 1792135275.6297102,
+  "image": "build/monitor-raw.bin",
+  "size": 1249,
+  "sha256": "53cdb53e8f7c0461a0f9c0a302d525c86a7dc68f5a22b067e45a532c055487a6",
+  "identity": "ID 0007 REV AA STAT 18",
+  "ram_mapping": "CS0 04 0B 08 01",
+  "ram_readback_sha256": "53cdb53e8f7c0461a0f9c0a302d525c86a7dc68f5a22b067e45a532c055487a6",
+  "boot": "GO 040000 USB/UART bridge 115200\r\n\r\nagon-monitor bringup-20261016-01\r\nagon> ",
+  "backspace_crlf": "pinx\b \bg\r\npong\r\nagon> ",
+  "restart": "reboot\r\nrebooting\r\n\r\nagon-monitor bringup-20261016-01\r\nagon> ",
+  "verified": true,
+  "finished_unix": 1792135278.1538172
+}

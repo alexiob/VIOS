@@ -1,0 +1,150 @@
+{
+  "schema": 1,
+  "started_utc": "2026-10-16T10:06:38.363800+00:00",
+  "namespace": "RAMFIX1",
+  "phases": [
+    "core",
+    "modules"
+  ],
+  "status": "failed",
+  "hardware_run": true,
+  "checks": [
+    {
+      "name": "explicit-temporary-cpu-ram-deploy",
+      "status": "passed",
+      "result": {
+        "identity": "ID 0007 REV AA STAT 98",
+        "mapping": "CS0 04 0B 08 01",
+        "readback_sha256": "927658d5aae44a50403b17f17a8d7b27ff69dddb7ff171442daf02cd486e80dd",
+        "boot": "GO 040000 USB/UART bridge 115200\r\nboot recovery: built-in kernel, no valid source bundle\r\n\r\nVIOS Forth 24 / Agon Light 2\r\nvios> "
+      },
+      "elapsed_ms": 66889.953
+    },
+    {
+      "name": "attach-resident-no-deploy",
+      "status": "passed",
+      "result": {
+        "output": "\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "connected": true,
+        "identity": "ID 0007 REV AA STAT 18"
+      },
+      "elapsed_ms": 38.841
+    },
+    {
+      "name": "require-idle-empty-stack",
+      "status": "passed",
+      "result": {
+        "output": ".S\r\n<0> \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "data_stack": {
+          "depth_text": "0",
+          "values_text": []
+        }
+      },
+      "elapsed_ms": 26.736
+    },
+    {
+      "name": "initial-resources",
+      "status": "passed",
+      "result": {
+        "output": "RESOURCES\r\nengine DIRECT words 71/128 token-bytes 268 direct-bytes 860 data-bytes 21 source-bytes 173 data-peak 1 return-peak 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "resources": {
+          "engine": "DIRECT",
+          "words": "71/128",
+          "token-bytes": 268,
+          "direct-bytes": 860,
+          "data-bytes": 21,
+          "source-bytes": 173,
+          "data-peak": 1,
+          "return-peak": 0
+        }
+      },
+      "elapsed_ms": 49.129
+    },
+    {
+      "name": "arithmetic-DIRECT",
+      "status": "passed",
+      "result": {
+        "output": "ENGINE DIRECT DECIMAL 6 7 * . -7 3 / . -7 3 MOD . CR\r\n42 -2 -1 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          42,
+          -2,
+          -1
+        ]
+      },
+      "elapsed_ms": 54.878
+    },
+    {
+      "name": "arithmetic-TOKEN",
+      "status": "passed",
+      "result": {
+        "output": "ENGINE TOKEN DECIMAL 6 7 * . -7 3 / . -7 3 MOD . CR\r\n42 -2 -1 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          42,
+          -2,
+          -1
+        ]
+      },
+      "elapsed_ms": 54.392
+    },
+    {
+      "name": "arithmetic-C",
+      "status": "passed",
+      "result": {
+        "output": "ENGINE C DECIMAL 6 7 * . -7 3 / . -7 3 MOD . CR\r\n42 -2 -1 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          42,
+          -2,
+          -1
+        ]
+      },
+      "elapsed_ms": 52.37
+    },
+    {
+      "name": "default-direct-engine",
+      "status": "passed",
+      "result": {
+        "output": "ENGINE DIRECT\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "elapsed_ms": 25.567
+    },
+    {
+      "name": "max-line-two-fragment-01",
+      "status": "failed",
+      "error": "Device command failed: {'output': '@CA0CE0CE !B27A1267 DECIMAL 123 456 + . CR                                                                                                                                                                                        \\r\\nerror: request CRC mismatch\\r\\n\\r\\nerror\\r\\nvios> ', 'ok': False, 'compiling': False, 'pending': False}",
+      "error_type": "AcceptanceError",
+      "elapsed_ms": 112.589
+    }
+  ],
+  "limits": [
+    "VDP replies do not prove visible or audible physical output",
+    "Boot phase changes startup only from an unconfirmed clean baseline",
+    "No flash write, ROM helper upload, image deployment or file cleanup"
+  ],
+  "temporary_cpu_deploy": true,
+  "identity": "ID 0007 REV AA STAT 18",
+  "initial_engine": "DIRECT",
+  "initial_base": 10,
+  "error": "Device command failed: {'output': '@CA0CE0CE !B27A1267 DECIMAL 123 456 + . CR                                                                                                                                                                                        \\r\\nerror: request CRC mismatch\\r\\n\\r\\nerror\\r\\nvios> ', 'ok': False, 'compiling': False, 'pending': False}",
+  "error_type": "AcceptanceError"
+}

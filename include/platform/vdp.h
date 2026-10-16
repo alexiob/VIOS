@@ -1,0 +1,12 @@
+#ifndef VIOS_PLATFORM_VDP_H
+#define VIOS_PLATFORM_VDP_H
+#include <stddef.h>
+#include <stdint.h>
+void platform_console_flush(void);
+void platform_vdp_send(const void *data,size_t length);
+int platform_vdp_request(const void *command,size_t length,unsigned char reply,void *data,size_t capacity,unsigned *actual);
+uint32_t platform_millis(void);
+unsigned platform_console_dropped(void);
+void platform_boot_ready(void);
+void platform_boot_trial(void);
+#endif

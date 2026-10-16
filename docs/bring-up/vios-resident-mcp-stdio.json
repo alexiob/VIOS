@@ -1,0 +1,177 @@
+{
+  "schema": 1,
+  "started_utc": "2026-10-16T10:33:28.645574+00:00",
+  "namespace": "MCP1",
+  "phases": [
+    "stdio"
+  ],
+  "status": "passed",
+  "hardware_run": true,
+  "checks": [
+    {
+      "name": "initialize-resident",
+      "status": "passed",
+      "result": {
+        "protocolVersion": "2025-11-25",
+        "capabilities": {
+          "tools": {}
+        },
+        "serverInfo": {
+          "name": "vios-harness",
+          "version": "0.1.0"
+        },
+        "instructions": "Call connect for resident firmware or deploy for the RAM bridge explicitly; one board session persists across tools. Source uses printable ASCII lines <=235 bytes. After timeout, use console_input for KEY and await_result; no new source is queued."
+      },
+      "elapsed_ms": 47.09
+    },
+    {
+      "name": "discover29tools",
+      "status": "passed",
+      "result": {
+        "count": 29
+      },
+      "elapsed_ms": 0.303
+    },
+    {
+      "name": "connect-no-deploy",
+      "status": "passed",
+      "result": {
+        "output": "boot confirmed A\r\n\r\nVIOS Forth 24 / Agon Light 2\r\nvios> @A5ABF123 !00000000 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "connected": true,
+        "identity": "ID 0007 REV AA STAT 18"
+      },
+      "elapsed_ms": 35903.941
+    },
+    {
+      "name": "compile-and-execute",
+      "status": "passed",
+      "result": {
+        "output": ": MCP-SQUARE DUP * ; 7 MCP-SQUARE . CR\r\n49 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "elapsed_ms": 47.215
+    },
+    {
+      "name": "retained-exact-source",
+      "status": "passed",
+      "result": {
+        "output": "MODULE-SOURCE LIVE1P\r\nsource-hex 3A204C495645312D56203131203B203A204C495645312D54204C495645312D56203131203D203B2027204C495645312D56204953204C495645312D53\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "name": "LIVE1P",
+        "previous": false,
+        "source": ": LIVE1-V 11 ; : LIVE1-T LIVE1-V 11 = ; ' LIVE1-V IS LIVE1-S",
+        "bytes": 60,
+        "crc32": 2732385733,
+        "crc32_hex": "A2DCE5C5",
+        "source_sha256": "9a9d4500a08d0d370f6ba693c4b82c166c5fc51b6d647bb0ad345313bf591758"
+      },
+      "elapsed_ms": 59.911
+    },
+    {
+      "name": "boot-status-confirmed",
+      "status": "passed",
+      "result": {
+        "output": "BOOT-STATUS\r\nboot confirmed A candidate NONE state CLEAN current A generation 7\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "boot": {
+          "confirmed": "A",
+          "candidate": "NONE",
+          "state": "CLEAN",
+          "current": "A",
+          "generation": 7
+        }
+      },
+      "elapsed_ms": 343.64
+    },
+    {
+      "name": "debug-registers",
+      "status": "passed",
+      "result": {
+        "status": 152,
+        "registers": {
+          "af": 16992,
+          "bc": 8192,
+          "de": 0,
+          "hl": 0,
+          "ix": 720890,
+          "iy": 485856,
+          "sp": 720582,
+          "pc": 282946
+        },
+        "raw": "REGS 98 004260 002000 000000 000000 0AFFFA 0769E0 0AFEC6 045142"
+      },
+      "elapsed_ms": 55.924
+    },
+    {
+      "name": "latency-evaluate",
+      "status": "passed",
+      "result": {
+        "samples_ms": [
+          34.821,
+          34.856,
+          34.966,
+          35.492,
+          35.024,
+          35.245,
+          33.894,
+          34.368,
+          34.727
+        ],
+        "median_ms": 34.856
+      },
+      "elapsed_ms": 313.51
+    },
+    {
+      "name": "latency-inspect",
+      "status": "passed",
+      "result": {
+        "samples_ms": [
+          43.223,
+          43.438,
+          42.976,
+          42.954,
+          42.905,
+          42.942,
+          42.127,
+          43.059,
+          42.921
+        ],
+        "median_ms": 42.954
+      },
+      "elapsed_ms": 386.652
+    },
+    {
+      "name": "latency-resources",
+      "status": "passed",
+      "result": {
+        "samples_ms": [
+          51.775,
+          50.662,
+          51.262,
+          50.715,
+          51.09,
+          50.945,
+          51.007,
+          50.891,
+          50.764
+        ],
+        "median_ms": 50.945
+      },
+      "elapsed_ms": 459.212
+    }
+  ],
+  "limits": [
+    "VDP replies do not prove visible or audible physical output",
+    "Boot phase changes startup only from an unconfirmed clean baseline",
+    "No flash write, ROM helper upload, image deployment or file cleanup"
+  ]
+}

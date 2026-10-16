@@ -1,0 +1,27 @@
+{
+  "output": "WB-STATUS\r\nWB-STATUS revision 36 catalog 464 open 1 draft 1 dirty 0 staged 0 active 1 saved 0 length 1969 cursor 0 selection 3 browser 0 focus 0 words 391 words_max 512 module 57424D3150 version 312E30 test - error 6472616674206D757374206265207374616765642061742074686973207265766973696F6E\r\n\r\nok\r\nvios> ",
+  "ok": true,
+  "compiling": false,
+  "pending": false,
+  "workbench": {
+    "revision": 36,
+    "catalog": 464,
+    "open": true,
+    "draft": true,
+    "dirty": false,
+    "staged": false,
+    "active": true,
+    "saved": false,
+    "length": 1969,
+    "cursor": 0,
+    "selection": 3,
+    "browser": 0,
+    "focus": 0,
+    "words": 391,
+    "words_max": 512,
+    "module": "WBM1P",
+    "version": "1.0",
+    "test": "",
+    "error": "draft must be staged at this revision"
+  }
+}

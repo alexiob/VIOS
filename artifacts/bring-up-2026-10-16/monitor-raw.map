@@ -1,0 +1,99 @@
+Archive member included to satisfy reference by file (symbol)
+
+/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(setflag.o)
+                              build/raw/kernel/main.o (__setflag)
+/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(frameset.o)
+                              build/raw/kernel/monitor.o (__frameset)
+
+Discarded input sections
+
+ .comment       0x00000000       0x77 build/raw/kernel/monitor.o
+ .comment       0x00000000       0x77 build/raw/kernel/main.o
+ .comment       0x00000000       0x77 build/raw/boards/agon-light-2/platform_raw.o
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+RAM              0x00040000         0x00070000         xrw
+*default*        0x00000000         0xffffffff
+
+Linker script and memory map
+
+
+.init           0x00040000       0x6e
+ *(.init)
+ .init          0x00040000       0x6e build/raw/arch/ez80/start.o
+                0x00040000                _image_start
+                0x00040045                _start
+                0x00040062                _platform_restart
+
+.text           0x0004006e      0x350
+ *(.text .text.*)
+ .text          0x0004006e      0x273 build/raw/kernel/monitor.o
+                0x0004006e                _monitor_init
+                0x000400b3                _monitor_feed
+ .text          0x000402e1       0x21 build/raw/kernel/main.o
+                0x000402e1                _kernel_main
+ .text          0x00040302       0x42 build/raw/boards/agon-light-2/platform_raw.o
+                0x00040302                _platform_console_init
+                0x00040306                _platform_console_putc
+                0x00040329                _platform_console_getc
+                0x0004033f                _platform_identity
+ .text          0x00040344        0x0 build/raw/arch/ez80/start.o
+ .text          0x00040344       0x23 build/raw/arch/ez80/uart0.o
+                0x00040344                _ez80_uart0_status
+                0x00040348                _ez80_uart0_modem
+                0x0004034c                _ez80_uart0_read
+                0x00040350                _ez80_uart0_write
+                0x0004035a                _ez80_uart0_polling
+ .text          0x00040367       0x3a build/raw/arch/ez80/uart0_raw.o
+                0x00040367                _ez80_uart0_raw_init
+ .text          0x000403a1        0xf /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(setflag.o)
+                0x000403a1                __setflag
+ .text          0x000403b0        0xe /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(frameset.o)
+                0x000403b0                __frameset
+
+.rodata         0x000403be      0x123
+ *(.rodata .rodata.*)
+ .rodata        0x000403be       0xe7 build/raw/kernel/monitor.o
+ .rodata        0x000404a5       0x3c build/raw/boards/agon-light-2/platform_raw.o
+
+.data           0x000404e1        0x0
+ *(.data .data.*)
+ .data          0x000404e1        0x0 build/raw/kernel/monitor.o
+ .data          0x000404e1        0x0 build/raw/kernel/main.o
+ .data          0x000404e1        0x0 build/raw/boards/agon-light-2/platform_raw.o
+ .data          0x000404e1        0x0 build/raw/arch/ez80/start.o
+ .data          0x000404e1        0x0 build/raw/arch/ez80/uart0.o
+ .data          0x000404e1        0x0 build/raw/arch/ez80/uart0_raw.o
+ .data          0x000404e1        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(setflag.o)
+ .data          0x000404e1        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(frameset.o)
+
+.bss            0x000404e1       0x55
+                0x000404e1                        __bss_start = .
+ *(.bss .bss.* COMMON)
+ .bss           0x000404e1       0x55 build/raw/kernel/monitor.o
+ .bss           0x00040536        0x0 build/raw/kernel/main.o
+ .bss           0x00040536        0x0 build/raw/boards/agon-light-2/platform_raw.o
+ .bss           0x00040536        0x0 build/raw/arch/ez80/start.o
+ .bss           0x00040536        0x0 build/raw/arch/ez80/uart0.o
+ .bss           0x00040536        0x0 build/raw/arch/ez80/uart0_raw.o
+ .bss           0x00040536        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(setflag.o)
+ .bss           0x00040536        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(frameset.o)
+                0x00040536                        __bss_end = .
+
+/DISCARD/
+ *(.comment .note* .eh_frame*)
+                0x00000055                        __bss_size = (__bss_end - __bss_start)
+                0x000b0000                        __stack_top = 0xb0000
+                0x000af000                        __stack_bottom = (__stack_top - 0x1000)
+                0x00000001                        ASSERT ((__bss_end <= __stack_bottom), payload overlaps the 4 KiB stack)
+                0x00000001                        ASSERT ((__bss_size < 0x10000), startup BSS loop supports at most 65535 bytes)
+LOAD build/raw/kernel/monitor.o
+LOAD build/raw/kernel/main.o
+LOAD build/raw/boards/agon-light-2/platform_raw.o
+LOAD build/raw/arch/ez80/start.o
+LOAD build/raw/arch/ez80/uart0.o
+LOAD build/raw/arch/ez80/uart0_raw.o
+LOAD /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a
+OUTPUT(build/monitor-raw.elf elf32-z80)

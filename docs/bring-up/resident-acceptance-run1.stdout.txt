@@ -1,0 +1,4 @@
+{"checkpoint": "attach-resident-no-deploy", "status": "running"}
+{"checkpoint": "attach-resident-no-deploy", "status": "failed", "elapsed_ms": 5335.038}
+Acceptance stopped: Resident CPU is halted; use explicit deploy or debug recovery
+{"report": "docs/bring-up/resident-acceptance-run1.json", "status": "failed", "namespace": "ATD97B6379"}

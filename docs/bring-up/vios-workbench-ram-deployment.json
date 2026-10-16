@@ -1,0 +1,68 @@
+{
+  "size": 97551,
+  "sha256": "fa2fd4588f43d8cd2e50306853f7f957de7f5b1bcfe0c2b0096b2ff6b4097250",
+  "started_unix": 1792149071.959331,
+  "deployment": {
+    "identity": "ID 0007 REV AA STAT 98",
+    "mapping": "CS0 04 0B 08 01",
+    "readback_sha256": "fa2fd4588f43d8cd2e50306853f7f957de7f5b1bcfe0c2b0096b2ff6b4097250",
+    "boot": "GO 040000 USB/UART bridge 115200\r\nboot confirmed A\r\n\r\nVIOS Forth 24 / Agon Light 2\r\nvios> "
+  },
+  "resources": {
+    "output": "RESOURCES\r\nengine DIRECT words 80/512 token-bytes 327 direct-bytes 986 data-bytes 27 source-bytes 281 data-peak 2 return-peak 0\r\n\r\nok\r\nvios> ",
+    "ok": true,
+    "compiling": false,
+    "pending": false,
+    "resources": {
+      "engine": "DIRECT",
+      "words": "80/512",
+      "token-bytes": 327,
+      "direct-bytes": 986,
+      "data-bytes": 27,
+      "source-bytes": 281,
+      "data-peak": 2,
+      "return-peak": 0
+    }
+  },
+  "boot_status": {
+    "output": "BOOT-STATUS\r\nboot confirmed A candidate NONE state CLEAN current A generation 7\r\n\r\nok\r\nvios> ",
+    "ok": true,
+    "compiling": false,
+    "pending": false,
+    "boot": {
+      "confirmed": "A",
+      "candidate": "NONE",
+      "state": "CLEAN",
+      "current": "A",
+      "generation": 7
+    }
+  },
+  "workbench": {
+    "output": "WB-STATUS\r\nWB-STATUS revision 1 catalog 153 open 0 draft 0 dirty 0 staged 0 active 0 saved 0 length 0 cursor 0 selection 0 browser 0 focus 0 words 80 words_max 512 module - version - test - error -\r\n\r\nok\r\nvios> ",
+    "ok": true,
+    "compiling": false,
+    "pending": false,
+    "workbench": {
+      "revision": 1,
+      "catalog": 153,
+      "open": false,
+      "draft": false,
+      "dirty": false,
+      "staged": false,
+      "active": false,
+      "saved": false,
+      "length": 0,
+      "cursor": 0,
+      "selection": 0,
+      "browser": 0,
+      "focus": 0,
+      "words": 80,
+      "words_max": 512,
+      "module": "",
+      "version": "",
+      "test": "",
+      "error": ""
+    }
+  },
+  "finished_unix": 1792149200.072798
+}

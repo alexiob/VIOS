@@ -1,0 +1,375 @@
+{
+  "schema": 1,
+  "project": "VIOS",
+  "platform": "Agon Light 2 / eZ80F92 / ESP32-PICO-D4",
+  "created_utc": "2026-10-16T10:47:25.464788+00:00",
+  "status": "accepted_on_hardware",
+  "accepted_firmware": {
+    "path": "artifacts/vios-resident-2026-10-16/firmware-accepted.bin",
+    "size": 630544,
+    "sha256": "0a064beaba2be05f07960a9e05da1bb5a161af8ac7799c55fc6f4c3459e2a129"
+  },
+  "accepted_cpu": {
+    "path": "artifacts/vios-resident-2026-10-16/vios-accepted.bin",
+    "size": 72292,
+    "sha256": "4b78acad305ded1f349b8b4c86e313e74704ba85a5ff2fcd9148981a82951143"
+  },
+  "native_stage0": {
+    "path": "artifacts/vios-resident-2026-10-16/agon-stage0.bin",
+    "size": 46,
+    "sha256": "18b33b49aa06ffd22e68b9ce640904a1d990d994edd509ab98ce96945a08b82f"
+  },
+  "cpu_layout": {
+    "load_address": 262144,
+    "text_bytes": 72282,
+    "data_bytes": 10,
+    "bss_bytes": 190082,
+    "bss_end": 524518,
+    "stack_bottom": 716800,
+    "stack_top": 720896,
+    "reserved_stack_bytes": 4096,
+    "remaining_before_stack_bytes": 192282
+  },
+  "esp32": {
+    "app0_offset": 65536,
+    "app0_limit": 1310720,
+    "static_ram_bytes": 37948,
+    "program_bytes": 630173,
+    "runtime_allocations_additional": true
+  },
+  "toolchains": {
+    "agondev": "v0.22",
+    "clang": "15.0.7 / AgonPlatform agon-llvm-project c76386c0083e6a6236ff774275227e2389f85538",
+    "platformio": "espressif32@6.3.0",
+    "arduino_esp32": "2.0.9",
+    "xtensa_pio": "8.4.0+2021r2-patch5",
+    "ESP32Time": "2.0.0"
+  },
+  "host_native_verification": {
+    "unittest_tests": 135,
+    "linked_engine_execution_probes": 146,
+    "log": "artifacts/vios-resident-2026-10-16/host-native-checks.txt"
+  },
+  "hardware_reports": [
+    {
+      "path": "docs/bring-up/vios-resident-accepted-run3.json",
+      "size": 97050,
+      "sha256": "cb7dbcd18fa2f87f16383db7171157fd9e8eee0f010bd939c93f740b7ac0eba9",
+      "checks_passed": 137
+    },
+    {
+      "path": "docs/bring-up/vios-resident-recovery-run1.json",
+      "size": 9944,
+      "sha256": "cbb36edf6f4746f0c55bdacb55bb6811d642c4e4def0856130d18d848e6db9bb",
+      "checks_passed": 25
+    },
+    {
+      "path": "docs/bring-up/vios-resident-power-cycle.json",
+      "size": 3034,
+      "sha256": "6b79a7f2adb1a31f2188704fa02a9f11d81962a15e9c5672adb177a3a3664868",
+      "checks_passed": 6
+    },
+    {
+      "path": "docs/bring-up/vios-resident-mcp-stdio.json",
+      "size": 4565,
+      "sha256": "f9b7b82dd5548972c030d283f5744f79accb7b394f87c54be92fd10d4d1e2703",
+      "checks_passed": 10
+    },
+    {
+      "path": "docs/bring-up/vios-resident-mcp-tcp.json",
+      "size": 4565,
+      "sha256": "cde65055be3198884d022e0cc5029e666823e39f0fe352e4b9c7464b60a263f3",
+      "checks_passed": 10
+    },
+    {
+      "path": "docs/bring-up/vios-resident-mcp-stdio-proxy.json",
+      "size": 4441,
+      "sha256": "3d070e27e1974cd62338168a5b4923392badfbb6c92410a58ebee6a123f9fa96",
+      "checks_passed": 10
+    },
+    {
+      "path": "docs/bring-up/vios-resident-sd-startup-backup.json",
+      "size": 6092,
+      "sha256": "2cf41481c3303d22093e12333210b3c74fd7dbd19cbe16d8734372fcfaceb2d0",
+      "checks_passed": 13
+    },
+    {
+      "path": "docs/bring-up/vios-resident-live-rollback.json",
+      "size": 4280,
+      "sha256": "4d351c819b86f6669213232fb3cee90b017dec28c7b2b99862b759c168cd9b07",
+      "checks_passed": 8
+    }
+  ],
+  "source_files": 280,
+  "source_manifest": "artifacts/vios-resident-2026-10-16/source-sha256.json",
+  "current_live_session": "docs/bring-up/vios-resident-live-session.json",
+  "ui_status": "Selected hybrid text-first workbench; panes/editor not yet implemented",
+  "limitations": [
+    "No eZ80 flash programming; original MOS remains, kernel uses no MOS calls",
+    "A/B source startup shares one FAT32 card; not media-failure isolation or ESP32 firmware rollback",
+    "Physical VGA legibility and audible sound unobserved",
+    "Three consecutive watchdog failures covered by fixtures; hardware observed first failure and retained count",
+    "PS/2 mouse GPIO26/27 reserved for permanent ZDI wires; keyboard-only profile",
+    "MCP/JSON/TCP on host; USB is CH340 serial, not native Ethernet"
+  ],
+  "original_backups": [
+    {
+      "path": "backups/esp32/original-2026-10-16.bin",
+      "size": 4194304,
+      "sha256": "91693875ae044e50eb10d02dd41c6efc528609bdd9b012aab4576b929c535e1c"
+    },
+    {
+      "path": "backups/ez80/original-2026-10-16.bin",
+      "size": 131072,
+      "sha256": "e396bfff189dfcd6c064f81349f4af9c80f4033c9015eb6ea12f870679eb6569"
+    },
+    {
+      "path": "backups/esp32/pre-vios-resident-2026-10-16.bin",
+      "size": 4194304,
+      "sha256": "69fd4cecc5be741231aa263ce7fe87049ff7936b122546337434bd1e50a5b7d9"
+    },
+    {
+      "path": "backups/esp32/pre-vios-resident-app0-2026-10-16.bin",
+      "size": 1310720,
+      "sha256": "4b3bce4e667b2023289a0347fd27b9fd4bad61be8d746c1707a536a13cbc9376"
+    }
+  ],
+  "files": [
+    {
+      "path": "artifacts/vios-resident-2026-10-16/README.md",
+      "size": 2507,
+      "sha256": "39339332dd52fa008aa0e1bfed851d1b49f6c97ca3d44786c7e1094d244b2836"
+    },
+    {
+      "path": "artifacts/vios-resident-2026-10-16/agon-stage0.bin",
+      "size": 46,
+      "sha256": "18b33b49aa06ffd22e68b9ce640904a1d990d994edd509ab98ce96945a08b82f"
+    },
+    {
+      "path": "artifacts/vios-resident-2026-10-16/backup-sd-startup.py",
+      "size": 2833,
+      "sha256": "69e51e1186f8487978458ebef53545b4e9856a009c5ce7f7c235bb48d71553a3"
+    },
+    {
+      "path": "artifacts/vios-resident-2026-10-16/build-manifest-accepted.json",
+      "size": 6765,
+      "sha256": "5053d67c27c34229aa7fe4d26a4dfc0a1e5a689b92f2a3b8bc65a7b409885e72"
+    },
+    {
+      "path": "artifacts/vios-resident-2026-10-16/build-manifest-diagnostic.json",
+      "size": 6329,
+      "sha256": "1b39db57b34651ee037d36927cf827484124c6772a33411756cde201f5ccac98"
+    },
+    {
+      "path": "artifacts/vios-resident-2026-10-16/build-manifest-early-probe.json",
+      "size": 6402,
+      "sha256": "b79217ffa502a8565a04be2e80d5d44a3d04c113a80e725b9bf55b5d2a6c78f4"
+    },
+    {
+      "path": "artifacts/vios-resident-2026-10-16/build-manifest-flow-rescue.json",
+      "size": 6765,
+      "sha256": "5053d67c27c34229aa7fe4d26a4dfc0a1e5a689b92f2a3b8bc65a7b409885e72"
+    },
+    {
+      "path": "artifacts/vios-resident-2026-10-16/build-manifest-native-boot.json",
+      "size": 6765,
+      "sha256": "f0cf55dfe247492c81bb173c98ebb0781a1566d8051411f39640d579995052b1"
+    },
+    {
+      "path": "artifacts/vios-resident-2026-10-16/build-manifest-primed-native.json",
+      "size": 6765,
+      "sha256": "dc41eb654ea347e41b0a26172cbd743ec934ba72102c5133bcad89d49cd00c8a"
+    },
+    {
+      "path": "artifacts/vios-resident-2026-10-16/build-manifest.json",
+      "size": 6329,
+      "sha256": "cea9b09f24086a82d1ca8f8f78b093ba4a2ce1d52619ad78ba4dc865b301e8e6"
+    },
+    {
+      "path": "artifacts/vios-resident-2026-10-16/compiler-regression/old-platform_resident.c",
+      "size": 2881,
+      "sha256": "84c145fd488bae9351f857274be81d79a4610055a3ddd6ca505f341958d9a2f0"
+    },
+    {
+      "path": "artifacts/vios-resident-2026-10-16/compiler-regression/old-platform_resident.d",
+      "size": 561,
+      "sha256": "227fcfbc4ae7edd76be07d04affea8fbeec59f295cdd9cfd9f0d8503392ca3bc"
+    },
+    {
+      "path": "artifacts/vios-resident-2026-10-16/compiler-regression/old-platform_resident.o",
+      "size": 3748,
+      "sha256": "a4ae85f47d773fd20cd375cc4f6816046002cbc8782d807e382afdefa48b1536"
+    },
+    {
+      "path": "artifacts/vios-resident-2026-10-16/compiler-regression/old-resident.bin",
+      "size": 72146,
+      "sha256": "07948069acdb8caf3326f77020e05039da35526f287678a6abd47b2dbcc2abe6"
+    },
+    {
+      "path": "artifacts/vios-resident-2026-10-16/compiler-regression/old-resident.dis",
+      "size": 1092045,
+      "sha256": "71fb94d2f7ea5ba78fa5503d80798608cb5cd1ba1b9c27bfa218592d295e75f3"
+    },
+    {
+      "path": "artifacts/vios-resident-2026-10-16/compiler-regression/old-resident.elf",
+      "size": 160564,
+      "sha256": "2f7e536a6373920d956995e7f28d099b788ccf066425c6aec61ae4ed31f6b6d7"
+    },
+    {
+      "path": "artifacts/vios-resident-2026-10-16/compiler-regression/old-resident.sym",
+      "size": 19578,
+      "sha256": "ab7363559e7f2f5ad30e36ca93b537fec42fed2d4529941a239663d3c6c9fdf5"
+    },
+    {
+      "path": "artifacts/vios-resident-2026-10-16/documentation-evidence.tar.gz",
+      "size": 15809992,
+      "sha256": "78bac1072e0e58a16054a437b41f9e087704faa7063a15243b4bf70b8efc1b76"
+    },
+    {
+      "path": "artifacts/vios-resident-2026-10-16/firmware-accepted.bin",
+      "size": 630544,
+      "sha256": "0a064beaba2be05f07960a9e05da1bb5a161af8ac7799c55fc6f4c3459e2a129"
+    },
+    {
+      "path": "artifacts/vios-resident-2026-10-16/firmware-diagnostic.bin",
+      "size": 630112,
+      "sha256": "1a4cc1d860541571154cbdee192d59ab726ea21609d65600ed241ea244312c85"
+    },
+    {
+      "path": "artifacts/vios-resident-2026-10-16/firmware-early-probe.bin",
+      "size": 419584,
+      "sha256": "2837a22185782faf2f0be1941e021b49757d2d5bfebd23c386b1d702310addda"
+    },
+    {
+      "path": "artifacts/vios-resident-2026-10-16/firmware-flow-rescue.bin",
+      "size": 630544,
+      "sha256": "0a064beaba2be05f07960a9e05da1bb5a161af8ac7799c55fc6f4c3459e2a129"
+    },
+    {
+      "path": "artifacts/vios-resident-2026-10-16/firmware-native-boot.bin",
+      "size": 630432,
+      "sha256": "1983fb67937511ff81cf1c7d54acc74e569f232cfd8f4ce74d9c7c4ad9971b5a"
+    },
+    {
+      "path": "artifacts/vios-resident-2026-10-16/firmware-primed-native.bin",
+      "size": 630688,
+      "sha256": "ee600e8534780b90d11a649f7997b0881e93eb4fa2249a925cb34b2b26e7d933"
+    },
+    {
+      "path": "artifacts/vios-resident-2026-10-16/firmware.bin",
+      "size": 629808,
+      "sha256": "8ae623bd8da81dbc52d6e131bb6591ff34ca40fc4c3157cc9efb6b2700de404d"
+    },
+    {
+      "path": "artifacts/vios-resident-2026-10-16/freeze-release.py",
+      "size": 6244,
+      "sha256": "49a941fed86c6b3899d1949aa389d306097334be91a7691f83054c21debf0460"
+    },
+    {
+      "path": "artifacts/vios-resident-2026-10-16/host-native-checks.txt",
+      "size": 23156,
+      "sha256": "319d094d7f02a535f6a6a86dcb208ddfcd441f0bcdc7961c2db0571dc851d34a"
+    },
+    {
+      "path": "artifacts/vios-resident-2026-10-16/live-serial-at-release.jsonl",
+      "size": 761968,
+      "sha256": "4f2de841fbbbfd3a508997506626a6b3407bb82aae3657cd8351bb0e63e1918b"
+    },
+    {
+      "path": "artifacts/vios-resident-2026-10-16/ram-profile-build.txt",
+      "size": 1889,
+      "sha256": "41413b8f33738dca05560ca264af10227a85e1fbed04d829e1cb2320a6aa8b19"
+    },
+    {
+      "path": "artifacts/vios-resident-2026-10-16/resident-mcp-check.py",
+      "size": 3425,
+      "sha256": "45b62fd63d0b68dc3b0dd4a7f71cb4ee0d4f16cdc766cad3bf674879a751ecd9"
+    },
+    {
+      "path": "artifacts/vios-resident-2026-10-16/resident-power-cycle.py",
+      "size": 2006,
+      "sha256": "d51b35d7e37b18802a695a6f9d2620796a29a8a6cc0b840a63c42f1e96e1ac16"
+    },
+    {
+      "path": "artifacts/vios-resident-2026-10-16/sd-startup/VIOS/A9BA189F/8E362F26.VIM",
+      "size": 324,
+      "sha256": "3c8bacb166e7e7229712adddf418564a473be30257cfde814b0b96c50b7c7d9e"
+    },
+    {
+      "path": "artifacts/vios-resident-2026-10-16/sd-startup/VIOS/A9BA189F/E7253C6E.VIM",
+      "size": 324,
+      "sha256": "a2fe0841d8ba3732bcb52e8e2ee3c6587e6f33f8028d3fa0d8b551fa92dea010"
+    },
+    {
+      "path": "artifacts/vios-resident-2026-10-16/sd-startup/VIOS/B360CCE2/3BC9C813.VIM",
+      "size": 311,
+      "sha256": "82cb79bb9bcf8b1679012d8a02209c017f37336c300db9cf69f4e5850bda1646"
+    },
+    {
+      "path": "artifacts/vios-resident-2026-10-16/sd-startup/VIOS/B360CCE2/E9393509.VIM",
+      "size": 311,
+      "sha256": "bea2bbc35de2a76c9b5e4abfa4921cfa92356fe913de0a5cc7137a69b538f524"
+    },
+    {
+      "path": "artifacts/vios-resident-2026-10-16/sd-startup/VIOS/BOOT0.REC",
+      "size": 32,
+      "sha256": "96ffd0bde55babb93bdbc25a792232d61a11727ad6a62e2124d6d31f7cc5f037"
+    },
+    {
+      "path": "artifacts/vios-resident-2026-10-16/sd-startup/VIOS/BOOT1.REC",
+      "size": 32,
+      "sha256": "3f5800f19b3aeb40c52f276dc3d98b76c11d890246fb6c7da0338b1d20753e0d"
+    },
+    {
+      "path": "artifacts/vios-resident-2026-10-16/sd-startup/VIOS/BOOT_A.VIB",
+      "size": 512,
+      "sha256": "adb985a84a8b4839e21e77bb46fc55bcb95815d7729330b07d795589a6e23e84"
+    },
+    {
+      "path": "artifacts/vios-resident-2026-10-16/sd-startup/VIOS/BOOT_B.VIB",
+      "size": 512,
+      "sha256": "fd726d72b6b809223a09c8a29d852b279bfb75c2135bbe22785f28d7368247b5"
+    },
+    {
+      "path": "artifacts/vios-resident-2026-10-16/sd-startup/VIOS/CDD1B05F/1FCD271D.VIM",
+      "size": 297,
+      "sha256": "209eb4b9e8c4a5b6df8ff96decef6d1045f55ccb58afd9893db66bee95565c90"
+    },
+    {
+      "path": "artifacts/vios-resident-2026-10-16/source-code.tar.gz",
+      "size": 716155,
+      "sha256": "f648b1bae557c382c327682f69f9fea0391429d166cf5658647028006095b2e3"
+    },
+    {
+      "path": "artifacts/vios-resident-2026-10-16/source-sha256.json",
+      "size": 32541,
+      "sha256": "2a955ca74c4f8994c44fd64c1ced4f72dc0f8bc61e2f7a0c8e1f1f744d64354c"
+    },
+    {
+      "path": "artifacts/vios-resident-2026-10-16/vios-accepted.bin",
+      "size": 72292,
+      "sha256": "4b78acad305ded1f349b8b4c86e313e74704ba85a5ff2fcd9148981a82951143"
+    },
+    {
+      "path": "artifacts/vios-resident-2026-10-16/vios-accepted.elf",
+      "size": 160880,
+      "sha256": "6a665d3ed5aa5305e3914b5112dd33b87a65dbe82bb81071a5eb15abc8527efe"
+    },
+    {
+      "path": "artifacts/vios-resident-2026-10-16/vios-accepted.map",
+      "size": 43846,
+      "sha256": "32d34ad3f59c4b2e2599c354abac3898bffd739ca55cf9fca4dfba6cbb71cc4b"
+    },
+    {
+      "path": "artifacts/vios-resident-2026-10-16/vios-flow-rescue.bin",
+      "size": 72292,
+      "sha256": "4b78acad305ded1f349b8b4c86e313e74704ba85a5ff2fcd9148981a82951143"
+    },
+    {
+      "path": "artifacts/vios-resident-2026-10-16/vios-resident.bin",
+      "size": 72138,
+      "sha256": "bd37582a052c2570120915b9e29606534ee247819e7c12c935d3e0d6341fa7d6"
+    }
+  ],
+  "documentation_evidence_files": 341
+}

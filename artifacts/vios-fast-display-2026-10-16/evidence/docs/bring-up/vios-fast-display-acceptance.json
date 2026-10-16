@@ -1,0 +1,61 @@
+{
+  "status": "passed",
+  "scope": "Automated hardware/rendering/control/recovery and source restoration; physical keyboard check remains pending.",
+  "accepted_internal_baud": 1152000,
+  "usb_baud": 115200,
+  "reports": [
+    {
+      "path": "docs/benchmarks/fast-display-384000-2026-10-16.json",
+      "sha256": "3051c95e8aa31a335f2a8bae00be46be5cb236d12d256b595221c6aab4d5c0b8",
+      "status": "passed"
+    },
+    {
+      "path": "docs/benchmarks/fast-display-1152000-2026-10-16.json",
+      "sha256": "61abaa35fc865e99747946338b5200e1c824425d573e0ecc716894337246db04",
+      "status": "passed"
+    },
+    {
+      "path": "docs/benchmarks/fast-display-1152000-mixed-2026-10-16.json",
+      "sha256": "1c4ac4f6777d5cfb69ffbb665b350bdf7313cff6559670bfc6688a587650fda7",
+      "status": "passed"
+    },
+    {
+      "path": "docs/bring-up/vios-fast-display-usb-paced-384000.json",
+      "sha256": "67db38ccf7974efc7e01127221cf318cea19e427a49f9719d43b388dcc0cb639",
+      "status": "passed"
+    },
+    {
+      "path": "docs/bring-up/vios-fast-display-controls-1152000.json",
+      "sha256": "966f3e7b581a4c3bface2314f0eacf1d94998eea607ab1f8b77ddf4c8fe8c2b2",
+      "status": "passed"
+    },
+    {
+      "path": "docs/bring-up/vios-fast-display-recovery-1152000.json",
+      "sha256": "0f48ca679e60813ee69311c72c805748591ee68053290ffae9b599951531e70e",
+      "status": "passed"
+    },
+    {
+      "path": "docs/bring-up/vios-fast-display-restored.json",
+      "sha256": "d48a4ee04043ebb41333c7167ed7781d11e2853bd28e34f0aca60e96f878ed5b",
+      "status": "passed"
+    },
+    {
+      "path": "docs/bring-up/vios-fast-display-live-ready.json",
+      "sha256": "d4323b250892a85efbfd146aacb6dde17129506a8f854b272602a032309458be",
+      "status": "passed"
+    }
+  ],
+  "host_tests": 177,
+  "linked_engine_probes": 146,
+  "previous_release_files_verified": 25,
+  "physical_keyboard": {
+    "status": "not_observed",
+    "report": "docs/bring-up/vios-fast-display-keyboard-1152000.json",
+    "reason": "No external cursor movement/zoom or operator reply during observation window."
+  },
+  "limits": [
+    "Bounded qualification runs; no long-duration soak. USB-hop loss cause remains unresolved; pacing passed the recorded workloads.",
+    "Only retained live modules and the dirty draft were restored, not a complete old RAM image.",
+    "Workbench intentionally reopened with editor focus after exact closed-state restoration."
+  ]
+}

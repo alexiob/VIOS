@@ -1,0 +1,6 @@
+WB-RENDER-STATS cells 0 spans 0 batches 0 bytes 0 elapsed_ticks 0 pending 0
+WB-STATUS revision 1 catalog 75 open 0 draft 0 dirty 0 staged 0 active 0 saved 0 length 0 cursor 0 selection 0 browser 0 focus 0 words 74 words_max 512 module - version - test - error -
+WB-STATUS revision 1 catalog 75 open 1 draft 0 dirty 0 staged 0 active 0 saved 0 length 0 cursor 0 selection 0 browser 0 focus 0 words 74 words_max 512 module - version - test - error -
+Assertion failed: (timer_depth==1), function main, file workbench_runtime_native.c, line 19.
+
+returncode -6

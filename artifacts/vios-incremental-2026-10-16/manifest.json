@@ -1,0 +1,211 @@
+{
+  "schema": 1,
+  "project": "VIOS",
+  "milestone": "incremental text pane and line composition",
+  "created_utc": "2026-10-16T12:37:43.283784+00:00",
+  "status": "accepted_on_hardware_and_resident",
+  "accepted_cpu": {
+    "path": "artifacts/vios-incremental-2026-10-16/vios-accepted.bin",
+    "size": 105232,
+    "sha256": "cf7660c708f01a7956b8ded85424cfb019ffd68f7870527a9dce02f46d81e1b4"
+  },
+  "accepted_firmware": {
+    "path": "artifacts/vios-incremental-2026-10-16/firmware-accepted.bin",
+    "size": 663472,
+    "sha256": "b8d884a1733505de995ee94f5585abaa6ed9ee9986468529cb32dc9fc3fefb2f"
+  },
+  "native_stage0": {
+    "path": "artifacts/vios-incremental-2026-10-16/agon-stage0.bin",
+    "size": 46,
+    "sha256": "18b33b49aa06ffd22e68b9ce640904a1d990d994edd509ab98ce96945a08b82f"
+  },
+  "source_files": 5238,
+  "source_manifest": "source-sha256.json",
+  "hardware_reports": [
+    {
+      "path": "docs/bring-up/vios-incremental-resident-startup.json",
+      "size": 1262,
+      "sha256": "8a19303eb7fcb2c35b9f1b49a82062fe6216b815257d0cd52b6ed9c3590067fd"
+    },
+    {
+      "path": "docs/bring-up/vios-incremental-resident-hardware.json",
+      "size": 223379,
+      "sha256": "82e283103fc9af7fb322af7f8d20cf6d9a95e480a5891eabe2520fc231f06e88"
+    },
+    {
+      "path": "docs/bring-up/vios-incremental-focused-resident.json",
+      "size": 1310602,
+      "sha256": "2bc9ba420506650dd26896a9716da7010e3b834afbaec07483525e4a89d87eea"
+    },
+    {
+      "path": "docs/bring-up/vios-incremental-control.json",
+      "size": 175749,
+      "sha256": "9869bc197ea5c15a3c2192f999c295afb93d327357a8e23bc8d0f24ad53859ab"
+    },
+    {
+      "path": "docs/benchmarks/incremental-accepted-comparable-2026-10-16.json",
+      "size": 187676,
+      "sha256": "74f54a2090833da633c2b2f828ff10d4b13acab1e997a7a13f5b761f5a980d3a"
+    },
+    {
+      "path": "docs/benchmarks/incremental-accepted-native-2026-10-16.json",
+      "size": 195456,
+      "sha256": "be4c30303d3cdf0f0c848137764964f89abe6574a19859df1c3d8bae2752d4aa"
+    }
+  ],
+  "cpu_layout": {
+    "payload_bytes": 105232,
+    "text_bytes": 105219,
+    "data_bytes": 13,
+    "bss_bytes": 254031,
+    "bss_end": 621407,
+    "stack_bottom": 716800,
+    "stack_top": 720896,
+    "remaining_before_stack_bytes": 95393
+  },
+  "esp32": {
+    "program_bytes": 663101,
+    "static_ram_bytes": 37948,
+    "runtime_allocations_additional": true,
+    "app0_offset": 65536,
+    "app0_limit": 1310720
+  },
+  "verification": {
+    "tests_passed": 163,
+    "native_engine_probes": 146,
+    "resident_workbench_hardware_requests": 355,
+    "resident_glyph_comparisons": 8,
+    "maximal_source_stress_trials_per_benchmark": 50,
+    "mcp_tools": 48
+  },
+  "previous_app0_backup": {
+    "path": "backups/esp32/pre-vios-incremental-app0-2026-10-16.bin",
+    "size": 656512,
+    "sha256": "643a3ef6517077f4910471b44719ada1d246160a9a00b401b169cd7c25ab31dc"
+  },
+  "previous_release": "artifacts/vios-workbench-2026-10-16/manifest.json",
+  "limitations": [
+    "Full source viewport changes still compose all visible source rows",
+    "Forced full redraw still has full composition and serial transmission cost",
+    "Single 4096-byte draft and one source undo",
+    "Trusted native callbacks and raw VDP require explicit redraw/invalidation",
+    "No Git repository; old immutable releases preserved"
+  ],
+  "files": [
+    {
+      "path": "artifacts/vios-incremental-2026-10-16/agon-stage0.bin",
+      "size": 46,
+      "sha256": "18b33b49aa06ffd22e68b9ce640904a1d990d994edd509ab98ce96945a08b82f"
+    },
+    {
+      "path": "artifacts/vios-incremental-2026-10-16/app0-backup.txt",
+      "size": 14909,
+      "sha256": "e9210248c2d5d6095fc43b04cdc316889cda85689ed18e096698f5e43504808f"
+    },
+    {
+      "path": "artifacts/vios-incremental-2026-10-16/app0-flash.txt",
+      "size": 2670,
+      "sha256": "7aa6e755cc107e16cb1b0a3ceb145073ce1229347109b1f9f468a04ee2c7fa64"
+    },
+    {
+      "path": "artifacts/vios-incremental-2026-10-16/build-manifest-accepted.json",
+      "size": 6766,
+      "sha256": "2419b1d3d2cd3271ca830988598605269849dcfecfbe1909adeda3a679c8d2da"
+    },
+    {
+      "path": "artifacts/vios-incremental-2026-10-16/documentation-evidence.tar.gz",
+      "size": 20317530,
+      "sha256": "823bf907e51d653c141bdea73c5ffdb1fb89956558afcd0ef7d8e6c9b6521df5"
+    },
+    {
+      "path": "artifacts/vios-incremental-2026-10-16/esp-build.txt",
+      "size": 1995,
+      "sha256": "d48d44c3f84746aeb775edc9209c92152b4692141ae275b5bcc31d8226158069"
+    },
+    {
+      "path": "artifacts/vios-incremental-2026-10-16/firmware-accepted.bin",
+      "size": 663472,
+      "sha256": "b8d884a1733505de995ee94f5585abaa6ed9ee9986468529cb32dc9fc3fefb2f"
+    },
+    {
+      "path": "artifacts/vios-incremental-2026-10-16/freeze-release.py",
+      "size": 5335,
+      "sha256": "a1221c406f02c1055c3d51c9a535d61550cb83450773722ecd875ce5aef82cb4"
+    },
+    {
+      "path": "artifacts/vios-incremental-2026-10-16/host-native-checks.txt",
+      "size": 26413,
+      "sha256": "6740736d37df13980bc7a370850efd83f13843d47e2d5b3821bef08ad9126333"
+    },
+    {
+      "path": "artifacts/vios-incremental-2026-10-16/live-serial-at-release.jsonl",
+      "size": 6989878,
+      "sha256": "4a0b884ae5c77934a220a0e220db55f82b0a1d39e8084b062284a37ebbe32149"
+    },
+    {
+      "path": "artifacts/vios-incremental-2026-10-16/native-engine-checks.txt",
+      "size": 826,
+      "sha256": "2d83d080db99c4b06bedc34c004f3fe1e9e5aaa80bf4836b7a51ab3fffde34d2"
+    },
+    {
+      "path": "artifacts/vios-incremental-2026-10-16/restore-and-control.py",
+      "size": 4298,
+      "sha256": "ee2cabd022ccf9adedd66bf3dfce4d0616b0bac8b01b4f76249b982ee9954fe5"
+    },
+    {
+      "path": "artifacts/vios-incremental-2026-10-16/review/README.md",
+      "size": 3182,
+      "sha256": "f397195ff56b1831d36f1cb3a963e7e4639f19835d10e535ed81fcf9e25fff96"
+    },
+    {
+      "path": "artifacts/vios-incremental-2026-10-16/review/latest-run.txt",
+      "size": 5672,
+      "sha256": "101bc984c180d860b4aa25b7df23bcfb1d51f75f0afc210bd49c5d65d7b554f4"
+    },
+    {
+      "path": "artifacts/vios-incremental-2026-10-16/review/original-cursor-red.txt",
+      "size": 792,
+      "sha256": "050f4a291c47e0d7ffd8191dbfbd2013a47c5506ef522c9c2ada942c1e349560"
+    },
+    {
+      "path": "artifacts/vios-incremental-2026-10-16/review/review-manifest.json",
+      "size": 1042,
+      "sha256": "45e7d37437a0d5f66d06a9e3715c7fddfc029436c1bff647b889fe47e053f5c4"
+    },
+    {
+      "path": "artifacts/vios-incremental-2026-10-16/review/run_review.py",
+      "size": 3773,
+      "sha256": "362891eb3c8e8dcf2dfbfd9ccea8050645ea7e2f5ebdeffb92e0c8edd4e0499c"
+    },
+    {
+      "path": "artifacts/vios-incremental-2026-10-16/review/workbench_differential.c",
+      "size": 5181,
+      "sha256": "d1215038e08c033787f0cca1ce89a943cfe8f8e3f34b8f2fe2ed3e4d894ae5fa"
+    },
+    {
+      "path": "artifacts/vios-incremental-2026-10-16/source-code.tar.gz",
+      "size": 23690865,
+      "sha256": "b358e0c37018871ecf67affa058d2d18f79a3662a5e047613c9e817358da179e"
+    },
+    {
+      "path": "artifacts/vios-incremental-2026-10-16/source-sha256.json",
+      "size": 859238,
+      "sha256": "af99e132c88a6094f642ad753a157b8494eb8255166979924dcdff62be057c5f"
+    },
+    {
+      "path": "artifacts/vios-incremental-2026-10-16/vios-accepted.bin",
+      "size": 105232,
+      "sha256": "cf7660c708f01a7956b8ded85424cfb019ffd68f7870527a9dce02f46d81e1b4"
+    },
+    {
+      "path": "artifacts/vios-incremental-2026-10-16/vios-accepted.elf",
+      "size": 200500,
+      "sha256": "cf0aa4bec0a477f34c50a187fc7a16afda21020cf597a2a95a6380489f394bd3"
+    },
+    {
+      "path": "artifacts/vios-incremental-2026-10-16/vios-accepted.map",
+      "size": 51442,
+      "sha256": "8c83ea50bd590caa0b26fc3550f1519bdd2673b310591de4745d39d2b0414faa"
+    }
+  ]
+}

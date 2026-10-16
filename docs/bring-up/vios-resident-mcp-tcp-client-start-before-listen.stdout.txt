@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "/tmp/vios-resident-mcp-check.py", line 14, in <module>
+    stream=socket.create_connection(('127.0.0.1',8765),timeout=130)
+  File "/Users/alex/.pyenv/versions/3.14.6/lib/python3.14/socket.py", line 874, in create_connection
+    raise exceptions[0]
+  File "/Users/alex/.pyenv/versions/3.14.6/lib/python3.14/socket.py", line 859, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+ConnectionRefusedError: [Errno 61] Connection refused

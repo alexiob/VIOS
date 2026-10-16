@@ -1,0 +1,6 @@
+test_real_runtime_protocol_and_idle (tests.test_workbench_runtime.WorkbenchRuntimeTests.test_real_runtime_protocol_and_idle) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.746s
+
+OK

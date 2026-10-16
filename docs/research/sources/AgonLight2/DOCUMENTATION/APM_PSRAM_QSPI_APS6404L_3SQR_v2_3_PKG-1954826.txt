@@ -1,0 +1,1012 @@
+                                                                                 APS6404L-3SQR QSPI PSRAM
+
+
+
+
+                                                  SPI/QPI PSRAM
+
+
+Specifications                                                     Features
+
+•    Single Supply Voltage                                         •   50Ω Output Drive Strength LVCMOS
+     o VDD=2.7 to 3.6V                                             •   Linear Burst (continuous) or 32 Bytes Wrapped
+•    Interface: SPI/QPI with SDR mode                                  Burst via toggle command.
+•    Performance: Clock rate up to                                 •   Linear Burst is supported up to 84MHz and can
+     o 133MHz for 32 Bytes Wrapped Burst                               cross page boundary as long as tCEM is met.
+         operation at VDD=3.0V+/-10%                               •   Software reset
+     o 109MHz for 32 Bytes Wrapped Burst
+         operation at VDD=3.3V+/-10%
+     o 84MHz for Linear Burst operation
+•    Organization: 64Mb, 8M x 8bits
+•    Addressable Bit Range: A[22:0]
+•    Page Size: 1024 bytes
+•    Refresh: Self-managed
+•    Operating Temperature Range:
+     o Tc = -40°C to +85°C (standard range)
+     o Tc = -40°C to +105°C (extended range)
+•    Maximum Standby Current
+     o 350µA @ 105°C
+     o 250µA @ 85°C
+     o 140µA @ 25°C
+
+
+
+
+APM SPI 3V PSRAM Datasheet.pdf - Rev. 2.3 Apr 30, 2020   1 of 24            AP Memory reserves the right to change products and/or specifications without notice
+                                                                                                                        @2020 AP Memory. All rights reserved
+                                                                                              APS6404L-3SQR QSPI PSRAM
+
+                                                   Table of Contents
+1     Table of Contents
+     1      Table of Contents ............................................................................................................. 2
+     2      Introduction ..................................................................................................................... 4
+     3      Package Information ........................................................................................................ 4
+          3.1       Package Types : SOP / USON (SN, ZR) , not to scale, Top view.............................. 4
+     4      Package Outline Drawing ................................................................................................. 5
+          4.1       SOP-8L(150), package code SN ............................................................................... 5
+          4.2       USON-8L 3x2mm, package code ZR ........................................................................ 6
+     5      Ordering Information ....................................................................................................... 7
+     6      Signal Table ...................................................................................................................... 8
+     7      Power-Up Initialization .................................................................................................... 8
+     8      Interface Description ....................................................................................................... 9
+          8.1       Address Space ......................................................................................................... 9
+          8.2       Page Size ................................................................................................................. 9
+          8.3       Drive Strength ......................................................................................................... 9
+          8.4       Power-on Status ...................................................................................................... 9
+          8.5       Command/Address Latching Truth Table ............................................................... 9
+          8.6       Command Termination ......................................................................................... 10
+     9      Wrap Boundary Toggle Operation ................................................................................. 11
+     10     SPI Mode Operations ..................................................................................................... 12
+          10.1      SPI Read Operations.............................................................................................. 12
+          10.2      SPI Write Operations............................................................................................. 14
+          10.3      SPI Quad Mode Enable Operation ........................................................................ 15
+          10.4      SPI Read ID Operation ........................................................................................... 15
+     11     QPI Mode Operations .................................................................................................... 16
+          11.1      QPI Read Operation .............................................................................................. 16
+          11.2      QPI Write Operation(s) ......................................................................................... 17
+          11.3      QPI Quad Mode Exit operation ............................................................................. 17
+     12     Reset Operation ............................................................................................................. 18
+
+
+APM SPI 3V PSRAM Datasheet.pdf - Rev. 2.3 Apr 30, 2020             2 of 24               AP Memory reserves the right to change products and/or specifications without notice
+                                                                                                                                     @2020 AP Memory. All rights reserved
+                                                                                             APS6404L-3SQR QSPI PSRAM
+
+     13     Input/Output Timing ...................................................................................................... 19
+     14     Electrical Specifications: ................................................................................................ 20
+          14.1      Absolute Maximum Ratings .................................................................................. 20
+          14.2      Pin Capacitance ..................................................................................................... 20
+          14.3      Decoupling Capacitor Requirement...................................................................... 21
+          14.4      Operating Conditions ............................................................................................ 21
+          14.5      DC Characteristics ................................................................................................. 22
+          14.6      AC Characteristics ................................................................................................. 23
+     15     Change Log ..................................................................................................................... 24
+
+
+
+
+APM SPI 3V PSRAM Datasheet.pdf - Rev. 2.3 Apr 30, 2020            3 of 24               AP Memory reserves the right to change products and/or specifications without notice
+                                                                                                                                    @2020 AP Memory. All rights reserved
+                                                                              APS6404L-3SQR QSPI PSRAM
+
+2     Introduction
+               This Pseudo-SRAM device features a high speed, low pin count interface. It has 4 SDR I/O pins and
+          operates in SPI(serial peripheral interface) or QPI (quad peripheral interface) mode with frequencies up to
+          133 MHz. The data input (A/DQ) to the memory relies on clock (CLK) to latch all instructions, addresses
+          and data. It is most suitable for low-power and low cost portable applications. It incorporates a seamless
+          self-managed refresh mechanism. Hence it does not require the support of DRAM refresh from system
+          host. The self-refresh feature is a special design to maximize performance of memory read operation.
+
+
+
+
+3     Package Information
+              The APS6404L-3SQR is available in standard package including 8-lead SOP-8L(150) and advanced
+          package including 8-lead USON-8L 3x2mm.
+
+3.1     Package Types : SOP / USON (SN, ZR) , not to scale, Top view
+
+
+
+                                               SOP / USON
+                                               (SN, ZP, ZR)
+
+
+                         /CE          1                            8   VDD
+
+                 SO/SIO[1]            2                            7   SIO[3]
+
+                      SIO[2]          3                            6   SCLK
+
+                        VSS           4                            5   SI/SIO[0]
+
+
+
+
+APM SPI 3V PSRAM Datasheet.pdf - Rev. 2.3 Apr 30, 2020   4 of 24         AP Memory reserves the right to change products and/or specifications without notice
+                                                                                                                     @2020 AP Memory. All rights reserved
+                                                                        APS6404L-3SQR QSPI PSRAM
+
+
+4     Package Outline Drawing
+
+4.1     SOP-8L(150), package code SN
+
+
+
+
+APM SPI 3V PSRAM Datasheet.pdf - Rev. 2.3 Apr 30, 2020   5 of 24   AP Memory reserves the right to change products and/or specifications without notice
+                                                                                                               @2020 AP Memory. All rights reserved
+                                                                        APS6404L-3SQR QSPI PSRAM
+
+4.2     USON-8L 3x2mm, package code ZR
+
+
+
+
+APM SPI 3V PSRAM Datasheet.pdf - Rev. 2.3 Apr 30, 2020   6 of 24   AP Memory reserves the right to change products and/or specifications without notice
+                                                                                                               @2020 AP Memory. All rights reserved
+                                                                                APS6404L-3SQR QSPI PSRAM
+
+5     Ordering Information
+Table 1: Ordering Information
+
+                  Part Number              Temperature Range        Max Frequency                                     Note
+               APS6404L-3SQR-ZR            Tc = -25°C to +85°C         133 MHz*                                      USON-8
+               APS6404L-3SQR-SN            Tc = -40°C to +85°C         133 MHz*                                       SOP-8
+              APS6404L-3SQRX-SN            Tc = -40°C to +105°C        133 MHz*                                       SOP-8
+          Note *: 133MHz for 32 Bytes Wrapped Burst operation at VDD=3.0V+/-10%
+                  109MHz for 32 Bytes Wrapped Burst operation at VDD=3.3V+/-10%
+                  84MHz for Linear Burst operation with RBX(row boundary crossing)
+
+
+
+
+                A      P      S      64 04 L         3 SQ
+                                     128                                      X
+                                                                                  Package Type
+                                     256                                          Blank: KGD
+                                            Die Gen.
+                                     32                                   Temperature grade
+                                     16 IO Config.                        Blank: default option
+                                             16: x16
+                           S: Sync                                        X: extended temp.
+                                             08: x8
+                                             04: x1/x4              Die Option
+                                  Density                            R: RBX
+                    PSRAM         256: 256M                          N: non-RBX
+                                  128: 128M                    Interface
+                                  64: 64M                      SQ : Serial x1/x4 SDR
+             AP Memory            32: 32M                VCC
+                                  16: 16M                Blank: 1.8V
+                                                         3: 3V
+
+
+
+
+APM SPI 3V PSRAM Datasheet.pdf - Rev. 2.3 Apr 30, 2020    7 of 24          AP Memory reserves the right to change products and/or specifications without notice
+                                                                                                                       @2020 AP Memory. All rights reserved
+                                                                                  APS6404L-3SQR QSPI PSRAM
+
+6     Signal Table
+     All signals are listed in Table 2.
+
+Table 2: Signals Table
+
+Symbol        Type                      SPI Mode Function                    QPI Mode Function                                      Comments
+   VDD        Power                                          Core supply
+   VSS        Ground                                    Core supply ground
+   CE#        Input               Chip select, active low. When CE#=1, chip is in standby state
+   CLK        Input                                          Clock Signal
+                                                            *
+ SI/SIO[0]    IO             Serial Input              IO[0]                        IO[0]
+SO/SIO[1]     IO            Serial Output              IO[1] *                      IO[1]
+   SIO[2] IO                       --                    IO[2] *                         IO[2]
+   SIO[3] IO                       --                    IO[3] *                         IO[3]
+Note *: SPI Quad mode
+
+
+
+
+7     Power-Up Initialization
+    SPI/QPI products include an on-chip voltage sensor used to start the self-initialization process. When VDD
+reaches a stable level at or above minimum VDD, the device will require 150μs and user-issued RESET Operation
+(see section 12) to complete its self-initialization process. From the beginning of power ramp to the end of the
+150μs period, CLK should remain LOW, CE# should remain HIGH (track VDD within 200mV) and SI/SO/SIO[3:0]
+should remain LOW.
+
+     After the 150μs period the device is ready for normal operation.
+
+           VDDmin
+
+
+    VDD                                          tPU ≥ 150µs            Device
+                                            Device Initialization       Reset        Device ready for normal operation
+
+
+     CE#
+
+
+
+Figure 1. Power-Up Initialization Timing
+
+
+
+
+APM SPI 3V PSRAM Datasheet.pdf - Rev. 2.3 Apr 30, 2020        8 of 24        AP Memory reserves the right to change products and/or specifications without notice
+                                                                                                                         @2020 AP Memory. All rights reserved
+                                                                             APS6404L-3SQR QSPI PSRAM
+
+8     Interface Description
+
+8.1     Address Space
+      SPI/QPI PSRAM device is byte-addressable. 64M device is addressed with A[22:0].
+
+8.2     Page Size
+    Page size is 1K (CA[9:0]). Default burst setting is Linear Bursting that crosses page boundary in a continuous
+manner. Note however that burst operations which cross page boundary have a lower max input clock frequency
+of 84MHz, and it can cross page boundary one time only in a burst. Optionally the device can also be set to wrap
+32 (CA[4:0]) via the Wrap Boundary Toggle command and is not allowed to cross page boundary in this
+configuration.
+
+8.3     Drive Strength
+      The device powers up in 50Ω.
+
+8.4     Power-on Status
+      The device powers up in SPI Mode. It is required to have CE# high before beginning any operations.
+
+8.5     Command/Address Latching Truth Table
+      The device recognizes the following commands specified by the various input methods.
+
+
+
+                                      SPI Mode (QE=0)                   QPI Mode (QE=1)
+    Command              Code Cmd Addr Wait Cycle DIO Max Freq. Cmd Addr Wait Cycle DIO Max Freq.
+    Read                  'h03 S   S       0       S     33                   N/A
+    Fast Read            'h0B S    S       8       S 133/84* Q       Q       4       Q    66
+    Fast Read Quad       'hEB S    Q       6       Q 133/84* Q       Q       6       Q 133/84*
+    Write                 'h02 S   S       0       S 133/84* Q       Q       0       Q 133/84*
+    Quad Write            'h38 S   Q       0       Q 133/84*              same as 'h02
+    Enter Quad Mode       'h35 S    -      -       -    133                   N/A
+    Exit Quad Mode        'hF5              N/A                  Q    -      -       -    133
+    Reset Enable          'h66 S    -      -       -    133      Q    -      -       -    133
+    Reset                 'h99 S    -      -       -    133      Q    -      -       -    133
+    Wrap Boundary Toggle 'hC0 S     -      -       -    133      Q    -      -       -    133
+    Read ID               'h9F S   S       0       S     33                   N/A
+                 Remark: S = Serial IO, Q = Quad IO
+
+
+
+Note *:Max Freq. would be 133MHz at VDD=3.0V+/-10% and 109MHz at VDD= 3.3V+/-10%) under Wrap32
+operation; Max Freq. would be 84MHz under Linear Burst operation. Please refer Section 9 for Wrap32 and Linear
+Burst operation.
+
+
+
+
+APM SPI 3V PSRAM Datasheet.pdf - Rev. 2.3 Apr 30, 2020   9 of 24        AP Memory reserves the right to change products and/or specifications without notice
+                                                                                                                    @2020 AP Memory. All rights reserved
+                                                                                                      APS6404L-3SQR QSPI PSRAM
+
+8.6     Command Termination
+     All Reads & Writes must be completed by raising CE# high immediately afterwards in order to terminate the
+active command and set the device into standby. Not doing so will block internal refresh operations and cause
+memory failure.
+
+                                                                                                       Write Teminated
+                        CLK
+                                                                           t
+                                                                               CHD
+                        CE#
+                                                                               t
+                                                                                   HD
+
+                 SI/SIO[#]
+                                                                  t
+                                                                      SP
+                                           Data In
+
+                                                                                                           Don’t Care
+
+                                           Figure 2: Write Command Termination
+
+For a memory controller to correctly latch the last piece of data prior to read termination, it is recommended to
+provide a longer CE# hold time (tCHD > tACLK+tCLK) for a sufficient data window.
+
+                                                                                                        Read Teminated
+                          CLK
+
+                                                             t
+                                                                 CHD
+                          CE#
+                                                  t
+                                                  ACLK                                  t
+                                                                                            HZ
+
+                  SO/SIO[#]                                                                                  High-Z
+
+
+                                           Data Out
+
+                                                         Don’t Care                                         Undefined
+
+                                            Figure 3: Read Command Termination
+
+
+
+
+APM SPI 3V PSRAM Datasheet.pdf - Rev. 2.3 Apr 30, 2020           10 of 24                        AP Memory reserves the right to change products and/or specifications without notice
+                                                                                                                                             @2020 AP Memory. All rights reserved
+                                                                                                         APS6404L-3SQR QSPI PSRAM
+
+9     Wrap Boundary Toggle Operation
+    The Wrap Boundary Toggle Operation switches the device’s wrapped boundary between Linear Burst which
+crosses the 1K page boundary (CA[9:0]) and Wrap 32 (CA[4:0]) bytes. Default setting is Linear Burst.
+
+   Linear Burst allows the device to burst through page boundary. Page boundary crossing is invisible to the
+memory controller and limited to a lower max CLK frequency of 84MHz.
+
+                                                         0     1       2      3    4       5    6       7
+                                             CLK
+
+
+                                             CE#
+
+
+                                              SI         1     1       0      0    0       0    0       0
+
+
+                                             SO                                        High-Z
+
+
+                                                                   Wrap Boundary Toggle (’hC0)
+
+
+                                                                           Don’t Care                   Undefined
+
+
+                                          Figure 4: SPI Wrap Boundary Toggle 'hC0
+
+
+
+                                                                             0    1
+                                                             CLK
+
+
+                                                             CE#
+
+
+                                                     SIO[3:0]                C    0
+
+                                                                            Cmd
+                                                                       WB Toggle(’hC0)
+
+                                                                                           Don’t Care
+
+
+                                          Figure 5: QPI Wrap Boundary Toggle ‘hC0
+
+Table 3: Wrapped Length:
+
+             Default                                   CMDs (‘h03,’h0B,`hEB,‘h02,’h38)
+          Wrapped Length               Page Boundary Crossing enabled     Page Boundary Crossing disabled
+             Linear burst                 Linear 1K cross page boundary                                                            Wrap 1K
+               Wrap 32                               Wrap 32                                                                       Wrap 32
+
+
+
+
+APM SPI 3V PSRAM Datasheet.pdf - Rev. 2.3 Apr 30, 2020              11 of 24                        AP Memory reserves the right to change products and/or specifications without notice
+                                                                                                                                                @2020 AP Memory. All rights reserved
+                                                                                                                                                         APS6404L-3SQR QSPI PSRAM
+
+10 SPI Mode Operations
+      The device powers up into SPI mode by default but can also be switched into QPI mode.
+
+
+
+
+10.1 SPI Read Operations
+      For all reads, data will be available tACLK after the falling edge of CLK.
+
+      SPI Reads can be done in three ways with Linear Burst or 32 Bytes Wrapped Burst:
+                 1.       ‘h03: Serial CMD, Serial Addr/IO, slow frequency
+                 2.       ‘h0B: Serial CMD, Serial Addr/IO, fast frequency
+                 3.       ‘hEB: Serial CMD, Quad Addr/IO, fast frequency
+
+                          0    1       2       3         4       5     6        7    8         9        10         29   30      31          32    33     34     35          36        37        38     39      40          41        42        43
+      CLK
+                                                                                                                                                 tACLK
+
+      CE#
+
+
+        SI                0    0       0       0         0       0     1        1    23        22       21         2     1         0
+
+
+       SO                                                                   High-Z                                                           7      6      5        4         3         2         1        0       7         6        5
+
+                                   Read Command (’h03)                                                  24bit Address                                           Data Out 1                                                      Data Out 2
+
+
+                                                                                                                                                                                     Don’t Care                              Undefined
+
+
+                                                                        Figure 6: SPI Read ‘h03 (max freq 33MHz)
+
+
+
+             0        1   2   3    4       5       6         7   8     9      10          29       30    31   32   33   34    35       36    37    38    39    40       41        42       43     44   45       46      47       48       49        50   51
+CLK
+
+                                                                                                                                                                            tACLK
+
+CE#
+
+
+ SI          0        0   0   0    1       0       1         1   23    22     21          2         1    0
+
+
+SO                                                     High-Z                                                                                                           7        6      5        4     3       2       1         0        7     6        5
+
+                      Fast Read Command (’h0B)                                24bit Address                                  Wait Cycles                                                        Data Out 1                                     Data Out 2
+
+
+                                                                                                                                                                                                           Don’t Care                           Undefined
+
+
+                                                                     Figure 7: SPI Fast Read ‘h0B (max freq 133 MHz)
+
+
+
+
+APM SPI 3V PSRAM Datasheet.pdf - Rev. 2.3 Apr 30, 2020                                                        12 of 24                            AP Memory reserves the right to change products and/or specifications without notice
+                                                                                                                                                                                              @2020 AP Memory. All rights reserved
+                                                                                                         APS6404L-3SQR QSPI PSRAM
+
+                      0   1    2    3     4   5    6   7   8    9      10    11      12   13   14      15     16     17     18     19     20     21      22    23     24
+           CLK
+
+                                                                                                                                                    tACLK
+
+           CE#
+
+
+        SI/SIO0       1   1    1    0     1   0    1   1   20   16     12    8       4    0                    High-Z                           4      0      4      0
+
+
+       SO/SIO1                       High-Z                21   17     13    9       5    1                    High-Z                           5      1      5      1
+
+
+          SIO2                       High-Z                22   18     14    10      6    2                    High-Z                           6      2      6      2
+
+
+          SIO3                       High-Z                23   19     15    11      7    3                    High-Z                           7      3      7      3
+
+                           Fast Quad Read Cmd (’hEB)                 24bit Address                          Wait Cycles                          Dout1         Dout2
+
+
+                                                                                                                     Don’t Care                       Undefined
+
+
+                                    Figure 8: SPI Fast Quad Read ‘hEB (max freq 133 MHz)
+
+
+
+
+APM SPI 3V PSRAM Datasheet.pdf - Rev. 2.3 Apr 30, 2020               13 of 24                       AP Memory reserves the right to change products and/or specifications without notice
+                                                                                                                                                @2020 AP Memory. All rights reserved
+                                                                                                                 APS6404L-3SQR QSPI PSRAM
+
+10.2 SPI Write Operations
+     SPI write command can be input as ‘h02 or ‘h38.
+
+
+
+                0     1    2    3    4      5    6        7    8    9   10        29      30    31     32   33     34      35    36      37    38      39    40      41     42     43
+     CLK
+
+
+     CE#
+
+
+       SI       0     0    0    0    0      0    1        0   23   22   21         2       1    0       7    6      5       4     3      2      1      0      7      6      5      4
+
+
+      SO                                             High-Z
+
+
+                          Write Command (’h02)                          24bit Address                                      Data In 1                                      Data In 2
+
+
+                                                                                                                                       Don’t Care                        Undefined
+                                                                   Figure 9: SPI Write ‘h02
+
+
+
+                               0    1     2      3      4     5    6    7    8    9      10    11      12   13   14     15      16     17     18     19     20     21
+                    CLK
+
+
+                    CE#
+
+
+              SI/SIO0          0    0     1      1      1     0    0    0    20   16     12    8       4    0     4      0      4       0     4       0      4      0
+
+
+             SO/SIO1                             High-Z                      21   17     13    9       5    1     5      1      5       1     5       1      5      1
+
+
+                SIO2                             High-Z                      22   18     14    10      6    2     6      2      6       2     6       2      6      2
+
+
+                SIO3                             High-Z                      23   19     15    11      7    3     7      3      7       3     7       3      7      3
+
+                                         Quad Write Cmd (’h38)                         24bit Address                Din1          Din2          Din3          Din4
+
+
+                                                                                                                           Don’t Care                       Undefined
+
+
+                                                              Figure 10: SPI Quad Write ‘h38
+
+
+
+
+APM SPI 3V PSRAM Datasheet.pdf - Rev. 2.3 Apr 30, 2020                       14 of 24                       AP Memory reserves the right to change products and/or specifications without notice
+                                                                                                                                                        @2020 AP Memory. All rights reserved
+                                                                                            APS6404L-3SQR QSPI PSRAM
+
+10.3 SPI Quad Mode Enable Operation
+        This command switches the device into quad IO mode.
+
+                                                     0   1   2    3        4   5   6   7
+                                          CLK
+
+
+                                          CE#
+
+
+                                            SI       0   0   1    1        0   1   0   1
+
+
+                                           SO                     High-Z
+
+
+                                                         Enter Quad Mode Cmd (’h35)
+
+
+                                                              Don’t Care               Undefined
+                             Figure 11: Quad Mode Enable ‘h35 (available only in SPI mode)
+
+
+
+
+10.4 SPI Read ID Operation
+        This command is similar to Fast Read, but without the wait cycles and the device outputs EID value instead
+        of data.
+
+
+
+
+                                  Figure 12: SPI Read ID ‘h9F (available only in SPI mode)
+
+Table 4: Known Good Die (KGD)
+
+                                             KGD[7:0]           Known Good Die
+                                          ‘b0101_0101                 FAIL
+                                          ‘b0101_1101                 PASS
+                           *Note: Default is FAIL die, and only mark PASS after all tests passed.
+
+
+APM SPI 3V PSRAM Datasheet.pdf - Rev. 2.3 Apr 30, 2020       15 of 24                  AP Memory reserves the right to change products and/or specifications without notice
+                                                                                                                                   @2020 AP Memory. All rights reserved
+                                                                                                                                              APS6404L-3SQR QSPI PSRAM
+
+11 QPI Mode Operations
+
+11.1 QPI Read Operation
+     For all reads, data will be available tACLK after the falling edge of CLK.
+
+
+     QPI Reads can be done in one of two ways with Linear Burst or 32 Bytes Wrapped Burst:
+          1.   ‘h0B: Quad CMD, Quad Addr/IO, slow frequency
+          2.   ‘hEB: Quad CMD, Quad Addr/IO, fast frequency
+
+
+                                                   0       1       2       3       4       5         6       7         8        9        10     11     12     13     14      15     16
+                                  CLK
+                                                                                                                                                                tACLK
+
+                                  CE#
+
+
+                               SIO[3:0]            0       B 23:20 19:16 15:12 11:8 7:4                      3:0                High-Z                      7:4 3:0 7:4 3:0
+
+                                                    Cmd                        24bit Address                                Wait Cycles                       Dout1          Dout2
+                                              Fast Read (’h0B)
+                                                                                                                                Don’t Care                           Undefined
+
+
+                                              Figure 13: QPI Fast Read ‘h0B (max freq 66 MHz)
+
+
+
+
+                                          0    1       2       3       4       5       6       7         8         9       10       11     12     13     14     15      16     17        18
+                       CLK
+                                                                                                                                                                   tACLK
+
+                       CE#
+
+
+                    SIO[3:0]              E    B 23:20 19:16 15:12 11:8 7:4                    3:0                          High-Z                            7:4 3:0 7:4 3:0
+
+                                        Cmd                        24bit Address                                       Wait Cycles                              Dout1         Dout2
+                                Fast Quad Read (’hEB)
+                                                                                                                                     Don’t Care                         Undefined
+
+
+                                      Figure 14: QPI Fast Quad Read ‘hEB (max freq 133 MHz)
+
+
+
+
+APM SPI 3V PSRAM Datasheet.pdf - Rev. 2.3 Apr 30, 2020                                     16 of 24                                      AP Memory reserves the right to change products and/or specifications without notice
+                                                                                                                                                                                     @2020 AP Memory. All rights reserved
+                                                                                                                   APS6404L-3SQR QSPI PSRAM
+
+11.2 QPI Write Operation(s)
+     QPI write command can be input as ‘h02 or ‘h38.
+
+                                                      0     1     2      3      4       5        6     7     8      9     10     11
+                                      CLK
+
+
+                                      CE#
+
+
+                                   SIO[3:0]           3     8   23:20 19:16 15:12 11:8           7:4   3:0   7:4 3:0 7:4 3:0
+
+                                                       Cmd                   24bit Address                    Din1          Din2
+                                              QPI Write (’h02 or ‘h38)
+                                                                                                                         Don’t Care
+
+
+                                                    Figure 15: QPI Write ‘h02 or ‘h38
+
+
+
+
+11.3 QPI Quad Mode Exit operation
+        This command will switch the device back into serial IO mode.
+
+                                                                                    0        1
+                                                                 CLK
+
+
+                                                                 CE#
+
+
+                                                             SIO[3:0]               F        5
+
+                                                                               Cmd
+                                                                         QuadMode Exit (’hF5)
+
+                                                                                            Don’t Care
+
+
+                               Figure 16: Quad Mode Exit ‘hF5 (only available in QPI mode)
+
+
+
+
+APM SPI 3V PSRAM Datasheet.pdf - Rev. 2.3 Apr 30, 2020                   17 of 24                             AP Memory reserves the right to change products and/or specifications without notice
+                                                                                                                                                          @2020 AP Memory. All rights reserved
+                                                                                                        APS6404L-3SQR QSPI PSRAM
+
+12 Reset Operation
+     The Reset operation is used as a system (software) reset that puts the device in SPI standby mode which is
+also the default mode after power-up. This operation consists of two commands: Reset-Enable (RSTEN) and Reset
+(RST).
+
+                                  0   1     2    3     4    5       6      7       8    9     10     11     12     13      14     15
+                       CLK
+                                                                                                                                         t
+                                                                                                                                             RST
+
+                       CE#
+
+
+                         SI       0   1     1    0     0    1       1      0       1    0     0       1      1      0      0      1
+
+
+                        SO                                              High-Z
+
+
+                                          Reset Enable Cmd (’h66)                              Reset Cmd (’h99)
+
+
+                                                                                                       Don’t Care                       Undefined
+
+
+                                                           Figure 17: SPI Reset
+
+
+
+                                                                    0      1       2    3
+                                                     CLK
+                                                                                               t
+                                                                                               RST
+
+                                                     CE#
+
+
+                                                SIO[3:0]            6      6       9    9
+
+                                                                   Cmd             Cmd
+                                                                RSTEN (’h66)     RST (’h99)
+
+                                                                                                   Don’t Care
+
+
+                                                           Figure 18: QPI Reset
+
+     Reset command has to immediately follow the Reset-Enable command in order for the reset operation to take
+effect. Any command other than the Reset command after the Reset-Enable command will cause the device to
+exit Reset-Enable state and abandon reset operation.
+
+
+
+
+APM SPI 3V PSRAM Datasheet.pdf - Rev. 2.3 Apr 30, 2020                  18 of 24                   AP Memory reserves the right to change products and/or specifications without notice
+                                                                                                                                               @2020 AP Memory. All rights reserved
+                                                                                               APS6404L-3SQR QSPI PSRAM
+
+13 Input/Output Timing
+                                                                                                               tKHKL
+                                                  tCH       tCL                    tCLK
+
+         CLK
+                                  tCSP                                                      tCHD
+
+                                                                            tCEM
+         CE#
+                                                                                                                             tCPH
+                                              tHD
+
+           SI                             MSB in                                          LSB in
+                                    tSP
+
+
+          SO                                                               High-Z
+
+
+                                                                                                                       Don’t Care                      Undefined
+
+
+                                                          Figure 19: Input Timing
+
+
+
+                                           tCLK                   tCH        tCL
+
+                      CLK
+
+
+                      CE#
+                                                  tACLK                                                                       tHZ
+
+                       SI    ADDR LSB in
+                                                                              tKOH
+
+
+                       SO        High-Z                     MSB out                                                 LSB out
+
+                                                                                                 Don’t Care                       Undefined
+
+
+                                                          Figure 20: Output Timing
+
+
+
+
+APM SPI 3V PSRAM Datasheet.pdf - Rev. 2.3 Apr 30, 2020                  19 of 24          AP Memory reserves the right to change products and/or specifications without notice
+                                                                                                                                      @2020 AP Memory. All rights reserved
+                                                                             APS6404L-3SQR QSPI PSRAM
+
+
+14 Electrical Specifications:
+
+14.1 Absolute Maximum Ratings
+Table 5: Absolute Maximum Ratings
+
+ Parameter                                                     Symbol             Rating                                Unit               Notes
+ Voltage to any ball except VDD relative to VSS                  VT        -0.4 to VDD+0.4                                 V
+ Voltage on VDD supply relative to VSS                           VDD          -0.4 to +4.0                                 V                   2
+ Storage Temperature                                             TSTG         -55 to +150                                 °C                   1
+Notes     1: Storage temperature refers to the case surface temperature on the center/top side of the PSRAM.
+Notes     2: During voltage transitions, all pins may overshoot to -0.5V or VCC+0.5V for period up to 20ns.
+
+Caution:
+Exposing the device to stress above those listed in Absolute Maximum Ratings could cause permanent damage.
+The device is not meant to be operated under conditions outside the limits described in the operational section of
+this specification. Exposure to Absolute Maximum Rating conditions for extended periods may affect device
+reliability.
+
+14.2 Pin Capacitance
+Table 6: Package Pin Capacitance
+
+  Parameter                                        Symbol         Min    Max                 Unit            Notes
+  Input Pin Capacitance                              CIN                  6                   pF                         VIN=0V
+  Output Pin Capacitance                            COUT                  8                   pF                        VOUT=0V
+Note    1: spec’d at 25°C.
+
+Table 7: Load Capacitance
+
+  Parameter                                Symbol                 Min    Max                 Unit            Notes
+  Load Capacitance                           CL                          15                   pF
+Note   1: System CL for the use of package
+
+
+
+
+APM SPI 3V PSRAM Datasheet.pdf - Rev. 2.3 Apr 30, 2020      20 of 24    AP Memory reserves the right to change products and/or specifications without notice
+                                                                                                                    @2020 AP Memory. All rights reserved
+                                                                                   APS6404L-3SQR QSPI PSRAM
+
+14.3 Decoupling Capacitor Requirement
+    It is required to have a decoupling capacitor on VDD pin for IO switchings and psram internal transient events.
+A low ESR 1μF ceramic cap is recommended. To minimize parasitic inductance, place the cap as close to VDD pin
+as possible. An optional 0.1μF can further improve high frequency transient response.
+
+
+                                       CE#               VDD
+                                       CLK                       C0 = 100nF     C1= 1µF
+
+
+                                       A/DQ
+                                                         VSS
+
+
+
+
+14.4 Operating Conditions
+Table 8: Operating Characteristics
+
+  Parameter                                     Min              Max            Unit     Notes
+  Operating Temperature (extended)               -40              105            °C                 1
+  Operating Temperature (standard)            -40(-25*)            85            °C      *USON package ZR
+Note   1: spec’d temp range of -40 to 105°C is only characterized; test condition will be -32 to 105°C.
+
+
+
+
+APM SPI 3V PSRAM Datasheet.pdf - Rev. 2.3 Apr 30, 2020     21 of 24           AP Memory reserves the right to change products and/or specifications without notice
+                                                                                                                          @2020 AP Memory. All rights reserved
+                                                                                APS6404L-3SQR QSPI PSRAM
+
+14.5 DC Characteristics
+Table 9: DC Characteristics
+
+ Symbol        Parameter                                          Min                         Max                         Unit            Notes
+ VDD           Supply Voltage                                       2.7                        3.6                         V
+ VIH           Input high voltage                                VDD-0.4                     VDD+0.2                       V
+ VIL           Input low voltage                                   -0.2                        0.4                         V
+ VOH           Output high voltage (IOH=-0.2mA)                  0.8 VDD                                                   V
+ VOL           Output low voltage (IOL=+0.2mA)                                                0.2 VDD                      V
+ ILI           Input leakage current                                                             1                        µA
+ ILO           Output leakage current                                                            1                        µA
+ ICC           Read/Write                                                                        7                        mA                    1,2
+ ISBEXT        Standby current (extended temp)                                                  350                         µA                   3
+ ISBSTD        Standby current (standard temp)                                                  250                         µA                   3
+ ISBSTDroom Standby current (standard room temp)                                                140                         µA                  3,4
+Note      1: Output load current not included.
+          2. Typical Icc 5.5mA at 133MHz
+          3. Standby current is measured when CLK is in DC low state.
+          4. Typical ISBSTDroom 100uA
+
+
+
+
+APM SPI 3V PSRAM Datasheet.pdf - Rev. 2.3 Apr 30, 2020   22 of 24          AP Memory reserves the right to change products and/or specifications without notice
+                                                                                                                       @2020 AP Memory. All rights reserved
+                                                                                  APS6404L-3SQR QSPI PSRAM
+
+14.6 AC Characteristics
+Table 10: READ/WRITE Timing
+
+        Symbol       Parameter                                       Min    Max               Unit              Notes
+                     CLK period - SPI Read (‘h03)                    30.3                                           33MHz
+                     CLK period - QPI Read (‘h0B)                    15.1                                           66MHz
+                     CLK period - all other operations PKG 3V        7.5                                         133MHz*1,2,3
+        t
+            CLK      CLK period - all other operations PKG 3.3V      9.17                       ns                109MHz*2,3
+                     CLK period - all other operations               11.9                                          84MHz*1
+        t
+            CH/tCL   Clock high/low width                            0.45   0.55         t
+                                                                                          CLK(min)
+        t
+            KHKL     CLK rise or fall time                                   1.5             ns                                 4
+        t
+            CPH      CE# HIGH between subsequent burst               18                         ns
+                     operations
+        t
+            CEM      CE# low pulse width                                      4                 µs               Extended grade
+                                                                              8                                  Standard grade
+        t
+          CSP        CE# setup time to CLK rising edge PKG           2.5                        ns
+        t
+          CHD        CE# hold time from CLK rising edge PKG          3.0                        ns                              2
+        t
+          SP         Setup time to active CLK edge                    2                         ns
+        t
+          HD         Hold time from active CLK edge                   2                         ns
+        t
+          HZ         Chip disable to DQ output high-Z                       5.5                 ns
+        t
+          ACLK       CLK to output delay                              2     5.5                 ns
+        t
+          KOH        Data hold time from clock falling edge          1.5                        ns
+        t
+            RST      Time between end of RST CMD to next             50                         ns
+                     valid CMD
+      Note           1: Only Linear Burst allows page boundary crossing. Frequency limits are therefore
+                        133MHz (PKG VDD= 3.0V+-10%), 109MHz(PKG VDD= 3.3V+-10%) max for Wrap 32 Bytes, and
+                        84MHz for Linear Burst commands cross page boundary
+
+                     2: System max CL 15pF for the use of package.
+
+                     3: For operating frequencies >84MHz, it is highly recommended to utilize CLK falling edge to
+                        sample read data or align sampling clock via data pattern tuning (refer to JEDEC JESD84-B50 for
+                        an example).
+
+                     4: Measured from 20% to 80% of VDD
+
+
+
+
+APM SPI 3V PSRAM Datasheet.pdf - Rev. 2.3 Apr 30, 2020   23 of 24           AP Memory reserves the right to change products and/or specifications without notice
+                                                                                                                        @2020 AP Memory. All rights reserved
+                                                                                APS6404L-3SQR QSPI PSRAM
+
+15 Change Log
+Version          Date                                                Description
+  0.1        Jul 13, 2017      Initial Version
+  1.1        Juy 25, 2017      Revised package code and ordering information
+                               Corrected package code; Added system max CL for the use of package & related tCK
+  1.2       Aug 24, 2017
+                               and tCHD
+  1.3       Sep 04, 2017       Added ISBstdroom
+                               Enabled QPI Read ‘h0B support; changed Min/Max absolute voltage, Vil_min and
+  1.5        Oct 30, 2017      Vih_max,; defined tCEM for different temperature grade; corrected speed typo.
+                               Added USON package ZR
+  1.6       Nov 13, 2017       Modified spec of ICC & ISB
+  1.7       Mar 19, 2018       Revised part# of RBX. Temperature -40C
+  1.8        Jan 07, 2019      Remove WSON and updated POD of USON, add tRST
+                               Updated Figure 12, Table 7 and Table 9; Added table for Change Log; updated section
+  1.9       Sep 05, 2019
+                               8.5 and 14.6; added section 14.3
+ 2.0a        Oct 02, 2019      Updated header, page 1 and Table 1
+  2.1        Oct 25, 2019      Revised the typo in page 12 and 16; update Table 3, Figure 17 and Figure 18
+  2.2       Nov 21, 2019       Update Table 2, Figure 10 and Figure 15
+  2.3       Apr 30, 2020       Modify VDD's description of Table 2
+
+
+
+
+APM SPI 3V PSRAM Datasheet.pdf - Rev. 2.3 Apr 30, 2020   24 of 24          AP Memory reserves the right to change products and/or specifications without notice
+                                                                                                                       @2020 AP Memory. All rights reserved
+Mouser Electronics
+
+Authorized Distributor
+
+
+
+Click to View Pricing, Inventory, Delivery & Lifecycle Information:
+
+
+
+AP Memory Technology:
+ APS6404L-3SQR-SN APS6404L-3SQR-ZR APS6404L-3SQRX-SN
+

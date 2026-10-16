@@ -1,0 +1,6 @@
+BM-ARITH token8.476ms direct7.406ms reduction12.6% vsC5.21x
+BM-BRANCH token8.156ms direct7.010ms reduction14.0% vsC5.87x
+BM-CALL token5.990ms direct5.167ms reduction13.7% vsC5.11x
+BM-LOOP token4.108ms direct3.646ms reduction11.2% vsC4.35x
+BM-MEM token7.951ms direct6.875ms reduction13.5% vsC6.16x
+All45 conditions, medians, results and25/50/100 scaling checks passed.

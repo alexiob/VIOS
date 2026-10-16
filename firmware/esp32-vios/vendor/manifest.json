@@ -1,0 +1,16 @@
+[
+  {
+    "name": "agon-vdp",
+    "repository": "breakintoprogram/agon-vdp",
+    "commit": "61888abd51a04ce6acf282df5e8300ed7125c434",
+    "archive": "https://codeload.github.com/breakintoprogram/agon-vdp/tar.gz/61888abd51a04ce6acf282df5e8300ed7125c434",
+    "archive_sha256": "2426f26514e34b3f13cb845c92402a82405b2dba17dd78f48dfb7b4e80e44212"
+  },
+  {
+    "name": "vdp-gl",
+    "repository": "avalonbits/vdp-gl",
+    "commit": "48a0b9af72d13180b6962a6429a2ce85ca4954e8",
+    "archive": "https://codeload.github.com/avalonbits/vdp-gl/tar.gz/48a0b9af72d13180b6962a6429a2ce85ca4954e8",
+    "archive_sha256": "31d00dee331ccdc48ce99494b1118858a2dfc3c29bc78ff8576c37363bde2ad9"
+  }
+]

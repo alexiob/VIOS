@@ -1,0 +1,46 @@
+Connecting....
+Detecting chip type... ESP32
+UART0 clock divider: 0x162
+Loading 'build/uart-probe.bin' to RAM...
+Downloading 156 bytes at 0x3ffcc000 [==============>               ]  50.0%... 
+Downloading 652 bytes at 0x400be000 [==============================] 100.0%... 
+Loaded 2 segments from 'build/uart-probe.bin' to RAM, executing at 0x400be0e8.
+RAM only; no flash writes
+1=1152000 2=384000 3=115200 4=9600; output is RX hex
+BAUD 1
+00 
+BAUD 2
+
+BAUD 3
+
+BAUD 4
+
+BAUD 1
+
+BAUD 2
+
+BAUD 3
+
+BAUD 4
+
+BAUD 1
+
+BAUD 2
+
+BAUD 3
+
+BAUD 4
+
+BAUD 1
+
+BAUD 2
+
+BAUD 3
+
+BAUD 4
+
+BAUD 1
+
+BAUD 2
+
+BAUD 3

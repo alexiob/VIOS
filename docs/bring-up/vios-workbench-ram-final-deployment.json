@@ -1,0 +1,55 @@
+{
+  "size": 98270,
+  "sha256": "36fb5f932f477a182a556ae45f033820d0ce250396718fa0a795d77323383bbe",
+  "started_unix": 1792150114.0478542,
+  "deployment": {
+    "identity": "ID 0007 REV AA STAT 98",
+    "mapping": "CS0 04 0B 08 01",
+    "readback_sha256": "36fb5f932f477a182a556ae45f033820d0ce250396718fa0a795d77323383bbe",
+    "boot": "GO 040000 USB/UART bridge 115200\r\nboot confirmed A\r\n\r\nVIOS Forth 24 / Agon Light 2\r\nvios> "
+  },
+  "resources": {
+    "output": "RESOURCES\r\nengine DIRECT words 80/512 token-bytes 327 direct-bytes 986 data-bytes 27 source-bytes 281 data-peak 2 return-peak 0\r\n\r\nok\r\nvios> ",
+    "ok": true,
+    "compiling": false,
+    "pending": false,
+    "resources": {
+      "engine": "DIRECT",
+      "words": "80/512",
+      "token-bytes": 327,
+      "direct-bytes": 986,
+      "data-bytes": 27,
+      "source-bytes": 281,
+      "data-peak": 2,
+      "return-peak": 0
+    }
+  },
+  "workbench": {
+    "output": "WB-STATUS\r\nWB-STATUS revision 1 catalog 153 open 0 draft 0 dirty 0 staged 0 active 0 saved 0 length 0 cursor 0 selection 0 browser 0 focus 0 words 80 words_max 512 module - version - test - error -\r\n\r\nok\r\nvios> ",
+    "ok": true,
+    "compiling": false,
+    "pending": false,
+    "workbench": {
+      "revision": 1,
+      "catalog": 153,
+      "open": false,
+      "draft": false,
+      "dirty": false,
+      "staged": false,
+      "active": false,
+      "saved": false,
+      "length": 0,
+      "cursor": 0,
+      "selection": 0,
+      "browser": 0,
+      "focus": 0,
+      "words": 80,
+      "words_max": 512,
+      "module": "",
+      "version": "",
+      "test": "",
+      "error": ""
+    }
+  },
+  "finished_unix": 1792150238.980441
+}

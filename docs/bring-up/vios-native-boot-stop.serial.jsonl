@@ -1,0 +1,72 @@
+{"time": 1792144269.580995, "direction": "tx", "hex": "04010201020207420a6911d87d00", "text": "\u0004\u0001\u0002\u0001\u0002\u0002\u0007B\ni\u0011\ufffd}\u0000"}
+{"time": 1792144269.584895, "direction": "rx", "hex": "65", "text": "e"}
+{"time": 1792144269.584938, "direction": "rx", "hex": "7473204a756e20203820323031362030303a32323a35370d0a0d0a7273743a", "text": "ts Jun  8 2016 00:22:57\r\n\r\nrst:"}
+{"time": 1792144269.587671, "direction": "rx", "hex": "30", "text": "0"}
+{"time": 1792144269.5877042, "direction": "rx", "hex": "78312028504f5745524f4e5f5245534554292c626f6f743a30783132202853", "text": "x1 (POWERON_RESET),boot:0x12 (S"}
+{"time": 1792144269.590396, "direction": "rx", "hex": "50", "text": "P"}
+{"time": 1792144269.5904262, "direction": "rx", "hex": "495f464153545f464c4153485f424f4f54290d0a636f6e6669677369703a20", "text": "I_FAST_FLASH_BOOT)\r\nconfigsip: "}
+{"time": 1792144269.593288, "direction": "rx", "hex": "31", "text": "1"}
+{"time": 1792144269.5933099, "direction": "rx", "hex": "38383737373534322c2053504957503a307865650d0a636c6b5f6472763a30", "text": "88777542, SPIWP:0xee\r\nclk_drv:0"}
+{"time": 1792144269.5960908, "direction": "rx", "hex": "78", "text": "x"}
+{"time": 1792144269.596116, "direction": "rx", "hex": "30302c715f6472763a307830302c645f6472763a307830302c6373305f6472", "text": "00,q_drv:0x00,d_drv:0x00,cs0_dr"}
+{"time": 1792144269.59888, "direction": "rx", "hex": "76", "text": "v"}
+{"time": 1792144269.598902, "direction": "rx", "hex": "3a307830302c68645f6472763a307830302c77705f6472763a307830300d0a", "text": ":0x00,hd_drv:0x00,wp_drv:0x00\r\n"}
+{"time": 1792144269.601641, "direction": "rx", "hex": "6d", "text": "m"}
+{"time": 1792144269.601662, "direction": "rx", "hex": "6f64653a44494f2c20636c6f636b206469763a310d0a6c6f61643a30783366", "text": "ode:DIO, clock div:1\r\nload:0x3f"}
+{"time": 1792144269.604478, "direction": "rx", "hex": "66", "text": "f"}
+{"time": 1792144269.604506, "direction": "rx", "hex": "66303033302c6c656e3a313334340d0a6c6f61643a30783430303738303030", "text": "f0030,len:1344\r\nload:0x40078000"}
+{"time": 1792144269.6071732, "direction": "rx", "hex": "2c", "text": ","}
+{"time": 1792144269.607203, "direction": "rx", "hex": "6c656e3a31333836340d0a6c6f61643a307834303038303430302c6c656e3a", "text": "len:13864\r\nload:0x40080400,len:"}
+{"time": 1792144269.6113129, "direction": "rx", "hex": "33", "text": "3"}
+{"time": 1792144269.611341, "direction": "rx", "hex": "3630380d0a656e74727920307834303038303566300d0a", "text": "608\r\nentry 0x400805f0\r\n"}
+{"time": 1792144269.818437, "direction": "rx", "hex": "45", "text": "E"}
+{"time": 1792144269.818561, "direction": "rx", "hex": "202832333329206573705f636f72655f64756d705f666ce1e6f886e9204e6f", "text": " (233) esp_core_dump_fl\ufffd\ufffd\ufffd\ufffd\ufffd No"}
+{"time": 1792144269.8210828, "direction": "rx", "hex": "20", "text": " "}
+{"time": 1792144269.821155, "direction": "rx", "hex": "636f72652064756d7020706172746974696f6e20666f756e64210d0a452028", "text": "core dump partition found!\r\nE ("}
+{"time": 1792144269.823775, "direction": "rx", "hex": "32", "text": "2"}
+{"time": 1792144269.8238442, "direction": "rx", "hex": "333329206573705f636f72655f64756d705f666c6173683a204e6f20636f72", "text": "33) esp_core_dump_flash: No cor"}
+{"time": 1792144269.827896, "direction": "rx", "hex": "65", "text": "e"}
+{"time": 1792144269.8279629, "direction": "rx", "hex": "2064756d7020706172746974696f6e20666f756e64210d0a", "text": " dump partition found!\r\n"}
+{"time": 1792144270.4745579, "direction": "rx", "hex": "5b", "text": "["}
+{"time": 1792144270.474808, "direction": "rx", "hex": "2020203635385d5b455d5b65737033322d68616c2d6d6973632e633a313433", "text": "   658][E][esp32-hal-misc.c:143"}
+{"time": 1792144270.477154, "direction": "rx", "hex": "5d", "text": "]"}
+{"time": 1792144270.4772348, "direction": "rx", "hex": "2064697361626c65436f72653157445428293a204661696c656420746f2072", "text": " disableCore1WDT(): Failed to r"}
+{"time": 1792144270.4801102, "direction": "rx", "hex": "65", "text": "e"}
+{"time": 1792144270.480324, "direction": "rx", "hex": "6d6f766520436f726520312049444c45207461736b2066726f6d205744540d", "text": "move Core 1 IDLE task from WDT\r"}
+{"time": 1792144270.482026, "direction": "rx", "hex": "0a", "text": "\n"}
+{"time": 1792144270.674079, "direction": "rx", "hex": "00", "text": "\u0000"}
+{"time": 1792144274.6018538, "direction": "tx", "hex": "04010202020207420ac7634cfb00", "text": "\u0004\u0001\u0002\u0002\u0002\u0002\u0007B\n\ufffdcL\ufffd\u0000"}
+{"time": 1792144274.8790898, "direction": "rx", "hex": "03", "text": "\u0003"}
+{"time": 1792144274.879384, "direction": "rx", "hex": "010301021b20424f4f542056494f532056445020312e3034206d75782d7631", "text": "\u0001\u0003\u0001\u0002\u001b BOOT VIOS VDP 1.04 mux-v1"}
+{"time": 1792144274.881537, "direction": "rx", "hex": "0d", "text": "\r"}
+{"time": 1792144274.881711, "direction": "rx", "hex": "0af2707d4200", "text": "\n\ufffdp}B\u0000"}
+{"time": 1792144274.892087, "direction": "rx", "hex": "03", "text": "\u0003"}
+{"time": 1792144274.892291, "direction": "rx", "hex": "01030102242945525220737461676530206d6574616461746120636c656172", "text": "\u0001\u0003\u0001\u0002$)ERR stage0 metadata clear"}
+{"time": 1792144274.894774, "direction": "rx", "hex": "20", "text": " "}
+{"time": 1792144274.894898, "direction": "rx", "hex": "726561646261636b0d0a58631e040004010202020d12424f4f542048414c54", "text": "readback\r\nXc\u001e\u0004\u0000\u0004\u0001\u0002\u0002\u0002\r\u0012BOOT HALT"}
+{"time": 1792144274.897739, "direction": "rx", "hex": "45", "text": "E"}
+{"time": 1792144274.89798, "direction": "rx", "hex": "440d0a6f9bbbeb00", "text": "D\r\no\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792144274.898175, "direction": "tx", "hex": "04010203020207490aa969e4d300", "text": "\u0004\u0001\u0002\u0003\u0002\u0002\u0007I\n\ufffdi\ufffd\ufffd\u0000"}
+{"time": 1792144274.905083, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792144274.905268, "direction": "rx", "hex": "01020302181d494420303030372052455620414120535441542039380d0a50", "text": "\u0001\u0002\u0003\u0002\u0018\u001dID 0007 REV AA STAT 98\r\nP"}
+{"time": 1792144274.907389, "direction": "rx", "hex": "18", "text": "\u0018"}
+{"time": 1792144274.907577, "direction": "rx", "hex": "d5a500", "text": "\u0565\u0000"}
+{"time": 1792144274.907786, "direction": "tx", "hex": "04010204020207480a5068fad700", "text": "\u0004\u0001\u0002\u0004\u0002\u0002\u0007H\nPh\ufffd\ufffd\u0000"}
+{"time": 1792144274.924258, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792144274.9243531, "direction": "rx", "hex": "01020402414652454753203938203030383038302030303030303020303030", "text": "\u0001\u0002\u0004\u0002AFREGS 98 008080 000000 000"}
+{"time": 1792144274.9269178, "direction": "rx", "hex": "39", "text": "9"}
+{"time": 1792144274.9269462, "direction": "rx", "hex": "30302030303030303120304246464341203042464645452030424646433520", "text": "00 000001 0BFFCA 0BFFEE 0BFFC5 "}
+{"time": 1792144274.929912, "direction": "rx", "hex": "30", "text": "0"}
+{"time": 1792144274.9299378, "direction": "rx", "hex": "30453130360d0a64e4fd8700", "text": "0E106\r\nd\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792144274.9299939, "direction": "tx", "hex": "04010205020207530a6f7090b500", "text": "\u0004\u0001\u0002\u0005\u0002\u0002\u0007S\nop\ufffd\ufffd\u0000"}
+{"time": 1792144274.946028, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792144274.946105, "direction": "rx", "hex": "01020502414652454753203938203030383038302030303030303020303030", "text": "\u0001\u0002\u0005\u0002AFREGS 98 008080 000000 000"}
+{"time": 1792144274.948672, "direction": "rx", "hex": "39", "text": "9"}
+{"time": 1792144274.948717, "direction": "rx", "hex": "30302030303030303120304246464341203042464645452030424646433520", "text": "00 000001 0BFFCA 0BFFEE 0BFFC5 "}
+{"time": 1792144274.951657, "direction": "rx", "hex": "30", "text": "0"}
+{"time": 1792144274.951704, "direction": "rx", "hex": "30453130360d0a1898f85200", "text": "0E106\r\n\u0018\ufffd\ufffdR\u0000"}
+{"time": 1792144274.951761, "direction": "tx", "hex": "04010206020207440a5786873600", "text": "\u0004\u0001\u0002\u0006\u0002\u0002\u0007D\nW\ufffd\ufffd6\u0000"}
+{"time": 1792144274.957248, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792144274.957321, "direction": "rx", "hex": "010206022429455252206e6f207665726966696564206e6174697665205241", "text": "\u0001\u0002\u0006\u0002$)ERR no verified native RA"}
+{"time": 1792144274.960549, "direction": "rx", "hex": "4d", "text": "M"}
+{"time": 1792144274.960574, "direction": "rx", "hex": "206d617070696e670d0a990c58ca00", "text": " mapping\r\n\ufffd\fX\ufffd\u0000"}

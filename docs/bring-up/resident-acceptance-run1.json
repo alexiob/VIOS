@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "started_utc": "2026-10-16T09:50:40.977134+00:00",
+  "namespace": "ATD97B6379",
+  "phases": [
+    "core",
+    "modules",
+    "boot"
+  ],
+  "status": "failed",
+  "hardware_run": true,
+  "checks": [
+    {
+      "name": "attach-resident-no-deploy",
+      "status": "failed",
+      "error": "Resident CPU is halted; use explicit deploy or debug recovery",
+      "error_type": "RuntimeError",
+      "elapsed_ms": 5335.038
+    }
+  ],
+  "limits": [
+    "VDP replies do not prove visible or audible physical output",
+    "Boot phase changes startup only from an unconfirmed clean baseline",
+    "No flash write, ROM helper upload, image deployment or file cleanup"
+  ],
+  "port": "/dev/cu.usbserial-22430",
+  "error": "Resident CPU is halted; use explicit deploy or debug recovery",
+  "error_type": "RuntimeError",
+  "finished_utc": "2026-10-16T09:50:46.315966+00:00"
+}

@@ -1,0 +1,25 @@
+{"time": 1792144367.567337, "direction": "rx", "hex": "41", "text": "A"}
+{"time": 1792144367.567414, "direction": "rx", "hex": "4d206f6e6c793b20493d6964656e746966790d0a696e737472756374696f6e", "text": "M only; I=identify\r\ninstruction"}
+{"time": 1792144367.5701618, "direction": "rx", "hex": "20", "text": " "}
+{"time": 1792144367.5701928, "direction": "rx", "hex": "70726f62653b204a3d6275727374204b3d73706c6974204c3d6e6575747261", "text": "probe; J=burst K=split L=neutra"}
+{"time": 1792144367.573, "direction": "rx", "hex": "6c", "text": "l"}
+{"time": 1792144367.573057, "direction": "rx", "hex": "204d3d706f73746e6f7020513d494e2d73657175656e636520523d72657365", "text": " M=postnop Q=IN-sequence R=rese"}
+{"time": 1792144367.57565, "direction": "rx", "hex": "74", "text": "t"}
+{"time": 1792144367.57569, "direction": "rx", "hex": "2b5352414d0d0a", "text": "+SRAM\r\n"}
+{"time": 1792144367.7954822, "direction": "tx", "hex": "32", "text": "2"}
+{"time": 1792144367.79678, "direction": "tx", "hex": "49", "text": "I"}
+{"time": 1792144367.8018079, "direction": "rx", "hex": "49", "text": "I"}
+{"time": 1792144367.801891, "direction": "rx", "hex": "4420303030372052455620414120535441542031380d0a", "text": "D 0007 REV AA STAT 18\r\n"}
+{"time": 1792144367.8019478, "direction": "tx", "hex": "48", "text": "H"}
+{"time": 1792144367.8059032, "direction": "rx", "hex": "52", "text": "R"}
+{"time": 1792144367.805964, "direction": "rx", "hex": "45475320393820303035343030203030303030302030303039303020304246", "text": "EGS 98 005400 000000 000900 0BF"}
+{"time": 1792144367.808758, "direction": "rx", "hex": "46", "text": "F"}
+{"time": 1792144367.808804, "direction": "rx", "hex": "4442203042464643412030424646454520304246464335203030394638410d", "text": "DB 0BFFCA 0BFFEE 0BFFC5 009F8A\r"}
+{"time": 1792144367.810775, "direction": "rx", "hex": "0a", "text": "\n"}
+{"time": 1792144367.810827, "direction": "tx", "hex": "51", "text": "Q"}
+{"time": 1792144367.8377962, "direction": "rx", "hex": "51", "text": "Q"}
+{"time": 1792144367.837913, "direction": "rx", "hex": "20524157204235203030353430302030303834423720303038344237203030", "text": " RAW B5 005400 0084B7 0084B7 00"}
+{"time": 1792144367.840393, "direction": "rx", "hex": "38", "text": "8"}
+{"time": 1792144367.8404548, "direction": "rx", "hex": "3442372042342030303830383020303038303830203030383038300d0a5120", "text": "4B7 B4 008080 008080 008080\r\nQ "}
+{"time": 1792144367.844295, "direction": "rx", "hex": "57", "text": "W"}
+{"time": 1792144367.844359, "direction": "rx", "hex": "5241505045442042352038302042372042370d0a", "text": "RAPPED B5 80 B7 B7\r\n"}

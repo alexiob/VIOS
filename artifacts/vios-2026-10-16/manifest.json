@@ -1,0 +1,398 @@
+{
+  "project": "VIOS",
+  "date": "2026-10-16",
+  "board": "Olimex Agon Light 2",
+  "cpu": "eZ80F92 ID0007 REVAA ADL24",
+  "cpu_clock_hz": 18432000,
+  "load_address": 262144,
+  "cpu_image_bytes": 19921,
+  "bss_bytes": 75494,
+  "reserved_c_stack_bytes": 4096,
+  "conservative_ram_region_bytes": 458752,
+  "default_engine": "DIRECT",
+  "profile": "checked24+peaks; both native engines, C reference and both arenas retained",
+  "deployment": "RAM only, complete CPU payload readback SHA256; ESP32 ROM RAM loader; no flash programming",
+  "verification": {
+    "host_tests": 30,
+    "native_engine_probes": 142,
+    "hardware_language_checks": 54,
+    "hardware_benchmark_conditions": 45,
+    "samples_per_benchmark_condition": 9,
+    "harness_transports": [
+      "MCP stdio",
+      "custom loopback TCP JSON-RPC"
+    ],
+    "harness_profiles": [
+      "paced",
+      "whole-line fast"
+    ],
+    "harness_max_source_bytes": 245,
+    "fast_stress_lines_per_transport": 50
+  },
+  "original_backups": {
+    "ez80_sha256": "e396bfff189dfcd6c064f81349f4af9c80f4033c9015eb6ea12f870679eb6569",
+    "esp32_sha256": "91693875ae044e50eb10d02dd41c6efc528609bdd9b012aab4576b929c535e1c"
+  },
+  "files": {
+    "vios.bin": {
+      "bytes": 19921,
+      "sha256": "6b2e03cacdf82083795b09a36584b39c23d0f8a0f40f3e18f0b45e7568dade7d",
+      "from": "build/vios.bin"
+    },
+    "vios.elf": {
+      "bytes": 95508,
+      "sha256": "e9b0ff9c67549d97d0bb7d3bb72edd6e1706efecab502d6a2a863d2480feab6e",
+      "from": "build/vios.elf"
+    },
+    "vios.map": {
+      "bytes": 23983,
+      "sha256": "20d52de5132a7ede17d0a8ff22ad67de383af3f7f79eb521b4ba4d2f3228ddfd",
+      "from": "build/vios.map"
+    },
+    "zdi-loader.bin": {
+      "bytes": 4144,
+      "sha256": "e2fbb9aa9b0d460abacdcb6281606b09b2e05af07522f2d523bb9d082fdaf679",
+      "from": "build/zdi-loader.bin"
+    },
+    "zdi-loader.elf": {
+      "bytes": 13032,
+      "sha256": "65ad0c7aa682140c214c39a35e4d621c5b35c3fe310473fc3cc19d4350ae47b3",
+      "from": "build/zdi-loader.elf"
+    },
+    "zdi-probe.bin": {
+      "bytes": 2800,
+      "sha256": "2e5b519a40c478a5ee674afb660695f7082dd12a3f74833464f16024bf5b812b",
+      "from": "build/zdi-probe.bin"
+    },
+    "checks.txt": {
+      "bytes": 5691,
+      "sha256": "43b22de320fe8ca1060fa9bfcffa7c80a4608ad0be34f7cc09849cf1fff9d87e",
+      "from": "build/vios-final-checks.txt"
+    },
+    "evidence/vios-framed-verified.summary.json": {
+      "bytes": 15431,
+      "sha256": "9d57cf6f690da8020b07d10782a99c6d78dcb790a902a5780d213e7d018376a8",
+      "from": "docs/bring-up/vios-framed-verified.summary.json"
+    },
+    "evidence/vios-framed-verified.bench.txt": {
+      "bytes": 5035,
+      "sha256": "c2145ca8d60a4a3b3697e9c90e98ae789b8c3ed7c8556159124434b51837d4e7",
+      "from": "docs/bring-up/vios-framed-verified.bench.txt"
+    },
+    "evidence/vios-framed-verified.jsonl": {
+      "bytes": 791269,
+      "sha256": "b6e3989094536ee0c7c2ac553e62bf7ecd6cb44e2be612bde70edce98c24bab2",
+      "from": "docs/bring-up/vios-framed-verified.jsonl"
+    },
+    "evidence/vios-harness-tcp-hardware.json": {
+      "bytes": 52472,
+      "sha256": "b57d07daf2348e230014173a2244cddfde2d1d44640ab80a7ab7ed0ea48d465a",
+      "from": "docs/bring-up/vios-harness-tcp-hardware.json"
+    },
+    "evidence/vios-harness-stdio-hardware.json": {
+      "bytes": 52468,
+      "sha256": "6567be56aea3b5c60b691043dfd83136030351b5e0783806bca96d75027792b0",
+      "from": "docs/bring-up/vios-harness-stdio-hardware.json"
+    },
+    "evidence/vios-harness-fast-hardware.json": {
+      "bytes": 110205,
+      "sha256": "8b4b87d260dcf30c9e6eebeb1bf533c5d683d32f49cdb930dd9fe644fad3960c",
+      "from": "docs/bring-up/vios-harness-fast-hardware.json"
+    },
+    "evidence/vios-harness-stdio-fast-hardware.json": {
+      "bytes": 110204,
+      "sha256": "58dfac65e5d633838a360e4dc44f9644b34138128be2e43ab9181b5891bd263c",
+      "from": "docs/bring-up/vios-harness-stdio-fast-hardware.json"
+    },
+    "evidence/vios-debug-check.jsonl": {
+      "bytes": 479474,
+      "sha256": "37752ebbb3df728a41b21c1b0684d57e6e02c17e40483b339798e3afabb65845",
+      "from": "docs/bring-up/vios-debug-check.jsonl"
+    },
+    "evidence/benchmark-analysis.json": {
+      "bytes": 13448,
+      "sha256": "d21a09c9280e8b991f2e099fa222bb2f0b5bf29e2560285e7fdfbe71debbceeb",
+      "from": "docs/benchmarks/vios-profiled.json"
+    },
+    "source/forth/agon_main.c": {
+      "bytes": 216,
+      "sha256": "4380a085a2c3e3105e1a13622d2b9989dab3265431b131767a154316cfa2c20b",
+      "from": "forth/agon_main.c"
+    },
+    "source/forth/system.c": {
+      "bytes": 19215,
+      "sha256": "bde9490dddc2c3da64eab6b9132837901d1e96d8e810b4cf586894e5b147c1ee",
+      "from": "forth/system.c"
+    },
+    "source/forth/vm_reference.c": {
+      "bytes": 6875,
+      "sha256": "a1a59a9f7925533d25a92c4af45d8d2058d8c68cf4e18f6f859c70e68d46d02a",
+      "from": "forth/vm_reference.c"
+    },
+    "source/forth/vm_memory.c": {
+      "bytes": 2815,
+      "sha256": "5deebe0248d46646c80ad7f6bd639a081ab175d7a36a7f6c922178f9f27c77d2",
+      "from": "forth/vm_memory.c"
+    },
+    "source/arch/ez80/uart0.s": {
+      "bytes": 548,
+      "sha256": "0c1b7e8d138ca893e695148d662eb69037e14f8bf05713608abec3f0b9e6531a",
+      "from": "arch/ez80/uart0.s"
+    },
+    "source/arch/ez80/uart0.h": {
+      "bytes": 234,
+      "sha256": "103ec45e5627ed35cee767b5ba613e03a64b1db3e1dd83aefdb16b046f67340c",
+      "from": "arch/ez80/uart0.h"
+    },
+    "source/arch/ez80/start.s": {
+      "bytes": 853,
+      "sha256": "1b305e57804b7de5402681cf8d070057572fea0b2e6e2c81932c3a01ab5a74b9",
+      "from": "arch/ez80/start.s"
+    },
+    "source/arch/ez80/timer.s": {
+      "bytes": 975,
+      "sha256": "683af5ca6802fb7118c971a93bbcd76ed08f7fb11c67dc09a3b89acdcd8fd18f",
+      "from": "arch/ez80/timer.s"
+    },
+    "source/arch/ez80/uart0_raw.s": {
+      "bytes": 507,
+      "sha256": "62bbafb21c13c80caccf58747d990469011c5466a5d81c3eead7e4043e319cdd",
+      "from": "arch/ez80/uart0_raw.s"
+    },
+    "source/arch/ez80/forth/engine.s": {
+      "bytes": 9304,
+      "sha256": "a91143df84f3401965aa146b1f1066dc2f590c37c04b5924b90c611e01bbcb74",
+      "from": "arch/ez80/forth/engine.s"
+    },
+    "source/boards/agon-light-2/console-bootstrap.s": {
+      "bytes": 655,
+      "sha256": "267bb0e66d4cd9e140fc83488d558b3efa7c3c2d6ab3e799bdb16e2b867d0706",
+      "from": "boards/agon-light-2/console-bootstrap.s"
+    },
+    "source/boards/agon-light-2/platform.c": {
+      "bytes": 909,
+      "sha256": "2c769f4091193901fe34e1c7c6379118e3efbcd402e4fd99a06e4df71b354e05",
+      "from": "boards/agon-light-2/platform.c"
+    },
+    "source/boards/agon-light-2/platform_raw.c": {
+      "bytes": 605,
+      "sha256": "2232e7f987f0b47173eab6c1556d7b4c7cc23c39a9eeca78087c22e7772b7357",
+      "from": "boards/agon-light-2/platform_raw.c"
+    },
+    "source/boards/agon-light-2/ram.ld": {
+      "bytes": 675,
+      "sha256": "da38c6e57807596e7607f747109da66113a54e793988dd6b9957e482519e0b29",
+      "from": "boards/agon-light-2/ram.ld"
+    },
+    "source/include/drivers/vdp_keyboard.h": {
+      "bytes": 226,
+      "sha256": "36c81b04da422425c2bfde40337e5108eb9ce02d96e8f44fbad6af7067c78f54",
+      "from": "include/drivers/vdp_keyboard.h"
+    },
+    "source/include/platform/console.h": {
+      "bytes": 223,
+      "sha256": "89085d024867a2be82bfdee65aa234c9b5cab21760146315a1317a7942c885d0",
+      "from": "include/platform/console.h"
+    },
+    "source/include/platform/timer.h": {
+      "bytes": 700,
+      "sha256": "75b2356c02420f5dffe07050e1451e28eb584c32ffb3d60bf9ef1d92a1a17304",
+      "from": "include/platform/timer.h"
+    },
+    "source/include/platform/system.h": {
+      "bytes": 125,
+      "sha256": "facb4dd425cbcff0f01ff02ccdff95c9d14d5582b997492374e7bce08d88f0e8",
+      "from": "include/platform/system.h"
+    },
+    "source/include/forth/system.h": {
+      "bytes": 556,
+      "sha256": "e05f009a7fade015c4f2eb8dd3266553b1ad4345ff68aafc6554f610d031bd39",
+      "from": "include/forth/system.h"
+    },
+    "source/include/forth/vm.h": {
+      "bytes": 1719,
+      "sha256": "769e1c4531182cc29b444f76e69101043a8a3de24be178cce2a2e8cc0f4c96de",
+      "from": "include/forth/vm.h"
+    },
+    "source/include/kernel/monitor.h": {
+      "bytes": 142,
+      "sha256": "d91922be6584959aea0f4e305f031f86ac88ab26b7877d303516cdad15603dc0",
+      "from": "include/kernel/monitor.h"
+    },
+    "source/bench/forth_bench.c": {
+      "bytes": 3732,
+      "sha256": "f5e5e236eafa0356368ac5a6e5f77b45b95fdb6ac50097d9412c279eb9ab4a26",
+      "from": "bench/forth_bench.c"
+    },
+    "source/tests/forth_system_host.c": {
+      "bytes": 563,
+      "sha256": "48d88020e5dae1a618c316ed13d83a47fa37e68debea03b17aa9a5fdcdbaf0f1",
+      "from": "tests/forth_system_host.c"
+    },
+    "source/tests/test_vios_harness.py": {
+      "bytes": 15931,
+      "sha256": "4af9531da5457e6b8083f5607f1c6dcb3db836bf14130a6be015ad79decf9aa8",
+      "from": "tests/test_vios_harness.py"
+    },
+    "source/tests/forth_vm_native.c": {
+      "bytes": 9375,
+      "sha256": "754d8e8854b936c59266cd6d6f9ff654e6b044246eb88920f1b6972f2f3abef9",
+      "from": "tests/forth_vm_native.c"
+    },
+    "source/tests/test_forth_vm.py": {
+      "bytes": 1206,
+      "sha256": "f36daa8c223f0360f9712559a22f4378d6f481f40c2cd62caf487a51a0e3dca1",
+      "from": "tests/test_forth_vm.py"
+    },
+    "source/tests/test_vios_transport.py": {
+      "bytes": 1087,
+      "sha256": "06abe4b6f4e51b73d9cdf98de9355e4471e272eccbe5906ca1ffbbc7ea4baa91",
+      "from": "tests/test_vios_transport.py"
+    },
+    "source/tests/test_forth_system.py": {
+      "bytes": 3692,
+      "sha256": "4a66d3faa5ff0198b5c0a0a09ce79e491470718b0436b5dc286d8d362af01128",
+      "from": "tests/test_forth_system.py"
+    },
+    "source/tests/native.c": {
+      "bytes": 3223,
+      "sha256": "bc3e1827838a73796eeefcce9b1e5ec83ed8e0c01da2110cac632698e0f6a229",
+      "from": "tests/native.c"
+    },
+    "source/tests/test_transfer.py": {
+      "bytes": 3332,
+      "sha256": "0eec737dcd467af4f65d2ab75fbb42f015c5b7a5330470bcf2f6de5def0be005",
+      "from": "tests/test_transfer.py"
+    },
+    "source/tests/test_native.py": {
+      "bytes": 1149,
+      "sha256": "add34f6ab7429406b79cf72c822d85233af874d5f40a0534cb557dfb4a008bd1",
+      "from": "tests/test_native.py"
+    },
+    "source/tools/vios_hardware.py": {
+      "bytes": 5611,
+      "sha256": "0ec7a575d71862c832d86d61938aa2fa6ca06c7b2326ec59a6b8bddbd39cedbd",
+      "from": "tools/vios_hardware.py"
+    },
+    "source/tools/zdi_monitor.py": {
+      "bytes": 5187,
+      "sha256": "faba0107e962a178eb7ba52a939b36e82320b17baf0f99a4cfe9e6bd77f53fdf",
+      "from": "tools/zdi_monitor.py"
+    },
+    "source/tools/requirements.txt": {
+      "bytes": 29,
+      "sha256": "0211857c8077590ee6267afb3686e6d9fbd51c38703659f868042370feda8461",
+      "from": "tools/requirements.txt"
+    },
+    "source/tools/vios_board.py": {
+      "bytes": 15769,
+      "sha256": "170f97537a6fb87d0dafae262fe023524eb69b387217d38a39b6760859d6dc8c",
+      "from": "tools/vios_board.py"
+    },
+    "source/tools/analyze_vios_bench.py": {
+      "bytes": 2298,
+      "sha256": "3145c30009b77e59ed3b5a3b65f4b0f64ffa7ae421b1ceacfb285c96606ad660",
+      "from": "tools/analyze_vios_bench.py"
+    },
+    "source/tools/vios_harness_hardware.py": {
+      "bytes": 7988,
+      "sha256": "8a4725ea3614fa8993da99db5c98cb6ca44ea6602fb7d4e8f12fef422b01fb19",
+      "from": "tools/vios_harness_hardware.py"
+    },
+    "source/tools/zdi_backup.py": {
+      "bytes": 5346,
+      "sha256": "72484a42bf51d7b02cbc190b2f0d3aaf84766b001b4ca3e82b259073bc7a5590",
+      "from": "tools/zdi_backup.py"
+    },
+    "source/tools/vios_harness.py": {
+      "bytes": 9335,
+      "sha256": "941143c817db5262cd216a9eb3c5d8c907674c15224d4694e800a114c20936e1",
+      "from": "tools/vios_harness.py"
+    },
+    "source/tools/serial_monitor.py": {
+      "bytes": 6627,
+      "sha256": "5022497f82be5852caa6d95012f9473c347e47aa9d5043b71061c216f056e202",
+      "from": "tools/serial_monitor.py"
+    },
+    "source/tools/esp32-ram/NOTICE.txt": {
+      "bytes": 1070,
+      "sha256": "f45891feca8768287514f8d28e0177a80b78605660ff2821a8548c286585ab68",
+      "from": "tools/esp32-ram/NOTICE.txt"
+    },
+    "source/tools/esp32-ram/zdi_probe.c": {
+      "bytes": 11861,
+      "sha256": "fce2fa0a4f6eab48cf70b574d540afd07b0982cf47bfa577f182dc4ac369569f",
+      "from": "tools/esp32-ram/zdi_probe.c"
+    },
+    "source/tools/esp32-ram/uart_probe.c": {
+      "bytes": 2452,
+      "sha256": "372172f7fc8d2db5240445b420b840b1dac4aa16e6181ad03f22e69eb368ff6b",
+      "from": "tools/esp32-ram/uart_probe.c"
+    },
+    "source/tools/esp32-ram/probe.ld": {
+      "bytes": 719,
+      "sha256": "b399b3e04470188c89c5992921970485b17bbd53aed2e94f887dc0544373f73b",
+      "from": "tools/esp32-ram/probe.ld"
+    },
+    "source/tools/verification/forth-engine/ABI.md": {
+      "bytes": 3450,
+      "sha256": "e1d7d29371c7336f4c4b1c27042d691a34934aba71c7c4c6e4f5bd93f28f68fd",
+      "from": "tools/verification/forth-engine/ABI.md"
+    },
+    "source/tools/verification/forth-engine/globals.s": {
+      "bytes": 382,
+      "sha256": "18fa36ff084e4a48b7c708a51cc5417e63f34ee113bb8ff99c7ac9343ee99174",
+      "from": "tools/verification/forth-engine/globals.s"
+    },
+    "source/tools/verification/forth-engine/probe.py": {
+      "bytes": 11063,
+      "sha256": "0efd5bfc9c3187ea1660b2b488cc62813e6ddda62249f766c2273048b83ceb40",
+      "from": "tools/verification/forth-engine/probe.py"
+    },
+    "source/tools/verification/forth-engine/check.sh": {
+      "bytes": 1055,
+      "sha256": "6cc3ac128402270bfa9093ec8944f8d4e3d1d44fa49888caa5b7971e33e75864",
+      "from": "tools/verification/forth-engine/check.sh"
+    },
+    "source/Makefile": {
+      "bytes": 4880,
+      "sha256": "b28f738c77bd5e3f029c87b0b658dca5680fa7754a56c28a374023f055c8c8e4",
+      "from": "Makefile"
+    },
+    "source/README.md": {
+      "bytes": 2558,
+      "sha256": "03767b868b961089168ad03977b6a7c7411e42557c0125c70a1427b1228b2773",
+      "from": "README.md"
+    },
+    "source/docs/bring-up/vios-harness.md": {
+      "bytes": 14820,
+      "sha256": "87c271362d35005e10060420d5f617b008ed544d85aa9e40558f183eba7e485b",
+      "from": "docs/bring-up/vios-harness.md"
+    },
+    "source/docs/bring-up/vios-forth.md": {
+      "bytes": 6959,
+      "sha256": "c301bc294e908bd30a9e1497ca2eba1e3501d68265da543b146563f2b762ff2f",
+      "from": "docs/bring-up/vios-forth.md"
+    },
+    "source/docs/benchmarks/README.md": {
+      "bytes": 5468,
+      "sha256": "dd4b8d2afa09eb7e8a119fc1884179f4771bfcfa6c86110f785a769c66ae49a4",
+      "from": "docs/benchmarks/README.md"
+    },
+    "source/docs/research/vios-timer.md": {
+      "bytes": 7544,
+      "sha256": "dbbc8cf960d8895534a1c771669c8c13a2c8387c2cc62956ce246c3a38796dfc",
+      "from": "docs/research/vios-timer.md"
+    },
+    "source/docs/superpowers/specs/2026-10-16-vios-forth.md": {
+      "bytes": 3379,
+      "sha256": "20f7a8ac7ff6da8c2f5e85eb8fe7d2bff4161b4c0ce32d66041362aa74bb5b43",
+      "from": "docs/superpowers/specs/2026-10-16-vios-forth.md"
+    },
+    "source/docs/superpowers/plans/2026-10-16-vios-forth.md": {
+      "bytes": 4064,
+      "sha256": "15396978287af114f2306cd0ab646671ce2b2be66492cbc2af3896f3adcc059d",
+      "from": "docs/superpowers/plans/2026-10-16-vios-forth.md"
+    }
+  }
+}

@@ -1,0 +1,719 @@
+[
+  {
+    "repository": "OLIMEX/AgonLight2",
+    "commit": "b7f2a21c282813efd8cdf26573eb5126876432a8",
+    "path": "README.md",
+    "url": "https://raw.githubusercontent.com/OLIMEX/AgonLight2/b7f2a21c282813efd8cdf26573eb5126876432a8/README.md",
+    "local": "docs/research/sources/AgonLight2/README.md",
+    "bytes": 3657,
+    "sha256": "6cdd6c086268347d2fa80c4a63a492bc97d95fda76589aa7ff3eca518c6f611d"
+  },
+  {
+    "repository": "OLIMEX/AgonLight2",
+    "commit": "b7f2a21c282813efd8cdf26573eb5126876432a8",
+    "path": "DOCUMENTATION/AgonLight2-user-manual.pdf",
+    "url": "https://raw.githubusercontent.com/OLIMEX/AgonLight2/b7f2a21c282813efd8cdf26573eb5126876432a8/DOCUMENTATION/AgonLight2-user-manual.pdf",
+    "local": "docs/research/sources/AgonLight2/DOCUMENTATION/AgonLight2-user-manual.pdf",
+    "bytes": 1356493,
+    "sha256": "f8245ec7564f241481e26c022894b1aa3407d3aa3e802d11c699f277a1126bc4"
+  },
+  {
+    "repository": "OLIMEX/AgonLight2",
+    "commit": "b7f2a21c282813efd8cdf26573eb5126876432a8",
+    "path": "DOCUMENTATION/EZ80F92.pdf",
+    "url": "https://raw.githubusercontent.com/OLIMEX/AgonLight2/b7f2a21c282813efd8cdf26573eb5126876432a8/DOCUMENTATION/EZ80F92.pdf",
+    "local": "docs/research/sources/AgonLight2/DOCUMENTATION/EZ80F92.pdf",
+    "bytes": 11983871,
+    "sha256": "a4251b19ec112d3cb27a37a96d1cbfe14296781e838ffc3e0c8cea83e7489e36"
+  },
+  {
+    "repository": "OLIMEX/AgonLight2",
+    "commit": "b7f2a21c282813efd8cdf26573eb5126876432a8",
+    "path": "DOCUMENTATION/esp32-pico-d4_datasheet_en.pdf",
+    "url": "https://raw.githubusercontent.com/OLIMEX/AgonLight2/b7f2a21c282813efd8cdf26573eb5126876432a8/DOCUMENTATION/esp32-pico-d4_datasheet_en.pdf",
+    "local": "docs/research/sources/AgonLight2/DOCUMENTATION/esp32-pico-d4_datasheet_en.pdf",
+    "bytes": 2903330,
+    "sha256": "953d5a188a5d940b1a4a8f600da53ffc3a9f17097f7edf35bea5d9da3a8d4de3"
+  },
+  {
+    "repository": "OLIMEX/AgonLight2",
+    "commit": "b7f2a21c282813efd8cdf26573eb5126876432a8",
+    "path": "DOCUMENTATION/as7c34096a_v2.1.pdf",
+    "url": "https://raw.githubusercontent.com/OLIMEX/AgonLight2/b7f2a21c282813efd8cdf26573eb5126876432a8/DOCUMENTATION/as7c34096a_v2.1.pdf",
+    "local": "docs/research/sources/AgonLight2/DOCUMENTATION/as7c34096a_v2.1.pdf",
+    "bytes": 161163,
+    "sha256": "ebb6e22c598b384a16638947b4dcc6a173daf5b7d31610b4173a463889264853"
+  },
+  {
+    "repository": "OLIMEX/AgonLight2",
+    "commit": "b7f2a21c282813efd8cdf26573eb5126876432a8",
+    "path": "DOCUMENTATION/APM_PSRAM_QSPI_APS6404L_3SQR_v2_3_PKG-1954826.pdf",
+    "url": "https://raw.githubusercontent.com/OLIMEX/AgonLight2/b7f2a21c282813efd8cdf26573eb5126876432a8/DOCUMENTATION/APM_PSRAM_QSPI_APS6404L_3SQR_v2_3_PKG-1954826.pdf",
+    "local": "docs/research/sources/AgonLight2/DOCUMENTATION/APM_PSRAM_QSPI_APS6404L_3SQR_v2_3_PKG-1954826.pdf",
+    "bytes": 1064072,
+    "sha256": "ed2bcb7a5934c4cf7af58b2998eaa23ce77e2498f65ffe6ef736ac9b8907011b"
+  },
+  {
+    "repository": "OLIMEX/AgonLight2",
+    "commit": "b7f2a21c282813efd8cdf26573eb5126876432a8",
+    "path": "HARDWARE/AgonLight2_Rev_B/AgonLight2_Rev_B.pdf",
+    "url": "https://raw.githubusercontent.com/OLIMEX/AgonLight2/b7f2a21c282813efd8cdf26573eb5126876432a8/HARDWARE/AgonLight2_Rev_B/AgonLight2_Rev_B.pdf",
+    "local": "docs/research/sources/AgonLight2/HARDWARE/AgonLight2_Rev_B/AgonLight2_Rev_B.pdf",
+    "bytes": 549323,
+    "sha256": "559861bf7d723d2ac0978fe95808a9b16415257271619ca4457ec400326d9ee6"
+  },
+  {
+    "repository": "OLIMEX/AgonLight2",
+    "commit": "b7f2a21c282813efd8cdf26573eb5126876432a8",
+    "path": "HARDWARE/AgonLight2_Rev_A/AgonLight2_Rev_A.pdf",
+    "url": "https://raw.githubusercontent.com/OLIMEX/AgonLight2/b7f2a21c282813efd8cdf26573eb5126876432a8/HARDWARE/AgonLight2_Rev_A/AgonLight2_Rev_A.pdf",
+    "local": "docs/research/sources/AgonLight2/HARDWARE/AgonLight2_Rev_A/AgonLight2_Rev_A.pdf",
+    "bytes": 551630,
+    "sha256": "1f96d92d3cc2f0c47712ffce73ad421b2d1e1630651c8f7925c83a9c165c632e"
+  },
+  {
+    "repository": "AgonPlatform/agon-mos",
+    "commit": "8336409351ee5314e02801a7b72a4f1bb5282519",
+    "path": "README.md",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agon-mos/8336409351ee5314e02801a7b72a4f1bb5282519/README.md",
+    "local": "docs/research/sources/agon-mos/README.md",
+    "bytes": 6882,
+    "sha256": "bdbdbb7df57ed856d77226bfa2c9d51bd7fe01385855675eaaee0f7c317bc976"
+  },
+  {
+    "repository": "AgonPlatform/agon-mos",
+    "commit": "8336409351ee5314e02801a7b72a4f1bb5282519",
+    "path": "main.c",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agon-mos/8336409351ee5314e02801a7b72a4f1bb5282519/main.c",
+    "local": "docs/research/sources/agon-mos/main.c",
+    "bytes": 7307,
+    "sha256": "8f8689da9bf119a9e98593e047263a3408cc842c84f0e8d8dd82e0a406f94155"
+  },
+  {
+    "repository": "AgonPlatform/agon-mos",
+    "commit": "8336409351ee5314e02801a7b72a4f1bb5282519",
+    "path": "src/defines.h",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agon-mos/8336409351ee5314e02801a7b72a4f1bb5282519/src/defines.h",
+    "local": "docs/research/sources/agon-mos/src/defines.h",
+    "bytes": 2054,
+    "sha256": "43403dbda34d91a58aa355d8b67d0fe5d228fd130a96931abc728e2b2a84be70"
+  },
+  {
+    "repository": "AgonPlatform/agon-mos",
+    "commit": "8336409351ee5314e02801a7b72a4f1bb5282519",
+    "path": "src/uart.c",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agon-mos/8336409351ee5314e02801a7b72a4f1bb5282519/src/uart.c",
+    "local": "docs/research/sources/agon-mos/src/uart.c",
+    "bytes": 5023,
+    "sha256": "eea52c27b6ab35ba3f8dac9fa0f95824465fe2b9c06779edd6965852e826373a"
+  },
+  {
+    "repository": "AgonPlatform/agon-mos",
+    "commit": "8336409351ee5314e02801a7b72a4f1bb5282519",
+    "path": "src/uart.h",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agon-mos/8336409351ee5314e02801a7b72a4f1bb5282519/src/uart.h",
+    "local": "docs/research/sources/agon-mos/src/uart.h",
+    "bytes": 9200,
+    "sha256": "a53d6fb51506f1e9f96ed3f818c13ec17e0f81d68fd40251c119d87f8b84e5a9"
+  },
+  {
+    "repository": "AgonPlatform/agon-mos",
+    "commit": "8336409351ee5314e02801a7b72a4f1bb5282519",
+    "path": "src_startup/cstartup.asm",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agon-mos/8336409351ee5314e02801a7b72a4f1bb5282519/src_startup/cstartup.asm",
+    "local": "docs/research/sources/agon-mos/src_startup/cstartup.asm",
+    "bytes": 2344,
+    "sha256": "4b5e3c88c5c89e362ae65de06c297689dee92de6e54655850dbfd31eab5f3e65"
+  },
+  {
+    "repository": "AgonPlatform/agon-mos",
+    "commit": "8336409351ee5314e02801a7b72a4f1bb5282519",
+    "path": "src_startup/init_params_f92.asm",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agon-mos/8336409351ee5314e02801a7b72a4f1bb5282519/src_startup/init_params_f92.asm",
+    "local": "docs/research/sources/agon-mos/src_startup/init_params_f92.asm",
+    "bytes": 6024,
+    "sha256": "a3b7a4375250e98c5fa4d3b5e7f9f21aa216498221f990e19683c6379630b723"
+  },
+  {
+    "repository": "AgonPlatform/agon-mos",
+    "commit": "8336409351ee5314e02801a7b72a4f1bb5282519",
+    "path": "src_startup/vectors16.asm",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agon-mos/8336409351ee5314e02801a7b72a4f1bb5282519/src_startup/vectors16.asm",
+    "local": "docs/research/sources/agon-mos/src_startup/vectors16.asm",
+    "bytes": 8670,
+    "sha256": "851971ea9299555c3a9905901c2c47ed6358cc7b23169c9d65eb6a3fcb3390c0"
+  },
+  {
+    "repository": "AgonPlatform/agon-vdp",
+    "commit": "c7ac293d2aa81ddfa693390549bcd909069c8fc3",
+    "path": "README.md",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agon-vdp/c7ac293d2aa81ddfa693390549bcd909069c8fc3/README.md",
+    "local": "docs/research/sources/agon-vdp/README.md",
+    "bytes": 2363,
+    "sha256": "ad17677aad5a8b949eec80d6d0e897fb98906989388ce0f89db0f80f6b7b1b9c"
+  },
+  {
+    "repository": "AgonPlatform/agondev",
+    "commit": "fdea41068567a56c84da3f03912c3059d9b1d835",
+    "path": "README.md",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agondev/fdea41068567a56c84da3f03912c3059d9b1d835/README.md",
+    "local": "docs/research/sources/agondev/README.md",
+    "bytes": 9743,
+    "sha256": "c4ff1d3fcfa6faa3dfb29764981048c41c35cbc96581a128ee7e67421899dfdd"
+  },
+  {
+    "repository": "AgonPlatform/agondev",
+    "commit": "fdea41068567a56c84da3f03912c3059d9b1d835",
+    "path": "release/config/linker.conf",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agondev/fdea41068567a56c84da3f03912c3059d9b1d835/release/config/linker.conf",
+    "local": "docs/research/sources/agondev/release/config/linker.conf",
+    "bytes": 2176,
+    "sha256": "3b5753e7a62fe8bd8ecd235b2b4c055a7e43fa3ae7fa91624f95d30808cfb8fb"
+  },
+  {
+    "repository": "AgonPlatform/agondev",
+    "commit": "fdea41068567a56c84da3f03912c3059d9b1d835",
+    "path": "release/config/makefile.inc",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agondev/fdea41068567a56c84da3f03912c3059d9b1d835/release/config/makefile.inc",
+    "local": "docs/research/sources/agondev/release/config/makefile.inc",
+    "bytes": 4677,
+    "sha256": "cea073df9e03062ec38032ae0ad3a83bb8e6093069917cb1c6f533e8343440c9"
+  },
+  {
+    "repository": "AgonPlatform/agondev",
+    "commit": "fdea41068567a56c84da3f03912c3059d9b1d835",
+    "path": "src/lib/libcrt0/crt0.src",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agondev/fdea41068567a56c84da3f03912c3059d9b1d835/src/lib/libcrt0/crt0.src",
+    "local": "docs/research/sources/agondev/src/lib/libcrt0/crt0.src",
+    "bytes": 23956,
+    "sha256": "56f57e0ee6050882b86099c009e0d5f60e03f59fed471340d2b3f0e14b640e79"
+  },
+  {
+    "repository": "AgonPlatform/agondev",
+    "commit": "fdea41068567a56c84da3f03912c3059d9b1d835",
+    "path": "release/examples/hello_world/Makefile",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agondev/fdea41068567a56c84da3f03912c3059d9b1d835/release/examples/hello_world/Makefile",
+    "local": "docs/research/sources/agondev/release/examples/hello_world/Makefile",
+    "bytes": 401,
+    "sha256": "fd172306cce61b7a46720f8186219bee606de4fb0ece930063fb0d794643ce43"
+  },
+  {
+    "repository": "AgonPlatform/agon-hexload",
+    "commit": "a5217d36aa846cad1b1a4d53fdf881b35d3b0c20",
+    "path": "README.md",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agon-hexload/a5217d36aa846cad1b1a4d53fdf881b35d3b0c20/README.md",
+    "local": "docs/research/sources/agon-hexload/README.md",
+    "bytes": 5942,
+    "sha256": "fd6adde4ccee3cbe83b349ff0892af8fecf6d870c5cee256f1a2649420556380"
+  },
+  {
+    "repository": "AgonPlatform/agon-hexload",
+    "commit": "a5217d36aa846cad1b1a4d53fdf881b35d3b0c20",
+    "path": "send.py",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agon-hexload/a5217d36aa846cad1b1a4d53fdf881b35d3b0c20/send.py",
+    "local": "docs/research/sources/agon-hexload/send.py",
+    "bytes": 6729,
+    "sha256": "6f78ecd6ec7e5846f050387b8d09c8b2b4a26306d151f22aa4bdc1be46fe695c"
+  },
+  {
+    "repository": "AgonPlatform/agon-recovery",
+    "commit": "95d68464afd049945e1dfd780c1c07621d565450",
+    "path": "README.md",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agon-recovery/95d68464afd049945e1dfd780c1c07621d565450/README.md",
+    "local": "docs/research/sources/agon-recovery/README.md",
+    "bytes": 4925,
+    "sha256": "7366ac1d0f4afcdf9b8a726c297ded236caaa88c7c69e29543085b77a844b378"
+  },
+  {
+    "repository": "AgonPlatform/agon-docs",
+    "commit": "f9806bd3cbff6ed5d1c08bef1d51fed11764b86b",
+    "path": "docs/Theory-of-operation.md",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agon-docs/f9806bd3cbff6ed5d1c08bef1d51fed11764b86b/docs/Theory-of-operation.md",
+    "local": "docs/research/sources/agon-docs/docs/Theory-of-operation.md",
+    "bytes": 16225,
+    "sha256": "c0468193503464124695b06bd4e63b765e2309bc519f70ba8eaa5ec4786153c3"
+  },
+  {
+    "repository": "AgonPlatform/agon-docs",
+    "commit": "f9806bd3cbff6ed5d1c08bef1d51fed11764b86b",
+    "path": "docs/mos/Star-Commands.md",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agon-docs/f9806bd3cbff6ed5d1c08bef1d51fed11764b86b/docs/mos/Star-Commands.md",
+    "local": "docs/research/sources/agon-docs/docs/mos/Star-Commands.md",
+    "bytes": 30363,
+    "sha256": "6c6b0d9aafae45cc1ee462a04d5ee773772259741b0d8b829c785a652a7086a3"
+  },
+  {
+    "repository": "AgonPlatform/agon-docs",
+    "commit": "f9806bd3cbff6ed5d1c08bef1d51fed11764b86b",
+    "path": "docs/mos/Executables.md",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agon-docs/f9806bd3cbff6ed5d1c08bef1d51fed11764b86b/docs/mos/Executables.md",
+    "local": "docs/research/sources/agon-docs/docs/mos/Executables.md",
+    "bytes": 7567,
+    "sha256": "e25bf695cf57ab11958865c8c0b273b06a0a60b4d202202baea1fdbf51b3b0e2"
+  },
+  {
+    "repository": "AgonPlatform/agon-docs",
+    "commit": "f9806bd3cbff6ed5d1c08bef1d51fed11764b86b",
+    "path": "docs/GPIO.md",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agon-docs/f9806bd3cbff6ed5d1c08bef1d51fed11764b86b/docs/GPIO.md",
+    "local": "docs/research/sources/agon-docs/docs/GPIO.md",
+    "bytes": 2497,
+    "sha256": "a4a92bdc96c7cd706cbd652d1efd92376e71ff0f64ed5dbd5983a69ed6b2ff30"
+  },
+  {
+    "repository": "AgonPlatform/agon-docs",
+    "commit": "f9806bd3cbff6ed5d1c08bef1d51fed11764b86b",
+    "path": "docs/Programming.md",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agon-docs/f9806bd3cbff6ed5d1c08bef1d51fed11764b86b/docs/Programming.md",
+    "local": "docs/research/sources/agon-docs/docs/Programming.md",
+    "bytes": 8510,
+    "sha256": "ba86d1be686b6efdf95d0072942e98e1a6517a640bd73a09550bfc977d7c8dd5"
+  },
+  {
+    "repository": "AgonPlatform/agon-docs",
+    "commit": "f9806bd3cbff6ed5d1c08bef1d51fed11764b86b",
+    "path": "docs/vdp/System-Commands.md",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agon-docs/f9806bd3cbff6ed5d1c08bef1d51fed11764b86b/docs/vdp/System-Commands.md",
+    "local": "docs/research/sources/agon-docs/docs/vdp/System-Commands.md",
+    "bytes": 40564,
+    "sha256": "e08a2a13158a6b31310d037994db06ef261e3dd1140c933d3f9e072fecfcd206"
+  },
+  {
+    "repository": "AgonPlatform/agon-mos",
+    "commit": "8336409351ee5314e02801a7b72a4f1bb5282519",
+    "path": "MOS.zdsproj",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agon-mos/8336409351ee5314e02801a7b72a4f1bb5282519/MOS.zdsproj",
+    "local": "docs/research/sources/agon-mos/MOS.zdsproj",
+    "bytes": 16227,
+    "sha256": "a282d2a51fd5d0281646ac3ee0ef1e5c5f6de521f92b49ccaa4118c6f7967f20"
+  },
+  {
+    "repository": "AgonPlatform/agon-mos",
+    "commit": "8336409351ee5314e02801a7b72a4f1bb5282519",
+    "path": "src/equs.inc",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agon-mos/8336409351ee5314e02801a7b72a4f1bb5282519/src/equs.inc",
+    "local": "docs/research/sources/agon-mos/src/equs.inc",
+    "bytes": 2834,
+    "sha256": "4cbf0779e32ace92f725fc6cb5e8e32a4389f46bec1e43c7d660b10b95647fbb"
+  },
+  {
+    "repository": "AgonPlatform/agon-mos",
+    "commit": "8336409351ee5314e02801a7b72a4f1bb5282519",
+    "path": "src/gpio.asm",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agon-mos/8336409351ee5314e02801a7b72a4f1bb5282519/src/gpio.asm",
+    "local": "docs/research/sources/agon-mos/src/gpio.asm",
+    "bytes": 2015,
+    "sha256": "cd312f54dc7ce5a6dbeaa54ef593caf341b5dc71cfc0fe3f119b457638b9ef63"
+  },
+  {
+    "repository": "AgonPlatform/agon-mos",
+    "commit": "8336409351ee5314e02801a7b72a4f1bb5282519",
+    "path": "src/interrupts.asm",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agon-mos/8336409351ee5314e02801a7b72a4f1bb5282519/src/interrupts.asm",
+    "local": "docs/research/sources/agon-mos/src/interrupts.asm",
+    "bytes": 6794,
+    "sha256": "8cc01976ade723da300897a0c59d53b45f294e910b6ad1b7a69626c5dc13b1b0"
+  },
+  {
+    "repository": "AgonPlatform/agon-mos",
+    "commit": "8336409351ee5314e02801a7b72a4f1bb5282519",
+    "path": "src/spi.asm",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agon-mos/8336409351ee5314e02801a7b72a4f1bb5282519/src/spi.asm",
+    "local": "docs/research/sources/agon-mos/src/spi.asm",
+    "bytes": 5291,
+    "sha256": "45ef74fdf99b067be36c6078eaf34306722bd8222f511e2d5ecf06187eba0975"
+  },
+  {
+    "repository": "AgonPlatform/agon-mos",
+    "commit": "8336409351ee5314e02801a7b72a4f1bb5282519",
+    "path": "src/timer.c",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agon-mos/8336409351ee5314e02801a7b72a4f1bb5282519/src/timer.c",
+    "local": "docs/research/sources/agon-mos/src/timer.c",
+    "bytes": 1662,
+    "sha256": "15a139f8fc768c8cc55d76db7f818c4157aafe7fb7f6b4d6dd4fe4439684862e"
+  },
+  {
+    "repository": "AgonPlatform/agon-vdp",
+    "commit": "c7ac293d2aa81ddfa693390549bcd909069c8fc3",
+    "path": "video/agon.h",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agon-vdp/c7ac293d2aa81ddfa693390549bcd909069c8fc3/video/agon.h",
+    "local": "docs/research/sources/agon-vdp/video/agon.h",
+    "bytes": 32195,
+    "sha256": "9cd4c9d11a7138f282e9e64122d652b98277894f1ae0e61c696f7732d92377e4"
+  },
+  {
+    "repository": "AgonPlatform/agon-vdp",
+    "commit": "c7ac293d2aa81ddfa693390549bcd909069c8fc3",
+    "path": "video/video.ino",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agon-vdp/c7ac293d2aa81ddfa693390549bcd909069c8fc3/video/video.ino",
+    "local": "docs/research/sources/agon-vdp/video/video.ino",
+    "bytes": 11619,
+    "sha256": "ce37b9bb557eba621a97ca4d8fb860e2a7af0284ed177a81d0af86391e6a224b"
+  },
+  {
+    "repository": "AgonPlatform/agon-vdp",
+    "commit": "c7ac293d2aa81ddfa693390549bcd909069c8fc3",
+    "path": "video/hexload.h",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agon-vdp/c7ac293d2aa81ddfa693390549bcd909069c8fc3/video/hexload.h",
+    "local": "docs/research/sources/agon-vdp/video/hexload.h",
+    "bytes": 9409,
+    "sha256": "1eff521e4f819f3502de21742423801427b9ee9e7c9434652c733320c118e7d9"
+  },
+  {
+    "repository": "AgonPlatform/agon-vdp",
+    "commit": "c7ac293d2aa81ddfa693390549bcd909069c8fc3",
+    "path": "video/vdu_sys.h",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agon-vdp/c7ac293d2aa81ddfa693390549bcd909069c8fc3/video/vdu_sys.h",
+    "local": "docs/research/sources/agon-vdp/video/vdu_sys.h",
+    "bytes": 25249,
+    "sha256": "29ad91d4bcbede801f3c8da3453f900a6a6cf98fc1a17e6dad5ba274e76e6b77"
+  },
+  {
+    "repository": "AgonPlatform/agon-vdp",
+    "commit": "c7ac293d2aa81ddfa693390549bcd909069c8fc3",
+    "path": "video/zdi.h",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agon-vdp/c7ac293d2aa81ddfa693390549bcd909069c8fc3/video/zdi.h",
+    "local": "docs/research/sources/agon-vdp/video/zdi.h",
+    "bytes": 40614,
+    "sha256": "89ab5e6e950f80480eb356173f00b0645e103840130f5e86f8c2628f6421e80e"
+  },
+  {
+    "repository": "AgonPlatform/agon-vdp",
+    "commit": "c7ac293d2aa81ddfa693390549bcd909069c8fc3",
+    "path": "video/version.h",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agon-vdp/c7ac293d2aa81ddfa693390549bcd909069c8fc3/video/version.h",
+    "local": "docs/research/sources/agon-vdp/video/version.h",
+    "bytes": 324,
+    "sha256": "db32f72b856652ff61aafbaed4bbfe8c755030b48b27fda0c8275811e155c88b"
+  },
+  {
+    "repository": "AgonPlatform/agondev",
+    "commit": "fdea41068567a56c84da3f03912c3059d9b1d835",
+    "path": "docs/install-mac.md",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agondev/fdea41068567a56c84da3f03912c3059d9b1d835/docs/install-mac.md",
+    "local": "docs/research/sources/agondev/docs/install-mac.md",
+    "bytes": 1595,
+    "sha256": "7e8b6a7e5bfec3b6a9867ed2871ba934553b9336f25190070dcc5e32d9a6fb8c"
+  },
+  {
+    "repository": "AgonPlatform/agondev",
+    "commit": "fdea41068567a56c84da3f03912c3059d9b1d835",
+    "path": "release/include/stdint.h",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agondev/fdea41068567a56c84da3f03912c3059d9b1d835/release/include/stdint.h",
+    "local": "docs/research/sources/agondev/release/include/stdint.h",
+    "bytes": 10028,
+    "sha256": "2c289ed20884931dad0bd1d0f1c88e2348a0cbd389ce630d62154602d7fe3f03"
+  },
+  {
+    "repository": "AgonPlatform/agondev",
+    "commit": "fdea41068567a56c84da3f03912c3059d9b1d835",
+    "path": "release/include/stddef.h",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agondev/fdea41068567a56c84da3f03912c3059d9b1d835/release/include/stddef.h",
+    "local": "docs/research/sources/agondev/release/include/stddef.h",
+    "bytes": 733,
+    "sha256": "a966ed11aae8f8b7fdc39f09a72d7437567c964566cd84de7383f395100debd4"
+  },
+  {
+    "repository": "AgonPlatform/agondev",
+    "commit": "fdea41068567a56c84da3f03912c3059d9b1d835",
+    "path": "release/include/limits.h",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agondev/fdea41068567a56c84da3f03912c3059d9b1d835/release/include/limits.h",
+    "local": "docs/research/sources/agondev/release/include/limits.h",
+    "bytes": 1526,
+    "sha256": "a38862bfcacc4f7d19b4aca3f14f99458c1693f0f1a2dca9882e38b2ed59818a"
+  },
+  {
+    "repository": "AgonPlatform/agon-docs",
+    "commit": "f9806bd3cbff6ed5d1c08bef1d51fed11764b86b",
+    "path": "docs/VDP.md",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agon-docs/f9806bd3cbff6ed5d1c08bef1d51fed11764b86b/docs/VDP.md",
+    "local": "docs/research/sources/agon-docs/docs/VDP.md",
+    "bytes": 6668,
+    "sha256": "65f6506811951a24fbbb79d35e7253e33801ab54ff0dc35d50e511a9730dfd48"
+  },
+  {
+    "repository": "AgonPlatform/agon-docs",
+    "commit": "f9806bd3cbff6ed5d1c08bef1d51fed11764b86b",
+    "path": "docs/mos/API.md",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agon-docs/f9806bd3cbff6ed5d1c08bef1d51fed11764b86b/docs/mos/API.md",
+    "local": "docs/research/sources/agon-docs/docs/mos/API.md",
+    "bytes": 88996,
+    "sha256": "5f2e68201ee0e4799562583f8e81153482651695fe3f89e4900e193ebd3b8d25"
+  },
+  {
+    "repository": "AgonPlatform/agon-docs",
+    "commit": "f9806bd3cbff6ed5d1c08bef1d51fed11764b86b",
+    "path": "docs/Updating-Firmware.md",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agon-docs/f9806bd3cbff6ed5d1c08bef1d51fed11764b86b/docs/Updating-Firmware.md",
+    "local": "docs/research/sources/agon-docs/docs/Updating-Firmware.md",
+    "bytes": 11737,
+    "sha256": "b0308ec763ed511e9ddb284bd7f18f834a4c3c0b458411003269affc6f4894da"
+  },
+  {
+    "repository": "AgonPlatform/agon-vdp",
+    "commit": "c7ac293d2aa81ddfa693390549bcd909069c8fc3",
+    "path": "video/vdu_stream_processor.h",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agon-vdp/c7ac293d2aa81ddfa693390549bcd909069c8fc3/video/vdu_stream_processor.h",
+    "local": "docs/research/sources/agon-vdp/video/vdu_stream_processor.h",
+    "bytes": 26321,
+    "sha256": "b714a640a7108aec0a242069c5c96b529347655a0d9133e28cd01092bae84753"
+  },
+  {
+    "repository": "AgonPlatform/agon-vdp",
+    "commit": "c7ac293d2aa81ddfa693390549bcd909069c8fc3",
+    "path": "video/agon_ps2.h",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agon-vdp/c7ac293d2aa81ddfa693390549bcd909069c8fc3/video/agon_ps2.h",
+    "local": "docs/research/sources/agon-vdp/video/agon_ps2.h",
+    "bytes": 12115,
+    "sha256": "76dd5fd87e4be895e9a017d648e6f2de64b3273d98da876235ff9868b6ed66b6"
+  },
+  {
+    "repository": "AgonPlatform/agon-vdp",
+    "commit": "c7ac293d2aa81ddfa693390549bcd909069c8fc3",
+    "path": "video/vdp_protocol.h",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agon-vdp/c7ac293d2aa81ddfa693390549bcd909069c8fc3/video/vdp_protocol.h",
+    "local": "docs/research/sources/agon-vdp/video/vdp_protocol.h",
+    "bytes": 863,
+    "sha256": "c35134abbe4cc47c47d70cd0630bf65b765defa6ea7fd04603c19a4c254138ec"
+  },
+  {
+    "repository": "AgonPlatform/agon-mos",
+    "commit": "8336409351ee5314e02801a7b72a4f1bb5282519",
+    "path": "src/serial.asm",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agon-mos/8336409351ee5314e02801a7b72a4f1bb5282519/src/serial.asm",
+    "local": "docs/research/sources/agon-mos/src/serial.asm",
+    "bytes": 8054,
+    "sha256": "53905f372f388256968f61d5304d510069f463b2967931224c81a73fa8575b47"
+  },
+  {
+    "repository": "AgonPlatform/agon-docs",
+    "commit": "f9806bd3cbff6ed5d1c08bef1d51fed11764b86b",
+    "path": "docs/MOS.md",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agon-docs/f9806bd3cbff6ed5d1c08bef1d51fed11764b86b/docs/MOS.md",
+    "local": "docs/research/sources/agon-docs/docs/MOS.md",
+    "bytes": 17263,
+    "sha256": "fdbe51a84f17f16cfa35bbe2d481eaf6af4f1b0c801e75e45980cb038406847f"
+  },
+  {
+    "repository": "AgonPlatform/agon-docs",
+    "commit": "f9806bd3cbff6ed5d1c08bef1d51fed11764b86b",
+    "path": "docs/FAQ.md",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agon-docs/f9806bd3cbff6ed5d1c08bef1d51fed11764b86b/docs/FAQ.md",
+    "local": "docs/research/sources/agon-docs/docs/FAQ.md",
+    "bytes": 24379,
+    "sha256": "4755c64a90fc28343e28d18c98848c03436456672043b7d6216e5350e4a697f2"
+  },
+  {
+    "repository": "OLIMEX/AgonLight2",
+    "commit": "b7f2a21c282813efd8cdf26573eb5126876432a8",
+    "path": "HARDWARE/Hardware_revision_changes.txt",
+    "url": "https://raw.githubusercontent.com/OLIMEX/AgonLight2/b7f2a21c282813efd8cdf26573eb5126876432a8/HARDWARE/Hardware_revision_changes.txt",
+    "local": "docs/research/sources/AgonLight2/HARDWARE/Hardware_revision_changes.txt",
+    "bytes": 577,
+    "sha256": "b4d17b3d03b7149aa7dbfe2de17be3c0db5b34f66a61e00d387967467a4d2dd1"
+  },
+  {
+    "repository": "OLIMEX/AgonLight2",
+    "commit": "b7f2a21c282813efd8cdf26573eb5126876432a8",
+    "path": "HARDWARE/AgonLight2_Rev_A/AgonLight2_Rev_A.sch",
+    "url": "https://raw.githubusercontent.com/OLIMEX/AgonLight2/b7f2a21c282813efd8cdf26573eb5126876432a8/HARDWARE/AgonLight2_Rev_A/AgonLight2_Rev_A.sch",
+    "local": "docs/research/sources/AgonLight2/HARDWARE/AgonLight2_Rev_A/AgonLight2_Rev_A.sch",
+    "bytes": 49833,
+    "sha256": "de6fb6a49d922f0de2f79ec1a498c1e2352664e9d4d6968ec0bb15e42b65c0f3"
+  },
+  {
+    "repository": "OLIMEX/AgonLight2",
+    "commit": "b7f2a21c282813efd8cdf26573eb5126876432a8",
+    "path": "HARDWARE/AgonLight2_Rev_A/AgonLight2_Rev_A.net",
+    "url": "https://raw.githubusercontent.com/OLIMEX/AgonLight2/b7f2a21c282813efd8cdf26573eb5126876432a8/HARDWARE/AgonLight2_Rev_A/AgonLight2_Rev_A.net",
+    "local": "docs/research/sources/AgonLight2/HARDWARE/AgonLight2_Rev_A/AgonLight2_Rev_A.net",
+    "bytes": 142501,
+    "sha256": "9748371864632d4c27e61e716bb1af77da15100497a57b7316f91cdf056d6420"
+  },
+  {
+    "repository": "OLIMEX/AgonLight2",
+    "commit": "b7f2a21c282813efd8cdf26573eb5126876432a8",
+    "path": "HARDWARE/AgonLight2_Rev_A/ESP32-PICO-D4.sch",
+    "url": "https://raw.githubusercontent.com/OLIMEX/AgonLight2/b7f2a21c282813efd8cdf26573eb5126876432a8/HARDWARE/AgonLight2_Rev_A/ESP32-PICO-D4.sch",
+    "local": "docs/research/sources/AgonLight2/HARDWARE/AgonLight2_Rev_A/ESP32-PICO-D4.sch",
+    "bytes": 38854,
+    "sha256": "59dab772bc9b7a339ff788aba1a78bcec0f9f999f39697f77b7e0b3d07b97594"
+  },
+  {
+    "repository": "OLIMEX/AgonLight2",
+    "commit": "b7f2a21c282813efd8cdf26573eb5126876432a8",
+    "path": "HARDWARE/AgonLight2_Rev_A/Extension.sch",
+    "url": "https://raw.githubusercontent.com/OLIMEX/AgonLight2/b7f2a21c282813efd8cdf26573eb5126876432a8/HARDWARE/AgonLight2_Rev_A/Extension.sch",
+    "local": "docs/research/sources/AgonLight2/HARDWARE/AgonLight2_Rev_A/Extension.sch",
+    "bytes": 59863,
+    "sha256": "da75f0fb164cfc97d6be3e1396a48aeb762dbd7bc98e347f491c53edb9c52071"
+  },
+  {
+    "repository": "OLIMEX/AgonLight2",
+    "commit": "b7f2a21c282813efd8cdf26573eb5126876432a8",
+    "path": "HARDWARE/AgonLight2_Rev_A/Power Supply,USB.sch",
+    "url": "https://raw.githubusercontent.com/OLIMEX/AgonLight2/b7f2a21c282813efd8cdf26573eb5126876432a8/HARDWARE/AgonLight2_Rev_A/Power%20Supply%2CUSB.sch",
+    "local": "docs/research/sources/AgonLight2/HARDWARE/AgonLight2_Rev_A/Power Supply,USB.sch",
+    "bytes": 227826,
+    "sha256": "a81d1fcb8799f7957323e27b71d19c6fa48ab4362e83856faf60eeabd2c46876"
+  },
+  {
+    "repository": "OLIMEX/AgonLight2",
+    "commit": "b7f2a21c282813efd8cdf26573eb5126876432a8",
+    "path": "HARDWARE/AgonLight2_Rev_A/AgonLight2_Rev_A_BOM.pdf",
+    "url": "https://raw.githubusercontent.com/OLIMEX/AgonLight2/b7f2a21c282813efd8cdf26573eb5126876432a8/HARDWARE/AgonLight2_Rev_A/AgonLight2_Rev_A_BOM.pdf",
+    "local": "docs/research/sources/AgonLight2/HARDWARE/AgonLight2_Rev_A/AgonLight2_Rev_A_BOM.pdf",
+    "bytes": 34321,
+    "sha256": "4c4566af58b49767166910841a93cb3bc21c609beeda2b8b0650198d4a74404b"
+  },
+  {
+    "repository": "OLIMEX/AgonLight2",
+    "commit": "b7f2a21c282813efd8cdf26573eb5126876432a8",
+    "path": "HARDWARE/AgonLight2_Rev_B/AgonLight2_Rev_B.sch",
+    "url": "https://raw.githubusercontent.com/OLIMEX/AgonLight2/b7f2a21c282813efd8cdf26573eb5126876432a8/HARDWARE/AgonLight2_Rev_B/AgonLight2_Rev_B.sch",
+    "local": "docs/research/sources/AgonLight2/HARDWARE/AgonLight2_Rev_B/AgonLight2_Rev_B.sch",
+    "bytes": 49837,
+    "sha256": "5019caa700d034bd16b720184f291c9768be3dba62734f0569887ee19704953c"
+  },
+  {
+    "repository": "OLIMEX/AgonLight2",
+    "commit": "b7f2a21c282813efd8cdf26573eb5126876432a8",
+    "path": "HARDWARE/AgonLight2_Rev_B/AgonLight2_Rev_B.net",
+    "url": "https://raw.githubusercontent.com/OLIMEX/AgonLight2/b7f2a21c282813efd8cdf26573eb5126876432a8/HARDWARE/AgonLight2_Rev_B/AgonLight2_Rev_B.net",
+    "local": "docs/research/sources/AgonLight2/HARDWARE/AgonLight2_Rev_B/AgonLight2_Rev_B.net",
+    "bytes": 142395,
+    "sha256": "b649c427410995dc2c7412c16ab2865ffa84fc4a6b6bd745c13daad2ef58325c"
+  },
+  {
+    "repository": "OLIMEX/AgonLight2",
+    "commit": "b7f2a21c282813efd8cdf26573eb5126876432a8",
+    "path": "HARDWARE/AgonLight2_Rev_B/ESP32-PICO-D4.sch",
+    "url": "https://raw.githubusercontent.com/OLIMEX/AgonLight2/b7f2a21c282813efd8cdf26573eb5126876432a8/HARDWARE/AgonLight2_Rev_B/ESP32-PICO-D4.sch",
+    "local": "docs/research/sources/AgonLight2/HARDWARE/AgonLight2_Rev_B/ESP32-PICO-D4.sch",
+    "bytes": 38575,
+    "sha256": "9f06d034563b73f01819b3c555494250dc88853aac64038a84736c75ca8db234"
+  },
+  {
+    "repository": "OLIMEX/AgonLight2",
+    "commit": "b7f2a21c282813efd8cdf26573eb5126876432a8",
+    "path": "HARDWARE/AgonLight2_Rev_B/Extension.sch",
+    "url": "https://raw.githubusercontent.com/OLIMEX/AgonLight2/b7f2a21c282813efd8cdf26573eb5126876432a8/HARDWARE/AgonLight2_Rev_B/Extension.sch",
+    "local": "docs/research/sources/AgonLight2/HARDWARE/AgonLight2_Rev_B/Extension.sch",
+    "bytes": 59858,
+    "sha256": "640f52b9ef68836c71dd9e9349d19a9989f3d38aa61b8953ae23888edd2ec0b9"
+  },
+  {
+    "repository": "OLIMEX/AgonLight2",
+    "commit": "b7f2a21c282813efd8cdf26573eb5126876432a8",
+    "path": "HARDWARE/AgonLight2_Rev_B/Power Supply,USB.sch",
+    "url": "https://raw.githubusercontent.com/OLIMEX/AgonLight2/b7f2a21c282813efd8cdf26573eb5126876432a8/HARDWARE/AgonLight2_Rev_B/Power%20Supply%2CUSB.sch",
+    "local": "docs/research/sources/AgonLight2/HARDWARE/AgonLight2_Rev_B/Power Supply,USB.sch",
+    "bytes": 227758,
+    "sha256": "c3203b21219871d1a69e6ae693eafe2c1649d90ec6033ba96f4831d9984fb86a"
+  },
+  {
+    "repository": "OLIMEX/AgonLight2",
+    "commit": "b7f2a21c282813efd8cdf26573eb5126876432a8",
+    "path": "HARDWARE/AgonLight2_Rev_B/AgonLight2_Rev_B_BOM.pdf",
+    "url": "https://raw.githubusercontent.com/OLIMEX/AgonLight2/b7f2a21c282813efd8cdf26573eb5126876432a8/HARDWARE/AgonLight2_Rev_B/AgonLight2_Rev_B_BOM.pdf",
+    "local": "docs/research/sources/AgonLight2/HARDWARE/AgonLight2_Rev_B/AgonLight2_Rev_B_BOM.pdf",
+    "bytes": 34138,
+    "sha256": "9ca24bf1c53484d9a0fae3d87bb36d8ff736fd5075d0d3a9fc7ee95bb33f434e"
+  },
+  {
+    "repository": "OLIMEX/AgonLight2",
+    "commit": "b7f2a21c282813efd8cdf26573eb5126876432a8",
+    "path": "DOCUMENTATION/ASE-18.432MHZ-L-C-T.pdf",
+    "url": "https://raw.githubusercontent.com/OLIMEX/AgonLight2/b7f2a21c282813efd8cdf26573eb5126876432a8/DOCUMENTATION/ASE-18.432MHZ-L-C-T.pdf",
+    "local": "docs/research/sources/AgonLight2/DOCUMENTATION/ASE-18.432MHZ-L-C-T.pdf",
+    "bytes": 418890,
+    "sha256": "3f16f4e5604b0e7bf4192e8e7bfe610c32dfe14ca231d9e967f66229f10ce57b"
+  },
+  {
+    "url": "https://www.zilog.com/docs/um0077.pdf",
+    "local": "docs/research/sources/Zilog/eZ80-CPU-UM0077.pdf",
+    "bytes": 1348540,
+    "sha256": "87779fbf7394908052162b367bb2316af6ea14a641856c9eeec5b337fb6e8eca"
+  },
+  {
+    "repository": "AgonPlatform/agon-mos",
+    "commit": "8336409351ee5314e02801a7b72a4f1bb5282519",
+    "path": "LICENSE",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agon-mos/8336409351ee5314e02801a7b72a4f1bb5282519/LICENSE",
+    "local": "docs/research/sources/agon-mos/LICENSE",
+    "bytes": 1069,
+    "sha256": "fae2cacdc47dc5ed8efbd052201834108167942f0b524b8238327e9fbe13fd25"
+  },
+  {
+    "repository": "AgonPlatform/agon-vdp",
+    "commit": "c7ac293d2aa81ddfa693390549bcd909069c8fc3",
+    "path": "LICENSE",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agon-vdp/c7ac293d2aa81ddfa693390549bcd909069c8fc3/LICENSE",
+    "local": "docs/research/sources/agon-vdp/LICENSE",
+    "bytes": 1069,
+    "sha256": "fae2cacdc47dc5ed8efbd052201834108167942f0b524b8238327e9fbe13fd25"
+  },
+  {
+    "repository": "AgonPlatform/agon-hexload",
+    "commit": "a5217d36aa846cad1b1a4d53fdf881b35d3b0c20",
+    "path": "LICENSE",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agon-hexload/a5217d36aa846cad1b1a4d53fdf881b35d3b0c20/LICENSE",
+    "local": "docs/research/sources/agon-hexload/LICENSE",
+    "bytes": 1069,
+    "sha256": "0d44880ccdb890514e5d18568d24603c832f8e06fe0455a4f011e555ef31d635"
+  },
+  {
+    "repository": "AgonPlatform/agon-recovery",
+    "commit": "95d68464afd049945e1dfd780c1c07621d565450",
+    "path": "LICENSE",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agon-recovery/95d68464afd049945e1dfd780c1c07621d565450/LICENSE",
+    "local": "docs/research/sources/agon-recovery/LICENSE",
+    "bytes": 1070,
+    "sha256": "f45891feca8768287514f8d28e0177a80b78605660ff2821a8548c286585ab68"
+  },
+  {
+    "repository": "AgonPlatform/agon-recovery",
+    "commit": "95d68464afd049945e1dfd780c1c07621d565450",
+    "path": "media/zdi.png",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agon-recovery/95d68464afd049945e1dfd780c1c07621d565450/media/zdi.png",
+    "local": "docs/research/sources/agon-recovery/media/zdi.png",
+    "bytes": 12885,
+    "sha256": "88d754f970d5611ed7adc06dd851b0a054e67f5a9cc462f4835c910e09c49064"
+  },
+  {
+    "repository": "AgonPlatform/agon-recovery",
+    "commit": "95d68464afd049945e1dfd780c1c07621d565450",
+    "path": "media/olimexagonlight2.png",
+    "url": "https://raw.githubusercontent.com/AgonPlatform/agon-recovery/95d68464afd049945e1dfd780c1c07621d565450/media/olimexagonlight2.png",
+    "local": "docs/research/sources/agon-recovery/media/olimexagonlight2.png",
+    "bytes": 32930,
+    "sha256": "cd30b82acab5e8c7bcddcf5d5f17ac2e93a325480298487c9330818019e732f1"
+  },
+  {
+    "repository": "OLIMEX/AgonLight2",
+    "commit": "b7f2a21c282813efd8cdf26573eb5126876432a8",
+    "path": "SOFTWARE/1-SD-card-contents/mos/firmware103.bin",
+    "url": "https://raw.githubusercontent.com/OLIMEX/AgonLight2/b7f2a21c282813efd8cdf26573eb5126876432a8/SOFTWARE/1-SD-card-contents/mos/firmware103.bin",
+    "local": ".tools/firmware/olimex-mos/firmware103.bin",
+    "bytes": 50174,
+    "sha256": "37ba6ece5e21d7e49e0460fbb281a0d9d08df98eba22416308dbb87cb1fa1a52"
+  },
+  {
+    "repository": "OLIMEX/AgonLight2",
+    "commit": "b7f2a21c282813efd8cdf26573eb5126876432a8",
+    "path": "SOFTWARE/1-SD-card-contents/mos/firmware104-rc1.bin",
+    "url": "https://raw.githubusercontent.com/OLIMEX/AgonLight2/b7f2a21c282813efd8cdf26573eb5126876432a8/SOFTWARE/1-SD-card-contents/mos/firmware104-rc1.bin",
+    "local": ".tools/firmware/olimex-mos/firmware104-rc1.bin",
+    "bytes": 49941,
+    "sha256": "ba6cb3f75f03226115402c94c8ce8b122ec3c488bff8cfeaa4e43ca4574d76d7"
+  },
+  {
+    "repository": "OLIMEX/AgonLight2",
+    "commit": "b7f2a21c282813efd8cdf26573eb5126876432a8",
+    "path": "SOFTWARE/1-SD-card-contents/mos/firmware104.bin",
+    "url": "https://raw.githubusercontent.com/OLIMEX/AgonLight2/b7f2a21c282813efd8cdf26573eb5126876432a8/SOFTWARE/1-SD-card-contents/mos/firmware104.bin",
+    "local": ".tools/firmware/olimex-mos/firmware104.bin",
+    "bytes": 55177,
+    "sha256": "34f87adcbd260d8d82aff09699e29f6e65405ca609f335b23e78acd31e11f1ca"
+  }
+]

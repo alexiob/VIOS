@@ -1,0 +1,84 @@
+{
+  "passed": false,
+  "reason": "Boot guard rejected CS0 mapping before image upload",
+  "records": [
+    {
+      "log": "vios-resident-first-boot.serial.jsonl",
+      "packets": [
+        {
+          "time": 1792142409.660574,
+          "channel": 3,
+          "sequence": 0,
+          "payload": "BOOT VIOS VDP 1.04 mux-v1\r\n"
+        },
+        {
+          "time": 1792142409.6920052,
+          "channel": 3,
+          "sequence": 0,
+          "payload": "ERR RAM mapping; recovery control available\r\n"
+        },
+        {
+          "time": 1792142409.6920052,
+          "channel": 2,
+          "sequence": 2,
+          "payload": "BOOT HALTED\r\n"
+        },
+        {
+          "time": 1792142409.70226,
+          "channel": 2,
+          "sequence": 3,
+          "payload": "ID 0007 REV AA STAT 98\r\n"
+        }
+      ],
+      "decoder_errors_including_ROM_text": 1
+    },
+    {
+      "log": "vios-resident-mapping2.serial.jsonl",
+      "packets": [
+        {
+          "time": 1792142484.2089229,
+          "channel": 3,
+          "sequence": 0,
+          "payload": "BOOT VIOS VDP 1.04 mux-v1\r\n"
+        },
+        {
+          "time": 1792142484.227872,
+          "channel": 3,
+          "sequence": 0,
+          "payload": "ERR RAM mapping; recovery control available\r\n"
+        },
+        {
+          "time": 1792142484.231597,
+          "channel": 2,
+          "sequence": 2,
+          "payload": "BOOT HALTED\r\n"
+        },
+        {
+          "time": 1792142484.2412531,
+          "channel": 2,
+          "sequence": 3,
+          "payload": "ID 0007 REV AA STAT 98\r\n"
+        },
+        {
+          "time": 1792142484.265592,
+          "channel": 2,
+          "sequence": 4,
+          "payload": "REGS 98 000439 000039 000900 00003E 0BFFCA 0BFFEE 0BFFA5 0000D8\r\n"
+        },
+        {
+          "time": 1792142484.305405,
+          "channel": 2,
+          "sequence": 5,
+          "payload": "CS0 39 00 38 39\r\n"
+        },
+        {
+          "time": 1792142484.3288882,
+          "channel": 2,
+          "sequence": 6,
+          "payload": "REGS 98 000439 000039 000900 00003E 0BFFCA 0BFFEE 0BFFA5 0000D8\r\n"
+        }
+      ],
+      "decoder_errors_including_ROM_text": 1
+    }
+  ]
+}

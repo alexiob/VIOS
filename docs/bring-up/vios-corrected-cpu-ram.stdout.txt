@@ -1,0 +1,50 @@
+Deploy corrected CPU only through installed framed firmware
+{"checkpoint": "explicit-temporary-cpu-ram-deploy", "status": "running"}
+ID 0007 REV AA STAT 98
+RAM verified 72149 bytes 927658d5aae44a50403b17f17a8d7b27ff69dddb7ff171442daf02cd486e80dd
+GO 040000 USB/UART bridge 115200
+boot recovery: built-in kernel, no valid source bundle
+
+VIOS Forth 24 / Agon Light 2
+vios> {"checkpoint": "explicit-temporary-cpu-ram-deploy", "status": "passed", "elapsed_ms": 66889.953}
+{"checkpoint": "attach-resident-no-deploy", "status": "running"}
+{"checkpoint": "attach-resident-no-deploy", "status": "passed", "elapsed_ms": 38.841}
+{"checkpoint": "require-idle-empty-stack", "status": "running"}
+{"checkpoint": "require-idle-empty-stack", "status": "passed", "elapsed_ms": 26.736}
+{"checkpoint": "initial-resources", "status": "running"}
+{"checkpoint": "initial-resources", "status": "passed", "elapsed_ms": 49.129}
+{"checkpoint": "arithmetic-DIRECT", "status": "running"}
+{"checkpoint": "arithmetic-DIRECT", "status": "passed", "elapsed_ms": 54.878}
+{"checkpoint": "arithmetic-TOKEN", "status": "running"}
+{"checkpoint": "arithmetic-TOKEN", "status": "passed", "elapsed_ms": 54.392}
+{"checkpoint": "arithmetic-C", "status": "running"}
+{"checkpoint": "arithmetic-C", "status": "passed", "elapsed_ms": 52.37}
+{"checkpoint": "default-direct-engine", "status": "running"}
+{"checkpoint": "default-direct-engine", "status": "passed", "elapsed_ms": 25.567}
+{"checkpoint": "max-line-two-fragment-01", "status": "running"}
+{"checkpoint": "max-line-two-fragment-01", "status": "failed", "elapsed_ms": 112.589}
+FAILED AcceptanceError("Device command failed: {'output': '@CA0CE0CE !B27A1267 DECIMAL 123 456 + . CR                                                                                                                                                                                        \\r\\nerror: request CRC mismatch\\r\\n\\r\\nerror\\r\\nvios> ', 'ok': False, 'compiling': False, 'pending': False}")
+Traceback (most recent call last):
+  File "<stdin>", line 21, in <module>
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/tools/vios_resident_acceptance.py", line 210, in core
+    self.check_command(f'max-line-two-fragment-{sample+1:02d}', stress, [579])
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/tools/vios_resident_acceptance.py", line 169, in check_command
+    return self.report.check(name, lambda: self.command(source, numbers, timeout))
+           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/tools/vios_resident_acceptance.py", line 135, in check
+    result = action()
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/tools/vios_resident_acceptance.py", line 169, in <lambda>
+    return self.report.check(name, lambda: self.command(source, numbers, timeout))
+                                           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/tools/vios_resident_acceptance.py", line 163, in command
+    synchronized(result)
+    ~~~~~~~~~~~~^^^^^^^^
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/tools/vios_resident_acceptance.py", line 46, in synchronized
+    require(isinstance(result, dict) and result.get('ok') is True,
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            'Device command failed: ' + repr(result))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/tools/vios_resident_acceptance.py", line 42, in require
+    raise AcceptanceError(message)
+vios_resident_acceptance.AcceptanceError: Device command failed: {'output': '@CA0CE0CE !B27A1267 DECIMAL 123 456 + . CR                                                                                                                                                                                        \r\nerror: request CRC mismatch\r\n\r\nerror\r\nvios> ', 'ok': False, 'compiling': False, 'pending': False}

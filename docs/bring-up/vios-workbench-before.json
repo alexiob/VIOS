@@ -1,0 +1,94 @@
+{
+  "resources": {
+    "output": "RESOURCES\r\nengine DIRECT words 77/128 token-bytes 312 direct-bytes 947 data-bytes 24 source-bytes 281 data-peak 2 return-peak 0\r\n\r\nok\r\nvios> ",
+    "ok": true,
+    "compiling": false,
+    "pending": false,
+    "resources": {
+      "engine": "DIRECT",
+      "words": "77/128",
+      "token-bytes": 312,
+      "direct-bytes": 947,
+      "data-bytes": 24,
+      "source-bytes": 281,
+      "data-peak": 2,
+      "return-peak": 0
+    }
+  },
+  "boot_status": {
+    "output": "BOOT-STATUS\r\nboot confirmed A candidate NONE state CLEAN current A generation 7\r\n\r\nok\r\nvios> ",
+    "ok": true,
+    "compiling": false,
+    "pending": false,
+    "boot": {
+      "confirmed": "A",
+      "candidate": "NONE",
+      "state": "CLEAN",
+      "current": "A",
+      "generation": 7
+    }
+  },
+  "modules": {
+    "output": "MODULES\r\nmodule LIVE1I version 11 crc32 4203863728 bytes 33 deps 0 active 1 previous 0\r\nmodule LIVE1P version 11 crc32 2732385733 bytes 60 deps 1 active 1 previous 0\r\ndependency LIVE1P module LIVE1I crc32 4203863728\r\nmodule LIVE1D version 11 crc32 1721124452 bytes 47 deps 2 active 1 previous 0\r\ndependency LIVE1D module LIVE1I crc32 4203863728\r\ndependency LIVE1D module LIVE1P crc32 2732385733\r\n\r\nok\r\nvios> ",
+    "ok": true,
+    "compiling": false,
+    "pending": false,
+    "modules": [
+      {
+        "name": "LIVE1I",
+        "version": "11",
+        "crc32": 4203863728,
+        "bytes": 33,
+        "dependency_count": 0,
+        "active": true,
+        "previous": false,
+        "dependencies": []
+      },
+      {
+        "name": "LIVE1P",
+        "version": "11",
+        "crc32": 2732385733,
+        "bytes": 60,
+        "dependency_count": 1,
+        "active": true,
+        "previous": false,
+        "dependencies": [
+          {
+            "name": "LIVE1I",
+            "crc32": 4203863728
+          }
+        ]
+      },
+      {
+        "name": "LIVE1D",
+        "version": "11",
+        "crc32": 1721124452,
+        "bytes": 47,
+        "dependency_count": 2,
+        "active": true,
+        "previous": false,
+        "dependencies": [
+          {
+            "name": "LIVE1I",
+            "crc32": 4203863728
+          },
+          {
+            "name": "LIVE1P",
+            "crc32": 2732385733
+          }
+        ]
+      }
+    ]
+  },
+  "stacks": {
+    "output": ".S\r\n<0> \r\n\r\nok\r\nvios> ",
+    "ok": true,
+    "compiling": false,
+    "pending": false,
+    "data_stack": {
+      "depth_text": "0",
+      "values_text": []
+    }
+  },
+  "recovery_host_seconds": 36.44004049999057
+}

@@ -1,0 +1,10 @@
+{
+  "rebooted": true,
+  "forced": true,
+  "output": "boot confirmed A\r\n\r\nVIOS Forth 24 / Agon Light 2\r\nvios> @7FFDEC8F !00000000 \r\n\r\nok\r\nvios> ",
+  "ok": true,
+  "compiling": false,
+  "pending": false,
+  "connected": true,
+  "identity": "ID 0007 REV AA STAT 18"
+}

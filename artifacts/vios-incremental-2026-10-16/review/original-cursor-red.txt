@@ -1,0 +1,15 @@
+F
+======================================================================
+FAIL: test_real_workbench (test_workbench.WorkbenchTests.test_real_workbench)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/tests/test_workbench.py", line 16, in test_real_workbench
+    self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : Assertion failed: (attributes[19][26]==32&&attributes[20][26]==3), function cursor_line_shift, file workbench_native.c, line 205.
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.665s
+
+FAILED (failures=1)

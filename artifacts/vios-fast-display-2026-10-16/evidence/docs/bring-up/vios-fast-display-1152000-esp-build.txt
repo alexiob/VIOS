@@ -1,0 +1,130 @@
+Processing esp32-vios (platform: espressif32@6.3.0; board: esp32dev; framework: arduino)
+--------------------------------------------------------------------------------
+Verbose mode can be enabled via `-v, --verbose` option
+CONFIGURATION: https://docs.platformio.org/page/boards/espressif32/esp32dev.html
+PLATFORM: Espressif 32 (6.3.0) > Espressif ESP32 Dev Module
+HARDWARE: ESP32 240MHz, 320KB RAM, 1.25MB Flash
+DEBUG: Current (cmsis-dap) External (cmsis-dap, esp-bridge, esp-prog, iot-bus-jtag, jlink, minimodule, olimex-arm-usb-ocd, olimex-arm-usb-ocd-h, olimex-arm-usb-tiny-h, olimex-jtag-tiny, tumpa)
+PACKAGES: 
+ - framework-arduinoespressif32 @ 3.20009.0 (2.0.9) 
+ - tool-esptoolpy @ 1.40501.0 (4.5.1) 
+ - toolchain-xtensa-esp32 @ 8.4.0+2021r2-patch5
+Converting video.ino
+LDF: Library Dependency Finder -> https://bit.ly/configure-pio-ldf
+LDF Modes: Finder ~ chain, Compatibility ~ soft
+Found 36 compatible libraries
+Scanning dependencies...
+Dependency Graph
+|-- ESP32Time @ 2.0.0
+|-- WiFi @ 2.0.0
+|-- vdp-gl @ 1.0.3
+|-- vios-wire @ 1.0.0
+Building in release mode
+Compiling .pio/build/esp32-vios/src/video.ino.cpp.o
+Compiling .pio/build/esp32-vios/lib27f/ESP32Time/ESP32Time.cpp.o
+Compiling .pio/build/esp32-vios/lib924/WiFi/WiFi.cpp.o
+Compiling .pio/build/esp32-vios/lib924/WiFi/WiFiAP.cpp.o
+Compiling .pio/build/esp32-vios/lib924/WiFi/WiFiClient.cpp.o
+Compiling .pio/build/esp32-vios/lib924/WiFi/WiFiGeneric.cpp.o
+Compiling .pio/build/esp32-vios/lib924/WiFi/WiFiMulti.cpp.o
+Compiling .pio/build/esp32-vios/lib924/WiFi/WiFiSTA.cpp.o
+Compiling .pio/build/esp32-vios/lib924/WiFi/WiFiScan.cpp.o
+Compiling .pio/build/esp32-vios/lib924/WiFi/WiFiServer.cpp.o
+Compiling .pio/build/esp32-vios/lib924/WiFi/WiFiUdp.cpp.o
+Compiling .pio/build/esp32-vios/lib996/vdp-gl/canvas.cpp.o
+Compiling .pio/build/esp32-vios/lib996/vdp-gl/codepages.cpp.o
+Compiling .pio/build/esp32-vios/lib996/vdp-gl/collisiondetector.cpp.o
+Compiling .pio/build/esp32-vios/lib996/vdp-gl/comdrivers/ps2controller.cpp.o
+Compiling .pio/build/esp32-vios/lib996/vdp-gl/comdrivers/ps2device.cpp.o
+Compiling .pio/build/esp32-vios/lib996/vdp-gl/comdrivers/tsi2c.cpp.o
+Compiling .pio/build/esp32-vios/lib996/vdp-gl/devdrivers/DS3231.cpp.o
+Compiling .pio/build/esp32-vios/lib996/vdp-gl/devdrivers/MCP23S17.cpp.o
+Compiling .pio/build/esp32-vios/lib996/vdp-gl/devdrivers/cvbsgenerator.cpp.o
+Compiling .pio/build/esp32-vios/lib996/vdp-gl/devdrivers/kbdlayouts.cpp.o
+Compiling .pio/build/esp32-vios/lib996/vdp-gl/devdrivers/keyboard.cpp.o
+Compiling .pio/build/esp32-vios/lib996/vdp-gl/devdrivers/mouse.cpp.o
+Compiling .pio/build/esp32-vios/lib996/vdp-gl/devdrivers/soundgen.cpp.o
+Compiling .pio/build/esp32-vios/lib996/vdp-gl/devdrivers/swgenerator.cpp.o
+Compiling .pio/build/esp32-vios/lib996/vdp-gl/dispdrivers/vga16controller.cpp.o
+Compiling .pio/build/esp32-vios/lib996/vdp-gl/dispdrivers/vga2controller.cpp.o
+Compiling .pio/build/esp32-vios/lib996/vdp-gl/dispdrivers/vga4controller.cpp.o
+Compiling .pio/build/esp32-vios/lib996/vdp-gl/dispdrivers/vga8controller.cpp.o
+Compiling .pio/build/esp32-vios/lib996/vdp-gl/dispdrivers/vgabasecontroller.cpp.o
+Compiling .pio/build/esp32-vios/lib996/vdp-gl/dispdrivers/vgacontroller.cpp.o
+Compiling .pio/build/esp32-vios/lib996/vdp-gl/dispdrivers/vgapalettedcontroller.cpp.o
+Compiling .pio/build/esp32-vios/lib996/vdp-gl/dispdrivers/vgatextcontroller.cpp.o
+Compiling .pio/build/esp32-vios/lib996/vdp-gl/displaycontroller.cpp.o
+Compiling .pio/build/esp32-vios/lib996/vdp-gl/fabfonts.cpp.o
+Compiling .pio/build/esp32-vios/lib996/vdp-gl/fabutils.cpp.o
+Compiling .pio/build/esp32-vios/lib996/vdp-gl/network/ICMP.cpp.o
+Compiling .pio/build/esp32-vios/lib996/vdp-gl/scene.cpp.o
+Compiling .pio/build/esp32-vios/lib996/vdp-gl/terminal.cpp.o
+Compiling .pio/build/esp32-vios/lib996/vdp-gl/terminfo.cpp.o
+Compiling .pio/build/esp32-vios/lib996/vdp-gl/ulp_macro_ex.cpp.o
+Compiling .pio/build/esp32-vios/libc00/vios-wire/wire.c.o
+Compiling .pio/build/esp32-vios/FrameworkArduino/Esp.cpp.o
+Compiling .pio/build/esp32-vios/FrameworkArduino/FirmwareMSC.cpp.o
+Compiling .pio/build/esp32-vios/FrameworkArduino/FunctionalInterrupt.cpp.o
+Compiling .pio/build/esp32-vios/FrameworkArduino/HWCDC.cpp.o
+Compiling .pio/build/esp32-vios/FrameworkArduino/HardwareSerial.cpp.o
+Compiling .pio/build/esp32-vios/FrameworkArduino/IPAddress.cpp.o
+Compiling .pio/build/esp32-vios/FrameworkArduino/IPv6Address.cpp.o
+Compiling .pio/build/esp32-vios/FrameworkArduino/MD5Builder.cpp.o
+Compiling .pio/build/esp32-vios/FrameworkArduino/Print.cpp.o
+Compiling .pio/build/esp32-vios/FrameworkArduino/Stream.cpp.o
+Compiling .pio/build/esp32-vios/FrameworkArduino/StreamString.cpp.o
+Compiling .pio/build/esp32-vios/FrameworkArduino/Tone.cpp.o
+Compiling .pio/build/esp32-vios/FrameworkArduino/USB.cpp.o
+Compiling .pio/build/esp32-vios/FrameworkArduino/USBCDC.cpp.o
+Compiling .pio/build/esp32-vios/FrameworkArduino/USBMSC.cpp.o
+Compiling .pio/build/esp32-vios/FrameworkArduino/WMath.cpp.o
+Compiling .pio/build/esp32-vios/FrameworkArduino/WString.cpp.o
+Compiling .pio/build/esp32-vios/FrameworkArduino/base64.cpp.o
+Compiling .pio/build/esp32-vios/FrameworkArduino/cbuf.cpp.o
+Compiling .pio/build/esp32-vios/FrameworkArduino/esp32-hal-adc.c.o
+Compiling .pio/build/esp32-vios/FrameworkArduino/esp32-hal-bt.c.o
+Compiling .pio/build/esp32-vios/FrameworkArduino/esp32-hal-cpu.c.o
+Compiling .pio/build/esp32-vios/FrameworkArduino/esp32-hal-dac.c.o
+Compiling .pio/build/esp32-vios/FrameworkArduino/esp32-hal-gpio.c.o
+Compiling .pio/build/esp32-vios/FrameworkArduino/esp32-hal-i2c-slave.c.o
+Compiling .pio/build/esp32-vios/FrameworkArduino/esp32-hal-i2c.c.o
+Compiling .pio/build/esp32-vios/FrameworkArduino/esp32-hal-ledc.c.o
+Compiling .pio/build/esp32-vios/FrameworkArduino/esp32-hal-matrix.c.o
+Compiling .pio/build/esp32-vios/FrameworkArduino/esp32-hal-misc.c.o
+Compiling .pio/build/esp32-vios/FrameworkArduino/esp32-hal-psram.c.o
+Compiling .pio/build/esp32-vios/FrameworkArduino/esp32-hal-rgb-led.c.o
+Compiling .pio/build/esp32-vios/FrameworkArduino/esp32-hal-rmt.c.o
+Compiling .pio/build/esp32-vios/FrameworkArduino/esp32-hal-sigmadelta.c.o
+Compiling .pio/build/esp32-vios/FrameworkArduino/esp32-hal-spi.c.o
+Compiling .pio/build/esp32-vios/FrameworkArduino/esp32-hal-time.c.o
+Compiling .pio/build/esp32-vios/FrameworkArduino/esp32-hal-timer.c.o
+Compiling .pio/build/esp32-vios/FrameworkArduino/esp32-hal-tinyusb.c.o
+Compiling .pio/build/esp32-vios/FrameworkArduino/esp32-hal-touch.c.o
+Compiling .pio/build/esp32-vios/FrameworkArduino/esp32-hal-uart.c.o
+Compiling .pio/build/esp32-vios/FrameworkArduino/firmware_msc_fat.c.o
+Compiling .pio/build/esp32-vios/FrameworkArduino/libb64/cdecode.c.o
+Compiling .pio/build/esp32-vios/FrameworkArduino/libb64/cencode.c.o
+Compiling .pio/build/esp32-vios/FrameworkArduino/main.cpp.o
+Compiling .pio/build/esp32-vios/FrameworkArduino/stdlib_noniso.c.o
+Compiling .pio/build/esp32-vios/FrameworkArduino/wiring_pulse.c.o
+Compiling .pio/build/esp32-vios/FrameworkArduino/wiring_shift.c.o
+Archiving .pio/build/esp32-vios/libFrameworkArduino.a
+Indexing .pio/build/esp32-vios/libFrameworkArduino.a
+Linking .pio/build/esp32-vios/firmware.elf
+Retrieving maximum program size .pio/build/esp32-vios/firmware.elf
+Checking size .pio/build/esp32-vios/firmware.elf
+Advanced Memory Usage is available via "PlatformIO Home > Project Inspect"
+RAM:   [=         ]  11.6% (used 37948 bytes from 327680 bytes)
+Flash: [=====     ]  51.1% (used 669205 bytes from 1310720 bytes)
+Building .pio/build/esp32-vios/firmware.bin
+esptool.py v4.5.1
+Creating esp32 image...
+Merged 2 ELF sections
+Successfully created esp32 image.
+write_manifest([".pio/build/esp32-vios/firmware.bin"], [".pio/build/esp32-vios/firmware.elf"])
+========================= [SUCCESS] Took 7.17 seconds =========================
+
+Environment    Status    Duration
+-------------  --------  ------------
+esp32-vios     SUCCESS   00:00:07.167
+========================= 1 succeeded in 00:00:07.167 =========================

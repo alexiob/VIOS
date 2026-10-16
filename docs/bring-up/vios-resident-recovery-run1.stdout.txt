@@ -1,0 +1,58 @@
+{"checkpoint": "attach-idle-resident-no-image-upload", "status": "running"}
+{"checkpoint": "attach-idle-resident-no-image-upload", "status": "passed", "elapsed_ms": 35920.15}
+{"checkpoint": "require-empty-stack", "status": "running"}
+{"checkpoint": "require-empty-stack", "status": "passed", "elapsed_ms": 29.83}
+{"checkpoint": "record-clean-confirmed-sd-selection", "status": "running"}
+{"checkpoint": "record-clean-confirmed-sd-selection", "status": "passed", "elapsed_ms": 344.678}
+{"checkpoint": "key-define-transient-marker", "status": "running"}
+{"checkpoint": "key-define-transient-marker", "status": "passed", "elapsed_ms": 37.759}
+{"checkpoint": "key-execution-pending", "status": "running"}
+{"checkpoint": "key-execution-pending", "status": "passed", "elapsed_ms": 2023.917}
+{"checkpoint": "key-explicit-force-z", "status": "running"}
+{"checkpoint": "key-explicit-force-z", "status": "passed", "elapsed_ms": 35930.423}
+{"checkpoint": "key-transient-marker-absent", "status": "running"}
+{"checkpoint": "key-transient-marker-absent", "status": "passed", "elapsed_ms": 40.024}
+{"checkpoint": "key-fresh-vm-42", "status": "running"}
+{"checkpoint": "key-fresh-vm-42", "status": "passed", "elapsed_ms": 34.148}
+{"checkpoint": "key-confirmed-sd-unchanged", "status": "running"}
+{"checkpoint": "key-confirmed-sd-unchanged", "status": "passed", "elapsed_ms": 343.316}
+{"checkpoint": "gpu-define-transient-marker", "status": "running"}
+{"checkpoint": "gpu-define-transient-marker", "status": "passed", "elapsed_ms": 38.944}
+{"checkpoint": "gpu-store-self-jump-complete-ack", "status": "running"}
+{"checkpoint": "gpu-store-self-jump-complete-ack", "status": "passed", "elapsed_ms": 78.114}
+{"checkpoint": "gpu-self-jump-execution-pending", "status": "running"}
+{"checkpoint": "gpu-self-jump-execution-pending", "status": "passed", "elapsed_ms": 2065.424}
+{"checkpoint": "gpu-independent-boot-and-identity", "status": "running"}
+{"checkpoint": "gpu-independent-boot-and-identity", "status": "passed", "elapsed_ms": 17.492}
+{"checkpoint": "gpu-halt-register-and-header-diagnostic", "status": "running"}
+{"checkpoint": "gpu-halt-register-and-header-diagnostic", "status": "passed", "elapsed_ms": 61.642}
+{"checkpoint": "gpu-explicit-force-z", "status": "running"}
+{"checkpoint": "gpu-explicit-force-z", "status": "passed", "elapsed_ms": 35958.879}
+{"checkpoint": "gpu-transient-marker-absent", "status": "running"}
+{"checkpoint": "gpu-transient-marker-absent", "status": "passed", "elapsed_ms": 40.867}
+{"checkpoint": "gpu-fresh-vm-42", "status": "running"}
+{"checkpoint": "gpu-fresh-vm-42", "status": "passed", "elapsed_ms": 33.943}
+{"checkpoint": "gpu-confirmed-sd-unchanged", "status": "running"}
+{"checkpoint": "gpu-confirmed-sd-unchanged", "status": "passed", "elapsed_ms": 342.346}
+{"checkpoint": "watchdog-define-transient-marker", "status": "running"}
+{"checkpoint": "watchdog-define-transient-marker", "status": "passed", "elapsed_ms": 38.456}
+{"checkpoint": "watchdog-arm-complete-ack", "status": "running"}
+{"checkpoint": "watchdog-arm-complete-ack", "status": "passed", "elapsed_ms": 44.933}
+{"checkpoint": "watchdog-reset-events", "status": "running"}
+{"checkpoint": "watchdog-wait", "elapsed_seconds": 5.0}
+{"checkpoint": "watchdog-wait", "elapsed_seconds": 10.1}
+{"checkpoint": "watchdog-wait", "elapsed_seconds": 15.2}
+{"checkpoint": "watchdog-wait", "elapsed_seconds": 20.3}
+{"checkpoint": "watchdog-wait", "elapsed_seconds": 25.3}
+{"checkpoint": "watchdog-wait", "elapsed_seconds": 30.4}
+{"checkpoint": "watchdog-wait", "elapsed_seconds": 35.4}
+{"checkpoint": "watchdog-reset-events", "status": "passed", "elapsed_ms": 35393.729}
+{"checkpoint": "watchdog-reattach-fresh-wrapper-no-z", "status": "running"}
+{"checkpoint": "watchdog-reattach-fresh-wrapper-no-z", "status": "passed", "elapsed_ms": 30513.888}
+{"checkpoint": "watchdog-transient-marker-absent", "status": "running"}
+{"checkpoint": "watchdog-transient-marker-absent", "status": "passed", "elapsed_ms": 40.449}
+{"checkpoint": "watchdog-fresh-vm-42", "status": "running"}
+{"checkpoint": "watchdog-fresh-vm-42", "status": "passed", "elapsed_ms": 34.668}
+{"checkpoint": "watchdog-confirmed-sd-unchanged", "status": "running"}
+{"checkpoint": "watchdog-confirmed-sd-unchanged", "status": "passed", "elapsed_ms": 343.011}
+{"report": "docs/bring-up/vios-resident-recovery-run1.json", "status": "passed"}

@@ -1,0 +1,54 @@
+{
+  "wait": {
+    "output": "@28502546 !CB379FC4 KEY . CR\r\n",
+    "ok": false,
+    "pending": true,
+    "compiling": false,
+    "remaining_source": "",
+    "error": "Evaluation still pending; use console_input for KEY, then await_result"
+  },
+  "input": {
+    "sent": 1,
+    "pending": true
+  },
+  "completion": {
+    "output": "KEY . CR\r\n65 \r\n\r\nok\r\nvios> ",
+    "ok": true,
+    "compiling": false,
+    "pending": false
+  },
+  "status": {
+    "output": "WB-STATUS\r\nWB-STATUS revision 2 catalog 154 open 1 draft 1 dirty 0 staged 0 active 1 saved 1 length 1969 cursor 0 selection 3 browser 0 focus 0 words 81 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> ",
+    "ok": true,
+    "compiling": false,
+    "pending": false,
+    "workbench": {
+      "revision": 2,
+      "catalog": 154,
+      "open": true,
+      "draft": true,
+      "dirty": false,
+      "staged": false,
+      "active": true,
+      "saved": true,
+      "length": 1969,
+      "cursor": 0,
+      "selection": 3,
+      "browser": 0,
+      "focus": 0,
+      "words": 81,
+      "words_max": 512,
+      "module": "WBM1P",
+      "version": "1.0",
+      "test": "",
+      "error": ""
+    }
+  },
+  "vdp": {
+    "output": "VDP-INFO\r\nvdp width 640 height 480 colours 4 mode 1 console-dropped 0\r\n\r\nok\r\nvios> ",
+    "ok": true,
+    "compiling": false,
+    "pending": false
+  },
+  "status_result": "passed"
+}

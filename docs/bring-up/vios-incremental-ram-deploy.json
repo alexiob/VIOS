@@ -1,0 +1,6 @@
+{
+  "identity": "ID 0007 REV AA STAT 98",
+  "mapping": "CS0 04 0B 08 01",
+  "readback_sha256": "f0178261821aa43ce7107a096bacd4be118496d4f58393048a4c23f5e3f5d702",
+  "boot": "GO 040000 USB/UART bridge 115200\r\nboot confirmed A\r\n\r\nVIOS Forth 24 / Agon Light 2\r\nvios> "
+}

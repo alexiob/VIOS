@@ -1,0 +1,3192 @@
+{
+  "transport": "tcp",
+  "fast_console": true,
+  "passed": true,
+  "deploy": {
+    "identity": "ID 0007 REV AA STAT 18",
+    "mapping": "CS0 00 0B 08 01",
+    "readback_sha256": "6b2e03cacdf82083795b09a36584b39c23d0f8a0f40f3e18f0b45e7568dade7d",
+    "boot": "GO 040000 USB/UART bridge 115200\r\n\r\nVIOS Forth 24 / Agon Light 2\r\nvios> "
+  },
+  "latency": {
+    "evaluate": {
+      "samples_ms": [
+        13.048624998191372,
+        12.314374995185062,
+        12.493832997279242,
+        12.589583988301456,
+        12.838833004934713,
+        12.601417023688555,
+        12.756749987602234,
+        12.355291983112693,
+        12.58008400327526
+      ],
+      "median_ms": 12.589583988301456
+    },
+    "inspect_word": {
+      "samples_ms": [
+        23.764709010720253,
+        24.218833015765995,
+        23.81108299596235,
+        24.009417014895007,
+        24.2442500020843,
+        23.556875006761402,
+        24.662042007548735,
+        24.06216601957567,
+        23.809207981685176
+      ],
+      "median_ms": 24.009417014895007
+    },
+    "resources": {
+      "samples_ms": [
+        22.611208987655118,
+        22.502083011204377,
+        22.970707999775186,
+        22.835917014162987,
+        23.3567499963101,
+        23.040000000037253,
+        23.083209001924843,
+        23.273250000784174,
+        22.23954099463299
+      ],
+      "median_ms": 22.970707999775186
+    }
+  },
+  "events": [
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "initialize",
+        "params": {
+          "protocolVersion": "2025-11-25",
+          "capabilities": {},
+          "clientInfo": {
+            "name": "vios-real-hardware-check",
+            "version": "1"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "result": {
+          "protocolVersion": "2025-11-25",
+          "capabilities": {
+            "tools": {}
+          },
+          "serverInfo": {
+            "name": "vios-harness",
+            "version": "0.1.0"
+          },
+          "instructions": "Call deploy explicitly once; one board session persists across tools. Source uses printable ASCII lines <=245 bytes. After timeout, use console_input for KEY and await_result; no new source is queued."
+        }
+      },
+      "milliseconds": 0.21187501261010766
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 2,
+        "method": "tools/list",
+        "params": {}
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 2,
+        "result": {
+          "tools": [
+            {
+              "name": "deploy",
+              "description": "Explicitly load the ESP32 RAM bridge and readback-verify VIOS RAM; resets VIOS state.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "additionalProperties": false
+              }
+            },
+            {
+              "name": "evaluate",
+              "description": "Evaluate bounded ASCII Forth lines, preserving definitions/stacks and multiline compilation.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "source": {
+                    "type": "string",
+                    "maxLength": 65536
+                  },
+                  "timeout": {
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "maximum": 300
+                  }
+                },
+                "required": [
+                  "source"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "name": "await_result",
+              "description": "Wait for a timed-out evaluation to complete without queuing source or nonce input.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "timeout": {
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "maximum": 300
+                  }
+                },
+                "required": [],
+                "additionalProperties": false
+              }
+            },
+            {
+              "name": "console_input",
+              "description": "Send 1..16 explicit bytes to a pending evaluation, for example a Forth KEY.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "hex": {
+                    "type": "string",
+                    "pattern": "^(?:[0-9a-fA-F]{2}){1,16}$"
+                  }
+                },
+                "required": [
+                  "hex"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "name": "words",
+              "description": "List the resident dictionary.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "additionalProperties": false
+              }
+            },
+            {
+              "name": "inspect_word",
+              "description": "Read SEE source and word/address metadata.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 31
+                  }
+                },
+                "required": [
+                  "name"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "name": "stacks",
+              "description": "Inspect the data stack using .S.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "additionalProperties": false
+              }
+            },
+            {
+              "name": "resources",
+              "description": "Inspect dictionary and observed VM resources.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "additionalProperties": false
+              }
+            },
+            {
+              "name": "benchmark",
+              "description": "Run validated hardware benchmarks; may take up to 120 seconds.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "additionalProperties": false
+              }
+            },
+            {
+              "name": "abort",
+              "description": "Cancel input/current definition at the idle REPL. Pending KEY/wedges require console input or debug/redeploy.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "additionalProperties": false
+              }
+            },
+            {
+              "name": "debug_registers",
+              "description": "Briefly debug-pause to read CPU registers, preserving prior pause state.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "additionalProperties": false
+              }
+            },
+            {
+              "name": "memory_read",
+              "description": "Read 1..65536 RAM bytes from 0x40000..0xBFFFF with debug CRC checking.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "address": {
+                    "type": "integer",
+                    "minimum": 262144,
+                    "maximum": 786431
+                  },
+                  "count": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 65536
+                  }
+                },
+                "required": [
+                  "address"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "name": "memory_write",
+              "description": "Write and readback-verify 1..256 RAM bytes below 0xAF000. Trusted systems operation.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "address": {
+                    "type": "integer",
+                    "minimum": 262144,
+                    "maximum": 716799
+                  },
+                  "hex": {
+                    "type": "string",
+                    "pattern": "^(?:[0-9a-fA-F]{2}){1,256}$"
+                  }
+                },
+                "required": [
+                  "address",
+                  "hex"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "name": "resume",
+              "description": "Resume existing CPU PC/UART bridge after a debug pause; does not reboot.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "additionalProperties": false
+              }
+            }
+          ]
+        }
+      },
+      "milliseconds": 0.3844590100925416
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 3,
+        "method": "tools/call",
+        "params": {
+          "name": "deploy",
+          "arguments": {}
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 3,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"identity\": \"ID 0007 REV AA STAT 18\", \"mapping\": \"CS0 00 0B 08 01\", \"readback_sha256\": \"6b2e03cacdf82083795b09a36584b39c23d0f8a0f40f3e18f0b45e7568dade7d\", \"boot\": \"GO 040000 USB/UART bridge 115200\\r\\n\\r\\nVIOS Forth 24 / Agon Light 2\\r\\nvios> \"}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 13543.895582988625
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 4,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": ": HARNESS-SQUARE DUP * ;"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 4,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \": HARNESS-SQUARE DUP * ;\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 12.85916700726375
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 5,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "9 HARNESS-SQUARE ."
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 5,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"9 HARNESS-SQUARE .\\r\\n81 \\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 12.727541994536296
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 6,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "HEX A"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 6,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"HEX A\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 11.587290995521471
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 7,
+        "method": "tools/call",
+        "params": {
+          "name": "inspect_word",
+          "arguments": {
+            "name": "HARNESS-SQUARE"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 7,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"SEE HARNESS-SQUARE\\r\\n: HARNESS-SQUARE DUP * ; \\r\\nword HARNESS-SQUARE xt 46 kind 1 token 289186 direct 305954 token-bytes 3 direct-bytes 13\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false, \"word\": {\"name\": \"HARNESS-SQUARE\", \"xt\": 46, \"kind\": 1, \"token\": 289186, \"direct\": 305954, \"token-bytes\": 3, \"direct-bytes\": 13}}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 23.535917018307373
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 8,
+        "method": "tools/call",
+        "params": {
+          "name": "resources",
+          "arguments": {}
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 8,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"RESOURCES\\r\\nengine DIRECT words 46/128 token-bytes 141 direct-bytes 535 data-bytes 3 source-bytes 198 data-peak 2 return-peak 0\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false, \"resources\": {\"engine\": \"DIRECT\", \"words\": \"46/128\", \"token-bytes\": 141, \"direct-bytes\": 535, \"data-bytes\": 3, \"source-bytes\": 198, \"data-peak\": 2, \"return-peak\": 0}}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 22.75358300539665
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 9,
+        "method": "tools/call",
+        "params": {
+          "name": "stacks",
+          "arguments": {}
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 9,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \".S\\r\\n<1> A \\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false, \"data_stack\": {\"depth_text\": \"1\", \"values_text\": [\"A\"]}}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 13.63708300050348
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 10,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": ". DECIMAL"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 10,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \". DECIMAL\\r\\nA \\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 12.208542000735179
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 11,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": ": MULTI-HARNESS\n7 8 +"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 11,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \": MULTI-HARNESS\\r\\n\\r\\nok\\r\\ncompile> 7 8 +\\r\\n\\r\\nok\\r\\ncompile> \", \"ok\": true, \"compiling\": true, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 24.65099998516962
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 12,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": ";\nMULTI-HARNESS ."
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 12,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \";\\r\\n\\r\\nok\\r\\nvios> MULTI-HARNESS .\\r\\n15 \\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 24.46870901621878
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 13,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "DEFER SERVICE\n' HARNESS-SQUARE IS SERVICE\n: CLIENT SERVICE ;\n3 CLIENT ."
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 13,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"DEFER SERVICE\\r\\n\\r\\nok\\r\\nvios> ' HARNESS-SQUARE IS SERVICE\\r\\n\\r\\nok\\r\\nvios> : CLIENT SERVICE ;\\r\\n\\r\\nok\\r\\nvios> 3 CLIENT .\\r\\n9 \\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 52.06216700025834
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 14,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "' MULTI-HARNESS IS SERVICE\nCLIENT ."
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 14,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"' MULTI-HARNESS IS SERVICE\\r\\n\\r\\nok\\r\\nvios> CLIENT .\\r\\n15 \\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 26.829374983208254
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 15,
+        "method": "tools/call",
+        "params": {
+          "name": "words",
+          "arguments": {}
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 15,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"WORDS\\r\\n DUP DROP SWAP OVER + - * / MOD AND OR XOR INVERT = < U< 0= @ ! C@ C! EMIT . CR KEY >R R> R@ I EXECUTE LSHIFT RSHIFT DEPTH BASE 1+ 1- NEGATE 2DUP 2DROP CELLS CELL+ TRUE FALSE HEX DECIMAL HARNESS-SQUARE MULTI-HARNESS SERVICE CLIENT \\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false, \"words\": [\"DUP\", \"DROP\", \"SWAP\", \"OVER\", \"+\", \"-\", \"*\", \"/\", \"MOD\", \"AND\", \"OR\", \"XOR\", \"INVERT\", \"=\", \"<\", \"U<\", \"0=\", \"@\", \"!\", \"C@\", \"C!\", \"EMIT\", \".\", \"CR\", \"KEY\", \">R\", \"R>\", \"R@\", \"I\", \"EXECUTE\", \"LSHIFT\", \"RSHIFT\", \"DEPTH\", \"BASE\", \"1+\", \"1-\", \"NEGATE\", \"2DUP\", \"2DROP\", \"CELLS\", \"CELL+\", \"TRUE\", \"FALSE\", \"HEX\", \"DECIMAL\", \"HARNESS-SQUARE\", \"MULTI-HARNESS\", \"SERVICE\", \"CLIENT\"]}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 32.84079200238921
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 16,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "NO-SUCH-HARNESS-WORD"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 16,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"NO-SUCH-HARNESS-WORD\\r\\nerror: unknown word: NO-SUCH-HARNESS-WORD\\r\\n\\r\\nerror\\r\\nvios> \", \"ok\": false, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": true
+        }
+      },
+      "milliseconds": 17.547583003761247
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 17,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 17,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 12.399915984133258
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 18,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": ": DISCARDED 1"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 18,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \": DISCARDED 1\\r\\n\\r\\nok\\r\\ncompile> \", \"ok\": true, \"compiling\": true, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 13.179250003304332
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 19,
+        "method": "tools/call",
+        "params": {
+          "name": "abort",
+          "arguments": {}
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 19,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"\\r\\naborted\\r\\nvios> @6B508A4A \\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 11.108666978543624
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 20,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "2 3 + ."
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 20,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"2 3 + .\\r\\n5 \\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 12.518624978838488
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 21,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "KEY .",
+            "timeout": 0.2
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 21,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"@16B4828E KEY .\\r\\n\", \"ok\": false, \"pending\": true, \"compiling\": false, \"remaining_source\": \"\", \"error\": \"Evaluation still pending; use console_input for KEY, then await_result\"}"
+            }
+          ],
+          "isError": true
+        }
+      },
+      "milliseconds": 213.57008299673907
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 22,
+        "method": "tools/call",
+        "params": {
+          "name": "console_input",
+          "arguments": {
+            "hex": "41"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 22,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"sent\": 1, \"pending\": true}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 1.5534160193055868
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 23,
+        "method": "tools/call",
+        "params": {
+          "name": "await_result",
+          "arguments": {}
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 23,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"KEY .\\r\\n65 \\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 4.202125011943281
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 24,
+        "method": "tools/call",
+        "params": {
+          "name": "debug_registers",
+          "arguments": {}
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 24,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"status\": 152, \"registers\": {\"af\": 33280, \"bc\": 0, \"de\": 16777215, \"hl\": 16777215, \"ix\": 720890, \"iy\": 720610, \"sp\": 720598, \"pc\": 269857}, \"raw\": \"REGS 98 008200 000000 FFFFFF FFFFFF 0AFFFA 0AFEE2 0AFED6 041E21\"}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 19.618082995293662
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 25,
+        "method": "tools/call",
+        "params": {
+          "name": "memory_read",
+          "arguments": {
+            "address": 524288,
+            "count": 8
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 25,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"address\": 524288, \"count\": 8, \"hex\": \"00ca44019f26efe9\", \"crc32\": \"7d350039\"}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 21.202208008617163
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 26,
+        "method": "tools/call",
+        "params": {
+          "name": "memory_write",
+          "arguments": {
+            "address": 524288,
+            "hex": "0123456789abcdef"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 26,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"address\": 524288, \"count\": 8, \"verified\": true, \"crc32\": \"28c7d1ae\"}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 31.91175000392832
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 27,
+        "method": "tools/call",
+        "params": {
+          "name": "memory_read",
+          "arguments": {
+            "address": 524288,
+            "count": 8
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 27,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"address\": 524288, \"count\": 8, \"hex\": \"0123456789abcdef\", \"crc32\": \"28c7d1ae\"}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 21.715416020015255
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 28,
+        "method": "tools/call",
+        "params": {
+          "name": "memory_write",
+          "arguments": {
+            "address": 524288,
+            "hex": "00ca44019f26efe9"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 28,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"address\": 524288, \"count\": 8, \"verified\": true, \"crc32\": \"7d350039\"}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 35.269874992081895
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 29,
+        "method": "tools/call",
+        "params": {
+          "name": "memory_read",
+          "arguments": {
+            "address": 786431,
+            "count": 2
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 29,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "Requested range is outside permitted RAM"
+            }
+          ],
+          "isError": true
+        }
+      },
+      "milliseconds": 0.5212079850025475
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 30,
+        "method": "tools/call",
+        "params": {
+          "name": "resume",
+          "arguments": {}
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 30,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"paused\": false, \"compiling\": false, \"synchronized\": true}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 0.47016600728966296
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 31,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "11 HARNESS-SQUARE ."
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 31,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"11 HARNESS-SQUARE .\\r\\n121 \\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 14.073667000047863
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 32,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                                           1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 32,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                                           1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 34.46454199729487
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 33,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                                           1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 33,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                                           1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 34.504457988077775
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 34,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                                           1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 34,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                                           1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 34.19454098911956
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 35,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                                           1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 35,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                                           1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 34.267582988832146
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 36,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                                           1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 36,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                                           1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 33.88295799959451
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 37,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                                           1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 37,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                                           1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 33.92470898688771
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 38,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                                           1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 38,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                                           1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 33.80295800161548
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 39,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                                           1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 39,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                                           1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 46.05862501193769
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 40,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                                           1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 40,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                                           1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 32.63337499811314
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 41,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                                           1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 41,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                                           1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 33.009667007718235
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 42,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                                           1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 42,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                                           1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 33.37316701072268
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 43,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                                           1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 43,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                                           1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 33.709707990055904
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 44,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                                           1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 44,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                                           1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 34.293292002985254
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 45,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                                           1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 45,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                                           1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 35.09708298952319
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 46,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                                           1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 46,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                                           1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 33.610832993872464
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 47,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                                           1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 47,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                                           1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 33.518665994051844
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 48,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                                           1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 48,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                                           1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 34.26737498375587
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 49,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                                           1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 49,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                                           1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 33.33779101376422
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 50,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                                           1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 50,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                                           1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 33.07991600013338
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 51,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                                           1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 51,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                                           1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 33.10783300548792
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 52,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                                           1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 52,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                                           1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 33.32483398844488
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 53,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                                           1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 53,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                                           1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 33.41525001451373
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 54,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                                           1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 54,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                                           1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 33.61049998784438
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 55,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                                           1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 55,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                                           1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 33.58416701667011
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 56,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                                           1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 56,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                                           1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 33.68687501642853
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 57,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                                           1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 57,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                                           1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 33.491792011773214
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 58,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                                           1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 58,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                                           1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 33.2686250039842
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 59,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                                           1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 59,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                                           1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 33.55408299830742
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 60,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                                           1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 60,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                                           1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 34.11758301081136
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 61,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                                           1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 61,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                                           1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 33.4887090139091
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 62,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                                           1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 62,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                                           1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 33.56466701370664
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 63,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                                           1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 63,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                                           1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 33.75329199479893
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 64,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                                           1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 64,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                                           1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 33.963374997256324
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 65,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                                           1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 65,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                                           1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 34.520375018473715
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 66,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                                           1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 66,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                                           1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 34.395875001791865
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 67,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                                           1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 67,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                                           1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 35.00012500444427
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 68,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                                           1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 68,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                                           1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 34.293416974833235
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 69,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                                           1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 69,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                                           1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 33.1095409928821
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 70,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                                           1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 70,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                                           1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 32.302417006576434
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 71,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                                           1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 71,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                                           1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 32.68004200072028
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 72,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                                           1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 72,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                                           1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 32.76191701297648
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 73,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                                           1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 73,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                                           1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 33.837750001112
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 74,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                                           1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 74,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                                           1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 33.95837501739152
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 75,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                                           1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 75,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                                           1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 33.996791986282915
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 76,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                                           1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 76,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                                           1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 33.778834011172876
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 77,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                                           1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 77,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                                           1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 34.13612500298768
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 78,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                                           1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 78,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                                           1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 33.76787499291822
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 79,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                                           1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 79,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                                           1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 34.73441701498814
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 80,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                                           1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 80,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                                           1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 35.283333010738716
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 81,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                                           1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 81,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                                           1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 33.33841700805351
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 82,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "                                                                                                                                                                                                                              : FAST-STRESS 17 19 + ;"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 82,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"                                                                                                                                                                                                                              : FAST-STRESS 17 19 + ;\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 33.42941700248048
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 83,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "FAST-STRESS ."
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 83,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"FAST-STRESS .\\r\\n36 \\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 13.241417007520795
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 84,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 84,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 13.048624998191372
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 85,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 85,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 12.314374995185062
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 86,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 86,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 12.493832997279242
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 87,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 87,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 12.589583988301456
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 88,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 88,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 12.838833004934713
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 89,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 89,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 12.601417023688555
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 90,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 90,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 12.756749987602234
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 91,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 91,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 12.355291983112693
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 92,
+        "method": "tools/call",
+        "params": {
+          "name": "evaluate",
+          "arguments": {
+            "source": "1 2 + DROP"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 92,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"1 2 + DROP\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 12.58008400327526
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 93,
+        "method": "tools/call",
+        "params": {
+          "name": "inspect_word",
+          "arguments": {
+            "name": "HARNESS-SQUARE"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 93,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"SEE HARNESS-SQUARE\\r\\n: HARNESS-SQUARE DUP * ; \\r\\nword HARNESS-SQUARE xt 46 kind 1 token 289186 direct 305954 token-bytes 3 direct-bytes 13\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false, \"word\": {\"name\": \"HARNESS-SQUARE\", \"xt\": 46, \"kind\": 1, \"token\": 289186, \"direct\": 305954, \"token-bytes\": 3, \"direct-bytes\": 13}}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 23.764709010720253
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 94,
+        "method": "tools/call",
+        "params": {
+          "name": "inspect_word",
+          "arguments": {
+            "name": "HARNESS-SQUARE"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 94,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"SEE HARNESS-SQUARE\\r\\n: HARNESS-SQUARE DUP * ; \\r\\nword HARNESS-SQUARE xt 46 kind 1 token 289186 direct 305954 token-bytes 3 direct-bytes 13\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false, \"word\": {\"name\": \"HARNESS-SQUARE\", \"xt\": 46, \"kind\": 1, \"token\": 289186, \"direct\": 305954, \"token-bytes\": 3, \"direct-bytes\": 13}}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 24.218833015765995
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 95,
+        "method": "tools/call",
+        "params": {
+          "name": "inspect_word",
+          "arguments": {
+            "name": "HARNESS-SQUARE"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 95,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"SEE HARNESS-SQUARE\\r\\n: HARNESS-SQUARE DUP * ; \\r\\nword HARNESS-SQUARE xt 46 kind 1 token 289186 direct 305954 token-bytes 3 direct-bytes 13\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false, \"word\": {\"name\": \"HARNESS-SQUARE\", \"xt\": 46, \"kind\": 1, \"token\": 289186, \"direct\": 305954, \"token-bytes\": 3, \"direct-bytes\": 13}}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 23.81108299596235
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 96,
+        "method": "tools/call",
+        "params": {
+          "name": "inspect_word",
+          "arguments": {
+            "name": "HARNESS-SQUARE"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 96,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"SEE HARNESS-SQUARE\\r\\n: HARNESS-SQUARE DUP * ; \\r\\nword HARNESS-SQUARE xt 46 kind 1 token 289186 direct 305954 token-bytes 3 direct-bytes 13\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false, \"word\": {\"name\": \"HARNESS-SQUARE\", \"xt\": 46, \"kind\": 1, \"token\": 289186, \"direct\": 305954, \"token-bytes\": 3, \"direct-bytes\": 13}}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 24.009417014895007
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 97,
+        "method": "tools/call",
+        "params": {
+          "name": "inspect_word",
+          "arguments": {
+            "name": "HARNESS-SQUARE"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 97,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"SEE HARNESS-SQUARE\\r\\n: HARNESS-SQUARE DUP * ; \\r\\nword HARNESS-SQUARE xt 46 kind 1 token 289186 direct 305954 token-bytes 3 direct-bytes 13\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false, \"word\": {\"name\": \"HARNESS-SQUARE\", \"xt\": 46, \"kind\": 1, \"token\": 289186, \"direct\": 305954, \"token-bytes\": 3, \"direct-bytes\": 13}}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 24.2442500020843
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 98,
+        "method": "tools/call",
+        "params": {
+          "name": "inspect_word",
+          "arguments": {
+            "name": "HARNESS-SQUARE"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 98,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"SEE HARNESS-SQUARE\\r\\n: HARNESS-SQUARE DUP * ; \\r\\nword HARNESS-SQUARE xt 46 kind 1 token 289186 direct 305954 token-bytes 3 direct-bytes 13\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false, \"word\": {\"name\": \"HARNESS-SQUARE\", \"xt\": 46, \"kind\": 1, \"token\": 289186, \"direct\": 305954, \"token-bytes\": 3, \"direct-bytes\": 13}}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 23.556875006761402
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 99,
+        "method": "tools/call",
+        "params": {
+          "name": "inspect_word",
+          "arguments": {
+            "name": "HARNESS-SQUARE"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 99,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"SEE HARNESS-SQUARE\\r\\n: HARNESS-SQUARE DUP * ; \\r\\nword HARNESS-SQUARE xt 46 kind 1 token 289186 direct 305954 token-bytes 3 direct-bytes 13\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false, \"word\": {\"name\": \"HARNESS-SQUARE\", \"xt\": 46, \"kind\": 1, \"token\": 289186, \"direct\": 305954, \"token-bytes\": 3, \"direct-bytes\": 13}}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 24.662042007548735
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 100,
+        "method": "tools/call",
+        "params": {
+          "name": "inspect_word",
+          "arguments": {
+            "name": "HARNESS-SQUARE"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 100,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"SEE HARNESS-SQUARE\\r\\n: HARNESS-SQUARE DUP * ; \\r\\nword HARNESS-SQUARE xt 46 kind 1 token 289186 direct 305954 token-bytes 3 direct-bytes 13\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false, \"word\": {\"name\": \"HARNESS-SQUARE\", \"xt\": 46, \"kind\": 1, \"token\": 289186, \"direct\": 305954, \"token-bytes\": 3, \"direct-bytes\": 13}}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 24.06216601957567
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 101,
+        "method": "tools/call",
+        "params": {
+          "name": "inspect_word",
+          "arguments": {
+            "name": "HARNESS-SQUARE"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 101,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"SEE HARNESS-SQUARE\\r\\n: HARNESS-SQUARE DUP * ; \\r\\nword HARNESS-SQUARE xt 46 kind 1 token 289186 direct 305954 token-bytes 3 direct-bytes 13\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false, \"word\": {\"name\": \"HARNESS-SQUARE\", \"xt\": 46, \"kind\": 1, \"token\": 289186, \"direct\": 305954, \"token-bytes\": 3, \"direct-bytes\": 13}}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 23.809207981685176
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 102,
+        "method": "tools/call",
+        "params": {
+          "name": "resources",
+          "arguments": {}
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 102,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"RESOURCES\\r\\nengine DIRECT words 50/128 token-bytes 171 direct-bytes 602 data-bytes 6 source-bytes 265 data-peak 2 return-peak 0\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false, \"resources\": {\"engine\": \"DIRECT\", \"words\": \"50/128\", \"token-bytes\": 171, \"direct-bytes\": 602, \"data-bytes\": 6, \"source-bytes\": 265, \"data-peak\": 2, \"return-peak\": 0}}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 22.611208987655118
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 103,
+        "method": "tools/call",
+        "params": {
+          "name": "resources",
+          "arguments": {}
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 103,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"RESOURCES\\r\\nengine DIRECT words 50/128 token-bytes 171 direct-bytes 602 data-bytes 6 source-bytes 265 data-peak 2 return-peak 0\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false, \"resources\": {\"engine\": \"DIRECT\", \"words\": \"50/128\", \"token-bytes\": 171, \"direct-bytes\": 602, \"data-bytes\": 6, \"source-bytes\": 265, \"data-peak\": 2, \"return-peak\": 0}}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 22.502083011204377
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 104,
+        "method": "tools/call",
+        "params": {
+          "name": "resources",
+          "arguments": {}
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 104,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"RESOURCES\\r\\nengine DIRECT words 50/128 token-bytes 171 direct-bytes 602 data-bytes 6 source-bytes 265 data-peak 2 return-peak 0\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false, \"resources\": {\"engine\": \"DIRECT\", \"words\": \"50/128\", \"token-bytes\": 171, \"direct-bytes\": 602, \"data-bytes\": 6, \"source-bytes\": 265, \"data-peak\": 2, \"return-peak\": 0}}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 22.970707999775186
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 105,
+        "method": "tools/call",
+        "params": {
+          "name": "resources",
+          "arguments": {}
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 105,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"RESOURCES\\r\\nengine DIRECT words 50/128 token-bytes 171 direct-bytes 602 data-bytes 6 source-bytes 265 data-peak 2 return-peak 0\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false, \"resources\": {\"engine\": \"DIRECT\", \"words\": \"50/128\", \"token-bytes\": 171, \"direct-bytes\": 602, \"data-bytes\": 6, \"source-bytes\": 265, \"data-peak\": 2, \"return-peak\": 0}}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 22.835917014162987
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 106,
+        "method": "tools/call",
+        "params": {
+          "name": "resources",
+          "arguments": {}
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 106,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"RESOURCES\\r\\nengine DIRECT words 50/128 token-bytes 171 direct-bytes 602 data-bytes 6 source-bytes 265 data-peak 2 return-peak 0\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false, \"resources\": {\"engine\": \"DIRECT\", \"words\": \"50/128\", \"token-bytes\": 171, \"direct-bytes\": 602, \"data-bytes\": 6, \"source-bytes\": 265, \"data-peak\": 2, \"return-peak\": 0}}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 23.3567499963101
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 107,
+        "method": "tools/call",
+        "params": {
+          "name": "resources",
+          "arguments": {}
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 107,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"RESOURCES\\r\\nengine DIRECT words 50/128 token-bytes 171 direct-bytes 602 data-bytes 6 source-bytes 265 data-peak 2 return-peak 0\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false, \"resources\": {\"engine\": \"DIRECT\", \"words\": \"50/128\", \"token-bytes\": 171, \"direct-bytes\": 602, \"data-bytes\": 6, \"source-bytes\": 265, \"data-peak\": 2, \"return-peak\": 0}}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 23.040000000037253
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 108,
+        "method": "tools/call",
+        "params": {
+          "name": "resources",
+          "arguments": {}
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 108,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"RESOURCES\\r\\nengine DIRECT words 50/128 token-bytes 171 direct-bytes 602 data-bytes 6 source-bytes 265 data-peak 2 return-peak 0\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false, \"resources\": {\"engine\": \"DIRECT\", \"words\": \"50/128\", \"token-bytes\": 171, \"direct-bytes\": 602, \"data-bytes\": 6, \"source-bytes\": 265, \"data-peak\": 2, \"return-peak\": 0}}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 23.083209001924843
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 109,
+        "method": "tools/call",
+        "params": {
+          "name": "resources",
+          "arguments": {}
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 109,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"RESOURCES\\r\\nengine DIRECT words 50/128 token-bytes 171 direct-bytes 602 data-bytes 6 source-bytes 265 data-peak 2 return-peak 0\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false, \"resources\": {\"engine\": \"DIRECT\", \"words\": \"50/128\", \"token-bytes\": 171, \"direct-bytes\": 602, \"data-bytes\": 6, \"source-bytes\": 265, \"data-peak\": 2, \"return-peak\": 0}}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 23.273250000784174
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 110,
+        "method": "tools/call",
+        "params": {
+          "name": "resources",
+          "arguments": {}
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 110,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"output\": \"RESOURCES\\r\\nengine DIRECT words 50/128 token-bytes 171 direct-bytes 602 data-bytes 6 source-bytes 265 data-peak 2 return-peak 0\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false, \"resources\": {\"engine\": \"DIRECT\", \"words\": \"50/128\", \"token-bytes\": 171, \"direct-bytes\": 602, \"data-bytes\": 6, \"source-bytes\": 265, \"data-peak\": 2, \"return-peak\": 0}}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "milliseconds": 22.23954099463299
+    }
+  ]
+}

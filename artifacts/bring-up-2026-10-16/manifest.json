@@ -1,0 +1,90 @@
+{
+  "date": "2026-10-16",
+  "files": [
+    {
+      "file": "monitor-raw.bin",
+      "bytes": 1249,
+      "sha256": "53cdb53e8f7c0461a0f9c0a302d525c86a7dc68f5a22b067e45a532c055487a6"
+    },
+    {
+      "file": "monitor-raw.elf",
+      "bytes": 68748,
+      "sha256": "980508b2e64771ed8cf63f699bfc2301882f78e33b7c5b8571172717f3d79294"
+    },
+    {
+      "file": "monitor-raw.map",
+      "bytes": 5492,
+      "sha256": "ea462a51974ac9291eeb9804664bccb774a4e67cf346fcb09a8af02a762edb23"
+    },
+    {
+      "file": "zdi-loader.bin",
+      "bytes": 4064,
+      "sha256": "a322fee64300865f76662eecc7a9039082b75d96e224c5161d5635e74f8fbbb0"
+    },
+    {
+      "file": "zdi-probe.bin",
+      "bytes": 2800,
+      "sha256": "2e5b519a40c478a5ee674afb660695f7082dd12a3f74833464f16024bf5b812b"
+    },
+    {
+      "file": "NOTICE.txt",
+      "bytes": 1070,
+      "sha256": "f45891feca8768287514f8d28e0177a80b78605660ff2821a8548c286585ab68"
+    }
+  ],
+  "sources": [
+    {
+      "file": "kernel/monitor.c",
+      "sha256": "2f983c26b908af51fc24c1d0cf05e5871251d1adea448f1e10fdd98561662045"
+    },
+    {
+      "file": "kernel/main.c",
+      "sha256": "51808d76c01f4df9a8c20e4565041e4045540c4e92e7f32f3054cd9434fa6af0"
+    },
+    {
+      "file": "boards/agon-light-2/platform_raw.c",
+      "sha256": "2232e7f987f0b47173eab6c1556d7b4c7cc23c39a9eeca78087c22e7772b7357"
+    },
+    {
+      "file": "arch/ez80/start.s",
+      "sha256": "30fccd90dd2d69e47590dc6a9e4f0d83e428e0119b7ec258e951f4e9cdd177e5"
+    },
+    {
+      "file": "arch/ez80/uart0.s",
+      "sha256": "0c1b7e8d138ca893e695148d662eb69037e14f8bf05713608abec3f0b9e6531a"
+    },
+    {
+      "file": "arch/ez80/uart0_raw.s",
+      "sha256": "62bbafb21c13c80caccf58747d990469011c5466a5d81c3eead7e4043e319cdd"
+    },
+    {
+      "file": "boards/agon-light-2/ram.ld",
+      "sha256": "9e1f14b5f0c04130b0fe0328379cf2d8505cd983ea6d8db6b3ead9416a3a11e1"
+    },
+    {
+      "file": "tools/esp32-ram/zdi_probe.c",
+      "sha256": "9bd9d1ca910613e3982ad4fb2e10c1be406dc7822f253dae393b2a1055115499"
+    },
+    {
+      "file": "tools/esp32-ram/probe.ld",
+      "sha256": "b399b3e04470188c89c5992921970485b17bbd53aed2e94f887dc0544373f73b"
+    },
+    {
+      "file": "tools/zdi_backup.py",
+      "sha256": "72484a42bf51d7b02cbc190b2f0d3aaf84766b001b4ca3e82b259073bc7a5590"
+    },
+    {
+      "file": "tools/zdi_monitor.py",
+      "sha256": "faba0107e962a178eb7ba52a939b36e82320b17baf0f99a4cfe9e6bd77f53fdf"
+    },
+    {
+      "file": "Makefile",
+      "sha256": "487ebcb30ba10329a3b9369234b9d4858f2a5be64a79c649580d534013dcda5a"
+    }
+  ],
+  "c_toolchain": "Agondev v0.22 darwin arm64",
+  "esp_toolchain": "xtensa-esp32-elf-gcc 11.2.0 esp-2022r1",
+  "hardware_evidence": "docs/bring-up/monitor-hardware-green.summary.json",
+  "cpu_flash_backup": "backups/ez80/original-2026-10-16.json",
+  "limits": "RAM-only runtime; initial RAM mapping supplied by installed MOS; no independent cold boot; normal MOS/VDP loading unresolved"
+}

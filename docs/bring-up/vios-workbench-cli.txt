@@ -1,0 +1,63 @@
+VIOS console — :help for commands.
+vios> workbench revision 2 catalog 154 open True draft True dirty False staged False active True saved True length 1969 cursor 0 selection 3 browser 0 focus 0 words 81 words_max 512 module WBM1P version 1.0 test  error 
+vios> VIOS  TEXT WORKBENCH
+MODULES                  |INSPECTOR
+LIVE1I                   |WBM1P
+LIVE1P                   |1.0
+LIVE1D                   |Source bytes:   1969
+WBM1P                    |Dependencies:   0
+                         |
+                         |
+                         |
+                         |
+                         |
+                         |DS: 0           BASE: 10
+                         |
+                         |
+                         |Words:  81        Data:  27
+                         |
+                         |SOURCE
+                         |WBM1P
+                         |: WBM1P-VALUE 18 ;
+                         |\ WBM1P source row 00 retained exactly
+                         |\ WBM1P source row 01 retained exactly
+                         |\ WBM1P source row 02 retained exactly
+                         |\ WBM1P source row 03 retained exactly
+                         |\ WBM1P source row 04 retained exactly
+                         |\ WBM1P source row 05 retained exactly
+                         |\ WBM1P source row 06 retained exactly
+                         |\ WBM1P source row 07 retained exactly
+                         |\ WBM1P source row 08 retained exactly
+                         |\ WBM1P source row 09 retained exactly
+                         |\ WBM1P source row 10 retained exactly
+                         |\ WBM1P source row 11 retained exactly
+                         |\ WBM1P source row 12 retained exactly
+                         |\ WBM1P source row 13 retained exactly
+                         |\ WBM1P source row 14 retained exactly
+                         |\ WBM1P source row 15 retained exactly
+                         |\ WBM1P source row 16 retained exactly
+                         |\ WBM1P source row 17 retained exactly
+                         |\ WBM1P source row 18 retained exactly
+                         |\ WBM1P source row 19 retained exactly
+                         |\ WBM1P source row 20 retained exactly
+                         |\ WBM1P source row 21 retained exactly
+                         |\ WBM1P source row 22 retained exactly
+                         |\ WBM1P source row 23 retained exactly
+                         |\ WBM1P source row 24 retained exactly
+                         |\ WBM1P source row 25 retained exactly
+                         |\ WBM1P source row 26 retained exactly
+                         |\ WBM1P source row 27 retained exactly
+                         |\ WBM1P source row 28 retained exactly
+                         |\ WBM1P source row 29 retained exactly
+                         |\ WBM1P source row 30 retained exactly
+                         |\ WBM1P source row 31 retained exactly
+                         |\ WBM1P source row 32 retained exactly
+                         |\ WBM1P source row 33 retained exactly
+                         |\ WBM1P source row 34 retained exactly
+                         |\ WBM1P source row 35 retained exactly
+                         |\ WBM1P source row 36 retained exactly
+F5 Stage/Test  F6 Activate  F7 Save  F8 Undo  F10 Close
+CLEAN                 ACTIVE    SAVED       Bytes: 1969   /4096 Rev: 2
+
+TAB focus  Left/Right modules/words  Enter edit  Serial CLI available
+vios> 

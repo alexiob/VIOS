@@ -1,0 +1,110 @@
+esptool v5.1.0
+Serial port /dev/cu.usbserial-22430:
+Note: Pre-connection option "no-reset" was selected. Connection may fail if the chip is not in bootloader or flasher stub mode.
+Connecting....Traceback (most recent call last):
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.venv/lib/python3.14/site-packages/click/core.py", line 2032, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.venv/lib/python3.14/site-packages/click/core.py", line 1415, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.venv/lib/python3.14/site-packages/click/core.py", line 910, in invoke
+    return callback(*args, **kwargs)
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.venv/lib/python3.14/site-packages/click/decorators.py", line 34, in new_func
+    return f(get_current_context(), *args, **kwargs)
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.venv/lib/python3.14/site-packages/esptool/__init__.py", line 894, in read_flash_cli
+    read_flash(ctx.obj["esp"], address, size, output, **kwargs)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.venv/lib/python3.14/site-packages/esptool/cmds.py", line 1371, in read_flash
+    data = esp.read_flash(address, size, flash_progress)
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.venv/lib/python3.14/site-packages/esptool/loader.py", line 1491, in read_flash
+    p = self.read()
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.venv/lib/python3.14/site-packages/esptool/loader.py", line 431, in read
+    return next(self._slip_reader)
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.venv/lib/python3.14/site-packages/esptool/loader.py", line 1923, in slip_reader
+    raise FatalError(
+    ...<2 lines>...
+    )
+esptool.util.FatalError: Invalid head of packet (0xFD): Possible serial noise or corruption.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.venv/lib/python3.14/site-packages/esptool/__init__.py", line 1173, in _main
+    main()
+    ~~~~^^
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.venv/lib/python3.14/site-packages/esptool/__init__.py", line 1032, in main
+    cli(args=args, esp=esp)
+    ~~~^^^^^^^^^^^^^^^^^^^^
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.venv/lib/python3.14/site-packages/esptool/cli_util.py", line 229, in __call__
+    return super().__call__(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.venv/lib/python3.14/site-packages/rich_click/rich_command.py", line 401, in __call__
+    return super().__call__(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.venv/lib/python3.14/site-packages/click/core.py", line 1631, in __call__
+    return self.main(*args, **kwargs)
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.venv/lib/python3.14/site-packages/rich_click/rich_command.py", line 215, in main
+    rv = self.invoke(ctx)
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.venv/lib/python3.14/site-packages/click/core.py", line 2031, in invoke
+    with sub_ctx:
+         ^^^^^^^
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.venv/lib/python3.14/site-packages/click/core.py", line 563, in __exit__
+    exit_result = self._close_with_exception_info(exc_type, exc_value, tb)
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.venv/lib/python3.14/site-packages/click/core.py", line 708, in _close_with_exception_info
+    exit_result = self._exit_stack.__exit__(exc_type, exc_value, tb)
+  File "/Users/alex/.pyenv/versions/3.14.6/lib/python3.14/contextlib.py", line 619, in __exit__
+    raise exc
+  File "/Users/alex/.pyenv/versions/3.14.6/lib/python3.14/contextlib.py", line 604, in __exit__
+    if cb(*exc_details):
+       ~~^^^^^^^^^^^^^^
+  File "/Users/alex/.pyenv/versions/3.14.6/lib/python3.14/contextlib.py", line 482, in _exit_wrapper
+    callback(*args, **kwds)
+    ~~~~~~~~^^^^^^^^^^^^^^^
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.venv/lib/python3.14/site-packages/esptool/__init__.py", line 567, in teardown
+    reset_chip(esp, ctx.obj["after"])
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.venv/lib/python3.14/site-packages/esptool/cmds.py", line 1601, in reset_chip
+    esp.soft_reset(True)  # Exit the stub flasher back to ROM loader
+    ~~~~~~~~~~~~~~^^^^^^
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.venv/lib/python3.14/site-packages/esptool/loader.py", line 1810, in soft_reset
+    self.flash_begin(0, 0)
+    ~~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.venv/lib/python3.14/site-packages/esptool/loader.py", line 1013, in flash_begin
+    self.check_command(
+    ~~~~~~~~~~~~~~~~~~^
+        "enter flash download mode",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        timeout=timeout,
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.venv/lib/python3.14/site-packages/esptool/loader.py", line 565, in check_command
+    val, data = self.command(op, data, chk, timeout=timeout)
+                ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.venv/lib/python3.14/site-packages/esptool/loader.py", line 495, in command
+    p = self.read()
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.venv/lib/python3.14/site-packages/esptool/loader.py", line 431, in read
+    return next(self._slip_reader)
+StopIteration
+
+A fatal error occurred: The chip stopped responding.
+
+Connected to ESP32 on /dev/cu.usbserial-22430:
+Chip type:          ESP32-PICO-D4 (revision v1.0)
+Features:           Wi-Fi, BT, Dual Core + LP Core, 240MHz, Embedded Flash, Vref calibration in eFuse, Coding Scheme None
+Crystal frequency:  40MHz
+MAC:                0c:8b:95:aa:17:4c
+
+Uploading stub flasher...
+Running stub flasher...
+Stub flasher running.
+Changing baud rate to 460800...
+Changed.
+
+Detected flash size: 4MB
+Configuring flash size...
+
+Staying in bootloader.

@@ -1,0 +1,890 @@
+{
+  "status": "passed",
+  "serial_owner": "shared TCP harness",
+  "command": [
+    "/usr/bin/nc",
+    "127.0.0.1",
+    "8765"
+  ],
+  "tool_count": 48,
+  "responses": [
+    {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "protocolVersion": "2025-11-25",
+        "capabilities": {
+          "tools": {}
+        },
+        "serverInfo": {
+          "name": "vios-harness",
+          "version": "0.1.0"
+        },
+        "instructions": "Call connect for resident firmware or deploy for the RAM bridge explicitly; one board session persists across tools. Source uses printable ASCII lines <=235 bytes. After timeout, use console_input for KEY and await_result; no new source is queued."
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 2,
+      "result": {
+        "tools": [
+          {
+            "name": "connect",
+            "description": "Attach to the already-running resident VIOS firmware without RAM deployment (resident backend).",
+            "inputSchema": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "reboot",
+            "description": "Restart resident firmware and reconnect on the same serial port. force=true explicitly abandons pending/unknown execution and loses unsaved RAM state.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "force": {
+                  "type": "boolean"
+                },
+                "timeout": {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "maximum": 300
+                }
+              },
+              "required": [],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "module_stage",
+            "description": "Validate and stage exact ASCII module source and pinned dependencies; does not activate.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 31,
+                  "pattern": "^[!-~]+$"
+                },
+                "version": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 31,
+                  "pattern": "^[!-~]+$"
+                },
+                "source": {
+                  "type": "string",
+                  "maxLength": 4096,
+                  "pattern": "^[\\t\\r\\n\\u0020-\\u007E]*$"
+                },
+                "test_word": {
+                  "type": "string",
+                  "maxLength": 31,
+                  "pattern": "^[!-~]*$"
+                },
+                "dependencies": {
+                  "type": "array",
+                  "maxItems": 4,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 31,
+                        "pattern": "^[!-~]+$"
+                      },
+                      "crc32": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 4294967295
+                          },
+                          {
+                            "type": "string",
+                            "pattern": "^[0-9a-fA-F]{8}$"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "crc32"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              },
+              "required": [
+                "name",
+                "version",
+                "source"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "module_activate",
+            "description": "Activate one staged module after validation.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 31,
+                  "pattern": "^[!-~]+$"
+                }
+              },
+              "required": [
+                "name"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "module_discard",
+            "description": "Discard the staged module without activation.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "module_rollback",
+            "description": "Restore a retained previous module generation.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 31,
+                  "pattern": "^[!-~]+$"
+                }
+              },
+              "required": [
+                "name"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "modules",
+            "description": "List module versions, decimal CRC32 values and pinned dependencies.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "module_source",
+            "description": "Read exact retained module source plus host-computed source SHA-256.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 31,
+                  "pattern": "^[!-~]+$"
+                },
+                "previous": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "name"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "module_save",
+            "description": "Save a module package; defaults to its verified content-addressed path.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 31,
+                  "pattern": "^[!-~]+$"
+                },
+                "path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 127,
+                  "pattern": "^[!-~]+$"
+                }
+              },
+              "required": [
+                "name"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "module_load",
+            "description": "Load a saved module package and stage/activate it.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 127,
+                  "pattern": "^[!-~]+$"
+                }
+              },
+              "required": [
+                "path"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "load",
+            "description": "Evaluate a raw Forth source file from SD.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 127,
+                  "pattern": "^[!-~]+$"
+                }
+              },
+              "required": [
+                "path"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "boot_status",
+            "description": "Inspect confirmed/candidate/current boot slots and trial state.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "boot_trial",
+            "description": "Write an inactive boot bundle containing all active modules and mark it pending; does not reboot.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "boot_confirm",
+            "description": "Confirm the currently running trial after validation.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "boot_revert",
+            "description": "Select the confirmed/previous boot slot; does not reboot.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "deploy",
+            "description": "Explicitly replace/readback-verify CPU RAM; RAM backend also loads temporary ESP bridge.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "evaluate",
+            "description": "Evaluate bounded ASCII Forth lines, preserving definitions/stacks and multiline compilation.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "source": {
+                  "type": "string",
+                  "maxLength": 65536
+                },
+                "timeout": {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "maximum": 300
+                }
+              },
+              "required": [
+                "source"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "await_result",
+            "description": "Wait for a timed-out evaluation to complete without queuing source or nonce input.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "timeout": {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "maximum": 300
+                }
+              },
+              "required": [],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "console_input",
+            "description": "Send 1..16 explicit bytes to a pending evaluation, for example a Forth KEY.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "hex": {
+                  "type": "string",
+                  "pattern": "^(?:[0-9a-fA-F]{2}){1,16}$"
+                }
+              },
+              "required": [
+                "hex"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "words",
+            "description": "List the resident dictionary.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "inspect_word",
+            "description": "Read SEE source and word/address metadata.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 31
+                }
+              },
+              "required": [
+                "name"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "stacks",
+            "description": "Inspect the data stack using .S.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "resources",
+            "description": "Inspect dictionary and observed VM resources.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "benchmark",
+            "description": "Run validated hardware benchmarks; may take up to 120 seconds.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "abort",
+            "description": "Cancel input/current definition at the idle REPL. Pending KEY/wedges require console input, explicit resident reboot(force=true), or debug/redeploy.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "debug_registers",
+            "description": "Briefly debug-pause to read CPU registers, preserving prior pause state.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "memory_read",
+            "description": "Read 1..65536 RAM bytes from 0x40000..0xBFFFF with debug CRC checking.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "address": {
+                  "type": "integer",
+                  "minimum": 262144,
+                  "maximum": 786431
+                },
+                "count": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 65536
+                }
+              },
+              "required": [
+                "address"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "memory_write",
+            "description": "Write and readback-verify 1..256 RAM bytes below 0xAF000. Trusted systems operation.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "address": {
+                  "type": "integer",
+                  "minimum": 262144,
+                  "maximum": 716799
+                },
+                "hex": {
+                  "type": "string",
+                  "pattern": "^(?:[0-9a-fA-F]{2}){1,256}$"
+                }
+              },
+              "required": [
+                "address",
+                "hex"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "resume",
+            "description": "Resume existing CPU PC/UART bridge after a debug pause; does not reboot.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "wb_status",
+            "description": "Inspect the native workbench draft revision and state.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "wb_open",
+            "description": "Open the text workbench, retaining any existing draft.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "wb_close",
+            "description": "Close the text workbench and retain its draft.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "wb_browse",
+            "description": "Browse modules or words, optionally filtering words by module.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "browser": {
+                  "type": "string",
+                  "pattern": "^(MODULES|WORDS)$"
+                },
+                "module_filter": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 31,
+                  "pattern": "^[!-~]+$"
+                }
+              },
+              "required": [],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "wb_select",
+            "description": "Select a module name or absolute word catalog index.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "type": "string",
+                  "pattern": "^(MODULE|WORD)$"
+                },
+                "value": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 31,
+                      "pattern": "^[!-~]+$"
+                    },
+                    {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 65534
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "kind",
+                "value"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "wb_edit",
+            "description": "Load exact active module source; dirty replacement requires explicit discard.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "module": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 31,
+                  "pattern": "^[!-~]+$"
+                },
+                "discard": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "module"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "wb_new",
+            "description": "Create one module draft; dirty replacement requires explicit discard.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "module": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 31,
+                  "pattern": "^[!-~]+$"
+                },
+                "version": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 31,
+                  "pattern": "^[!-~]+$"
+                },
+                "discard": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "module",
+                "version"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "wb_patch",
+            "description": "Apply one atomic revision-checked source patch of at most 80 ASCII bytes.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "revision": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 4294967295
+                },
+                "offset": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 4096
+                },
+                "remove": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 4096
+                },
+                "source": {
+                  "type": "string",
+                  "maxLength": 80,
+                  "pattern": "^[\\t\\r\\n\\x20-\\x7e]*$"
+                }
+              },
+              "required": [
+                "revision",
+                "offset",
+                "remove",
+                "source"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "wb_undo",
+            "description": "Restore the one source/cursor undo snapshot.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "revision": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 4294967295
+                }
+              },
+              "required": [
+                "revision"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "wb_metadata",
+            "description": "Set draft version and optional test word, retaining pinned dependencies.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "revision": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 4294967295
+                },
+                "version": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 31,
+                  "pattern": "^[!-~]+$"
+                },
+                "test_word": {
+                  "type": "string",
+                  "maxLength": 31,
+                  "pattern": "^[!-~]*$"
+                }
+              },
+              "required": [
+                "revision",
+                "version"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "wb_stage",
+            "description": "Validate and test the exact draft without activation.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "revision": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 4294967295
+                }
+              },
+              "required": [
+                "revision"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "wb_activate",
+            "description": "Activate the staged draft after revision and catalog validation.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "revision": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 4294967295
+                }
+              },
+              "required": [
+                "revision"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "wb_save",
+            "description": "Persist only the exact currently active draft.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "revision": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 4294967295
+                }
+              },
+              "required": [
+                "revision"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "wb_source",
+            "description": "Read exact draft ASCII in bounded chunks with revision validation.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "wb_view",
+            "description": "Read desired 80-column screen rows with text and packed attributes.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "row": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 59
+                },
+                "count": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 60
+                }
+              },
+              "required": [],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "wb_key",
+            "description": "Inject a semantic workbench key (ASCII or 256..267) and modifier bits.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 267
+                },
+                "modifiers": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 255
+                }
+              },
+              "required": [
+                "code"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "wb_redraw",
+            "description": "Invalidate and recompose the desired text screen.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "wb_flush",
+            "description": "Drain changed spans in bounded batches and return flush counters.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "wb_render_stats",
+            "description": "Read cumulative renderer counts and target 288 kHz ticks.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "reset": {
+                  "type": "boolean"
+                }
+              },
+              "required": [],
+              "additionalProperties": false
+            }
+          }
+        ]
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 3,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"output\": \"WB-STATUS\\r\\nWB-STATUS revision 2 catalog 154 open 1 draft 1 dirty 0 staged 0 active 1 saved 1 length 1969 cursor 0 selection 3 browser 0 focus 0 words 81 words_max 512 module 57424D3150 version 312E30 test - error -\\r\\n\\r\\nok\\r\\nvios> \", \"ok\": true, \"compiling\": false, \"pending\": false, \"workbench\": {\"revision\": 2, \"catalog\": 154, \"open\": true, \"draft\": true, \"dirty\": false, \"staged\": false, \"active\": true, \"saved\": true, \"length\": 1969, \"cursor\": 0, \"selection\": 3, \"browser\": 0, \"focus\": 0, \"words\": 81, \"words_max\": 512, \"module\": \"WBM1P\", \"version\": \"1.0\", \"test\": \"\", \"error\": \"\"}}"
+          }
+        ],
+        "isError": false
+      }
+    }
+  ]
+}

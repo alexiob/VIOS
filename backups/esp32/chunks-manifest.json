@@ -1,0 +1,416 @@
+{
+  "chip": "ESP32-PICO-D4",
+  "mac": "0c:8b:95:aa:17:4c",
+  "size": 4194304,
+  "chunk_size": 65536,
+  "verification": "esptool read_flash MD5 from target per chunk; SHA256 per saved chunk",
+  "chunks": [
+    {
+      "address": 0,
+      "length": 65536,
+      "sha256": "ad6687cd04cf49570970edd8e0247ad38a1c0bf074ef2f5382d1f25f1034f8ac"
+    },
+    {
+      "address": 65536,
+      "length": 65536,
+      "sha256": "f6fdd8b48fa587c820ec388f80a7137081f610e531783605492f8216352a18b0"
+    },
+    {
+      "address": 131072,
+      "length": 65536,
+      "sha256": "58d49b7b991d4374aed9fd3b5815f3898f564de2197eff017ddedd2cf0890bd1"
+    },
+    {
+      "address": 196608,
+      "length": 65536,
+      "sha256": "3c48904daa72a85dd420aa7149d7e44ee4a071ef71184f2faa619fa9a6748126"
+    },
+    {
+      "address": 262144,
+      "length": 65536,
+      "sha256": "f4531d5d8f059e09f2fd77bd3204660706430860de17bd43c658d65f972a04f0"
+    },
+    {
+      "address": 327680,
+      "length": 65536,
+      "sha256": "9fae44238a3b1855c814a99d822aecaede9924a26161e76eed6eac909ef81b83"
+    },
+    {
+      "address": 393216,
+      "length": 65536,
+      "sha256": "507a4d115677ba68c225694a38049225bb631092c414e5948cf705a785f7d908"
+    },
+    {
+      "address": 458752,
+      "length": 65536,
+      "sha256": "d2340dc123d9f65be4f7514993472583c680366dc512c0d5f99e9cca6a1564f1"
+    },
+    {
+      "address": 524288,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063"
+    },
+    {
+      "address": 589824,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063"
+    },
+    {
+      "address": 655360,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063"
+    },
+    {
+      "address": 720896,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063"
+    },
+    {
+      "address": 786432,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063"
+    },
+    {
+      "address": 851968,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063"
+    },
+    {
+      "address": 917504,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063"
+    },
+    {
+      "address": 983040,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063"
+    },
+    {
+      "address": 1048576,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063"
+    },
+    {
+      "address": 1114112,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063"
+    },
+    {
+      "address": 1179648,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063"
+    },
+    {
+      "address": 1245184,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063"
+    },
+    {
+      "address": 1310720,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063"
+    },
+    {
+      "address": 1376256,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063"
+    },
+    {
+      "address": 1441792,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063",
+      "target_md5": "ecb99e6ffea7be1e5419350f725da86b",
+      "method": "target-md5-verified-erased"
+    },
+    {
+      "address": 1507328,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063",
+      "target_md5": "ecb99e6ffea7be1e5419350f725da86b",
+      "method": "target-md5-verified-erased"
+    },
+    {
+      "address": 1572864,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063",
+      "target_md5": "ecb99e6ffea7be1e5419350f725da86b",
+      "method": "target-md5-verified-erased"
+    },
+    {
+      "address": 1638400,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063",
+      "target_md5": "ecb99e6ffea7be1e5419350f725da86b",
+      "method": "target-md5-verified-erased"
+    },
+    {
+      "address": 1703936,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063",
+      "target_md5": "ecb99e6ffea7be1e5419350f725da86b",
+      "method": "target-md5-verified-erased"
+    },
+    {
+      "address": 1769472,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063",
+      "target_md5": "ecb99e6ffea7be1e5419350f725da86b",
+      "method": "target-md5-verified-erased"
+    },
+    {
+      "address": 1835008,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063",
+      "target_md5": "ecb99e6ffea7be1e5419350f725da86b",
+      "method": "target-md5-verified-erased"
+    },
+    {
+      "address": 1900544,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063",
+      "target_md5": "ecb99e6ffea7be1e5419350f725da86b",
+      "method": "target-md5-verified-erased"
+    },
+    {
+      "address": 1966080,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063",
+      "target_md5": "ecb99e6ffea7be1e5419350f725da86b",
+      "method": "target-md5-verified-erased"
+    },
+    {
+      "address": 2031616,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063",
+      "target_md5": "ecb99e6ffea7be1e5419350f725da86b",
+      "method": "target-md5-verified-erased"
+    },
+    {
+      "address": 2097152,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063",
+      "target_md5": "ecb99e6ffea7be1e5419350f725da86b",
+      "method": "target-md5-verified-erased"
+    },
+    {
+      "address": 2162688,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063",
+      "target_md5": "ecb99e6ffea7be1e5419350f725da86b",
+      "method": "target-md5-verified-erased"
+    },
+    {
+      "address": 2228224,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063",
+      "target_md5": "ecb99e6ffea7be1e5419350f725da86b",
+      "method": "target-md5-verified-erased"
+    },
+    {
+      "address": 2293760,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063",
+      "target_md5": "ecb99e6ffea7be1e5419350f725da86b",
+      "method": "target-md5-verified-erased"
+    },
+    {
+      "address": 2359296,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063",
+      "target_md5": "ecb99e6ffea7be1e5419350f725da86b",
+      "method": "target-md5-verified-erased"
+    },
+    {
+      "address": 2424832,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063",
+      "target_md5": "ecb99e6ffea7be1e5419350f725da86b",
+      "method": "target-md5-verified-erased"
+    },
+    {
+      "address": 2490368,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063",
+      "target_md5": "ecb99e6ffea7be1e5419350f725da86b",
+      "method": "target-md5-verified-erased"
+    },
+    {
+      "address": 2555904,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063",
+      "target_md5": "ecb99e6ffea7be1e5419350f725da86b",
+      "method": "target-md5-verified-erased"
+    },
+    {
+      "address": 2621440,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063",
+      "target_md5": "ecb99e6ffea7be1e5419350f725da86b",
+      "method": "target-md5-verified-erased"
+    },
+    {
+      "address": 2686976,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063",
+      "target_md5": "ecb99e6ffea7be1e5419350f725da86b",
+      "method": "target-md5-verified-erased"
+    },
+    {
+      "address": 2752512,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063",
+      "target_md5": "ecb99e6ffea7be1e5419350f725da86b",
+      "method": "target-md5-verified-erased"
+    },
+    {
+      "address": 2818048,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063",
+      "target_md5": "ecb99e6ffea7be1e5419350f725da86b",
+      "method": "target-md5-verified-erased"
+    },
+    {
+      "address": 2883584,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063",
+      "target_md5": "ecb99e6ffea7be1e5419350f725da86b",
+      "method": "target-md5-verified-erased"
+    },
+    {
+      "address": 2949120,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063",
+      "target_md5": "ecb99e6ffea7be1e5419350f725da86b",
+      "method": "target-md5-verified-erased"
+    },
+    {
+      "address": 3014656,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063",
+      "target_md5": "ecb99e6ffea7be1e5419350f725da86b",
+      "method": "target-md5-verified-erased"
+    },
+    {
+      "address": 3080192,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063",
+      "target_md5": "ecb99e6ffea7be1e5419350f725da86b",
+      "method": "target-md5-verified-erased"
+    },
+    {
+      "address": 3145728,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063",
+      "target_md5": "ecb99e6ffea7be1e5419350f725da86b",
+      "method": "target-md5-verified-erased"
+    },
+    {
+      "address": 3211264,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063",
+      "target_md5": "ecb99e6ffea7be1e5419350f725da86b",
+      "method": "target-md5-verified-erased"
+    },
+    {
+      "address": 3276800,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063",
+      "target_md5": "ecb99e6ffea7be1e5419350f725da86b",
+      "method": "target-md5-verified-erased"
+    },
+    {
+      "address": 3342336,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063",
+      "target_md5": "ecb99e6ffea7be1e5419350f725da86b",
+      "method": "target-md5-verified-erased"
+    },
+    {
+      "address": 3407872,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063",
+      "target_md5": "ecb99e6ffea7be1e5419350f725da86b",
+      "method": "target-md5-verified-erased"
+    },
+    {
+      "address": 3473408,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063",
+      "target_md5": "ecb99e6ffea7be1e5419350f725da86b",
+      "method": "target-md5-verified-erased"
+    },
+    {
+      "address": 3538944,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063",
+      "target_md5": "ecb99e6ffea7be1e5419350f725da86b",
+      "method": "target-md5-verified-erased"
+    },
+    {
+      "address": 3604480,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063",
+      "target_md5": "ecb99e6ffea7be1e5419350f725da86b",
+      "method": "target-md5-verified-erased"
+    },
+    {
+      "address": 3670016,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063",
+      "target_md5": "ecb99e6ffea7be1e5419350f725da86b",
+      "method": "target-md5-verified-erased"
+    },
+    {
+      "address": 3735552,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063",
+      "target_md5": "ecb99e6ffea7be1e5419350f725da86b",
+      "method": "target-md5-verified-erased"
+    },
+    {
+      "address": 3801088,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063",
+      "target_md5": "ecb99e6ffea7be1e5419350f725da86b",
+      "method": "target-md5-verified-erased"
+    },
+    {
+      "address": 3866624,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063",
+      "target_md5": "ecb99e6ffea7be1e5419350f725da86b",
+      "method": "target-md5-verified-erased"
+    },
+    {
+      "address": 3932160,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063",
+      "target_md5": "ecb99e6ffea7be1e5419350f725da86b",
+      "method": "target-md5-verified-erased"
+    },
+    {
+      "address": 3997696,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063",
+      "target_md5": "ecb99e6ffea7be1e5419350f725da86b",
+      "method": "target-md5-verified-erased"
+    },
+    {
+      "address": 4063232,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063",
+      "target_md5": "ecb99e6ffea7be1e5419350f725da86b",
+      "method": "target-md5-verified-erased"
+    },
+    {
+      "address": 4128768,
+      "length": 65536,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063",
+      "target_md5": "ecb99e6ffea7be1e5419350f725da86b",
+      "method": "target-md5-verified-erased"
+    }
+  ],
+  "full_sha256": "91693875ae044e50eb10d02dd41c6efc528609bdd9b012aab4576b929c535e1c",
+  "full_target_md5": "171395d009f13c5eba3f921d5e7d745c",
+  "status": "complete"
+}

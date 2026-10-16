@@ -1,0 +1,275 @@
+{"checkpoint": "attach-resident-no-deploy", "status": "running"}
+{"checkpoint": "attach-resident-no-deploy", "status": "passed", "elapsed_ms": 34271.445}
+{"checkpoint": "require-idle-empty-stack", "status": "running"}
+{"checkpoint": "require-idle-empty-stack", "status": "passed", "elapsed_ms": 28.583}
+{"checkpoint": "initial-resources", "status": "running"}
+{"checkpoint": "initial-resources", "status": "passed", "elapsed_ms": 50.779}
+{"checkpoint": "boot-require-clean-unconfirmed-baseline", "status": "running"}
+{"checkpoint": "boot-require-clean-unconfirmed-baseline", "status": "passed", "elapsed_ms": 191.88}
+{"checkpoint": "arithmetic-DIRECT", "status": "running"}
+{"checkpoint": "arithmetic-DIRECT", "status": "passed", "elapsed_ms": 57.412}
+{"checkpoint": "arithmetic-TOKEN", "status": "running"}
+{"checkpoint": "arithmetic-TOKEN", "status": "passed", "elapsed_ms": 55.633}
+{"checkpoint": "arithmetic-C", "status": "running"}
+{"checkpoint": "arithmetic-C", "status": "passed", "elapsed_ms": 55.2}
+{"checkpoint": "default-direct-engine", "status": "running"}
+{"checkpoint": "default-direct-engine", "status": "passed", "elapsed_ms": 32.051}
+{"checkpoint": "max-line-two-fragment-01", "status": "running"}
+{"checkpoint": "max-line-two-fragment-01", "status": "passed", "elapsed_ms": 139.76}
+{"checkpoint": "max-line-two-fragment-02", "status": "running"}
+{"checkpoint": "max-line-two-fragment-02", "status": "passed", "elapsed_ms": 142.688}
+{"checkpoint": "max-line-two-fragment-03", "status": "running"}
+{"checkpoint": "max-line-two-fragment-03", "status": "passed", "elapsed_ms": 137.088}
+{"checkpoint": "max-line-two-fragment-04", "status": "running"}
+{"checkpoint": "max-line-two-fragment-04", "status": "passed", "elapsed_ms": 137.58}
+{"checkpoint": "max-line-two-fragment-05", "status": "running"}
+{"checkpoint": "max-line-two-fragment-05", "status": "passed", "elapsed_ms": 144.53}
+{"checkpoint": "max-line-two-fragment-06", "status": "running"}
+{"checkpoint": "max-line-two-fragment-06", "status": "passed", "elapsed_ms": 136.336}
+{"checkpoint": "max-line-two-fragment-07", "status": "running"}
+{"checkpoint": "max-line-two-fragment-07", "status": "passed", "elapsed_ms": 142.258}
+{"checkpoint": "max-line-two-fragment-08", "status": "running"}
+{"checkpoint": "max-line-two-fragment-08", "status": "passed", "elapsed_ms": 153.927}
+{"checkpoint": "max-line-two-fragment-09", "status": "running"}
+{"checkpoint": "max-line-two-fragment-09", "status": "passed", "elapsed_ms": 139.273}
+{"checkpoint": "max-line-two-fragment-10", "status": "running"}
+{"checkpoint": "max-line-two-fragment-10", "status": "passed", "elapsed_ms": 139.912}
+{"checkpoint": "max-line-two-fragment-11", "status": "running"}
+{"checkpoint": "max-line-two-fragment-11", "status": "passed", "elapsed_ms": 144.423}
+{"checkpoint": "max-line-two-fragment-12", "status": "running"}
+{"checkpoint": "max-line-two-fragment-12", "status": "passed", "elapsed_ms": 139.816}
+{"checkpoint": "max-line-two-fragment-13", "status": "running"}
+{"checkpoint": "max-line-two-fragment-13", "status": "passed", "elapsed_ms": 140.302}
+{"checkpoint": "max-line-two-fragment-14", "status": "running"}
+{"checkpoint": "max-line-two-fragment-14", "status": "passed", "elapsed_ms": 144.226}
+{"checkpoint": "max-line-two-fragment-15", "status": "running"}
+{"checkpoint": "max-line-two-fragment-15", "status": "passed", "elapsed_ms": 139.322}
+{"checkpoint": "max-line-two-fragment-16", "status": "running"}
+{"checkpoint": "max-line-two-fragment-16", "status": "passed", "elapsed_ms": 140.581}
+{"checkpoint": "max-line-two-fragment-17", "status": "running"}
+{"checkpoint": "max-line-two-fragment-17", "status": "passed", "elapsed_ms": 153.114}
+{"checkpoint": "max-line-two-fragment-18", "status": "running"}
+{"checkpoint": "max-line-two-fragment-18", "status": "passed", "elapsed_ms": 136.523}
+{"checkpoint": "max-line-two-fragment-19", "status": "running"}
+{"checkpoint": "max-line-two-fragment-19", "status": "passed", "elapsed_ms": 140.651}
+{"checkpoint": "max-line-two-fragment-20", "status": "running"}
+{"checkpoint": "max-line-two-fragment-20", "status": "passed", "elapsed_ms": 155.242}
+{"checkpoint": "max-line-two-fragment-21", "status": "running"}
+{"checkpoint": "max-line-two-fragment-21", "status": "passed", "elapsed_ms": 139.461}
+{"checkpoint": "max-line-two-fragment-22", "status": "running"}
+{"checkpoint": "max-line-two-fragment-22", "status": "passed", "elapsed_ms": 142.402}
+{"checkpoint": "max-line-two-fragment-23", "status": "running"}
+{"checkpoint": "max-line-two-fragment-23", "status": "passed", "elapsed_ms": 155.014}
+{"checkpoint": "max-line-two-fragment-24", "status": "running"}
+{"checkpoint": "max-line-two-fragment-24", "status": "passed", "elapsed_ms": 137.276}
+{"checkpoint": "max-line-two-fragment-25", "status": "running"}
+{"checkpoint": "max-line-two-fragment-25", "status": "passed", "elapsed_ms": 139.598}
+{"checkpoint": "max-line-two-fragment-26", "status": "running"}
+{"checkpoint": "max-line-two-fragment-26", "status": "passed", "elapsed_ms": 156.063}
+{"checkpoint": "max-line-two-fragment-27", "status": "running"}
+{"checkpoint": "max-line-two-fragment-27", "status": "passed", "elapsed_ms": 138.646}
+{"checkpoint": "max-line-two-fragment-28", "status": "running"}
+{"checkpoint": "max-line-two-fragment-28", "status": "passed", "elapsed_ms": 139.975}
+{"checkpoint": "max-line-two-fragment-29", "status": "running"}
+{"checkpoint": "max-line-two-fragment-29", "status": "passed", "elapsed_ms": 155.416}
+{"checkpoint": "max-line-two-fragment-30", "status": "running"}
+{"checkpoint": "max-line-two-fragment-30", "status": "passed", "elapsed_ms": 136.491}
+{"checkpoint": "max-line-two-fragment-31", "status": "running"}
+{"checkpoint": "max-line-two-fragment-31", "status": "passed", "elapsed_ms": 144.069}
+{"checkpoint": "max-line-two-fragment-32", "status": "running"}
+{"checkpoint": "max-line-two-fragment-32", "status": "passed", "elapsed_ms": 156.492}
+{"checkpoint": "max-line-two-fragment-33", "status": "running"}
+{"checkpoint": "max-line-two-fragment-33", "status": "passed", "elapsed_ms": 139.276}
+{"checkpoint": "max-line-two-fragment-34", "status": "running"}
+{"checkpoint": "max-line-two-fragment-34", "status": "passed", "elapsed_ms": 142.302}
+{"checkpoint": "max-line-two-fragment-35", "status": "running"}
+{"checkpoint": "max-line-two-fragment-35", "status": "passed", "elapsed_ms": 155.528}
+{"checkpoint": "max-line-two-fragment-36", "status": "running"}
+{"checkpoint": "max-line-two-fragment-36", "status": "passed", "elapsed_ms": 137.915}
+{"checkpoint": "max-line-two-fragment-37", "status": "running"}
+{"checkpoint": "max-line-two-fragment-37", "status": "passed", "elapsed_ms": 142.524}
+{"checkpoint": "max-line-two-fragment-38", "status": "running"}
+{"checkpoint": "max-line-two-fragment-38", "status": "passed", "elapsed_ms": 154.779}
+{"checkpoint": "max-line-two-fragment-39", "status": "running"}
+{"checkpoint": "max-line-two-fragment-39", "status": "passed", "elapsed_ms": 137.226}
+{"checkpoint": "max-line-two-fragment-40", "status": "running"}
+{"checkpoint": "max-line-two-fragment-40", "status": "passed", "elapsed_ms": 143.687}
+{"checkpoint": "max-line-two-fragment-41", "status": "running"}
+{"checkpoint": "max-line-two-fragment-41", "status": "passed", "elapsed_ms": 153.345}
+{"checkpoint": "max-line-two-fragment-42", "status": "running"}
+{"checkpoint": "max-line-two-fragment-42", "status": "passed", "elapsed_ms": 137.299}
+{"checkpoint": "max-line-two-fragment-43", "status": "running"}
+{"checkpoint": "max-line-two-fragment-43", "status": "passed", "elapsed_ms": 142.031}
+{"checkpoint": "max-line-two-fragment-44", "status": "running"}
+{"checkpoint": "max-line-two-fragment-44", "status": "passed", "elapsed_ms": 156.029}
+{"checkpoint": "max-line-two-fragment-45", "status": "running"}
+{"checkpoint": "max-line-two-fragment-45", "status": "passed", "elapsed_ms": 137.285}
+{"checkpoint": "max-line-two-fragment-46", "status": "running"}
+{"checkpoint": "max-line-two-fragment-46", "status": "passed", "elapsed_ms": 144.28}
+{"checkpoint": "max-line-two-fragment-47", "status": "running"}
+{"checkpoint": "max-line-two-fragment-47", "status": "passed", "elapsed_ms": 156.495}
+{"checkpoint": "max-line-two-fragment-48", "status": "running"}
+{"checkpoint": "max-line-two-fragment-48", "status": "passed", "elapsed_ms": 137.573}
+{"checkpoint": "max-line-two-fragment-49", "status": "running"}
+{"checkpoint": "max-line-two-fragment-49", "status": "passed", "elapsed_ms": 142.792}
+{"checkpoint": "max-line-two-fragment-50", "status": "running"}
+{"checkpoint": "max-line-two-fragment-50", "status": "passed", "elapsed_ms": 155.426}
+{"checkpoint": "key-pending", "status": "running"}
+{"checkpoint": "key-pending", "status": "passed", "elapsed_ms": 338.788}
+{"checkpoint": "key-inject-A", "status": "running"}
+{"checkpoint": "key-inject-A", "status": "passed", "elapsed_ms": 2.818}
+{"checkpoint": "key-completion", "status": "running"}
+{"checkpoint": "key-completion", "status": "passed", "elapsed_ms": 14.406}
+{"checkpoint": "debug-registers", "status": "running"}
+{"checkpoint": "debug-registers", "status": "passed", "elapsed_ms": 55.42}
+{"checkpoint": "debug-scratch-map-guard", "status": "running"}
+{"checkpoint": "debug-scratch-map-guard", "status": "passed", "elapsed_ms": 2.79}
+{"checkpoint": "debug-scratch-original", "status": "running"}
+{"checkpoint": "debug-scratch-original", "status": "passed", "elapsed_ms": 52.858}
+{"checkpoint": "debug-scratch-write-verified", "status": "running"}
+{"checkpoint": "debug-scratch-write-verified", "status": "passed", "elapsed_ms": 75.242}
+{"checkpoint": "debug-scratch-independent-readback", "status": "running"}
+{"checkpoint": "debug-scratch-independent-readback", "status": "passed", "elapsed_ms": 52.615}
+{"checkpoint": "debug-scratch-restore", "status": "running"}
+{"checkpoint": "debug-scratch-restore", "status": "passed", "elapsed_ms": 74.362}
+{"checkpoint": "debug-scratch-restored-readback", "status": "running"}
+{"checkpoint": "debug-scratch-restored-readback", "status": "passed", "elapsed_ms": 52.199}
+{"checkpoint": "debug-resume", "status": "running"}
+{"checkpoint": "debug-resume", "status": "passed", "elapsed_ms": 0.005}
+{"checkpoint": "post-debug-evaluation", "status": "running"}
+{"checkpoint": "post-debug-evaluation", "status": "passed", "elapsed_ms": 37.104}
+{"checkpoint": "vdp-select-pinned-mode-1", "status": "running"}
+{"checkpoint": "vdp-select-pinned-mode-1", "status": "passed", "elapsed_ms": 130.114}
+{"checkpoint": "vdp-physical-pixel-coordinates", "status": "running"}
+{"checkpoint": "vdp-physical-pixel-coordinates", "status": "passed", "elapsed_ms": 39.126}
+{"checkpoint": "vdp-mode-info", "status": "running"}
+{"checkpoint": "vdp-mode-info", "status": "passed", "elapsed_ms": 40.873}
+{"checkpoint": "vdp-clear-background", "status": "running"}
+{"checkpoint": "vdp-clear-background", "status": "passed", "elapsed_ms": 40.344}
+{"checkpoint": "vdp-text-red-V", "status": "running"}
+{"checkpoint": "vdp-text-red-V", "status": "passed", "elapsed_ms": 35.537}
+{"checkpoint": "vdp-character-readback", "status": "running"}
+{"checkpoint": "vdp-character-readback", "status": "passed", "elapsed_ms": 35.669}
+{"checkpoint": "vdp-red-pixel-readback", "status": "running"}
+{"checkpoint": "vdp-red-pixel-readback", "status": "passed", "elapsed_ms": 39.424}
+{"checkpoint": "vdp-beep-acknowledgment", "status": "running"}
+{"checkpoint": "vdp-beep-acknowledgment", "status": "passed", "elapsed_ms": 36.344}
+{"checkpoint": "latency-nine-evaluate", "status": "running"}
+{"checkpoint": "latency-nine-evaluate", "status": "passed", "elapsed_ms": 313.138}
+{"checkpoint": "latency-nine-inspect", "status": "running"}
+{"checkpoint": "latency-nine-inspect", "status": "passed", "elapsed_ms": 380.821}
+{"checkpoint": "latency-nine-resources", "status": "running"}
+{"checkpoint": "latency-nine-resources", "status": "passed", "elapsed_ms": 468.659}
+{"checkpoint": "benchmark-all-45-conditions-once", "status": "running"}
+{"checkpoint": "benchmark-all-45-conditions-once", "status": "passed", "elapsed_ms": 4362.161}
+{"checkpoint": "core-final-resources", "status": "running"}
+{"checkpoint": "core-final-resources", "status": "passed", "elapsed_ms": 50.842}
+{"checkpoint": "module-inventory-before", "status": "running"}
+{"checkpoint": "module-inventory-before", "status": "passed", "elapsed_ms": 28.078}
+{"checkpoint": "module-stage-v1-interface", "status": "running"}
+{"checkpoint": "module-stage-v1-interface", "status": "passed", "elapsed_ms": 224.112}
+{"checkpoint": "module-activate-v1-interface", "status": "running"}
+{"checkpoint": "module-activate-v1-interface", "status": "passed", "elapsed_ms": 131.271}
+{"checkpoint": "module-source-v1-interface", "status": "running"}
+{"checkpoint": "module-source-v1-interface", "status": "passed", "elapsed_ms": 49.657}
+{"checkpoint": "module-save-v1-interface", "status": "running"}
+{"checkpoint": "module-save-v1-interface", "status": "passed", "elapsed_ms": 4319.112}
+{"checkpoint": "module-stage-v1-provider", "status": "running"}
+{"checkpoint": "module-stage-v1-provider", "status": "passed", "elapsed_ms": 298.917}
+{"checkpoint": "module-activate-v1-provider", "status": "running"}
+{"checkpoint": "module-activate-v1-provider", "status": "passed", "elapsed_ms": 134.121}
+{"checkpoint": "module-source-v1-provider", "status": "running"}
+{"checkpoint": "module-source-v1-provider", "status": "passed", "elapsed_ms": 59.681}
+{"checkpoint": "module-save-v1-provider", "status": "running"}
+{"checkpoint": "module-save-v1-provider", "status": "passed", "elapsed_ms": 3528.84}
+{"checkpoint": "module-reject-stale-dependency", "status": "running"}
+{"checkpoint": "module-reject-stale-dependency", "status": "passed", "elapsed_ms": 200.796}
+{"checkpoint": "module-discard-bad-builder", "status": "running"}
+{"checkpoint": "module-discard-bad-builder", "status": "passed", "elapsed_ms": 34.075}
+{"checkpoint": "module-stage-v1-consumer", "status": "running"}
+{"checkpoint": "module-stage-v1-consumer", "status": "passed", "elapsed_ms": 329.957}
+{"checkpoint": "module-activate-v1-consumer", "status": "running"}
+{"checkpoint": "module-activate-v1-consumer", "status": "passed", "elapsed_ms": 134.067}
+{"checkpoint": "module-source-v1-consumer", "status": "running"}
+{"checkpoint": "module-source-v1-consumer", "status": "passed", "elapsed_ms": 54.549}
+{"checkpoint": "module-save-v1-consumer", "status": "running"}
+{"checkpoint": "module-save-v1-consumer", "status": "passed", "elapsed_ms": 4785.334}
+{"checkpoint": "module-values-v1", "status": "running"}
+{"checkpoint": "module-values-v1", "status": "passed", "elapsed_ms": 42.853}
+{"checkpoint": "module-failed-test-restores-service", "status": "running"}
+{"checkpoint": "module-failed-test-restores-service", "status": "passed", "elapsed_ms": 262.174}
+{"checkpoint": "module-discard-failed-test", "status": "running"}
+{"checkpoint": "module-discard-failed-test", "status": "passed", "elapsed_ms": 34.016}
+{"checkpoint": "module-service-survives-failed-stage", "status": "running"}
+{"checkpoint": "module-service-survives-failed-stage", "status": "passed", "elapsed_ms": 42.371}
+{"checkpoint": "module-source-survives-failed-stage", "status": "running"}
+{"checkpoint": "module-source-survives-failed-stage", "status": "passed", "elapsed_ms": 59.132}
+{"checkpoint": "module-inventory-after", "status": "running"}
+{"checkpoint": "module-inventory-after", "status": "passed", "elapsed_ms": 74.936}
+{"checkpoint": "boot-require-clean-unconfirmed-baseline", "status": "running"}
+{"checkpoint": "boot-require-clean-unconfirmed-baseline", "status": "passed", "elapsed_ms": 264.342}
+{"checkpoint": "boot-exact-v1-source-interface", "status": "running"}
+{"checkpoint": "boot-exact-v1-source-interface", "status": "passed", "elapsed_ms": 50.223}
+{"checkpoint": "boot-exact-v1-source-provider", "status": "running"}
+{"checkpoint": "boot-exact-v1-source-provider", "status": "passed", "elapsed_ms": 59.128}
+{"checkpoint": "boot-exact-v1-source-consumer", "status": "running"}
+{"checkpoint": "boot-exact-v1-source-consumer", "status": "passed", "elapsed_ms": 53.985}
+{"checkpoint": "boot-trial-v1", "status": "running"}
+{"checkpoint": "boot-trial-v1", "status": "passed", "elapsed_ms": 6029.642}
+{"checkpoint": "boot-pending-v1", "status": "running"}
+{"checkpoint": "boot-pending-v1", "status": "passed", "elapsed_ms": 303.48}
+{"checkpoint": "true-reboot-load-v1", "status": "running"}
+{"checkpoint": "true-reboot-load-v1", "status": "passed", "elapsed_ms": 37139.694}
+{"checkpoint": "boot-confirmed-v1", "status": "running"}
+{"checkpoint": "boot-confirmed-v1", "status": "passed", "elapsed_ms": 342.416}
+{"checkpoint": "boot-confirmed-v1-values", "status": "running"}
+{"checkpoint": "boot-confirmed-v1-values", "status": "passed", "elapsed_ms": 42.603}
+{"checkpoint": "boot-confirm-v1-idempotent", "status": "running"}
+{"checkpoint": "boot-confirm-v1-idempotent", "status": "passed", "elapsed_ms": 33.598}
+{"checkpoint": "module-stage-v2-provider", "status": "running"}
+{"checkpoint": "module-stage-v2-provider", "status": "passed", "elapsed_ms": 317.968}
+{"checkpoint": "module-activate-v2-provider", "status": "running"}
+{"checkpoint": "module-activate-v2-provider", "status": "passed", "elapsed_ms": 134.456}
+{"checkpoint": "module-existing-caller-observes-v2", "status": "running"}
+{"checkpoint": "module-existing-caller-observes-v2", "status": "passed", "elapsed_ms": 44.958}
+{"checkpoint": "module-save-v2-provider", "status": "running"}
+{"checkpoint": "module-save-v2-provider", "status": "passed", "elapsed_ms": 2221.587}
+{"checkpoint": "module-stage-v2-consumer", "status": "running"}
+{"checkpoint": "module-stage-v2-consumer", "status": "passed", "elapsed_ms": 326.923}
+{"checkpoint": "module-activate-v2-consumer", "status": "running"}
+{"checkpoint": "module-activate-v2-consumer", "status": "passed", "elapsed_ms": 134.571}
+{"checkpoint": "module-save-v2-consumer", "status": "running"}
+{"checkpoint": "module-save-v2-consumer", "status": "passed", "elapsed_ms": 3478.329}
+{"checkpoint": "module-values-v2-before-reboot", "status": "running"}
+{"checkpoint": "module-values-v2-before-reboot", "status": "passed", "elapsed_ms": 41.641}
+{"checkpoint": "boot-trial-v2", "status": "running"}
+{"checkpoint": "boot-trial-v2", "status": "passed", "elapsed_ms": 6252.231}
+{"checkpoint": "boot-pending-v2", "status": "running"}
+{"checkpoint": "boot-pending-v2", "status": "passed", "elapsed_ms": 342.281}
+{"checkpoint": "true-reboot-load-v2", "status": "running"}
+{"checkpoint": "true-reboot-load-v2", "status": "passed", "elapsed_ms": 37226.903}
+{"checkpoint": "boot-confirmed-v2", "status": "running"}
+{"checkpoint": "boot-confirmed-v2", "status": "passed", "elapsed_ms": 342.751}
+{"checkpoint": "boot-confirmed-v2-values", "status": "running"}
+{"checkpoint": "boot-confirmed-v2-values", "status": "passed", "elapsed_ms": 42.058}
+{"checkpoint": "boot-source-v2-provider", "status": "running"}
+{"checkpoint": "boot-source-v2-provider", "status": "passed", "elapsed_ms": 59.431}
+{"checkpoint": "boot-source-v2-consumer", "status": "running"}
+{"checkpoint": "boot-source-v2-consumer", "status": "passed", "elapsed_ms": 54.136}
+{"checkpoint": "boot-confirm-v2-idempotent", "status": "running"}
+{"checkpoint": "boot-confirm-v2-idempotent", "status": "passed", "elapsed_ms": 31.704}
+{"checkpoint": "boot-select-revert-v1", "status": "running"}
+{"checkpoint": "boot-select-revert-v1", "status": "passed", "elapsed_ms": 999.758}
+{"checkpoint": "true-reboot-revert-v1", "status": "running"}
+{"checkpoint": "true-reboot-revert-v1", "status": "passed", "elapsed_ms": 35963.657}
+{"checkpoint": "boot-reverted-v1", "status": "running"}
+{"checkpoint": "boot-reverted-v1", "status": "passed", "elapsed_ms": 343.065}
+{"checkpoint": "boot-reverted-v1-values", "status": "running"}
+{"checkpoint": "boot-reverted-v1-values", "status": "passed", "elapsed_ms": 43.733}
+{"checkpoint": "boot-reverted-exact-provider-source", "status": "running"}
+{"checkpoint": "boot-reverted-exact-provider-source", "status": "passed", "elapsed_ms": 59.669}
+{"checkpoint": "boot-final-module-inventory", "status": "running"}
+{"checkpoint": "boot-final-module-inventory", "status": "passed", "elapsed_ms": 74.5}
+{"checkpoint": "restore-interpreter-base-and-engine", "status": "running"}
+{"checkpoint": "restore-interpreter-base-and-engine", "status": "passed", "elapsed_ms": 40.846}
+{"report": "docs/bring-up/vios-resident-accepted-run3.json", "status": "passed", "namespace": "LIVE1"}

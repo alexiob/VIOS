@@ -1,0 +1,9 @@
+Physical keyboard observation ready; no host navigation generated.
+Traceback (most recent call last):
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/tools/vios_fast_display_keyboard.py", line 59, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/tools/vios_fast_display_keyboard.py", line 50, in main
+    assert len(r['observed_cursors'])>1,'No physical cursor movement observed'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: No physical cursor movement observed

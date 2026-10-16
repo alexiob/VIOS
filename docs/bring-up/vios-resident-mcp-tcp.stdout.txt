@@ -1,0 +1,20 @@
+{"checkpoint": "initialize-resident", "status": "running"}
+{"checkpoint": "initialize-resident", "status": "passed", "elapsed_ms": 0.332}
+{"checkpoint": "discover29tools", "status": "running"}
+{"checkpoint": "discover29tools", "status": "passed", "elapsed_ms": 0.461}
+{"checkpoint": "connect-no-deploy", "status": "running"}
+{"checkpoint": "connect-no-deploy", "status": "passed", "elapsed_ms": 35870.873}
+{"checkpoint": "compile-and-execute", "status": "running"}
+{"checkpoint": "compile-and-execute", "status": "passed", "elapsed_ms": 47.11}
+{"checkpoint": "retained-exact-source", "status": "running"}
+{"checkpoint": "retained-exact-source", "status": "passed", "elapsed_ms": 59.955}
+{"checkpoint": "boot-status-confirmed", "status": "running"}
+{"checkpoint": "boot-status-confirmed", "status": "passed", "elapsed_ms": 345.118}
+{"checkpoint": "debug-registers", "status": "running"}
+{"checkpoint": "debug-registers", "status": "passed", "elapsed_ms": 57.967}
+{"checkpoint": "latency-evaluate", "status": "running"}
+{"checkpoint": "latency-evaluate", "status": "passed", "elapsed_ms": 315.654}
+{"checkpoint": "latency-inspect", "status": "running"}
+{"checkpoint": "latency-inspect", "status": "passed", "elapsed_ms": 394.124}
+{"checkpoint": "latency-resources", "status": "running"}
+{"checkpoint": "latency-resources", "status": "passed", "elapsed_ms": 460.852}

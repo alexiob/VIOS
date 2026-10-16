@@ -1,0 +1,297 @@
+{
+  "status": "passed",
+  "started_unix": 1792151011.859791,
+  "checks": [
+    {
+      "name": "resident_attach_without_ram_deploy",
+      "result": {
+        "output": "boot confirmed A\r\n\r\nVIOS Forth 24 / Agon Light 2\r\nvios> @B2A8976D !00000000 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "connected": true,
+        "identity": "ID 0007 REV AA STAT 18"
+      },
+      "passed": true
+    },
+    {
+      "name": "resident_512_entry_profile",
+      "result": {
+        "output": "RESOURCES\r\nengine DIRECT words 80/512 token-bytes 327 direct-bytes 986 data-bytes 27 source-bytes 281 data-peak 2 return-peak 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "resources": {
+          "engine": "DIRECT",
+          "words": "80/512",
+          "token-bytes": 327,
+          "direct-bytes": 986,
+          "data-bytes": 27,
+          "source-bytes": 281,
+          "data-peak": 2,
+          "return-peak": 0
+        }
+      },
+      "passed": true
+    },
+    {
+      "name": "source_boot_preserved",
+      "result": {
+        "output": "BOOT-STATUS\r\nboot confirmed A candidate NONE state CLEAN current A generation 7\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "boot": {
+          "confirmed": "A",
+          "candidate": "NONE",
+          "state": "CLEAN",
+          "current": "A",
+          "generation": 7
+        }
+      },
+      "passed": true
+    },
+    {
+      "name": "startup_values",
+      "result": {
+        "output": "LIVE1-C . LIVE1-D . CR\r\n11 12 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "passed": true
+    },
+    {
+      "name": "saved_workbench_module_reload",
+      "result": {
+        "output": "MODULE-LOAD /VIOS/A8783CA5/203C0319.VIM\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "passed": true
+    },
+    {
+      "name": "saved_workbench_module_edit",
+      "result": {
+        "revision": 2,
+        "catalog": 154,
+        "open": false,
+        "draft": true,
+        "dirty": false,
+        "staged": false,
+        "active": true,
+        "saved": false,
+        "length": 1969,
+        "cursor": 0,
+        "selection": 0,
+        "browser": 0,
+        "focus": 0,
+        "words": 81,
+        "words_max": 512,
+        "module": "WBM1P",
+        "version": "1.0",
+        "test": "",
+        "error": ""
+      },
+      "passed": true
+    },
+    {
+      "name": "exact_source_reload",
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 2 catalog 154 open 0 draft 1 dirty 0 staged 0 active 1 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 81 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> WB-SOURCE 0 80\r\nWB-SOURCE revision 2 offset 0 total 1969 hex 3A2057424D31502D56414C5545203138203B0A5C2057424D315020736F7572636520726F772030302072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F7720303120\r\n\r\nok\r\nvios> WB-SOURCE 80 80\r\nWB-SOURCE revision 2 offset 80 total 1969 hex 72657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772030322072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F77203033207265\r\n\r\nok\r\nvios> WB-SOURCE 160 80\r\nWB-SOURCE revision 2 offset 160 total 1969 hex 7461696E65642065786163746C790A5C2057424D315020736F7572636520726F772030342072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772030352072657461\r\n\r\nok\r\nvios> WB-SOURCE 240 80\r\nWB-SOURCE revision 2 offset 240 total 1969 hex 696E65642065786163746C790A5C2057424D315020736F7572636520726F772030362072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772030372072657461696E\r\n\r\nok\r\nvios> WB-SOURCE 320 80\r\nWB-SOURCE revision 2 offset 320 total 1969 hex 65642065786163746C790A5C2057424D315020736F7572636520726F772030382072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772030392072657461696E6564\r\n\r\nok\r\nvios> WB-SOURCE 400 80\r\nWB-SOURCE revision 2 offset 400 total 1969 hex 2065786163746C790A5C2057424D315020736F7572636520726F772031302072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772031312072657461696E65642065\r\n\r\nok\r\nvios> WB-SOURCE 480 80\r\nWB-SOURCE revision 2 offset 480 total 1969 hex 786163746C790A5C2057424D315020736F7572636520726F772031322072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772031332072657461696E656420657861\r\n\r\nok\r\nvios> WB-SOURCE 560 80\r\nWB-SOURCE revision 2 offset 560 total 1969 hex 63746C790A5C2057424D315020736F7572636520726F772031342072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772031352072657461696E6564206578616374\r\n\r\nok\r\nvios> WB-SOURCE 640 80\r\nWB-SOURCE revision 2 offset 640 total 1969 hex 6C790A5C2057424D315020736F7572636520726F772031362072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772031372072657461696E65642065786163746C79\r\n\r\nok\r\nvios> WB-SOURCE 720 80\r\nWB-SOURCE revision 2 offset 720 total 1969 hex 0A5C2057424D315020736F7572636520726F772031382072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772031392072657461696E65642065786163746C790A5C\r\n\r\nok\r\nvios> WB-SOURCE 800 80\r\nWB-SOURCE revision 2 offset 800 total 1969 hex 2057424D315020736F7572636520726F772032302072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772032312072657461696E65642065786163746C790A5C2057\r\n\r\nok\r\nvios> WB-SOURCE 880 80\r\nWB-SOURCE revision 2 offset 880 total 1969 hex 424D315020736F7572636520726F772032322072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772032332072657461696E65642065786163746C790A5C2057424D\r\n\r\nok\r\nvios> WB-SOURCE 960 80\r\nWB-SOURCE revision 2 offset 960 total 1969 hex 315020736F7572636520726F772032342072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772032352072657461696E65642065786163746C790A5C2057424D3150\r\n\r\nok\r\nvios> WB-SOURCE 1040 80\r\nWB-SOURCE revision 2 offset 1040 total 1969 hex 20736F7572636520726F772032362072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772032372072657461696E65642065786163746C790A5C2057424D31502073\r\n\r\nok\r\nvios> WB-SOURCE 1120 80\r\nWB-SOURCE revision 2 offset 1120 total 1969 hex 6F7572636520726F772032382072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772032392072657461696E65642065786163746C790A5C2057424D315020736F75\r\n\r\nok\r\nvios> WB-SOURCE 1200 80\r\nWB-SOURCE revision 2 offset 1200 total 1969 hex 72636520726F772033302072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772033312072657461696E65642065786163746C790A5C2057424D315020736F757263\r\n\r\nok\r\nvios> WB-SOURCE 1280 80\r\nWB-SOURCE revision 2 offset 1280 total 1969 hex 6520726F772033322072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772033332072657461696E65642065786163746C790A5C2057424D315020736F7572636520\r\n\r\nok\r\nvios> WB-SOURCE 1360 80\r\nWB-SOURCE revision 2 offset 1360 total 1969 hex 726F772033342072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772033352072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F\r\n\r\nok\r\nvios> WB-SOURCE 1440 80\r\nWB-SOURCE revision 2 offset 1440 total 1969 hex 772033362072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772033372072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F7720\r\n\r\nok\r\nvios> WB-SOURCE 1520 80\r\nWB-SOURCE revision 2 offset 1520 total 1969 hex 33382072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772033392072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F77203430\r\n\r\nok\r\nvios> WB-SOURCE 1600 80\r\nWB-SOURCE revision 2 offset 1600 total 1969 hex 2072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772034312072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772034322072\r\n\r\nok\r\nvios> WB-SOURCE 1680 80\r\nWB-SOURCE revision 2 offset 1680 total 1969 hex 657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772034332072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F7720343420726574\r\n\r\nok\r\nvios> WB-SOURCE 1760 80\r\nWB-SOURCE revision 2 offset 1760 total 1969 hex 61696E65642065786163746C790A5C2057424D315020736F7572636520726F772034352072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F77203436207265746169\r\n\r\nok\r\nvios> WB-SOURCE 1840 80\r\nWB-SOURCE revision 2 offset 1840 total 1969 hex 6E65642065786163746C790A5C2057424D315020736F7572636520726F772034372072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772034382072657461696E65\r\n\r\nok\r\nvios> WB-SOURCE 1920 49\r\nWB-SOURCE revision 2 offset 1920 total 1969 hex 642065786163746C790A5C2057424D315020736F7572636520726F772034392072657461696E65642065786163746C790A\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 2,
+          "catalog": 154,
+          "open": false,
+          "draft": true,
+          "dirty": false,
+          "staged": false,
+          "active": true,
+          "saved": false,
+          "length": 1969,
+          "cursor": 0,
+          "selection": 0,
+          "browser": 0,
+          "focus": 0,
+          "words": 81,
+          "words_max": 512,
+          "module": "WBM1P",
+          "version": "1.0",
+          "test": "",
+          "error": ""
+        },
+        "source": ": WBM1P-VALUE 18 ;\n\\ WBM1P source row 00 retained exactly\n\\ WBM1P source row 01 retained exactly\n\\ WBM1P source row 02 retained exactly\n\\ WBM1P source row 03 retained exactly\n\\ WBM1P source row 04 retained exactly\n\\ WBM1P source row 05 retained exactly\n\\ WBM1P source row 06 retained exactly\n\\ WBM1P source row 07 retained exactly\n\\ WBM1P source row 08 retained exactly\n\\ WBM1P source row 09 retained exactly\n\\ WBM1P source row 10 retained exactly\n\\ WBM1P source row 11 retained exactly\n\\ WBM1P source row 12 retained exactly\n\\ WBM1P source row 13 retained exactly\n\\ WBM1P source row 14 retained exactly\n\\ WBM1P source row 15 retained exactly\n\\ WBM1P source row 16 retained exactly\n\\ WBM1P source row 17 retained exactly\n\\ WBM1P source row 18 retained exactly\n\\ WBM1P source row 19 retained exactly\n\\ WBM1P source row 20 retained exactly\n\\ WBM1P source row 21 retained exactly\n\\ WBM1P source row 22 retained exactly\n\\ WBM1P source row 23 retained exactly\n\\ WBM1P source row 24 retained exactly\n\\ WBM1P source row 25 retained exactly\n\\ WBM1P source row 26 retained exactly\n\\ WBM1P source row 27 retained exactly\n\\ WBM1P source row 28 retained exactly\n\\ WBM1P source row 29 retained exactly\n\\ WBM1P source row 30 retained exactly\n\\ WBM1P source row 31 retained exactly\n\\ WBM1P source row 32 retained exactly\n\\ WBM1P source row 33 retained exactly\n\\ WBM1P source row 34 retained exactly\n\\ WBM1P source row 35 retained exactly\n\\ WBM1P source row 36 retained exactly\n\\ WBM1P source row 37 retained exactly\n\\ WBM1P source row 38 retained exactly\n\\ WBM1P source row 39 retained exactly\n\\ WBM1P source row 40 retained exactly\n\\ WBM1P source row 41 retained exactly\n\\ WBM1P source row 42 retained exactly\n\\ WBM1P source row 43 retained exactly\n\\ WBM1P source row 44 retained exactly\n\\ WBM1P source row 45 retained exactly\n\\ WBM1P source row 46 retained exactly\n\\ WBM1P source row 47 retained exactly\n\\ WBM1P source row 48 retained exactly\n\\ WBM1P source row 49 retained exactly\n",
+        "revision": 2,
+        "bytes": 1969,
+        "crc32": 3627393478,
+        "crc32_hex": "D835A1C6",
+        "source_sha256": "3e9f894e2ed2e81c86c003c88cf04417b9ab309a0a21b4af2346085bd58399f9"
+      },
+      "passed": true
+    },
+    {
+      "name": "saved_flag",
+      "result": {
+        "output": "WB-SAVE 2\r\nWB-STATUS revision 2 catalog 154 open 0 draft 1 dirty 0 staged 0 active 1 saved 1 length 1969 cursor 0 selection 0 browser 0 focus 0 words 81 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 2,
+          "catalog": 154,
+          "open": false,
+          "draft": true,
+          "dirty": false,
+          "staged": false,
+          "active": true,
+          "saved": true,
+          "length": 1969,
+          "cursor": 0,
+          "selection": 0,
+          "browser": 0,
+          "focus": 0,
+          "words": 81,
+          "words_max": 512,
+          "module": "WBM1P",
+          "version": "1.0",
+          "test": "",
+          "error": ""
+        }
+      },
+      "passed": true
+    },
+    {
+      "name": "workbench_open",
+      "result": {
+        "output": "WB-OPEN\r\nWB-STATUS revision 2 catalog 154 open 1 draft 1 dirty 0 staged 0 active 1 saved 1 length 1969 cursor 0 selection 0 browser 0 focus 0 words 81 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 2,
+          "catalog": 154,
+          "open": true,
+          "draft": true,
+          "dirty": false,
+          "staged": false,
+          "active": true,
+          "saved": true,
+          "length": 1969,
+          "cursor": 0,
+          "selection": 0,
+          "browser": 0,
+          "focus": 0,
+          "words": 81,
+          "words_max": 512,
+          "module": "WBM1P",
+          "version": "1.0",
+          "test": "",
+          "error": ""
+        }
+      },
+      "passed": true
+    },
+    {
+      "name": "module_selected",
+      "result": {
+        "output": "WB-SELECT MODULE WBM1P\r\nWB-STATUS revision 2 catalog 154 open 1 draft 1 dirty 0 staged 0 active 1 saved 1 length 1969 cursor 0 selection 3 browser 0 focus 0 words 81 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 2,
+          "catalog": 154,
+          "open": true,
+          "draft": true,
+          "dirty": false,
+          "staged": false,
+          "active": true,
+          "saved": true,
+          "length": 1969,
+          "cursor": 0,
+          "selection": 3,
+          "browser": 0,
+          "focus": 0,
+          "words": 81,
+          "words_max": 512,
+          "module": "WBM1P",
+          "version": "1.0",
+          "test": "",
+          "error": ""
+        }
+      },
+      "passed": true
+    },
+    {
+      "name": "flushed",
+      "result": {
+        "output": "WB-FLUSH\r\nWB-FLUSH elapsed_ms 705 bytes 3918 spans 353 batches 32 cells 1447 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "elapsed_ms": 705,
+          "bytes": 3918,
+          "spans": 353,
+          "batches": 32,
+          "cells": 1447,
+          "pending": 0
+        }
+      },
+      "passed": true
+    },
+    {
+      "name": "batched_full_view",
+      "result": {
+        "rows": 60,
+        "state": {
+          "revision": 2,
+          "catalog": 154,
+          "open": true,
+          "draft": true,
+          "dirty": false,
+          "staged": false,
+          "active": true,
+          "saved": true,
+          "length": 1969,
+          "cursor": 0,
+          "selection": 3,
+          "browser": 0,
+          "focus": 0,
+          "words": 81,
+          "words_max": 512,
+          "module": "WBM1P",
+          "version": "1.0",
+          "test": "",
+          "error": ""
+        }
+      },
+      "passed": true
+    },
+    {
+      "name": "resident_actual_header",
+      "result": {
+        "output": "$80 COLOUR 0 0 CHAR@ . CR\r\n86 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "passed": true
+    },
+    {
+      "name": "resident_mode_zero_drops_and_module",
+      "result": {
+        "output": "VDP-INFO WBM1P-VALUE . CR\r\nvdp width 640 height 480 colours 4 mode 1 console-dropped 0\r\n18 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "passed": true
+    }
+  ],
+  "finished_unix": 1792151064.7835379
+}

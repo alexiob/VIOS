@@ -1,0 +1,18 @@
+{"time": 1792137238.978495, "direction": "rx", "hex": "41", "text": "A"}
+{"time": 1792137238.97914, "direction": "rx", "hex": "4d206f6e6c793b20493d6964656e746966790d0a", "text": "M only; I=identify\r\n"}
+{"time": 1792137239.191801, "direction": "tx", "hex": "32", "text": "2"}
+{"time": 1792137239.193752, "direction": "tx", "hex": "49", "text": "I"}
+{"time": 1792137239.199411, "direction": "rx", "hex": "49", "text": "I"}
+{"time": 1792137239.199931, "direction": "rx", "hex": "4420303030372052455620414120535441542031380d0a", "text": "D 0007 REV AA STAT 18\r\n"}
+{"time": 1792137239.200059, "direction": "tx", "hex": "48", "text": "H"}
+{"time": 1792137239.20443, "direction": "rx", "hex": "52", "text": "R"}
+{"time": 1792137239.204687, "direction": "rx", "hex": "45475320393820303035343030203030303030302030303039303020303030", "text": "EGS 98 005400 000000 000900 000"}
+{"time": 1792137239.20715, "direction": "rx", "hex": "30", "text": "0"}
+{"time": 1792137239.2073228, "direction": "rx", "hex": "3031203042464643412030424646454520304246464335203030394636380d", "text": "01 0BFFCA 0BFFEE 0BFFC5 009F68\r"}
+{"time": 1792137239.2091122, "direction": "rx", "hex": "0a", "text": "\n"}
+{"time": 1792137239.2091782, "direction": "tx", "hex": "44", "text": "D"}
+{"time": 1792137239.224729, "direction": "rx", "hex": "43", "text": "C"}
+{"time": 1792137239.225194, "direction": "rx", "hex": "53302030302030422030382030310d0a45525220756e737570706f72746564", "text": "S0 00 0B 08 01\r\nERR unsupported"}
+{"time": 1792137239.225285, "direction": "tx", "hex": "1d1d1d", "text": "\u001d\u001d\u001d"}
+{"time": 1792137239.227743, "direction": "rx", "hex": "20", "text": " "}
+{"time": 1792137239.228053, "direction": "rx", "hex": "52414d206d617070696e670d0a", "text": "RAM mapping\r\n"}

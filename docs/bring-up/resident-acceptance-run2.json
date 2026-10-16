@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "started_utc": "2026-10-16T09:56:41.106445+00:00",
+  "namespace": "AT23B3708B",
+  "phases": [
+    "core",
+    "modules",
+    "boot"
+  ],
+  "status": "failed",
+  "hardware_run": true,
+  "checks": [
+    {
+      "name": "attach-resident-no-deploy",
+      "status": "failed",
+      "error": "Resident firmware did not answer during boot; port retained",
+      "error_type": "TimeoutError",
+      "elapsed_ms": 120013.074
+    }
+  ],
+  "limits": [
+    "VDP replies do not prove visible or audible physical output",
+    "Boot phase changes startup only from an unconfirmed clean baseline",
+    "No flash write, ROM helper upload, image deployment or file cleanup"
+  ],
+  "port": "/dev/cu.usbserial-22430",
+  "error": "Resident firmware did not answer during boot; port retained",
+  "error_type": "TimeoutError",
+  "finished_utc": "2026-10-16T09:58:41.125997+00:00"
+}

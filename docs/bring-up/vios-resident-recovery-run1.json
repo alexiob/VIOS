@@ -1,0 +1,356 @@
+{
+  "schema": 1,
+  "started_utc": "2026-10-16T10:30:16.156559+00:00",
+  "namespace": "REC_9217562C",
+  "phases": [
+    "recovery",
+    "watchdog"
+  ],
+  "status": "passed",
+  "hardware_run": true,
+  "checks": [
+    {
+      "name": "attach-idle-resident-no-image-upload",
+      "status": "passed",
+      "result": {
+        "output": "boot confirmed A\r\n\r\nVIOS Forth 24 / Agon Light 2\r\nvios> @FBEFC3B5 !00000000 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "connected": true,
+        "identity": "ID 0007 REV AA STAT 18"
+      },
+      "elapsed_ms": 35920.15
+    },
+    {
+      "name": "require-empty-stack",
+      "status": "passed",
+      "result": {
+        "output": ".S\r\n<0> \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "data_stack": {
+          "depth_text": "0",
+          "values_text": []
+        }
+      },
+      "elapsed_ms": 29.83
+    },
+    {
+      "name": "record-clean-confirmed-sd-selection",
+      "status": "passed",
+      "result": {
+        "output": "BOOT-STATUS\r\nboot confirmed A candidate NONE state CLEAN current A generation 7\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "boot": {
+          "confirmed": "A",
+          "candidate": "NONE",
+          "state": "CLEAN",
+          "current": "A",
+          "generation": 7
+        }
+      },
+      "elapsed_ms": 344.678
+    },
+    {
+      "name": "key-define-transient-marker",
+      "status": "passed",
+      "result": {
+        "output": ": REC_9217562C-RAM 123 ;\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "elapsed_ms": 37.759
+    },
+    {
+      "name": "key-execution-pending",
+      "status": "passed",
+      "result": {
+        "output": "@FF507E05 !6FF40A18 KEY .\r\n",
+        "ok": false,
+        "pending": true,
+        "compiling": false,
+        "remaining_source": "",
+        "error": "Evaluation still pending; use console_input for KEY, then await_result"
+      },
+      "elapsed_ms": 2023.917
+    },
+    {
+      "name": "key-explicit-force-z",
+      "status": "passed",
+      "result": {
+        "rebooted": true,
+        "forced": true,
+        "output": "boot confirmed A\r\n\r\nVIOS Forth 24 / Agon Light 2\r\nvios> @654C1DC8 !00000000 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "connected": true,
+        "identity": "ID 0007 REV AA STAT 18"
+      },
+      "elapsed_ms": 35930.423
+    },
+    {
+      "name": "key-transient-marker-absent",
+      "status": "passed",
+      "result": {
+        "output": "SEE REC_9217562C-RAM\r\nerror: unknown word: REC_9217562C-RAM\r\n\r\nerror\r\nvios> ",
+        "ok": false,
+        "compiling": false,
+        "pending": false
+      },
+      "elapsed_ms": 40.024
+    },
+    {
+      "name": "key-fresh-vm-42",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 6 7 * . CR\r\n42 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          42
+        ]
+      },
+      "elapsed_ms": 34.148
+    },
+    {
+      "name": "key-confirmed-sd-unchanged",
+      "status": "passed",
+      "result": {
+        "output": "BOOT-STATUS\r\nboot confirmed A candidate NONE state CLEAN current A generation 7\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "boot": {
+          "confirmed": "A",
+          "candidate": "NONE",
+          "state": "CLEAN",
+          "current": "A",
+          "generation": 7
+        }
+      },
+      "elapsed_ms": 343.316
+    },
+    {
+      "name": "gpu-define-transient-marker",
+      "status": "passed",
+      "result": {
+        "output": ": REC_9217562C-RAM 123 ;\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "elapsed_ms": 38.944
+    },
+    {
+      "name": "gpu-store-self-jump-complete-ack",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 23 VDU 0 VDU 160 VDU 1 VDU 0 VDU 0 VDU 6 VDU 0 VDU 23 VDU 0 VDU 160 VDU 1 VDU 0 VDU 7 VDU\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "elapsed_ms": 78.114
+    },
+    {
+      "name": "gpu-self-jump-execution-pending",
+      "status": "passed",
+      "result": {
+        "output": "@8DC481A5 !5BD72573 DECIMAL 23 VDU 0 VDU 160 VDU 1 VDU 0 VDU 1 VDU\r\n",
+        "ok": false,
+        "pending": true,
+        "compiling": false,
+        "remaining_source": "",
+        "error": "Evaluation still pending; use console_input for KEY, then await_result"
+      },
+      "elapsed_ms": 2065.424
+    },
+    {
+      "name": "gpu-independent-boot-and-identity",
+      "status": "passed",
+      "result": {
+        "boot": "BOOT READY\r\n",
+        "identity": "ID 0007 REV AA STAT 18\r\n"
+      },
+      "elapsed_ms": 17.492
+    },
+    {
+      "name": "gpu-halt-register-and-header-diagnostic",
+      "status": "passed",
+      "result": {
+        "halted": true,
+        "registers": "REGS 98 004260 000000 FFFFFF FFFFFF 0AFFFA 0769E0 0AFEC9 0450E6\r\n",
+        "header": "4d4f530001"
+      },
+      "elapsed_ms": 61.642
+    },
+    {
+      "name": "gpu-explicit-force-z",
+      "status": "passed",
+      "result": {
+        "rebooted": true,
+        "forced": true,
+        "output": "boot confirmed A\r\n\r\nVIOS Forth 24 / Agon Light 2\r\nvios> @CE9C2B9F !00000000 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "connected": true,
+        "identity": "ID 0007 REV AA STAT 18"
+      },
+      "elapsed_ms": 35958.879
+    },
+    {
+      "name": "gpu-transient-marker-absent",
+      "status": "passed",
+      "result": {
+        "output": "SEE REC_9217562C-RAM\r\nerror: unknown word: REC_9217562C-RAM\r\n\r\nerror\r\nvios> ",
+        "ok": false,
+        "compiling": false,
+        "pending": false
+      },
+      "elapsed_ms": 40.867
+    },
+    {
+      "name": "gpu-fresh-vm-42",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 6 7 * . CR\r\n42 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          42
+        ]
+      },
+      "elapsed_ms": 33.943
+    },
+    {
+      "name": "gpu-confirmed-sd-unchanged",
+      "status": "passed",
+      "result": {
+        "output": "BOOT-STATUS\r\nboot confirmed A candidate NONE state CLEAN current A generation 7\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "boot": {
+          "confirmed": "A",
+          "candidate": "NONE",
+          "state": "CLEAN",
+          "current": "A",
+          "generation": 7
+        }
+      },
+      "elapsed_ms": 342.346
+    },
+    {
+      "name": "watchdog-define-transient-marker",
+      "status": "passed",
+      "result": {
+        "output": ": REC_9217562C-RAM 123 ;\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "elapsed_ms": 38.456
+    },
+    {
+      "name": "watchdog-arm-complete-ack",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 23 VDU 0 VDU 226 VDU 0 VDU\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "elapsed_ms": 44.933
+    },
+    {
+      "name": "watchdog-reset-events",
+      "status": "passed",
+      "result": {
+        "events": [
+          "HEALTH flag 0\r\n",
+          "BOOT failure 1/3; restarting ESP recovery\r\n",
+          "BOOT VIOS VDP 1.04 mux-v1\r\n",
+          "BOOT retained failures 1\r\n"
+        ],
+        "elapsed_seconds": 30.1,
+        "old_decoder_integrity_error": true,
+        "retained_failures": 1
+      },
+      "elapsed_ms": 35393.729
+    },
+    {
+      "name": "watchdog-reattach-fresh-wrapper-no-z",
+      "status": "passed",
+      "result": {
+        "output": "boot confirmed A\r\n\r\nVIOS Forth 24 / Agon Light 2\r\nvios> @BB614736 !00000000 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "connected": true,
+        "identity": "ID 0007 REV AA STAT 18"
+      },
+      "elapsed_ms": 30513.888
+    },
+    {
+      "name": "watchdog-transient-marker-absent",
+      "status": "passed",
+      "result": {
+        "output": "SEE REC_9217562C-RAM\r\nerror: unknown word: REC_9217562C-RAM\r\n\r\nerror\r\nvios> ",
+        "ok": false,
+        "compiling": false,
+        "pending": false
+      },
+      "elapsed_ms": 40.449
+    },
+    {
+      "name": "watchdog-fresh-vm-42",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 6 7 * . CR\r\n42 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          42
+        ]
+      },
+      "elapsed_ms": 34.668
+    },
+    {
+      "name": "watchdog-confirmed-sd-unchanged",
+      "status": "passed",
+      "result": {
+        "output": "BOOT-STATUS\r\nboot confirmed A candidate NONE state CLEAN current A generation 7\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "boot": {
+          "confirmed": "A",
+          "candidate": "NONE",
+          "state": "CLEAN",
+          "current": "A",
+          "generation": 7
+        }
+      },
+      "elapsed_ms": 343.011
+    }
+  ],
+  "limits": [
+    "Unsaved RAM is discarded; clean confirmed SD startup is preserved",
+    "B/I must work during stuck VDP; H/S/header diagnostics may report a halt timeout",
+    "No flash write, ROM helper upload, CPU image deployment or SD mutation",
+    "Protocol evidence does not prove visible or audible output"
+  ],
+  "port": "/dev/cu.usbserial-22430",
+  "explicit_reset_authorization": true,
+  "finished_utc": "2026-10-16T10:33:15.984202+00:00"
+}

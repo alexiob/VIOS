@@ -1,0 +1,6 @@
+{
+  "identity": "ID 0007 REV AA STAT 18",
+  "mapping": "CS0 00 0B 08 01",
+  "readback_sha256": "b8c18ba07b16abcc3686d6d27063a91e3b1441fd4c359ab2d751e74c47675ec8",
+  "boot": "GO 040000 USB/UART bridge 115200\r\n\r\nVIOS SD probe\r\nMOUNT FAT32 OK\r\nAUTOEXEC LOAD console.bin\r\nRUN\r\n\r\nNATIVE SD WRITE READBACK REMOVE PASS\r\nvios> "
+}

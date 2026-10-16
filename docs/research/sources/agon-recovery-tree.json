@@ -1,0 +1,366 @@
+{
+  "sha": "95d68464afd049945e1dfd780c1c07621d565450",
+  "url": "https://api.github.com/repos/AgonPlatform/agon-recovery/git/trees/95d68464afd049945e1dfd780c1c07621d565450",
+  "tree": [
+    {
+      "path": ".gitignore",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "bb0096098caf37f746b8328b865112f715edb38d",
+      "size": 104,
+      "url": "https://api.github.com/repos/AgonPlatform/agon-recovery/git/blobs/bb0096098caf37f746b8328b865112f715edb38d"
+    },
+    {
+      "path": "LICENSE",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "f10c065e692ac8cd7a29e97290860b93725e1990",
+      "size": 1070,
+      "url": "https://api.github.com/repos/AgonPlatform/agon-recovery/git/blobs/f10c065e692ac8cd7a29e97290860b93725e1990"
+    },
+    {
+      "path": "README.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "474614e174dbff1fb347cf8ec64e65c30d8c04ef",
+      "size": 4925,
+      "url": "https://api.github.com/repos/AgonPlatform/agon-recovery/git/blobs/474614e174dbff1fb347cf8ec64e65c30d8c04ef"
+    },
+    {
+      "path": "data",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "34f0c3353dc33b58b06644bd76b0b883728a214e",
+      "url": "https://api.github.com/repos/AgonPlatform/agon-recovery/git/trees/34f0c3353dc33b58b06644bd76b0b883728a214e"
+    },
+    {
+      "path": "data/MOS.bin",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "0f9d33a0bd4610c40b0898c7538b573930497d62",
+      "size": 106563,
+      "url": "https://api.github.com/repos/AgonPlatform/agon-recovery/git/blobs/0f9d33a0bd4610c40b0898c7538b573930497d62"
+    },
+    {
+      "path": "data/flash.bin",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "94fa9e78227919460a2e6392f1ea70da3408994b",
+      "size": 90,
+      "url": "https://api.github.com/repos/AgonPlatform/agon-recovery/git/blobs/94fa9e78227919460a2e6392f1ea70da3408994b"
+    },
+    {
+      "path": "firmware",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "e07aff74c137b4bd1e1bd695243dfc8b42d4631a",
+      "url": "https://api.github.com/repos/AgonPlatform/agon-recovery/git/trees/e07aff74c137b4bd1e1bd695243dfc8b42d4631a"
+    },
+    {
+      "path": "firmware/input",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "0f52e0bfa13039259fa646290e55595871a61855",
+      "url": "https://api.github.com/repos/AgonPlatform/agon-recovery/git/trees/0f52e0bfa13039259fa646290e55595871a61855"
+    },
+    {
+      "path": "firmware/input/firmware.bin",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "7bd69feb96dd230d92438266793445e0b6c6fa97",
+      "size": 1037104,
+      "url": "https://api.github.com/repos/AgonPlatform/agon-recovery/git/blobs/7bd69feb96dd230d92438266793445e0b6c6fa97"
+    },
+    {
+      "path": "firmware/input/stay",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "83aa9aaa2308f34b54d53f3c98546f7a3df34455",
+      "size": 29,
+      "url": "https://api.github.com/repos/AgonPlatform/agon-recovery/git/blobs/83aa9aaa2308f34b54d53f3c98546f7a3df34455"
+    },
+    {
+      "path": "firmware/merged.bin",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "a090790d19874ce22ca42bb900b0b8b043d4be13",
+      "size": 4128768,
+      "url": "https://api.github.com/repos/AgonPlatform/agon-recovery/git/blobs/a090790d19874ce22ca42bb900b0b8b043d4be13"
+    },
+    {
+      "path": "include",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "c8eedbcd4866c6dc987ef0a0d300f0a38c899e71",
+      "url": "https://api.github.com/repos/AgonPlatform/agon-recovery/git/trees/c8eedbcd4866c6dc987ef0a0d300f0a38c899e71"
+    },
+    {
+      "path": "include/cpu.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "ddb2cb9eba7c1c1d558fc6bc777791bf05b74480",
+      "size": 2374,
+      "url": "https://api.github.com/repos/AgonPlatform/agon-recovery/git/blobs/ddb2cb9eba7c1c1d558fc6bc777791bf05b74480"
+    },
+    {
+      "path": "include/eZ80F92.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "6caa201af1c697a4cfbe4cf20c4826f497fd203a",
+      "size": 5868,
+      "url": "https://api.github.com/repos/AgonPlatform/agon-recovery/git/blobs/6caa201af1c697a4cfbe4cf20c4826f497fd203a"
+    },
+    {
+      "path": "include/esp32_io.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "a8d0fd985c0547f732fcc0c83b843d7e25a8396c",
+      "size": 3041,
+      "url": "https://api.github.com/repos/AgonPlatform/agon-recovery/git/blobs/a8d0fd985c0547f732fcc0c83b843d7e25a8396c"
+    },
+    {
+      "path": "include/message.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "2e9d14df95fa3a7d5e390a69fce84d530ab1ecb9",
+      "size": 158,
+      "url": "https://api.github.com/repos/AgonPlatform/agon-recovery/git/blobs/2e9d14df95fa3a7d5e390a69fce84d530ab1ecb9"
+    },
+    {
+      "path": "include/serial.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "3ca0ca3ea71863d8f1b5891b207b6e2a5b6e8e04",
+      "size": 681,
+      "url": "https://api.github.com/repos/AgonPlatform/agon-recovery/git/blobs/3ca0ca3ea71863d8f1b5891b207b6e2a5b6e8e04"
+    },
+    {
+      "path": "include/updater.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "5b76a8f177911cb2e76ab8b03a6ae9f2da84feb3",
+      "size": 143,
+      "url": "https://api.github.com/repos/AgonPlatform/agon-recovery/git/blobs/5b76a8f177911cb2e76ab8b03a6ae9f2da84feb3"
+    },
+    {
+      "path": "include/zdi.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "436ce32fd979483e104714afeba73fbe674ee287",
+      "size": 2462,
+      "url": "https://api.github.com/repos/AgonPlatform/agon-recovery/git/blobs/436ce32fd979483e104714afeba73fbe674ee287"
+    },
+    {
+      "path": "lib",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "f796d678c43e314a0baed971dc526f137962cb4d",
+      "url": "https://api.github.com/repos/AgonPlatform/agon-recovery/git/trees/f796d678c43e314a0baed971dc526f137962cb4d"
+    },
+    {
+      "path": "lib/README",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "6debab1e8b4c3faa0d06f4ff44bce343ce2cdcbf",
+      "size": 1037,
+      "url": "https://api.github.com/repos/AgonPlatform/agon-recovery/git/blobs/6debab1e8b4c3faa0d06f4ff44bce343ce2cdcbf"
+    },
+    {
+      "path": "media",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "fe0e41060969ee73335c09fe4673ad3c4182f333",
+      "url": "https://api.github.com/repos/AgonPlatform/agon-recovery/git/trees/fe0e41060969ee73335c09fe4673ad3c4182f333"
+    },
+    {
+      "path": "media/console8_zdi.fzz",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "18a0bc1c7d250c36c84f82d5c8fd95f0a75ae7ad",
+      "size": 535692,
+      "url": "https://api.github.com/repos/AgonPlatform/agon-recovery/git/blobs/18a0bc1c7d250c36c84f82d5c8fd95f0a75ae7ad"
+    },
+    {
+      "path": "media/console8_zdi.png",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "c41da952d14aecac790df3c354da6345ef755886",
+      "size": 182172,
+      "url": "https://api.github.com/repos/AgonPlatform/agon-recovery/git/blobs/c41da952d14aecac790df3c354da6345ef755886"
+    },
+    {
+      "path": "media/console8_zdi_pullup.fzz",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "3e27f9e5edd651fe2ba9bf6a09bb7e4b0bf29053",
+      "size": 536755,
+      "url": "https://api.github.com/repos/AgonPlatform/agon-recovery/git/blobs/3e27f9e5edd651fe2ba9bf6a09bb7e4b0bf29053"
+    },
+    {
+      "path": "media/console8_zdi_pullup.png",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "1ff09bca4330e7bf84e61007893da19489d55551",
+      "size": 190111,
+      "url": "https://api.github.com/repos/AgonPlatform/agon-recovery/git/blobs/1ff09bca4330e7bf84e61007893da19489d55551"
+    },
+    {
+      "path": "media/olimexagonlight2.png",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "9ad60baab07d40604ccb059e12ef0ba8ca74c419",
+      "size": 32930,
+      "url": "https://api.github.com/repos/AgonPlatform/agon-recovery/git/blobs/9ad60baab07d40604ccb059e12ef0ba8ca74c419"
+    },
+    {
+      "path": "media/originalagonlight.png",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "aa70da1ed223532c0a90eb109d28d767b762ee3a",
+      "size": 32191,
+      "url": "https://api.github.com/repos/AgonPlatform/agon-recovery/git/blobs/aa70da1ed223532c0a90eb109d28d767b762ee3a"
+    },
+    {
+      "path": "media/serialmenu.png",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "349d0bc13fcdc744b43fde149b7e0073234f6740",
+      "size": 67381,
+      "url": "https://api.github.com/repos/AgonPlatform/agon-recovery/git/blobs/349d0bc13fcdc744b43fde149b7e0073234f6740"
+    },
+    {
+      "path": "media/zdi.png",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "c1aaa1a3ddaefc1515d05e298c16c5f6675f1251",
+      "size": 12885,
+      "url": "https://api.github.com/repos/AgonPlatform/agon-recovery/git/blobs/c1aaa1a3ddaefc1515d05e298c16c5f6675f1251"
+    },
+    {
+      "path": "media/zdi.pptx",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "f2cfaabc87ddac72069eaabd6a2f10d2ca13fdb3",
+      "size": 71554,
+      "url": "https://api.github.com/repos/AgonPlatform/agon-recovery/git/blobs/f2cfaabc87ddac72069eaabd6a2f10d2ca13fdb3"
+    },
+    {
+      "path": "platformio.ini",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "21dd475d1e629da452459e6867aea4ab6e770b37",
+      "size": 760,
+      "url": "https://api.github.com/repos/AgonPlatform/agon-recovery/git/blobs/21dd475d1e629da452459e6867aea4ab6e770b37"
+    },
+    {
+      "path": "release.sh",
+      "mode": "100755",
+      "type": "blob",
+      "sha": "73cc041252e5c19f1f425f920bae9ece439abfcf",
+      "size": 912,
+      "url": "https://api.github.com/repos/AgonPlatform/agon-recovery/git/blobs/73cc041252e5c19f1f425f920bae9ece439abfcf"
+    },
+    {
+      "path": "scripts",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "fbcdd676671bfc839a0a32e75534305b009f4cfd",
+      "url": "https://api.github.com/repos/AgonPlatform/agon-recovery/git/trees/fbcdd676671bfc839a0a32e75534305b009f4cfd"
+    },
+    {
+      "path": "scripts/esptool.exe",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "73bd4b55a5a0a900e072264cf6d84afdb92b24c3",
+      "size": 6279696,
+      "url": "https://api.github.com/repos/AgonPlatform/agon-recovery/git/blobs/73bd4b55a5a0a900e072264cf6d84afdb92b24c3"
+    },
+    {
+      "path": "scripts/flash.bat",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "a425a3fcb1ca1c830832c0ec95441cf76e51071f",
+      "size": 535,
+      "url": "https://api.github.com/repos/AgonPlatform/agon-recovery/git/blobs/a425a3fcb1ca1c830832c0ec95441cf76e51071f"
+    },
+    {
+      "path": "scripts/flash.sh",
+      "mode": "100755",
+      "type": "blob",
+      "sha": "945afeb39eee09c670ba9d38684149e0777a38fa",
+      "size": 447,
+      "url": "https://api.github.com/repos/AgonPlatform/agon-recovery/git/blobs/945afeb39eee09c670ba9d38684149e0777a38fa"
+    },
+    {
+      "path": "src",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "529eb073b40aa9529112e37adc6be6ed2a90d5ff",
+      "url": "https://api.github.com/repos/AgonPlatform/agon-recovery/git/trees/529eb073b40aa9529112e37adc6be6ed2a90d5ff"
+    },
+    {
+      "path": "src/cpu.cpp",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "6a099305f68094893398450b5d43734b4c514ad7",
+      "size": 8546,
+      "url": "https://api.github.com/repos/AgonPlatform/agon-recovery/git/blobs/6a099305f68094893398450b5d43734b4c514ad7"
+    },
+    {
+      "path": "src/main.cpp",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "fbc36cda86cebd26be2275ab544eb49fd8196621",
+      "size": 13452,
+      "url": "https://api.github.com/repos/AgonPlatform/agon-recovery/git/blobs/fbc36cda86cebd26be2275ab544eb49fd8196621"
+    },
+    {
+      "path": "src/message.cpp",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "eb3e60335dc4837eec7f8bc898b8b55e1b610978",
+      "size": 454,
+      "url": "https://api.github.com/repos/AgonPlatform/agon-recovery/git/blobs/eb3e60335dc4837eec7f8bc898b8b55e1b610978"
+    },
+    {
+      "path": "src/updater.cpp",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "27e41378e4229d8055a3a311e7ff2c2e93cfcd28",
+      "size": 1603,
+      "url": "https://api.github.com/repos/AgonPlatform/agon-recovery/git/blobs/27e41378e4229d8055a3a311e7ff2c2e93cfcd28"
+    },
+    {
+      "path": "src/zdi.cpp",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "6e63ba85e693134448fa8b274c47eed8c2b5c5d3",
+      "size": 4925,
+      "url": "https://api.github.com/repos/AgonPlatform/agon-recovery/git/blobs/6e63ba85e693134448fa8b274c47eed8c2b5c5d3"
+    },
+    {
+      "path": "src_flash",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "f122d98d798e838b792540fba14196998d193c25",
+      "url": "https://api.github.com/repos/AgonPlatform/agon-recovery/git/trees/f122d98d798e838b792540fba14196998d193c25"
+    },
+    {
+      "path": "src_flash/flash.bin",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "94fa9e78227919460a2e6392f1ea70da3408994b",
+      "size": 90,
+      "url": "https://api.github.com/repos/AgonPlatform/agon-recovery/git/blobs/94fa9e78227919460a2e6392f1ea70da3408994b"
+    },
+    {
+      "path": "src_flash/flash.s",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "459ce7f3accb99c8f1f00f9ec36dc3fb352a02f2",
+      "size": 1086,
+      "url": "https://api.github.com/repos/AgonPlatform/agon-recovery/git/blobs/459ce7f3accb99c8f1f00f9ec36dc3fb352a02f2"
+    }
+  ],
+  "truncated": false
+}

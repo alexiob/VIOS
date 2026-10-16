@@ -1,0 +1,4005 @@
+{
+  "utc": "2026-10-16T13:16:32.219628+00:00",
+  "timer_hz": 288000,
+  "internal_uart_baud": 115200,
+  "events": [
+    {
+      "tool": "wb_status",
+      "arguments": {},
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 142 catalog 159 open 0 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 142,
+          "catalog": 159,
+          "open": false,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 1969,
+          "cursor": 0,
+          "selection": 0,
+          "browser": 0,
+          "focus": 0,
+          "words": 86,
+          "words_max": 512,
+          "module": "WBM1P",
+          "version": "1.0",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 61.056749982526526
+    },
+    {
+      "tool": "wb_source",
+      "arguments": {},
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 142 catalog 159 open 0 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> WB-SOURCE 0 80\r\nWB-SOURCE revision 142 offset 0 total 1969 hex 3A2057424D31502D56414C5545203138203B0A5C2057424D315020736F7572636520726F772030302072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F7720303120\r\n\r\nok\r\nvios> WB-SOURCE 80 80\r\nWB-SOURCE revision 142 offset 80 total 1969 hex 72657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772030322072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F77203033207265\r\n\r\nok\r\nvios> WB-SOURCE 160 80\r\nWB-SOURCE revision 142 offset 160 total 1969 hex 7461696E65642065786163746C790A5C2057424D315020736F7572636520726F772030342072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772030352072657461\r\n\r\nok\r\nvios> WB-SOURCE 240 80\r\nWB-SOURCE revision 142 offset 240 total 1969 hex 696E65642065786163746C790A5C2057424D315020736F7572636520726F772030362072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772030372072657461696E\r\n\r\nok\r\nvios> WB-SOURCE 320 80\r\nWB-SOURCE revision 142 offset 320 total 1969 hex 65642065786163746C790A5C2057424D315020736F7572636520726F772030382072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772030392072657461696E6564\r\n\r\nok\r\nvios> WB-SOURCE 400 80\r\nWB-SOURCE revision 142 offset 400 total 1969 hex 2065786163746C790A5C2057424D315020736F7572636520726F772031302072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772031312072657461696E65642065\r\n\r\nok\r\nvios> WB-SOURCE 480 80\r\nWB-SOURCE revision 142 offset 480 total 1969 hex 786163746C790A5C2057424D315020736F7572636520726F772031322072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772031332072657461696E656420657861\r\n\r\nok\r\nvios> WB-SOURCE 560 80\r\nWB-SOURCE revision 142 offset 560 total 1969 hex 63746C790A5C2057424D315020736F7572636520726F772031342072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772031352072657461696E6564206578616374\r\n\r\nok\r\nvios> WB-SOURCE 640 80\r\nWB-SOURCE revision 142 offset 640 total 1969 hex 6C790A5C2057424D315020736F7572636520726F772031362072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772031372072657461696E65642065786163746C79\r\n\r\nok\r\nvios> WB-SOURCE 720 80\r\nWB-SOURCE revision 142 offset 720 total 1969 hex 0A5C2057424D315020736F7572636520726F772031382072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772031392072657461696E65642065786163746C790A5C\r\n\r\nok\r\nvios> WB-SOURCE 800 80\r\nWB-SOURCE revision 142 offset 800 total 1969 hex 2057424D315020736F7572636520726F772032302072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772032312072657461696E65642065786163746C790A5C2057\r\n\r\nok\r\nvios> WB-SOURCE 880 80\r\nWB-SOURCE revision 142 offset 880 total 1969 hex 424D315020736F7572636520726F772032322072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772032332072657461696E65642065786163746C790A5C2057424D\r\n\r\nok\r\nvios> WB-SOURCE 960 80\r\nWB-SOURCE revision 142 offset 960 total 1969 hex 315020736F7572636520726F772032342072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772032352072657461696E65642065786163746C790A5C2057424D3150\r\n\r\nok\r\nvios> WB-SOURCE 1040 80\r\nWB-SOURCE revision 142 offset 1040 total 1969 hex 20736F7572636520726F772032362072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772032372072657461696E65642065786163746C790A5C2057424D31502073\r\n\r\nok\r\nvios> WB-SOURCE 1120 80\r\nWB-SOURCE revision 142 offset 1120 total 1969 hex 6F7572636520726F772032382072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772032392072657461696E65642065786163746C790A5C2057424D315020736F75\r\n\r\nok\r\nvios> WB-SOURCE 1200 80\r\nWB-SOURCE revision 142 offset 1200 total 1969 hex 72636520726F772033302072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772033312072657461696E65642065786163746C790A5C2057424D315020736F757263\r\n\r\nok\r\nvios> WB-SOURCE 1280 80\r\nWB-SOURCE revision 142 offset 1280 total 1969 hex 6520726F772033322072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772033332072657461696E65642065786163746C790A5C2057424D315020736F7572636520\r\n\r\nok\r\nvios> WB-SOURCE 1360 80\r\nWB-SOURCE revision 142 offset 1360 total 1969 hex 726F772033342072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772033352072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F\r\n\r\nok\r\nvios> WB-SOURCE 1440 80\r\nWB-SOURCE revision 142 offset 1440 total 1969 hex 772033362072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772033372072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F7720\r\n\r\nok\r\nvios> WB-SOURCE 1520 80\r\nWB-SOURCE revision 142 offset 1520 total 1969 hex 33382072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772033392072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F77203430\r\n\r\nok\r\nvios> WB-SOURCE 1600 80\r\nWB-SOURCE revision 142 offset 1600 total 1969 hex 2072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772034312072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772034322072\r\n\r\nok\r\nvios> WB-SOURCE 1680 80\r\nWB-SOURCE revision 142 offset 1680 total 1969 hex 657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772034332072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F7720343420726574\r\n\r\nok\r\nvios> WB-SOURCE 1760 80\r\nWB-SOURCE revision 142 offset 1760 total 1969 hex 61696E65642065786163746C790A5C2057424D315020736F7572636520726F772034352072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F77203436207265746169\r\n\r\nok\r\nvios> WB-SOURCE 1840 80\r\nWB-SOURCE revision 142 offset 1840 total 1969 hex 6E65642065786163746C790A5C2057424D315020736F7572636520726F772034372072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772034382072657461696E65\r\n\r\nok\r\nvios> WB-SOURCE 1920 49\r\nWB-SOURCE revision 142 offset 1920 total 1969 hex 642065786163746C790A5C2057424D315020736F7572636520726F772034392072657461696E65642065786163746C790A\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 142,
+          "catalog": 159,
+          "open": false,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 1969,
+          "cursor": 0,
+          "selection": 0,
+          "browser": 0,
+          "focus": 0,
+          "words": 86,
+          "words_max": 512,
+          "module": "WBM1P",
+          "version": "1.0",
+          "test": "",
+          "error": ""
+        },
+        "source": ": WBM1P-VALUE 18 ;\n\\ WBM1P source row 00 retained exactly\n\\ WBM1P source row 01 retained exactly\n\\ WBM1P source row 02 retained exactly\n\\ WBM1P source row 03 retained exactly\n\\ WBM1P source row 04 retained exactly\n\\ WBM1P source row 05 retained exactly\n\\ WBM1P source row 06 retained exactly\n\\ WBM1P source row 07 retained exactly\n\\ WBM1P source row 08 retained exactly\n\\ WBM1P source row 09 retained exactly\n\\ WBM1P source row 10 retained exactly\n\\ WBM1P source row 11 retained exactly\n\\ WBM1P source row 12 retained exactly\n\\ WBM1P source row 13 retained exactly\n\\ WBM1P source row 14 retained exactly\n\\ WBM1P source row 15 retained exactly\n\\ WBM1P source row 16 retained exactly\n\\ WBM1P source row 17 retained exactly\n\\ WBM1P source row 18 retained exactly\n\\ WBM1P source row 19 retained exactly\n\\ WBM1P source row 20 retained exactly\n\\ WBM1P source row 21 retained exactly\n\\ WBM1P source row 22 retained exactly\n\\ WBM1P source row 23 retained exactly\n\\ WBM1P source row 24 retained exactly\n\\ WBM1P source row 25 retained exactly\n\\ WBM1P source row 26 retained exactly\n\\ WBM1P source row 27 retained exactly\n\\ WBM1P source row 28 retained exactly\n\\ WBM1P source row 29 retained exactly\n\\ WBM1P source row 30 retained exactly\n\\ WBM1P source row 31 retained exactly\n\\ WBM1P source row 32 retained exactly\n\\ WBM1P source row 33 retained exactly\n\\ WBM1P source row 34 retained exactly\n\\ WBM1P source row 35 retained exactly\n\\ WBM1P source row 36 retained exactly\n\\ WBM1P source row 37 retained exactly\n\\ WBM1P source row 38 retained exactly\n\\ WBM1P source row 39 retained exactly\n\\ WBM1P source row 40 retained exactly\n\\ WBM1P source row 41 retained exactly\n\\ WBM1P source row 42 retained exactly\n\\ WBM1P source row 43 retained exactly\n\\ WBM1P source row 44 retained exactly\n\\ WBM1P source row 45 retained exactly\n\\ WBM1P source row 46 retained exactly\n\\ WBM1P source row 47 retained exactly\n\\ WBM1P source row 48 retained exactly\n\\ WBM1P source row 49 retained exactly\n",
+        "revision": 142,
+        "bytes": 1969,
+        "crc32": 3627393478,
+        "crc32_hex": "D835A1C6",
+        "source_sha256": "3e9f894e2ed2e81c86c003c88cf04417b9ab309a0a21b4af2346085bd58399f9"
+      },
+      "host_ms": 1710.9498750069179
+    },
+    {
+      "tool": "stacks",
+      "arguments": {},
+      "result": {
+        "output": ".S\r\n<0> \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "data_stack": {
+          "depth_text": "0",
+          "values_text": []
+        }
+      },
+      "host_ms": 29.590541002107784
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "BASE @ . CR",
+        "timeout": 30
+      },
+      "result": {
+        "output": "BASE @ . CR\r\n10 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 34.81945800012909
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "VDP-INFO",
+        "timeout": 30
+      },
+      "result": {
+        "output": "VDP-INFO\r\nvdp width 640 height 480 colours 4 mode 1 console-dropped 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 42.409707995830104
+    },
+    {
+      "tool": "wb_open",
+      "arguments": {},
+      "result": {
+        "output": "WB-OPEN\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 142,
+          "catalog": 159,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 1969,
+          "cursor": 0,
+          "selection": 0,
+          "browser": 0,
+          "focus": 0,
+          "words": 86,
+          "words_max": 512,
+          "module": "WBM1P",
+          "version": "1.0",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 190.11008300003596
+    },
+    {
+      "tool": "wb_flush",
+      "arguments": {},
+      "result": {
+        "output": "WB-FLUSH\r\nWB-FLUSH elapsed_ms 543 bytes 3976 spans 358 batches 32 cells 1470 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "elapsed_ms": 543,
+          "bytes": 3976,
+          "spans": 358,
+          "batches": 32,
+          "cells": 1470,
+          "pending": 0
+        }
+      },
+      "host_ms": 703.1652090081479
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' DECIMAL IS WB-PAINT WB-REDRAW",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' DECIMAL IS WB-PAINT WB-REDRAW\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 179.88566600251943
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {
+        "reset": true
+      },
+      "result": {
+        "output": "WB-RENDER-STATS RESET\r\nWB-RENDER-STATS cells 0 spans 0 batches 0 bytes 0 elapsed_ticks 0 pending 1\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 0,
+          "spans": 0,
+          "batches": 0,
+          "bytes": 0,
+          "elapsed_ticks": 0,
+          "pending": 1
+        }
+      },
+      "host_ms": 151.37133401003666
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' WB-PAINT-DEFAULT IS WB-PAINT WB-FLUSH",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' WB-PAINT-DEFAULT IS WB-PAINT WB-FLUSH\r\nWB-FLUSH elapsed_ms 560 bytes 4098 spans 367 batches 33 cells 1529 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 633.2396669895388
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {},
+      "result": {
+        "output": "WB-RENDER-STATS\r\nWB-RENDER-STATS cells 1529 spans 367 batches 33 bytes 4098 elapsed_ticks 143994 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 1529,
+          "spans": 367,
+          "batches": 33,
+          "bytes": 4098,
+          "elapsed_ticks": 143994,
+          "pending": 0
+        }
+      },
+      "host_ms": 51.91070801811293
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' DECIMAL IS WB-PAINT WB-REDRAW",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' DECIMAL IS WB-PAINT WB-REDRAW\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 183.13424999359995
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {
+        "reset": true
+      },
+      "result": {
+        "output": "WB-RENDER-STATS RESET\r\nWB-RENDER-STATS cells 0 spans 0 batches 0 bytes 0 elapsed_ticks 0 pending 1\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 0,
+          "spans": 0,
+          "batches": 0,
+          "bytes": 0,
+          "elapsed_ticks": 0,
+          "pending": 1
+        }
+      },
+      "host_ms": 149.68387500266545
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' WB-PAINT-DEFAULT IS WB-PAINT WB-FLUSH",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' WB-PAINT-DEFAULT IS WB-PAINT WB-FLUSH\r\nWB-FLUSH elapsed_ms 560 bytes 4098 spans 367 batches 33 cells 1529 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 630.5996250011958
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {},
+      "result": {
+        "output": "WB-RENDER-STATS\r\nWB-RENDER-STATS cells 1529 spans 367 batches 33 bytes 4098 elapsed_ticks 143945 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 1529,
+          "spans": 367,
+          "batches": 33,
+          "bytes": 4098,
+          "elapsed_ticks": 143945,
+          "pending": 0
+        }
+      },
+      "host_ms": 50.512832996901125
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' DECIMAL IS WB-PAINT WB-REDRAW",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' DECIMAL IS WB-PAINT WB-REDRAW\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 199.37687501078472
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {
+        "reset": true
+      },
+      "result": {
+        "output": "WB-RENDER-STATS RESET\r\nWB-RENDER-STATS cells 0 spans 0 batches 0 bytes 0 elapsed_ticks 0 pending 1\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 0,
+          "spans": 0,
+          "batches": 0,
+          "bytes": 0,
+          "elapsed_ticks": 0,
+          "pending": 1
+        }
+      },
+      "host_ms": 149.96233297279105
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' WB-PAINT-DEFAULT IS WB-PAINT WB-FLUSH",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' WB-PAINT-DEFAULT IS WB-PAINT WB-FLUSH\r\nWB-FLUSH elapsed_ms 561 bytes 4098 spans 367 batches 33 cells 1529 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 637.2763330000453
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {},
+      "result": {
+        "output": "WB-RENDER-STATS\r\nWB-RENDER-STATS cells 1529 spans 367 batches 33 bytes 4098 elapsed_ticks 143985 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 1529,
+          "spans": 367,
+          "batches": 33,
+          "bytes": 4098,
+          "elapsed_ticks": 143985,
+          "pending": 0
+        }
+      },
+      "host_ms": 52.59895802009851
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' DECIMAL IS WB-PAINT WB-REDRAW",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' DECIMAL IS WB-PAINT WB-REDRAW\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 175.7050000014715
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {
+        "reset": true
+      },
+      "result": {
+        "output": "WB-RENDER-STATS RESET\r\nWB-RENDER-STATS cells 0 spans 0 batches 0 bytes 0 elapsed_ticks 0 pending 1\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 0,
+          "spans": 0,
+          "batches": 0,
+          "bytes": 0,
+          "elapsed_ticks": 0,
+          "pending": 1
+        }
+      },
+      "host_ms": 150.53774998523295
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' WB-PAINT-DEFAULT IS WB-PAINT WB-FLUSH",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' WB-PAINT-DEFAULT IS WB-PAINT WB-FLUSH\r\nWB-FLUSH elapsed_ms 560 bytes 4098 spans 367 batches 33 cells 1529 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 635.1890000223648
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {},
+      "result": {
+        "output": "WB-RENDER-STATS\r\nWB-RENDER-STATS cells 1529 spans 367 batches 33 bytes 4098 elapsed_ticks 143991 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 1529,
+          "spans": 367,
+          "batches": 33,
+          "bytes": 4098,
+          "elapsed_ticks": 143991,
+          "pending": 0
+        }
+      },
+      "host_ms": 53.29799998435192
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' DECIMAL IS WB-PAINT WB-REDRAW",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' DECIMAL IS WB-PAINT WB-REDRAW\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 182.96266699326225
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {
+        "reset": true
+      },
+      "result": {
+        "output": "WB-RENDER-STATS RESET\r\nWB-RENDER-STATS cells 0 spans 0 batches 0 bytes 0 elapsed_ticks 0 pending 1\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 0,
+          "spans": 0,
+          "batches": 0,
+          "bytes": 0,
+          "elapsed_ticks": 0,
+          "pending": 1
+        }
+      },
+      "host_ms": 150.25320899439976
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' WB-PAINT-DEFAULT IS WB-PAINT WB-FLUSH",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' WB-PAINT-DEFAULT IS WB-PAINT WB-FLUSH\r\nWB-FLUSH elapsed_ms 560 bytes 4098 spans 367 batches 33 cells 1529 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 632.6525839976966
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {},
+      "result": {
+        "output": "WB-RENDER-STATS\r\nWB-RENDER-STATS cells 1529 spans 367 batches 33 bytes 4098 elapsed_ticks 144017 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 1529,
+          "spans": 367,
+          "batches": 33,
+          "bytes": 4098,
+          "elapsed_ticks": 144017,
+          "pending": 0
+        }
+      },
+      "host_ms": 51.7015410005115
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' DECIMAL IS WB-PAINT WB-REDRAW",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' DECIMAL IS WB-PAINT WB-REDRAW\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 186.8511250067968
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {
+        "reset": true
+      },
+      "result": {
+        "output": "WB-RENDER-STATS RESET\r\nWB-RENDER-STATS cells 0 spans 0 batches 0 bytes 0 elapsed_ticks 0 pending 1\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 0,
+          "spans": 0,
+          "batches": 0,
+          "bytes": 0,
+          "elapsed_ticks": 0,
+          "pending": 1
+        }
+      },
+      "host_ms": 142.9999580141157
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' WB-PAINT-DEFAULT IS WB-PAINT WB-FLUSH",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' WB-PAINT-DEFAULT IS WB-PAINT WB-FLUSH\r\nWB-FLUSH elapsed_ms 560 bytes 4098 spans 367 batches 33 cells 1529 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 631.7300830269232
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {},
+      "result": {
+        "output": "WB-RENDER-STATS\r\nWB-RENDER-STATS cells 1529 spans 367 batches 33 bytes 4098 elapsed_ticks 143992 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 1529,
+          "spans": 367,
+          "batches": 33,
+          "bytes": 4098,
+          "elapsed_ticks": 143992,
+          "pending": 0
+        }
+      },
+      "host_ms": 51.257540995720774
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' DECIMAL IS WB-PAINT WB-REDRAW",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' DECIMAL IS WB-PAINT WB-REDRAW\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 200.12362499255687
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {
+        "reset": true
+      },
+      "result": {
+        "output": "WB-RENDER-STATS RESET\r\nWB-RENDER-STATS cells 0 spans 0 batches 0 bytes 0 elapsed_ticks 0 pending 1\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 0,
+          "spans": 0,
+          "batches": 0,
+          "bytes": 0,
+          "elapsed_ticks": 0,
+          "pending": 1
+        }
+      },
+      "host_ms": 150.01841701450758
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' WB-PAINT-DEFAULT IS WB-PAINT WB-FLUSH",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' WB-PAINT-DEFAULT IS WB-PAINT WB-FLUSH\r\nWB-FLUSH elapsed_ms 561 bytes 4098 spans 367 batches 33 cells 1529 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 633.2915000093635
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {},
+      "result": {
+        "output": "WB-RENDER-STATS\r\nWB-RENDER-STATS cells 1529 spans 367 batches 33 bytes 4098 elapsed_ticks 144013 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 1529,
+          "spans": 367,
+          "batches": 33,
+          "bytes": 4098,
+          "elapsed_ticks": 144013,
+          "pending": 0
+        }
+      },
+      "host_ms": 56.26670800847933
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {
+        "reset": true
+      },
+      "result": {
+        "output": "WB-RENDER-STATS RESET\r\nWB-RENDER-STATS cells 0 spans 0 batches 0 bytes 0 elapsed_ticks 0 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 0,
+          "spans": 0,
+          "batches": 0,
+          "bytes": 0,
+          "elapsed_ticks": 0,
+          "pending": 0
+        }
+      },
+      "host_ms": 47.474709019297734
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-REDRAW WB-FLUSH",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-REDRAW WB-FLUSH\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-FLUSH elapsed_ms 686 bytes 4098 spans 367 batches 33 cells 1529 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 875.8684170024935
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {},
+      "result": {
+        "output": "WB-RENDER-STATS\r\nWB-RENDER-STATS cells 1529 spans 367 batches 33 bytes 4098 elapsed_ticks 143981 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 1529,
+          "spans": 367,
+          "batches": 33,
+          "bytes": 4098,
+          "elapsed_ticks": 143981,
+          "pending": 0
+        }
+      },
+      "host_ms": 54.10041700815782
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {
+        "reset": true
+      },
+      "result": {
+        "output": "WB-RENDER-STATS RESET\r\nWB-RENDER-STATS cells 0 spans 0 batches 0 bytes 0 elapsed_ticks 0 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 0,
+          "spans": 0,
+          "batches": 0,
+          "bytes": 0,
+          "elapsed_ticks": 0,
+          "pending": 0
+        }
+      },
+      "host_ms": 48.33416698966175
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-REDRAW WB-FLUSH",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-REDRAW WB-FLUSH\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-FLUSH elapsed_ms 686 bytes 4098 spans 367 batches 33 cells 1529 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 893.98379198974
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {},
+      "result": {
+        "output": "WB-RENDER-STATS\r\nWB-RENDER-STATS cells 1529 spans 367 batches 33 bytes 4098 elapsed_ticks 143968 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 1529,
+          "spans": 367,
+          "batches": 33,
+          "bytes": 4098,
+          "elapsed_ticks": 143968,
+          "pending": 0
+        }
+      },
+      "host_ms": 50.89312500786036
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {
+        "reset": true
+      },
+      "result": {
+        "output": "WB-RENDER-STATS RESET\r\nWB-RENDER-STATS cells 0 spans 0 batches 0 bytes 0 elapsed_ticks 0 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 0,
+          "spans": 0,
+          "batches": 0,
+          "bytes": 0,
+          "elapsed_ticks": 0,
+          "pending": 0
+        }
+      },
+      "host_ms": 46.86200001742691
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-REDRAW WB-FLUSH",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-REDRAW WB-FLUSH\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-FLUSH elapsed_ms 686 bytes 4098 spans 367 batches 33 cells 1529 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 869.9891660071444
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {},
+      "result": {
+        "output": "WB-RENDER-STATS\r\nWB-RENDER-STATS cells 1529 spans 367 batches 33 bytes 4098 elapsed_ticks 144009 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 1529,
+          "spans": 367,
+          "batches": 33,
+          "bytes": 4098,
+          "elapsed_ticks": 144009,
+          "pending": 0
+        }
+      },
+      "host_ms": 50.370250013656914
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {
+        "reset": true
+      },
+      "result": {
+        "output": "WB-RENDER-STATS RESET\r\nWB-RENDER-STATS cells 0 spans 0 batches 0 bytes 0 elapsed_ticks 0 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 0,
+          "spans": 0,
+          "batches": 0,
+          "bytes": 0,
+          "elapsed_ticks": 0,
+          "pending": 0
+        }
+      },
+      "host_ms": 48.03754200111143
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-REDRAW WB-FLUSH",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-REDRAW WB-FLUSH\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-FLUSH elapsed_ms 686 bytes 4098 spans 367 batches 33 cells 1529 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 875.2013749908656
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {},
+      "result": {
+        "output": "WB-RENDER-STATS\r\nWB-RENDER-STATS cells 1529 spans 367 batches 33 bytes 4098 elapsed_ticks 144001 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 1529,
+          "spans": 367,
+          "batches": 33,
+          "bytes": 4098,
+          "elapsed_ticks": 144001,
+          "pending": 0
+        }
+      },
+      "host_ms": 52.295458008302376
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {
+        "reset": true
+      },
+      "result": {
+        "output": "WB-RENDER-STATS RESET\r\nWB-RENDER-STATS cells 0 spans 0 batches 0 bytes 0 elapsed_ticks 0 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 0,
+          "spans": 0,
+          "batches": 0,
+          "bytes": 0,
+          "elapsed_ticks": 0,
+          "pending": 0
+        }
+      },
+      "host_ms": 50.06333300843835
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-REDRAW WB-FLUSH",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-REDRAW WB-FLUSH\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-FLUSH elapsed_ms 686 bytes 4098 spans 367 batches 33 cells 1529 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 894.5663330086973
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {},
+      "result": {
+        "output": "WB-RENDER-STATS\r\nWB-RENDER-STATS cells 1529 spans 367 batches 33 bytes 4098 elapsed_ticks 143986 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 1529,
+          "spans": 367,
+          "batches": 33,
+          "bytes": 4098,
+          "elapsed_ticks": 143986,
+          "pending": 0
+        }
+      },
+      "host_ms": 50.539166026283056
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {
+        "reset": true
+      },
+      "result": {
+        "output": "WB-RENDER-STATS RESET\r\nWB-RENDER-STATS cells 0 spans 0 batches 0 bytes 0 elapsed_ticks 0 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 0,
+          "spans": 0,
+          "batches": 0,
+          "bytes": 0,
+          "elapsed_ticks": 0,
+          "pending": 0
+        }
+      },
+      "host_ms": 52.65220801811665
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-REDRAW WB-FLUSH",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-REDRAW WB-FLUSH\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-FLUSH elapsed_ms 686 bytes 4098 spans 367 batches 33 cells 1529 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 879.7142920084298
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {},
+      "result": {
+        "output": "WB-RENDER-STATS\r\nWB-RENDER-STATS cells 1529 spans 367 batches 33 bytes 4098 elapsed_ticks 143962 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 1529,
+          "spans": 367,
+          "batches": 33,
+          "bytes": 4098,
+          "elapsed_ticks": 143962,
+          "pending": 0
+        }
+      },
+      "host_ms": 51.283332984894514
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {
+        "reset": true
+      },
+      "result": {
+        "output": "WB-RENDER-STATS RESET\r\nWB-RENDER-STATS cells 0 spans 0 batches 0 bytes 0 elapsed_ticks 0 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 0,
+          "spans": 0,
+          "batches": 0,
+          "bytes": 0,
+          "elapsed_ticks": 0,
+          "pending": 0
+        }
+      },
+      "host_ms": 47.34704198199324
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-REDRAW WB-FLUSH",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-REDRAW WB-FLUSH\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-FLUSH elapsed_ms 686 bytes 4098 spans 367 batches 33 cells 1529 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 893.864334007958
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {},
+      "result": {
+        "output": "WB-RENDER-STATS\r\nWB-RENDER-STATS cells 1529 spans 367 batches 33 bytes 4098 elapsed_ticks 144001 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 1529,
+          "spans": 367,
+          "batches": 33,
+          "bytes": 4098,
+          "elapsed_ticks": 144001,
+          "pending": 0
+        }
+      },
+      "host_ms": 51.26983401714824
+    },
+    {
+      "tool": "wb_key",
+      "arguments": {
+        "code": 9
+      },
+      "result": {
+        "output": "WB-KEY 9 0\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 142,
+          "catalog": 159,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 1969,
+          "cursor": 0,
+          "selection": 0,
+          "browser": 0,
+          "focus": 1,
+          "words": 86,
+          "words_max": 512,
+          "module": "WBM1P",
+          "version": "1.0",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 63.17120901076123
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 19 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 58 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 97 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 136 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 175 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 214 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 253 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 292 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 264.4894999975804
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 331 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 370 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 409 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 448 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 487 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 526 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 565 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 604 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 267.21633301349357
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 643 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 682 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 721 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 760 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 799 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 838 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 877 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 916 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 264.34574997983873
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 955 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 994 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 1033 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 1072 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 1111 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 1150 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 1189 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 1228 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 265.20708299358375
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0 WB-KEY 257 0\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 1267 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 1306 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 1345 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 1384 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 1423 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 1462 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 1501 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 1540 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 267.9769169772044
+    },
+    {
+      "tool": "wb_flush",
+      "arguments": {},
+      "result": {
+        "output": "WB-FLUSH\r\nWB-FLUSH elapsed_ms 43 bytes 257 spans 31 batches 3 cells 40 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "elapsed_ms": 43,
+          "bytes": 257,
+          "spans": 31,
+          "batches": 3,
+          "cells": 40,
+          "pending": 0
+        }
+      },
+      "host_ms": 92.44808298535645
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' DECIMAL IS WB-PAINT WB-KEY 256 0",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' DECIMAL IS WB-PAINT WB-KEY 256 0\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 1501 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 74.56750000710599
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {
+        "reset": true
+      },
+      "result": {
+        "output": "WB-RENDER-STATS RESET\r\nWB-RENDER-STATS cells 0 spans 0 batches 0 bytes 0 elapsed_ticks 0 pending 1\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 0,
+          "spans": 0,
+          "batches": 0,
+          "bytes": 0,
+          "elapsed_ticks": 0,
+          "pending": 1
+        }
+      },
+      "host_ms": 53.26333301491104
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' WB-PAINT-DEFAULT IS WB-PAINT WB-FLUSH",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' WB-PAINT-DEFAULT IS WB-PAINT WB-FLUSH\r\nWB-FLUSH elapsed_ms 52 bytes 307 spans 38 batches 3 cells 41 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 124.20637501054443
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {},
+      "result": {
+        "output": "WB-RENDER-STATS\r\nWB-RENDER-STATS cells 41 spans 38 batches 3 bytes 307 elapsed_ticks 12328 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 41,
+          "spans": 38,
+          "batches": 3,
+          "bytes": 307,
+          "elapsed_ticks": 12328,
+          "pending": 0
+        }
+      },
+      "host_ms": 51.130083011230454
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' DECIMAL IS WB-PAINT WB-KEY 257 0",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' DECIMAL IS WB-PAINT WB-KEY 257 0\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 1540 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 75.99554199259728
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {
+        "reset": true
+      },
+      "result": {
+        "output": "WB-RENDER-STATS RESET\r\nWB-RENDER-STATS cells 0 spans 0 batches 0 bytes 0 elapsed_ticks 0 pending 1\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 0,
+          "spans": 0,
+          "batches": 0,
+          "bytes": 0,
+          "elapsed_ticks": 0,
+          "pending": 1
+        }
+      },
+      "host_ms": 54.4371249852702
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' WB-PAINT-DEFAULT IS WB-PAINT WB-FLUSH",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' WB-PAINT-DEFAULT IS WB-PAINT WB-FLUSH\r\nWB-FLUSH elapsed_ms 52 bytes 307 spans 38 batches 3 cells 41 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 123.82258399156854
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {},
+      "result": {
+        "output": "WB-RENDER-STATS\r\nWB-RENDER-STATS cells 41 spans 38 batches 3 bytes 307 elapsed_ticks 12430 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 41,
+          "spans": 38,
+          "batches": 3,
+          "bytes": 307,
+          "elapsed_ticks": 12430,
+          "pending": 0
+        }
+      },
+      "host_ms": 50.67791597684845
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' DECIMAL IS WB-PAINT WB-KEY 256 0",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' DECIMAL IS WB-PAINT WB-KEY 256 0\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 1501 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 74.26475000102073
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {
+        "reset": true
+      },
+      "result": {
+        "output": "WB-RENDER-STATS RESET\r\nWB-RENDER-STATS cells 0 spans 0 batches 0 bytes 0 elapsed_ticks 0 pending 1\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 0,
+          "spans": 0,
+          "batches": 0,
+          "bytes": 0,
+          "elapsed_ticks": 0,
+          "pending": 1
+        }
+      },
+      "host_ms": 52.42329099564813
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' WB-PAINT-DEFAULT IS WB-PAINT WB-FLUSH",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' WB-PAINT-DEFAULT IS WB-PAINT WB-FLUSH\r\nWB-FLUSH elapsed_ms 53 bytes 307 spans 38 batches 3 cells 41 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 123.34495800314471
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {},
+      "result": {
+        "output": "WB-RENDER-STATS\r\nWB-RENDER-STATS cells 41 spans 38 batches 3 bytes 307 elapsed_ticks 12419 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 41,
+          "spans": 38,
+          "batches": 3,
+          "bytes": 307,
+          "elapsed_ticks": 12419,
+          "pending": 0
+        }
+      },
+      "host_ms": 48.9211670064833
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' DECIMAL IS WB-PAINT WB-KEY 257 0",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' DECIMAL IS WB-PAINT WB-KEY 257 0\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 1540 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 82.19825002015568
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {
+        "reset": true
+      },
+      "result": {
+        "output": "WB-RENDER-STATS RESET\r\nWB-RENDER-STATS cells 0 spans 0 batches 0 bytes 0 elapsed_ticks 0 pending 1\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 0,
+          "spans": 0,
+          "batches": 0,
+          "bytes": 0,
+          "elapsed_ticks": 0,
+          "pending": 1
+        }
+      },
+      "host_ms": 53.48070798208937
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' WB-PAINT-DEFAULT IS WB-PAINT WB-FLUSH",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' WB-PAINT-DEFAULT IS WB-PAINT WB-FLUSH\r\nWB-FLUSH elapsed_ms 53 bytes 307 spans 38 batches 3 cells 41 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 124.06666702008806
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {},
+      "result": {
+        "output": "WB-RENDER-STATS\r\nWB-RENDER-STATS cells 41 spans 38 batches 3 bytes 307 elapsed_ticks 12413 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 41,
+          "spans": 38,
+          "batches": 3,
+          "bytes": 307,
+          "elapsed_ticks": 12413,
+          "pending": 0
+        }
+      },
+      "host_ms": 49.53104199375957
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' DECIMAL IS WB-PAINT WB-KEY 256 0",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' DECIMAL IS WB-PAINT WB-KEY 256 0\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 1501 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 74.2572910094168
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {
+        "reset": true
+      },
+      "result": {
+        "output": "WB-RENDER-STATS RESET\r\nWB-RENDER-STATS cells 0 spans 0 batches 0 bytes 0 elapsed_ticks 0 pending 1\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 0,
+          "spans": 0,
+          "batches": 0,
+          "bytes": 0,
+          "elapsed_ticks": 0,
+          "pending": 1
+        }
+      },
+      "host_ms": 51.95320799248293
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' WB-PAINT-DEFAULT IS WB-PAINT WB-FLUSH",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' WB-PAINT-DEFAULT IS WB-PAINT WB-FLUSH\r\nWB-FLUSH elapsed_ms 53 bytes 307 spans 38 batches 3 cells 41 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 123.6194999946747
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {},
+      "result": {
+        "output": "WB-RENDER-STATS\r\nWB-RENDER-STATS cells 41 spans 38 batches 3 bytes 307 elapsed_ticks 12419 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 41,
+          "spans": 38,
+          "batches": 3,
+          "bytes": 307,
+          "elapsed_ticks": 12419,
+          "pending": 0
+        }
+      },
+      "host_ms": 51.66154200560413
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' DECIMAL IS WB-PAINT WB-KEY 257 0",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' DECIMAL IS WB-PAINT WB-KEY 257 0\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 1540 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 76.014332997147
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {
+        "reset": true
+      },
+      "result": {
+        "output": "WB-RENDER-STATS RESET\r\nWB-RENDER-STATS cells 0 spans 0 batches 0 bytes 0 elapsed_ticks 0 pending 1\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 0,
+          "spans": 0,
+          "batches": 0,
+          "bytes": 0,
+          "elapsed_ticks": 0,
+          "pending": 1
+        }
+      },
+      "host_ms": 53.84624999715015
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' WB-PAINT-DEFAULT IS WB-PAINT WB-FLUSH",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' WB-PAINT-DEFAULT IS WB-PAINT WB-FLUSH\r\nWB-FLUSH elapsed_ms 52 bytes 307 spans 38 batches 3 cells 41 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 122.57849998422898
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {},
+      "result": {
+        "output": "WB-RENDER-STATS\r\nWB-RENDER-STATS cells 41 spans 38 batches 3 bytes 307 elapsed_ticks 12423 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 41,
+          "spans": 38,
+          "batches": 3,
+          "bytes": 307,
+          "elapsed_ticks": 12423,
+          "pending": 0
+        }
+      },
+      "host_ms": 49.22983402502723
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' DECIMAL IS WB-PAINT WB-KEY 256 0",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' DECIMAL IS WB-PAINT WB-KEY 256 0\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 1501 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 73.47891700919718
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {
+        "reset": true
+      },
+      "result": {
+        "output": "WB-RENDER-STATS RESET\r\nWB-RENDER-STATS cells 0 spans 0 batches 0 bytes 0 elapsed_ticks 0 pending 1\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 0,
+          "spans": 0,
+          "batches": 0,
+          "bytes": 0,
+          "elapsed_ticks": 0,
+          "pending": 1
+        }
+      },
+      "host_ms": 51.876959012588486
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' WB-PAINT-DEFAULT IS WB-PAINT WB-FLUSH",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' WB-PAINT-DEFAULT IS WB-PAINT WB-FLUSH\r\nWB-FLUSH elapsed_ms 53 bytes 307 spans 38 batches 3 cells 41 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 121.96562500321306
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {},
+      "result": {
+        "output": "WB-RENDER-STATS\r\nWB-RENDER-STATS cells 41 spans 38 batches 3 bytes 307 elapsed_ticks 12429 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 41,
+          "spans": 38,
+          "batches": 3,
+          "bytes": 307,
+          "elapsed_ticks": 12429,
+          "pending": 0
+        }
+      },
+      "host_ms": 48.89141701278277
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' DECIMAL IS WB-PAINT WB-KEY 257 0",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' DECIMAL IS WB-PAINT WB-KEY 257 0\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 1540 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 80.72237501619384
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {
+        "reset": true
+      },
+      "result": {
+        "output": "WB-RENDER-STATS RESET\r\nWB-RENDER-STATS cells 0 spans 0 batches 0 bytes 0 elapsed_ticks 0 pending 1\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 0,
+          "spans": 0,
+          "batches": 0,
+          "bytes": 0,
+          "elapsed_ticks": 0,
+          "pending": 1
+        }
+      },
+      "host_ms": 52.58291697828099
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' WB-PAINT-DEFAULT IS WB-PAINT WB-FLUSH",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' WB-PAINT-DEFAULT IS WB-PAINT WB-FLUSH\r\nWB-FLUSH elapsed_ms 52 bytes 307 spans 38 batches 3 cells 41 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 123.9928750146646
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {},
+      "result": {
+        "output": "WB-RENDER-STATS\r\nWB-RENDER-STATS cells 41 spans 38 batches 3 bytes 307 elapsed_ticks 12413 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 41,
+          "spans": 38,
+          "batches": 3,
+          "bytes": 307,
+          "elapsed_ticks": 12413,
+          "pending": 0
+        }
+      },
+      "host_ms": 49.49249999481253
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 1501 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 1462 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 1423 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 1384 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 1345 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 1306 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 1267 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 1228 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 265.49912500195205
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 1189 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 1150 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 1111 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 1072 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 1033 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 994 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 955 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 916 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 278.9951659797225
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 877 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 838 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 799 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 760 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 721 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 682 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 643 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 604 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 265.83841600222513
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 565 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 526 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 487 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 448 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 409 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 370 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 331 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 292 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 265.40291600394994
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0 WB-KEY 256 0\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 253 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 214 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 175 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 136 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 97 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 58 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 19 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 265.0775829970371
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-KEY 260 0 WB-KEY 9 0 WB-REDRAW WB-FLUSH",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-KEY 260 0 WB-KEY 9 0 WB-REDRAW WB-FLUSH\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 1 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-FLUSH elapsed_ms 686 bytes 4098 spans 367 batches 33 cells 1529 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 930.9517920191865
+    },
+    {
+      "tool": "wb_view",
+      "arguments": {
+        "row": 18,
+        "count": 2
+      },
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> WB-VIEW 18 2\r\nWB-VIEW row 18 text 202020202020202020202020202020202020202020202020207C3A2057424D31502D56414C5545203138203B202020202020202020202020202020202020202020202020202020202020202020202020 attr 0303030303030303030303030303030303030303030303030302030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303\r\nWB-VIEW row 19 text 202020202020202020202020202020202020202020202020207C5C2057424D315020736F7572636520726F772030302072657461696E65642065786163746C7920202020202020202020202020202020 attr 0303030303030303030303030303030303030303030303030302030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303\r\n\r\nok\r\nvios> WB-STATUS\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 142,
+          "catalog": 159,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 1969,
+          "cursor": 0,
+          "selection": 0,
+          "browser": 0,
+          "focus": 0,
+          "words": 86,
+          "words_max": 512,
+          "module": "WBM1P",
+          "version": "1.0",
+          "test": "",
+          "error": ""
+        },
+        "rows": [
+          {
+            "row": 18,
+            "text": "                         |: WBM1P-VALUE 18 ;                                    ",
+            "attributes": [
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              2,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3
+            ]
+          },
+          {
+            "row": 19,
+            "text": "                         |\\ WBM1P source row 00 retained exactly                ",
+            "attributes": [
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              2,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3,
+              3
+            ]
+          }
+        ]
+      },
+      "host_ms": 249.82179098878987
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' WB-PAINT-DEFAULT IS WB-PAINT WB-REDRAW WB-FLUSH",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' WB-PAINT-DEFAULT IS WB-PAINT WB-REDRAW WB-FLUSH\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-FLUSH elapsed_ms 687 bytes 4098 spans 367 batches 33 cells 1529 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 894.0084170026239
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' DECIMAL IS WB-PAINT 28 VDU 26 VDU 55 VDU 79 VDU 18 VDU",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' DECIMAL IS WB-PAINT 28 VDU 26 VDU 55 VDU 79 VDU 18 VDU\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 53.86499999440275
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "TIMER@ 23 VDU 7 VDU 0 VDU 3 VDU 8 VDU 3 COLOUR 128 COLOUR 26 18 CHAR@ SWAP TIMER@ - $FFFF AND . . CR",
+        "timeout": 30
+      },
+      "result": {
+        "output": "TIMER@ 23 VDU 7 VDU 0 VDU 3 VDU 8 VDU 3 COLOUR 128 COLOUR 26 18 CHAR@ SWAP TIMER@ - $FFFF AND . . CR\r\n4207 92 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 84.66212498024106
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' WB-PAINT-DEFAULT IS WB-PAINT WB-REDRAW WB-FLUSH",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' WB-PAINT-DEFAULT IS WB-PAINT WB-REDRAW WB-FLUSH\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-FLUSH elapsed_ms 686 bytes 4098 spans 367 batches 33 cells 1529 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 893.9815830090083
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' DECIMAL IS WB-PAINT 28 VDU 26 VDU 55 VDU 79 VDU 18 VDU",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' DECIMAL IS WB-PAINT 28 VDU 26 VDU 55 VDU 79 VDU 18 VDU\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 54.541500023333356
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "TIMER@ 23 VDU 7 VDU 0 VDU 3 VDU 8 VDU 3 COLOUR 128 COLOUR 26 18 CHAR@ SWAP TIMER@ - $FFFF AND . . CR",
+        "timeout": 30
+      },
+      "result": {
+        "output": "TIMER@ 23 VDU 7 VDU 0 VDU 3 VDU 8 VDU 3 COLOUR 128 COLOUR 26 18 CHAR@ SWAP TIMER@ - $FFFF AND . . CR\r\n4193 92 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 84.59029099321924
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' WB-PAINT-DEFAULT IS WB-PAINT WB-REDRAW WB-FLUSH",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' WB-PAINT-DEFAULT IS WB-PAINT WB-REDRAW WB-FLUSH\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-FLUSH elapsed_ms 686 bytes 4098 spans 367 batches 33 cells 1529 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 894.4096659834031
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' DECIMAL IS WB-PAINT 28 VDU 26 VDU 55 VDU 79 VDU 18 VDU",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' DECIMAL IS WB-PAINT 28 VDU 26 VDU 55 VDU 79 VDU 18 VDU\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 53.90174998319708
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "TIMER@ 23 VDU 7 VDU 0 VDU 3 VDU 8 VDU 3 COLOUR 128 COLOUR 26 18 CHAR@ SWAP TIMER@ - $FFFF AND . . CR",
+        "timeout": 30
+      },
+      "result": {
+        "output": "TIMER@ 23 VDU 7 VDU 0 VDU 3 VDU 8 VDU 3 COLOUR 128 COLOUR 26 18 CHAR@ SWAP TIMER@ - $FFFF AND . . CR\r\n4207 92 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 84.34520801529288
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' WB-PAINT-DEFAULT IS WB-PAINT WB-REDRAW WB-FLUSH",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' WB-PAINT-DEFAULT IS WB-PAINT WB-REDRAW WB-FLUSH\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-FLUSH elapsed_ms 686 bytes 4098 spans 367 batches 33 cells 1529 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 913.3545419899747
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' DECIMAL IS WB-PAINT 28 VDU 26 VDU 55 VDU 79 VDU 18 VDU",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' DECIMAL IS WB-PAINT 28 VDU 26 VDU 55 VDU 79 VDU 18 VDU\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 54.023582983063534
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "TIMER@ 23 VDU 7 VDU 0 VDU 3 VDU 8 VDU 3 COLOUR 128 COLOUR 26 18 CHAR@ SWAP TIMER@ - $FFFF AND . . CR",
+        "timeout": 30
+      },
+      "result": {
+        "output": "TIMER@ 23 VDU 7 VDU 0 VDU 3 VDU 8 VDU 3 COLOUR 128 COLOUR 26 18 CHAR@ SWAP TIMER@ - $FFFF AND . . CR\r\n4208 92 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 84.18979198904708
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' WB-PAINT-DEFAULT IS WB-PAINT WB-REDRAW WB-FLUSH",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' WB-PAINT-DEFAULT IS WB-PAINT WB-REDRAW WB-FLUSH\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-FLUSH elapsed_ms 686 bytes 4098 spans 367 batches 33 cells 1529 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 892.6259169820696
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' DECIMAL IS WB-PAINT 28 VDU 26 VDU 55 VDU 79 VDU 18 VDU",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' DECIMAL IS WB-PAINT 28 VDU 26 VDU 55 VDU 79 VDU 18 VDU\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 54.61841600481421
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "TIMER@ 23 VDU 7 VDU 0 VDU 3 VDU 8 VDU 3 COLOUR 128 COLOUR 26 18 CHAR@ SWAP TIMER@ - $FFFF AND . . CR",
+        "timeout": 30
+      },
+      "result": {
+        "output": "TIMER@ 23 VDU 7 VDU 0 VDU 3 VDU 8 VDU 3 COLOUR 128 COLOUR 26 18 CHAR@ SWAP TIMER@ - $FFFF AND . . CR\r\n3635 92 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 81.61837499937974
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' WB-PAINT-DEFAULT IS WB-PAINT WB-REDRAW WB-FLUSH",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' WB-PAINT-DEFAULT IS WB-PAINT WB-REDRAW WB-FLUSH\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-FLUSH elapsed_ms 686 bytes 4098 spans 367 batches 33 cells 1529 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 912.6525419997051
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' DECIMAL IS WB-PAINT 28 VDU 26 VDU 55 VDU 79 VDU 18 VDU",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' DECIMAL IS WB-PAINT 28 VDU 26 VDU 55 VDU 79 VDU 18 VDU\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 53.24016700615175
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "TIMER@ 23 VDU 7 VDU 0 VDU 3 VDU 8 VDU 3 COLOUR 128 COLOUR 26 18 CHAR@ SWAP TIMER@ - $FFFF AND . . CR",
+        "timeout": 30
+      },
+      "result": {
+        "output": "TIMER@ 23 VDU 7 VDU 0 VDU 3 VDU 8 VDU 3 COLOUR 128 COLOUR 26 18 CHAR@ SWAP TIMER@ - $FFFF AND . . CR\r\n4193 92 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 83.8124159781728
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' WB-PAINT-DEFAULT IS WB-PAINT WB-REDRAW WB-FLUSH",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' WB-PAINT-DEFAULT IS WB-PAINT WB-REDRAW WB-FLUSH\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-FLUSH elapsed_ms 686 bytes 4098 spans 367 batches 33 cells 1529 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 912.8095830092207
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' DECIMAL IS WB-PAINT 28 VDU 26 VDU 55 VDU 79 VDU 18 VDU",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' DECIMAL IS WB-PAINT 28 VDU 26 VDU 55 VDU 79 VDU 18 VDU\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 53.22979201446287
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "TIMER@ 23 VDU 7 VDU 0 VDU 3 VDU 8 VDU 3 COLOUR 128 COLOUR 26 18 CHAR@ SWAP TIMER@ - $FFFF AND . . CR",
+        "timeout": 30
+      },
+      "result": {
+        "output": "TIMER@ 23 VDU 7 VDU 0 VDU 3 VDU 8 VDU 3 COLOUR 128 COLOUR 26 18 CHAR@ SWAP TIMER@ - $FFFF AND . . CR\r\n4208 92 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 84.12645899807103
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' WB-PAINT-DEFAULT IS WB-PAINT WB-REDRAW WB-FLUSH",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' WB-PAINT-DEFAULT IS WB-PAINT WB-REDRAW WB-FLUSH\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-FLUSH elapsed_ms 687 bytes 4098 spans 367 batches 33 cells 1529 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 895.4664999910165
+    },
+    {
+      "tool": "wb_close",
+      "arguments": {},
+      "result": {
+        "output": "WB-CLOSE\r\nWB-STATUS revision 142 catalog 159 open 0 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 142,
+          "catalog": 159,
+          "open": false,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 1969,
+          "cursor": 0,
+          "selection": 0,
+          "browser": 0,
+          "focus": 0,
+          "words": 86,
+          "words_max": 512,
+          "module": "WBM1P",
+          "version": "1.0",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 60.39291698834859
+    },
+    {
+      "tool": "wb_status",
+      "arguments": {},
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 142 catalog 159 open 0 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 142,
+          "catalog": 159,
+          "open": false,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 1969,
+          "cursor": 0,
+          "selection": 0,
+          "browser": 0,
+          "focus": 0,
+          "words": 86,
+          "words_max": 512,
+          "module": "WBM1P",
+          "version": "1.0",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 61.48116599069908
+    },
+    {
+      "tool": "wb_source",
+      "arguments": {},
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 142 catalog 159 open 0 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> WB-SOURCE 0 80\r\nWB-SOURCE revision 142 offset 0 total 1969 hex 3A2057424D31502D56414C5545203138203B0A5C2057424D315020736F7572636520726F772030302072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F7720303120\r\n\r\nok\r\nvios> WB-SOURCE 80 80\r\nWB-SOURCE revision 142 offset 80 total 1969 hex 72657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772030322072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F77203033207265\r\n\r\nok\r\nvios> WB-SOURCE 160 80\r\nWB-SOURCE revision 142 offset 160 total 1969 hex 7461696E65642065786163746C790A5C2057424D315020736F7572636520726F772030342072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772030352072657461\r\n\r\nok\r\nvios> WB-SOURCE 240 80\r\nWB-SOURCE revision 142 offset 240 total 1969 hex 696E65642065786163746C790A5C2057424D315020736F7572636520726F772030362072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772030372072657461696E\r\n\r\nok\r\nvios> WB-SOURCE 320 80\r\nWB-SOURCE revision 142 offset 320 total 1969 hex 65642065786163746C790A5C2057424D315020736F7572636520726F772030382072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772030392072657461696E6564\r\n\r\nok\r\nvios> WB-SOURCE 400 80\r\nWB-SOURCE revision 142 offset 400 total 1969 hex 2065786163746C790A5C2057424D315020736F7572636520726F772031302072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772031312072657461696E65642065\r\n\r\nok\r\nvios> WB-SOURCE 480 80\r\nWB-SOURCE revision 142 offset 480 total 1969 hex 786163746C790A5C2057424D315020736F7572636520726F772031322072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772031332072657461696E656420657861\r\n\r\nok\r\nvios> WB-SOURCE 560 80\r\nWB-SOURCE revision 142 offset 560 total 1969 hex 63746C790A5C2057424D315020736F7572636520726F772031342072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772031352072657461696E6564206578616374\r\n\r\nok\r\nvios> WB-SOURCE 640 80\r\nWB-SOURCE revision 142 offset 640 total 1969 hex 6C790A5C2057424D315020736F7572636520726F772031362072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772031372072657461696E65642065786163746C79\r\n\r\nok\r\nvios> WB-SOURCE 720 80\r\nWB-SOURCE revision 142 offset 720 total 1969 hex 0A5C2057424D315020736F7572636520726F772031382072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772031392072657461696E65642065786163746C790A5C\r\n\r\nok\r\nvios> WB-SOURCE 800 80\r\nWB-SOURCE revision 142 offset 800 total 1969 hex 2057424D315020736F7572636520726F772032302072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772032312072657461696E65642065786163746C790A5C2057\r\n\r\nok\r\nvios> WB-SOURCE 880 80\r\nWB-SOURCE revision 142 offset 880 total 1969 hex 424D315020736F7572636520726F772032322072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772032332072657461696E65642065786163746C790A5C2057424D\r\n\r\nok\r\nvios> WB-SOURCE 960 80\r\nWB-SOURCE revision 142 offset 960 total 1969 hex 315020736F7572636520726F772032342072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772032352072657461696E65642065786163746C790A5C2057424D3150\r\n\r\nok\r\nvios> WB-SOURCE 1040 80\r\nWB-SOURCE revision 142 offset 1040 total 1969 hex 20736F7572636520726F772032362072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772032372072657461696E65642065786163746C790A5C2057424D31502073\r\n\r\nok\r\nvios> WB-SOURCE 1120 80\r\nWB-SOURCE revision 142 offset 1120 total 1969 hex 6F7572636520726F772032382072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772032392072657461696E65642065786163746C790A5C2057424D315020736F75\r\n\r\nok\r\nvios> WB-SOURCE 1200 80\r\nWB-SOURCE revision 142 offset 1200 total 1969 hex 72636520726F772033302072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772033312072657461696E65642065786163746C790A5C2057424D315020736F757263\r\n\r\nok\r\nvios> WB-SOURCE 1280 80\r\nWB-SOURCE revision 142 offset 1280 total 1969 hex 6520726F772033322072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772033332072657461696E65642065786163746C790A5C2057424D315020736F7572636520\r\n\r\nok\r\nvios> WB-SOURCE 1360 80\r\nWB-SOURCE revision 142 offset 1360 total 1969 hex 726F772033342072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772033352072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F\r\n\r\nok\r\nvios> WB-SOURCE 1440 80\r\nWB-SOURCE revision 142 offset 1440 total 1969 hex 772033362072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772033372072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F7720\r\n\r\nok\r\nvios> WB-SOURCE 1520 80\r\nWB-SOURCE revision 142 offset 1520 total 1969 hex 33382072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772033392072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F77203430\r\n\r\nok\r\nvios> WB-SOURCE 1600 80\r\nWB-SOURCE revision 142 offset 1600 total 1969 hex 2072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772034312072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772034322072\r\n\r\nok\r\nvios> WB-SOURCE 1680 80\r\nWB-SOURCE revision 142 offset 1680 total 1969 hex 657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772034332072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F7720343420726574\r\n\r\nok\r\nvios> WB-SOURCE 1760 80\r\nWB-SOURCE revision 142 offset 1760 total 1969 hex 61696E65642065786163746C790A5C2057424D315020736F7572636520726F772034352072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F77203436207265746169\r\n\r\nok\r\nvios> WB-SOURCE 1840 80\r\nWB-SOURCE revision 142 offset 1840 total 1969 hex 6E65642065786163746C790A5C2057424D315020736F7572636520726F772034372072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772034382072657461696E65\r\n\r\nok\r\nvios> WB-SOURCE 1920 49\r\nWB-SOURCE revision 142 offset 1920 total 1969 hex 642065786163746C790A5C2057424D315020736F7572636520726F772034392072657461696E65642065786163746C790A\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 142,
+          "catalog": 159,
+          "open": false,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 1969,
+          "cursor": 0,
+          "selection": 0,
+          "browser": 0,
+          "focus": 0,
+          "words": 86,
+          "words_max": 512,
+          "module": "WBM1P",
+          "version": "1.0",
+          "test": "",
+          "error": ""
+        },
+        "source": ": WBM1P-VALUE 18 ;\n\\ WBM1P source row 00 retained exactly\n\\ WBM1P source row 01 retained exactly\n\\ WBM1P source row 02 retained exactly\n\\ WBM1P source row 03 retained exactly\n\\ WBM1P source row 04 retained exactly\n\\ WBM1P source row 05 retained exactly\n\\ WBM1P source row 06 retained exactly\n\\ WBM1P source row 07 retained exactly\n\\ WBM1P source row 08 retained exactly\n\\ WBM1P source row 09 retained exactly\n\\ WBM1P source row 10 retained exactly\n\\ WBM1P source row 11 retained exactly\n\\ WBM1P source row 12 retained exactly\n\\ WBM1P source row 13 retained exactly\n\\ WBM1P source row 14 retained exactly\n\\ WBM1P source row 15 retained exactly\n\\ WBM1P source row 16 retained exactly\n\\ WBM1P source row 17 retained exactly\n\\ WBM1P source row 18 retained exactly\n\\ WBM1P source row 19 retained exactly\n\\ WBM1P source row 20 retained exactly\n\\ WBM1P source row 21 retained exactly\n\\ WBM1P source row 22 retained exactly\n\\ WBM1P source row 23 retained exactly\n\\ WBM1P source row 24 retained exactly\n\\ WBM1P source row 25 retained exactly\n\\ WBM1P source row 26 retained exactly\n\\ WBM1P source row 27 retained exactly\n\\ WBM1P source row 28 retained exactly\n\\ WBM1P source row 29 retained exactly\n\\ WBM1P source row 30 retained exactly\n\\ WBM1P source row 31 retained exactly\n\\ WBM1P source row 32 retained exactly\n\\ WBM1P source row 33 retained exactly\n\\ WBM1P source row 34 retained exactly\n\\ WBM1P source row 35 retained exactly\n\\ WBM1P source row 36 retained exactly\n\\ WBM1P source row 37 retained exactly\n\\ WBM1P source row 38 retained exactly\n\\ WBM1P source row 39 retained exactly\n\\ WBM1P source row 40 retained exactly\n\\ WBM1P source row 41 retained exactly\n\\ WBM1P source row 42 retained exactly\n\\ WBM1P source row 43 retained exactly\n\\ WBM1P source row 44 retained exactly\n\\ WBM1P source row 45 retained exactly\n\\ WBM1P source row 46 retained exactly\n\\ WBM1P source row 47 retained exactly\n\\ WBM1P source row 48 retained exactly\n\\ WBM1P source row 49 retained exactly\n",
+        "revision": 142,
+        "bytes": 1969,
+        "crc32": 3627393478,
+        "crc32_hex": "D835A1C6",
+        "source_sha256": "3e9f894e2ed2e81c86c003c88cf04417b9ab309a0a21b4af2346085bd58399f9"
+      },
+      "host_ms": 1719.247999979416
+    },
+    {
+      "tool": "stacks",
+      "arguments": {},
+      "result": {
+        "output": ".S\r\n<0> \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "data_stack": {
+          "depth_text": "0",
+          "values_text": []
+        }
+      },
+      "host_ms": 31.018916983157396
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "BASE @ . CR",
+        "timeout": 30
+      },
+      "result": {
+        "output": "BASE @ . CR\r\n10 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 40.61945801367983
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "VDP-INFO",
+        "timeout": 30
+      },
+      "result": {
+        "output": "VDP-INFO\r\nvdp width 640 height 480 colours 4 mode 1 console-dropped 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 41.135207982733846
+    },
+    {
+      "tool": "wb_status",
+      "arguments": {},
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 142 catalog 159 open 0 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 142,
+          "catalog": 159,
+          "open": false,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 1969,
+          "cursor": 0,
+          "selection": 0,
+          "browser": 0,
+          "focus": 0,
+          "words": 86,
+          "words_max": 512,
+          "module": "WBM1P",
+          "version": "1.0",
+          "test": "",
+          "error": ""
+        }
+      }
+    },
+    {
+      "tool": "memory_read",
+      "arguments": {
+        "address": 655360,
+        "count": 60
+      },
+      "result": {
+        "address": 655360,
+        "count": 60,
+        "hex": "13503e138ffadfc83e0b75ba30241c2f2dca04409f6ae58c5eef3fe3890d25c44468cd7e29c5cc273833abf02c8eb3594644595bdabfe1e6af7aeebb",
+        "crc32": "b2c5bf86"
+      }
+    },
+    {
+      "tool": "memory_write",
+      "arguments": {
+        "address": 655360,
+        "hex": "110311801c1a374f1217070003081f00255c2057424d315020736f7572636520726f772033372072657461696e65642065786163746c791c003b4f00"
+      },
+      "result": {
+        "address": 655360,
+        "count": 60,
+        "verified": true,
+        "crc32": "e3c8688d"
+      }
+    },
+    {
+      "tool": "wb_open",
+      "arguments": {},
+      "result": {
+        "output": "WB-OPEN\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 142,
+          "catalog": 159,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 1969,
+          "cursor": 0,
+          "selection": 0,
+          "browser": 0,
+          "focus": 0,
+          "words": 86,
+          "words_max": 512,
+          "module": "WBM1P",
+          "version": "1.0",
+          "test": "",
+          "error": ""
+        }
+      }
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' WB-PAINT-DEFAULT IS WB-PAINT WB-REDRAW WB-FLUSH",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' WB-PAINT-DEFAULT IS WB-PAINT WB-REDRAW WB-FLUSH\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-FLUSH elapsed_ms 686 bytes 4098 spans 367 batches 33 cells 1529 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' DECIMAL IS WB-PAINT",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' DECIMAL IS WB-PAINT\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "TIMER@ $A0000 60 VTYPE 26 55 CHAR@ SWAP TIMER@ - $FFFF AND . . CR",
+        "timeout": 30
+      },
+      "result": {
+        "output": "TIMER@ $A0000 60 VTYPE 26 55 CHAR@ SWAP TIMER@ - $FFFF AND . . CR\r\n4884 92 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "26 18 CHAR@ . CR",
+        "timeout": 30
+      },
+      "result": {
+        "output": "26 18 CHAR@ . CR\r\n92 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' WB-PAINT-DEFAULT IS WB-PAINT WB-REDRAW WB-FLUSH",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' WB-PAINT-DEFAULT IS WB-PAINT WB-REDRAW WB-FLUSH\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-FLUSH elapsed_ms 686 bytes 4098 spans 367 batches 33 cells 1529 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' DECIMAL IS WB-PAINT",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' DECIMAL IS WB-PAINT\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "TIMER@ $A0000 60 VTYPE 26 55 CHAR@ SWAP TIMER@ - $FFFF AND . . CR",
+        "timeout": 30
+      },
+      "result": {
+        "output": "TIMER@ $A0000 60 VTYPE 26 55 CHAR@ SWAP TIMER@ - $FFFF AND . . CR\r\n4941 92 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "26 18 CHAR@ . CR",
+        "timeout": 30
+      },
+      "result": {
+        "output": "26 18 CHAR@ . CR\r\n92 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' WB-PAINT-DEFAULT IS WB-PAINT WB-REDRAW WB-FLUSH",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' WB-PAINT-DEFAULT IS WB-PAINT WB-REDRAW WB-FLUSH\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-FLUSH elapsed_ms 686 bytes 4098 spans 367 batches 33 cells 1529 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' DECIMAL IS WB-PAINT",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' DECIMAL IS WB-PAINT\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "TIMER@ $A0000 60 VTYPE 26 55 CHAR@ SWAP TIMER@ - $FFFF AND . . CR",
+        "timeout": 30
+      },
+      "result": {
+        "output": "TIMER@ $A0000 60 VTYPE 26 55 CHAR@ SWAP TIMER@ - $FFFF AND . . CR\r\n4913 92 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "26 18 CHAR@ . CR",
+        "timeout": 30
+      },
+      "result": {
+        "output": "26 18 CHAR@ . CR\r\n92 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' WB-PAINT-DEFAULT IS WB-PAINT WB-REDRAW WB-FLUSH",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' WB-PAINT-DEFAULT IS WB-PAINT WB-REDRAW WB-FLUSH\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-FLUSH elapsed_ms 686 bytes 4098 spans 367 batches 33 cells 1529 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' DECIMAL IS WB-PAINT",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' DECIMAL IS WB-PAINT\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "TIMER@ $A0000 60 VTYPE 26 55 CHAR@ SWAP TIMER@ - $FFFF AND . . CR",
+        "timeout": 30
+      },
+      "result": {
+        "output": "TIMER@ $A0000 60 VTYPE 26 55 CHAR@ SWAP TIMER@ - $FFFF AND . . CR\r\n4912 92 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "26 18 CHAR@ . CR",
+        "timeout": 30
+      },
+      "result": {
+        "output": "26 18 CHAR@ . CR\r\n92 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' WB-PAINT-DEFAULT IS WB-PAINT WB-REDRAW WB-FLUSH",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' WB-PAINT-DEFAULT IS WB-PAINT WB-REDRAW WB-FLUSH\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-FLUSH elapsed_ms 686 bytes 4098 spans 367 batches 33 cells 1529 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' DECIMAL IS WB-PAINT",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' DECIMAL IS WB-PAINT\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "TIMER@ $A0000 60 VTYPE 26 55 CHAR@ SWAP TIMER@ - $FFFF AND . . CR",
+        "timeout": 30
+      },
+      "result": {
+        "output": "TIMER@ $A0000 60 VTYPE 26 55 CHAR@ SWAP TIMER@ - $FFFF AND . . CR\r\n4941 92 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "26 18 CHAR@ . CR",
+        "timeout": 30
+      },
+      "result": {
+        "output": "26 18 CHAR@ . CR\r\n92 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' WB-PAINT-DEFAULT IS WB-PAINT WB-REDRAW WB-FLUSH",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' WB-PAINT-DEFAULT IS WB-PAINT WB-REDRAW WB-FLUSH\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-FLUSH elapsed_ms 686 bytes 4098 spans 367 batches 33 cells 1529 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' DECIMAL IS WB-PAINT",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' DECIMAL IS WB-PAINT\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "TIMER@ $A0000 60 VTYPE 26 55 CHAR@ SWAP TIMER@ - $FFFF AND . . CR",
+        "timeout": 30
+      },
+      "result": {
+        "output": "TIMER@ $A0000 60 VTYPE 26 55 CHAR@ SWAP TIMER@ - $FFFF AND . . CR\r\n3911 92 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "26 18 CHAR@ . CR",
+        "timeout": 30
+      },
+      "result": {
+        "output": "26 18 CHAR@ . CR\r\n92 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' WB-PAINT-DEFAULT IS WB-PAINT WB-REDRAW WB-FLUSH",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' WB-PAINT-DEFAULT IS WB-PAINT WB-REDRAW WB-FLUSH\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-FLUSH elapsed_ms 687 bytes 4098 spans 367 batches 33 cells 1529 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' DECIMAL IS WB-PAINT",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' DECIMAL IS WB-PAINT\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "TIMER@ $A0000 60 VTYPE 26 55 CHAR@ SWAP TIMER@ - $FFFF AND . . CR",
+        "timeout": 30
+      },
+      "result": {
+        "output": "TIMER@ $A0000 60 VTYPE 26 55 CHAR@ SWAP TIMER@ - $FFFF AND . . CR\r\n4927 92 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "26 18 CHAR@ . CR",
+        "timeout": 30
+      },
+      "result": {
+        "output": "26 18 CHAR@ . CR\r\n92 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "TIMER@ 26 55 CHAR@ SWAP TIMER@ - $FFFF AND . . CR",
+        "timeout": 30
+      },
+      "result": {
+        "output": "TIMER@ 26 55 CHAR@ SWAP TIMER@ - $FFFF AND . . CR\r\n2464 92 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "TIMER@ 26 55 CHAR@ SWAP TIMER@ - $FFFF AND . . CR",
+        "timeout": 30
+      },
+      "result": {
+        "output": "TIMER@ 26 55 CHAR@ SWAP TIMER@ - $FFFF AND . . CR\r\n2378 92 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "TIMER@ 26 55 CHAR@ SWAP TIMER@ - $FFFF AND . . CR",
+        "timeout": 30
+      },
+      "result": {
+        "output": "TIMER@ 26 55 CHAR@ SWAP TIMER@ - $FFFF AND . . CR\r\n2507 92 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "TIMER@ 26 55 CHAR@ SWAP TIMER@ - $FFFF AND . . CR",
+        "timeout": 30
+      },
+      "result": {
+        "output": "TIMER@ 26 55 CHAR@ SWAP TIMER@ - $FFFF AND . . CR\r\n2449 92 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "TIMER@ 26 55 CHAR@ SWAP TIMER@ - $FFFF AND . . CR",
+        "timeout": 30
+      },
+      "result": {
+        "output": "TIMER@ 26 55 CHAR@ SWAP TIMER@ - $FFFF AND . . CR\r\n2392 92 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "TIMER@ 26 55 CHAR@ SWAP TIMER@ - $FFFF AND . . CR",
+        "timeout": 30
+      },
+      "result": {
+        "output": "TIMER@ 26 55 CHAR@ SWAP TIMER@ - $FFFF AND . . CR\r\n2493 92 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "TIMER@ 26 55 CHAR@ SWAP TIMER@ - $FFFF AND . . CR",
+        "timeout": 30
+      },
+      "result": {
+        "output": "TIMER@ 26 55 CHAR@ SWAP TIMER@ - $FFFF AND . . CR\r\n2450 92 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    },
+    {
+      "tool": "memory_write",
+      "arguments": {
+        "address": 655360,
+        "hex": "13503e138ffadfc83e0b75ba30241c2f2dca04409f6ae58c5eef3fe3890d25c44468cd7e29c5cc273833abf02c8eb3594644595bdabfe1e6af7aeebb"
+      },
+      "result": {
+        "address": 655360,
+        "count": 60,
+        "verified": true,
+        "crc32": "b2c5bf86"
+      }
+    },
+    {
+      "tool": "memory_read",
+      "arguments": {
+        "address": 655360,
+        "count": 60
+      },
+      "result": {
+        "address": 655360,
+        "count": 60,
+        "hex": "13503e138ffadfc83e0b75ba30241c2f2dca04409f6ae58c5eef3fe3890d25c44468cd7e29c5cc273833abf02c8eb3594644595bdabfe1e6af7aeebb",
+        "crc32": "b2c5bf86"
+      }
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "' WB-PAINT-DEFAULT IS WB-PAINT WB-REDRAW WB-FLUSH",
+        "timeout": 30
+      },
+      "result": {
+        "output": "' WB-PAINT-DEFAULT IS WB-PAINT WB-REDRAW WB-FLUSH\r\nWB-STATUS revision 142 catalog 159 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\nWB-FLUSH elapsed_ms 686 bytes 4098 spans 367 batches 33 cells 1529 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    },
+    {
+      "tool": "wb_close",
+      "arguments": {},
+      "result": {
+        "output": "WB-CLOSE\r\nWB-STATUS revision 142 catalog 159 open 0 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 142,
+          "catalog": 159,
+          "open": false,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 1969,
+          "cursor": 0,
+          "selection": 0,
+          "browser": 0,
+          "focus": 0,
+          "words": 86,
+          "words_max": 512,
+          "module": "WBM1P",
+          "version": "1.0",
+          "test": "",
+          "error": ""
+        }
+      }
+    },
+    {
+      "tool": "wb_status",
+      "arguments": {},
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 142 catalog 159 open 0 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 142,
+          "catalog": 159,
+          "open": false,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 1969,
+          "cursor": 0,
+          "selection": 0,
+          "browser": 0,
+          "focus": 0,
+          "words": 86,
+          "words_max": 512,
+          "module": "WBM1P",
+          "version": "1.0",
+          "test": "",
+          "error": ""
+        }
+      }
+    },
+    {
+      "tool": "wb_source",
+      "arguments": {},
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 142 catalog 159 open 0 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 86 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> WB-SOURCE 0 80\r\nWB-SOURCE revision 142 offset 0 total 1969 hex 3A2057424D31502D56414C5545203138203B0A5C2057424D315020736F7572636520726F772030302072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F7720303120\r\n\r\nok\r\nvios> WB-SOURCE 80 80\r\nWB-SOURCE revision 142 offset 80 total 1969 hex 72657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772030322072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F77203033207265\r\n\r\nok\r\nvios> WB-SOURCE 160 80\r\nWB-SOURCE revision 142 offset 160 total 1969 hex 7461696E65642065786163746C790A5C2057424D315020736F7572636520726F772030342072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772030352072657461\r\n\r\nok\r\nvios> WB-SOURCE 240 80\r\nWB-SOURCE revision 142 offset 240 total 1969 hex 696E65642065786163746C790A5C2057424D315020736F7572636520726F772030362072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772030372072657461696E\r\n\r\nok\r\nvios> WB-SOURCE 320 80\r\nWB-SOURCE revision 142 offset 320 total 1969 hex 65642065786163746C790A5C2057424D315020736F7572636520726F772030382072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772030392072657461696E6564\r\n\r\nok\r\nvios> WB-SOURCE 400 80\r\nWB-SOURCE revision 142 offset 400 total 1969 hex 2065786163746C790A5C2057424D315020736F7572636520726F772031302072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772031312072657461696E65642065\r\n\r\nok\r\nvios> WB-SOURCE 480 80\r\nWB-SOURCE revision 142 offset 480 total 1969 hex 786163746C790A5C2057424D315020736F7572636520726F772031322072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772031332072657461696E656420657861\r\n\r\nok\r\nvios> WB-SOURCE 560 80\r\nWB-SOURCE revision 142 offset 560 total 1969 hex 63746C790A5C2057424D315020736F7572636520726F772031342072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772031352072657461696E6564206578616374\r\n\r\nok\r\nvios> WB-SOURCE 640 80\r\nWB-SOURCE revision 142 offset 640 total 1969 hex 6C790A5C2057424D315020736F7572636520726F772031362072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772031372072657461696E65642065786163746C79\r\n\r\nok\r\nvios> WB-SOURCE 720 80\r\nWB-SOURCE revision 142 offset 720 total 1969 hex 0A5C2057424D315020736F7572636520726F772031382072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772031392072657461696E65642065786163746C790A5C\r\n\r\nok\r\nvios> WB-SOURCE 800 80\r\nWB-SOURCE revision 142 offset 800 total 1969 hex 2057424D315020736F7572636520726F772032302072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772032312072657461696E65642065786163746C790A5C2057\r\n\r\nok\r\nvios> WB-SOURCE 880 80\r\nWB-SOURCE revision 142 offset 880 total 1969 hex 424D315020736F7572636520726F772032322072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772032332072657461696E65642065786163746C790A5C2057424D\r\n\r\nok\r\nvios> WB-SOURCE 960 80\r\nWB-SOURCE revision 142 offset 960 total 1969 hex 315020736F7572636520726F772032342072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772032352072657461696E65642065786163746C790A5C2057424D3150\r\n\r\nok\r\nvios> WB-SOURCE 1040 80\r\nWB-SOURCE revision 142 offset 1040 total 1969 hex 20736F7572636520726F772032362072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772032372072657461696E65642065786163746C790A5C2057424D31502073\r\n\r\nok\r\nvios> WB-SOURCE 1120 80\r\nWB-SOURCE revision 142 offset 1120 total 1969 hex 6F7572636520726F772032382072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772032392072657461696E65642065786163746C790A5C2057424D315020736F75\r\n\r\nok\r\nvios> WB-SOURCE 1200 80\r\nWB-SOURCE revision 142 offset 1200 total 1969 hex 72636520726F772033302072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772033312072657461696E65642065786163746C790A5C2057424D315020736F757263\r\n\r\nok\r\nvios> WB-SOURCE 1280 80\r\nWB-SOURCE revision 142 offset 1280 total 1969 hex 6520726F772033322072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772033332072657461696E65642065786163746C790A5C2057424D315020736F7572636520\r\n\r\nok\r\nvios> WB-SOURCE 1360 80\r\nWB-SOURCE revision 142 offset 1360 total 1969 hex 726F772033342072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772033352072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F\r\n\r\nok\r\nvios> WB-SOURCE 1440 80\r\nWB-SOURCE revision 142 offset 1440 total 1969 hex 772033362072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772033372072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F7720\r\n\r\nok\r\nvios> WB-SOURCE 1520 80\r\nWB-SOURCE revision 142 offset 1520 total 1969 hex 33382072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772033392072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F77203430\r\n\r\nok\r\nvios> WB-SOURCE 1600 80\r\nWB-SOURCE revision 142 offset 1600 total 1969 hex 2072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772034312072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772034322072\r\n\r\nok\r\nvios> WB-SOURCE 1680 80\r\nWB-SOURCE revision 142 offset 1680 total 1969 hex 657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772034332072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F7720343420726574\r\n\r\nok\r\nvios> WB-SOURCE 1760 80\r\nWB-SOURCE revision 142 offset 1760 total 1969 hex 61696E65642065786163746C790A5C2057424D315020736F7572636520726F772034352072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F77203436207265746169\r\n\r\nok\r\nvios> WB-SOURCE 1840 80\r\nWB-SOURCE revision 142 offset 1840 total 1969 hex 6E65642065786163746C790A5C2057424D315020736F7572636520726F772034372072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772034382072657461696E65\r\n\r\nok\r\nvios> WB-SOURCE 1920 49\r\nWB-SOURCE revision 142 offset 1920 total 1969 hex 642065786163746C790A5C2057424D315020736F7572636520726F772034392072657461696E65642065786163746C790A\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 142,
+          "catalog": 159,
+          "open": false,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 1969,
+          "cursor": 0,
+          "selection": 0,
+          "browser": 0,
+          "focus": 0,
+          "words": 86,
+          "words_max": 512,
+          "module": "WBM1P",
+          "version": "1.0",
+          "test": "",
+          "error": ""
+        },
+        "source": ": WBM1P-VALUE 18 ;\n\\ WBM1P source row 00 retained exactly\n\\ WBM1P source row 01 retained exactly\n\\ WBM1P source row 02 retained exactly\n\\ WBM1P source row 03 retained exactly\n\\ WBM1P source row 04 retained exactly\n\\ WBM1P source row 05 retained exactly\n\\ WBM1P source row 06 retained exactly\n\\ WBM1P source row 07 retained exactly\n\\ WBM1P source row 08 retained exactly\n\\ WBM1P source row 09 retained exactly\n\\ WBM1P source row 10 retained exactly\n\\ WBM1P source row 11 retained exactly\n\\ WBM1P source row 12 retained exactly\n\\ WBM1P source row 13 retained exactly\n\\ WBM1P source row 14 retained exactly\n\\ WBM1P source row 15 retained exactly\n\\ WBM1P source row 16 retained exactly\n\\ WBM1P source row 17 retained exactly\n\\ WBM1P source row 18 retained exactly\n\\ WBM1P source row 19 retained exactly\n\\ WBM1P source row 20 retained exactly\n\\ WBM1P source row 21 retained exactly\n\\ WBM1P source row 22 retained exactly\n\\ WBM1P source row 23 retained exactly\n\\ WBM1P source row 24 retained exactly\n\\ WBM1P source row 25 retained exactly\n\\ WBM1P source row 26 retained exactly\n\\ WBM1P source row 27 retained exactly\n\\ WBM1P source row 28 retained exactly\n\\ WBM1P source row 29 retained exactly\n\\ WBM1P source row 30 retained exactly\n\\ WBM1P source row 31 retained exactly\n\\ WBM1P source row 32 retained exactly\n\\ WBM1P source row 33 retained exactly\n\\ WBM1P source row 34 retained exactly\n\\ WBM1P source row 35 retained exactly\n\\ WBM1P source row 36 retained exactly\n\\ WBM1P source row 37 retained exactly\n\\ WBM1P source row 38 retained exactly\n\\ WBM1P source row 39 retained exactly\n\\ WBM1P source row 40 retained exactly\n\\ WBM1P source row 41 retained exactly\n\\ WBM1P source row 42 retained exactly\n\\ WBM1P source row 43 retained exactly\n\\ WBM1P source row 44 retained exactly\n\\ WBM1P source row 45 retained exactly\n\\ WBM1P source row 46 retained exactly\n\\ WBM1P source row 47 retained exactly\n\\ WBM1P source row 48 retained exactly\n\\ WBM1P source row 49 retained exactly\n",
+        "revision": 142,
+        "bytes": 1969,
+        "crc32": 3627393478,
+        "crc32_hex": "D835A1C6",
+        "source_sha256": "3e9f894e2ed2e81c86c003c88cf04417b9ab309a0a21b4af2346085bd58399f9"
+      }
+    },
+    {
+      "tool": "stacks",
+      "arguments": {},
+      "result": {
+        "output": ".S\r\n<0> \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "data_stack": {
+          "depth_text": "0",
+          "values_text": []
+        }
+      }
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "VDP-INFO",
+        "timeout": 30
+      },
+      "result": {
+        "output": "VDP-INFO\r\nvdp width 640 height 480 colours 4 mode 1 console-dropped 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    }
+  ],
+  "samples": {
+    "full_precomposed": [
+      {
+        "elapsed_ms": 560,
+        "bytes": 4098,
+        "spans": 367,
+        "batches": 33,
+        "cells": 1529,
+        "pending": 0,
+        "native": {
+          "cells": 1529,
+          "spans": 367,
+          "batches": 33,
+          "bytes": 4098,
+          "elapsed_ticks": 143994,
+          "pending": 0
+        },
+        "native_ms": 499.9791666666667
+      },
+      {
+        "elapsed_ms": 560,
+        "bytes": 4098,
+        "spans": 367,
+        "batches": 33,
+        "cells": 1529,
+        "pending": 0,
+        "native": {
+          "cells": 1529,
+          "spans": 367,
+          "batches": 33,
+          "bytes": 4098,
+          "elapsed_ticks": 143945,
+          "pending": 0
+        },
+        "native_ms": 499.80902777777777
+      },
+      {
+        "elapsed_ms": 561,
+        "bytes": 4098,
+        "spans": 367,
+        "batches": 33,
+        "cells": 1529,
+        "pending": 0,
+        "native": {
+          "cells": 1529,
+          "spans": 367,
+          "batches": 33,
+          "bytes": 4098,
+          "elapsed_ticks": 143985,
+          "pending": 0
+        },
+        "native_ms": 499.9479166666667
+      },
+      {
+        "elapsed_ms": 560,
+        "bytes": 4098,
+        "spans": 367,
+        "batches": 33,
+        "cells": 1529,
+        "pending": 0,
+        "native": {
+          "cells": 1529,
+          "spans": 367,
+          "batches": 33,
+          "bytes": 4098,
+          "elapsed_ticks": 143991,
+          "pending": 0
+        },
+        "native_ms": 499.96875
+      },
+      {
+        "elapsed_ms": 560,
+        "bytes": 4098,
+        "spans": 367,
+        "batches": 33,
+        "cells": 1529,
+        "pending": 0,
+        "native": {
+          "cells": 1529,
+          "spans": 367,
+          "batches": 33,
+          "bytes": 4098,
+          "elapsed_ticks": 144017,
+          "pending": 0
+        },
+        "native_ms": 500.05902777777777
+      },
+      {
+        "elapsed_ms": 560,
+        "bytes": 4098,
+        "spans": 367,
+        "batches": 33,
+        "cells": 1529,
+        "pending": 0,
+        "native": {
+          "cells": 1529,
+          "spans": 367,
+          "batches": 33,
+          "bytes": 4098,
+          "elapsed_ticks": 143992,
+          "pending": 0
+        },
+        "native_ms": 499.97222222222223
+      },
+      {
+        "elapsed_ms": 561,
+        "bytes": 4098,
+        "spans": 367,
+        "batches": 33,
+        "cells": 1529,
+        "pending": 0,
+        "native": {
+          "cells": 1529,
+          "spans": 367,
+          "batches": 33,
+          "bytes": 4098,
+          "elapsed_ticks": 144013,
+          "pending": 0
+        },
+        "native_ms": 500.0451388888889
+      }
+    ],
+    "full_compose_and_paint": [
+      {
+        "elapsed_ms": 686,
+        "bytes": 4098,
+        "spans": 367,
+        "batches": 33,
+        "cells": 1529,
+        "pending": 0,
+        "native": {
+          "cells": 1529,
+          "spans": 367,
+          "batches": 33,
+          "bytes": 4098,
+          "elapsed_ticks": 143981,
+          "pending": 0
+        },
+        "native_ms": 499.93402777777777
+      },
+      {
+        "elapsed_ms": 686,
+        "bytes": 4098,
+        "spans": 367,
+        "batches": 33,
+        "cells": 1529,
+        "pending": 0,
+        "native": {
+          "cells": 1529,
+          "spans": 367,
+          "batches": 33,
+          "bytes": 4098,
+          "elapsed_ticks": 143968,
+          "pending": 0
+        },
+        "native_ms": 499.8888888888889
+      },
+      {
+        "elapsed_ms": 686,
+        "bytes": 4098,
+        "spans": 367,
+        "batches": 33,
+        "cells": 1529,
+        "pending": 0,
+        "native": {
+          "cells": 1529,
+          "spans": 367,
+          "batches": 33,
+          "bytes": 4098,
+          "elapsed_ticks": 144009,
+          "pending": 0
+        },
+        "native_ms": 500.03125
+      },
+      {
+        "elapsed_ms": 686,
+        "bytes": 4098,
+        "spans": 367,
+        "batches": 33,
+        "cells": 1529,
+        "pending": 0,
+        "native": {
+          "cells": 1529,
+          "spans": 367,
+          "batches": 33,
+          "bytes": 4098,
+          "elapsed_ticks": 144001,
+          "pending": 0
+        },
+        "native_ms": 500.00347222222223
+      },
+      {
+        "elapsed_ms": 686,
+        "bytes": 4098,
+        "spans": 367,
+        "batches": 33,
+        "cells": 1529,
+        "pending": 0,
+        "native": {
+          "cells": 1529,
+          "spans": 367,
+          "batches": 33,
+          "bytes": 4098,
+          "elapsed_ticks": 143986,
+          "pending": 0
+        },
+        "native_ms": 499.9513888888889
+      },
+      {
+        "elapsed_ms": 686,
+        "bytes": 4098,
+        "spans": 367,
+        "batches": 33,
+        "cells": 1529,
+        "pending": 0,
+        "native": {
+          "cells": 1529,
+          "spans": 367,
+          "batches": 33,
+          "bytes": 4098,
+          "elapsed_ticks": 143962,
+          "pending": 0
+        },
+        "native_ms": 499.86805555555554
+      },
+      {
+        "elapsed_ms": 686,
+        "bytes": 4098,
+        "spans": 367,
+        "batches": 33,
+        "cells": 1529,
+        "pending": 0,
+        "native": {
+          "cells": 1529,
+          "spans": 367,
+          "batches": 33,
+          "bytes": 4098,
+          "elapsed_ticks": 144001,
+          "pending": 0
+        },
+        "native_ms": 500.00347222222223
+      }
+    ],
+    "source_scroll_precomposed": [
+      {
+        "elapsed_ms": 52,
+        "bytes": 307,
+        "spans": 38,
+        "batches": 3,
+        "cells": 41,
+        "pending": 0,
+        "native": {
+          "cells": 41,
+          "spans": 38,
+          "batches": 3,
+          "bytes": 307,
+          "elapsed_ticks": 12328,
+          "pending": 0
+        },
+        "native_ms": 42.80555555555556
+      },
+      {
+        "elapsed_ms": 52,
+        "bytes": 307,
+        "spans": 38,
+        "batches": 3,
+        "cells": 41,
+        "pending": 0,
+        "native": {
+          "cells": 41,
+          "spans": 38,
+          "batches": 3,
+          "bytes": 307,
+          "elapsed_ticks": 12430,
+          "pending": 0
+        },
+        "native_ms": 43.15972222222222
+      },
+      {
+        "elapsed_ms": 53,
+        "bytes": 307,
+        "spans": 38,
+        "batches": 3,
+        "cells": 41,
+        "pending": 0,
+        "native": {
+          "cells": 41,
+          "spans": 38,
+          "batches": 3,
+          "bytes": 307,
+          "elapsed_ticks": 12419,
+          "pending": 0
+        },
+        "native_ms": 43.12152777777778
+      },
+      {
+        "elapsed_ms": 53,
+        "bytes": 307,
+        "spans": 38,
+        "batches": 3,
+        "cells": 41,
+        "pending": 0,
+        "native": {
+          "cells": 41,
+          "spans": 38,
+          "batches": 3,
+          "bytes": 307,
+          "elapsed_ticks": 12413,
+          "pending": 0
+        },
+        "native_ms": 43.10069444444444
+      },
+      {
+        "elapsed_ms": 53,
+        "bytes": 307,
+        "spans": 38,
+        "batches": 3,
+        "cells": 41,
+        "pending": 0,
+        "native": {
+          "cells": 41,
+          "spans": 38,
+          "batches": 3,
+          "bytes": 307,
+          "elapsed_ticks": 12419,
+          "pending": 0
+        },
+        "native_ms": 43.12152777777778
+      },
+      {
+        "elapsed_ms": 52,
+        "bytes": 307,
+        "spans": 38,
+        "batches": 3,
+        "cells": 41,
+        "pending": 0,
+        "native": {
+          "cells": 41,
+          "spans": 38,
+          "batches": 3,
+          "bytes": 307,
+          "elapsed_ticks": 12423,
+          "pending": 0
+        },
+        "native_ms": 43.135416666666664
+      },
+      {
+        "elapsed_ms": 53,
+        "bytes": 307,
+        "spans": 38,
+        "batches": 3,
+        "cells": 41,
+        "pending": 0,
+        "native": {
+          "cells": 41,
+          "spans": 38,
+          "batches": 3,
+          "bytes": 307,
+          "elapsed_ticks": 12429,
+          "pending": 0
+        },
+        "native_ms": 43.15625
+      },
+      {
+        "elapsed_ms": 52,
+        "bytes": 307,
+        "spans": 38,
+        "batches": 3,
+        "cells": 41,
+        "pending": 0,
+        "native": {
+          "cells": 41,
+          "spans": 38,
+          "batches": 3,
+          "bytes": 307,
+          "elapsed_ticks": 12413,
+          "pending": 0
+        },
+        "native_ms": 43.10069444444444
+      }
+    ],
+    "viewport_scroll_only_fenced": [
+      {
+        "ticks": 4207,
+        "ms": 14.60763888888889,
+        "glyph": 92,
+        "scroll_command_bytes": 5,
+        "includes": "five individual Forth VDU native calls, colour reset and CHAR@ framebuffer fence; does not draw exposed line or update VIOS shadows"
+      },
+      {
+        "ticks": 4193,
+        "ms": 14.559027777777779,
+        "glyph": 92,
+        "scroll_command_bytes": 5,
+        "includes": "five individual Forth VDU native calls, colour reset and CHAR@ framebuffer fence; does not draw exposed line or update VIOS shadows"
+      },
+      {
+        "ticks": 4207,
+        "ms": 14.60763888888889,
+        "glyph": 92,
+        "scroll_command_bytes": 5,
+        "includes": "five individual Forth VDU native calls, colour reset and CHAR@ framebuffer fence; does not draw exposed line or update VIOS shadows"
+      },
+      {
+        "ticks": 4208,
+        "ms": 14.61111111111111,
+        "glyph": 92,
+        "scroll_command_bytes": 5,
+        "includes": "five individual Forth VDU native calls, colour reset and CHAR@ framebuffer fence; does not draw exposed line or update VIOS shadows"
+      },
+      {
+        "ticks": 3635,
+        "ms": 12.621527777777779,
+        "glyph": 92,
+        "scroll_command_bytes": 5,
+        "includes": "five individual Forth VDU native calls, colour reset and CHAR@ framebuffer fence; does not draw exposed line or update VIOS shadows"
+      },
+      {
+        "ticks": 4193,
+        "ms": 14.559027777777779,
+        "glyph": 92,
+        "scroll_command_bytes": 5,
+        "includes": "five individual Forth VDU native calls, colour reset and CHAR@ framebuffer fence; does not draw exposed line or update VIOS shadows"
+      },
+      {
+        "ticks": 4208,
+        "ms": 14.61111111111111,
+        "glyph": 92,
+        "scroll_command_bytes": 5,
+        "includes": "five individual Forth VDU native calls, colour reset and CHAR@ framebuffer fence; does not draw exposed line or update VIOS shadows"
+      }
+    ],
+    "viewport_scroll_and_exposed_line_fenced": [
+      {
+        "ticks": 4884,
+        "ms": 16.958333333333332,
+        "glyph": 92,
+        "bytes": 60
+      },
+      {
+        "ticks": 4941,
+        "ms": 17.15625,
+        "glyph": 92,
+        "bytes": 60
+      },
+      {
+        "ticks": 4913,
+        "ms": 17.05902777777778,
+        "glyph": 92,
+        "bytes": 60
+      },
+      {
+        "ticks": 4912,
+        "ms": 17.055555555555557,
+        "glyph": 92,
+        "bytes": 60
+      },
+      {
+        "ticks": 4941,
+        "ms": 17.15625,
+        "glyph": 92,
+        "bytes": 60
+      },
+      {
+        "ticks": 3911,
+        "ms": 13.57986111111111,
+        "glyph": 92,
+        "bytes": 60
+      },
+      {
+        "ticks": 4927,
+        "ms": 17.10763888888889,
+        "glyph": 92,
+        "bytes": 60
+      }
+    ],
+    "char_fence_baseline": [
+      {
+        "ticks": 2464,
+        "ms": 8.555555555555555,
+        "glyph": 92
+      },
+      {
+        "ticks": 2378,
+        "ms": 8.256944444444445,
+        "glyph": 92
+      },
+      {
+        "ticks": 2507,
+        "ms": 8.70486111111111,
+        "glyph": 92
+      },
+      {
+        "ticks": 2449,
+        "ms": 8.503472222222221,
+        "glyph": 92
+      },
+      {
+        "ticks": 2392,
+        "ms": 8.305555555555555,
+        "glyph": 92
+      },
+      {
+        "ticks": 2493,
+        "ms": 8.65625,
+        "glyph": 92
+      },
+      {
+        "ticks": 2450,
+        "ms": 8.506944444444445,
+        "glyph": 92
+      }
+    ]
+  },
+  "method": "WB-FLUSH on-board timer; console record printed only after timed rendering. Preparation, command echo, final reports and host round trips excluded. No glyph mirroring to USB. Cached runs compose before timed flush with paint hook temporarily bound to existing DECIMAL word; observer restores BASE. Original native paint hook is used throughout measured rendering.",
+  "before": {
+    "revision": 142,
+    "catalog": 159,
+    "open": false,
+    "draft": true,
+    "dirty": true,
+    "staged": false,
+    "active": false,
+    "saved": false,
+    "length": 1969,
+    "cursor": 0,
+    "selection": 0,
+    "browser": 0,
+    "focus": 0,
+    "words": 86,
+    "words_max": 512,
+    "module": "WBM1P",
+    "version": "1.0",
+    "test": "",
+    "error": ""
+  },
+  "source_before": ": WBM1P-VALUE 18 ;\n\\ WBM1P source row 00 retained exactly\n\\ WBM1P source row 01 retained exactly\n\\ WBM1P source row 02 retained exactly\n\\ WBM1P source row 03 retained exactly\n\\ WBM1P source row 04 retained exactly\n\\ WBM1P source row 05 retained exactly\n\\ WBM1P source row 06 retained exactly\n\\ WBM1P source row 07 retained exactly\n\\ WBM1P source row 08 retained exactly\n\\ WBM1P source row 09 retained exactly\n\\ WBM1P source row 10 retained exactly\n\\ WBM1P source row 11 retained exactly\n\\ WBM1P source row 12 retained exactly\n\\ WBM1P source row 13 retained exactly\n\\ WBM1P source row 14 retained exactly\n\\ WBM1P source row 15 retained exactly\n\\ WBM1P source row 16 retained exactly\n\\ WBM1P source row 17 retained exactly\n\\ WBM1P source row 18 retained exactly\n\\ WBM1P source row 19 retained exactly\n\\ WBM1P source row 20 retained exactly\n\\ WBM1P source row 21 retained exactly\n\\ WBM1P source row 22 retained exactly\n\\ WBM1P source row 23 retained exactly\n\\ WBM1P source row 24 retained exactly\n\\ WBM1P source row 25 retained exactly\n\\ WBM1P source row 26 retained exactly\n\\ WBM1P source row 27 retained exactly\n\\ WBM1P source row 28 retained exactly\n\\ WBM1P source row 29 retained exactly\n\\ WBM1P source row 30 retained exactly\n\\ WBM1P source row 31 retained exactly\n\\ WBM1P source row 32 retained exactly\n\\ WBM1P source row 33 retained exactly\n\\ WBM1P source row 34 retained exactly\n\\ WBM1P source row 35 retained exactly\n\\ WBM1P source row 36 retained exactly\n\\ WBM1P source row 37 retained exactly\n\\ WBM1P source row 38 retained exactly\n\\ WBM1P source row 39 retained exactly\n\\ WBM1P source row 40 retained exactly\n\\ WBM1P source row 41 retained exactly\n\\ WBM1P source row 42 retained exactly\n\\ WBM1P source row 43 retained exactly\n\\ WBM1P source row 44 retained exactly\n\\ WBM1P source row 45 retained exactly\n\\ WBM1P source row 46 retained exactly\n\\ WBM1P source row 47 retained exactly\n\\ WBM1P source row 48 retained exactly\n\\ WBM1P source row 49 retained exactly\n",
+  "stack_before": {
+    "output": ".S\r\n<0> \r\n\r\nok\r\nvios> ",
+    "ok": true,
+    "compiling": false,
+    "pending": false,
+    "data_stack": {
+      "depth_text": "0",
+      "values_text": []
+    }
+  },
+  "vdp_before": {
+    "output": "VDP-INFO\r\nvdp width 640 height 480 colours 4 mode 1 console-dropped 0\r\n\r\nok\r\nvios> ",
+    "ok": true,
+    "compiling": false,
+    "pending": false
+  },
+  "viewport_rows_before": [
+    {
+      "row": 18,
+      "text": "                         |: WBM1P-VALUE 18 ;                                    ",
+      "attributes": [
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        2,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3
+      ]
+    },
+    {
+      "row": 19,
+      "text": "                         |\\ WBM1P source row 00 retained exactly                ",
+      "attributes": [
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        2,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3
+      ]
+    }
+  ],
+  "viewport_probe": {
+    "x": 26,
+    "y": 18,
+    "expected_after": 92
+  },
+  "status": "passed",
+  "after": {
+    "revision": 142,
+    "catalog": 159,
+    "open": false,
+    "draft": true,
+    "dirty": true,
+    "staged": false,
+    "active": false,
+    "saved": false,
+    "length": 1969,
+    "cursor": 0,
+    "selection": 0,
+    "browser": 0,
+    "focus": 0,
+    "words": 86,
+    "words_max": 512,
+    "module": "WBM1P",
+    "version": "1.0",
+    "test": "",
+    "error": ""
+  },
+  "source_after": ": WBM1P-VALUE 18 ;\n\\ WBM1P source row 00 retained exactly\n\\ WBM1P source row 01 retained exactly\n\\ WBM1P source row 02 retained exactly\n\\ WBM1P source row 03 retained exactly\n\\ WBM1P source row 04 retained exactly\n\\ WBM1P source row 05 retained exactly\n\\ WBM1P source row 06 retained exactly\n\\ WBM1P source row 07 retained exactly\n\\ WBM1P source row 08 retained exactly\n\\ WBM1P source row 09 retained exactly\n\\ WBM1P source row 10 retained exactly\n\\ WBM1P source row 11 retained exactly\n\\ WBM1P source row 12 retained exactly\n\\ WBM1P source row 13 retained exactly\n\\ WBM1P source row 14 retained exactly\n\\ WBM1P source row 15 retained exactly\n\\ WBM1P source row 16 retained exactly\n\\ WBM1P source row 17 retained exactly\n\\ WBM1P source row 18 retained exactly\n\\ WBM1P source row 19 retained exactly\n\\ WBM1P source row 20 retained exactly\n\\ WBM1P source row 21 retained exactly\n\\ WBM1P source row 22 retained exactly\n\\ WBM1P source row 23 retained exactly\n\\ WBM1P source row 24 retained exactly\n\\ WBM1P source row 25 retained exactly\n\\ WBM1P source row 26 retained exactly\n\\ WBM1P source row 27 retained exactly\n\\ WBM1P source row 28 retained exactly\n\\ WBM1P source row 29 retained exactly\n\\ WBM1P source row 30 retained exactly\n\\ WBM1P source row 31 retained exactly\n\\ WBM1P source row 32 retained exactly\n\\ WBM1P source row 33 retained exactly\n\\ WBM1P source row 34 retained exactly\n\\ WBM1P source row 35 retained exactly\n\\ WBM1P source row 36 retained exactly\n\\ WBM1P source row 37 retained exactly\n\\ WBM1P source row 38 retained exactly\n\\ WBM1P source row 39 retained exactly\n\\ WBM1P source row 40 retained exactly\n\\ WBM1P source row 41 retained exactly\n\\ WBM1P source row 42 retained exactly\n\\ WBM1P source row 43 retained exactly\n\\ WBM1P source row 44 retained exactly\n\\ WBM1P source row 45 retained exactly\n\\ WBM1P source row 46 retained exactly\n\\ WBM1P source row 47 retained exactly\n\\ WBM1P source row 48 retained exactly\n\\ WBM1P source row 49 retained exactly\n",
+  "stack_after": {
+    "output": ".S\r\n<0> \r\n\r\nok\r\nvios> ",
+    "ok": true,
+    "compiling": false,
+    "pending": false,
+    "data_stack": {
+      "depth_text": "0",
+      "values_text": []
+    }
+  },
+  "base_after": {
+    "output": "BASE @ . CR\r\n10 \r\n\r\nok\r\nvios> ",
+    "ok": true,
+    "compiling": false,
+    "pending": false
+  },
+  "vdp_after": {
+    "output": "VDP-INFO\r\nvdp width 640 height 480 colours 4 mode 1 console-dropped 0\r\n\r\nok\r\nvios> ",
+    "ok": true,
+    "compiling": false,
+    "pending": false
+  },
+  "medians": {
+    "full_precomposed": {
+      "elapsed_ms": 560,
+      "bytes": 4098,
+      "spans": 367,
+      "batches": 33,
+      "cells": 1529,
+      "native_ms": 499.97222222222223
+    },
+    "full_compose_and_paint": {
+      "elapsed_ms": 686,
+      "bytes": 4098,
+      "spans": 367,
+      "batches": 33,
+      "cells": 1529,
+      "native_ms": 499.9513888888889
+    },
+    "source_scroll_precomposed": {
+      "elapsed_ms": 52.5,
+      "bytes": 307.0,
+      "spans": 38.0,
+      "batches": 3.0,
+      "cells": 41.0,
+      "native_ms": 43.12152777777778
+    },
+    "viewport_scroll_only_fenced": {
+      "ms": 14.60763888888889
+    },
+    "viewport_scroll_and_exposed_line_fenced": {
+      "bytes": 60,
+      "ms": 17.05902777777778
+    },
+    "char_fence_baseline": {
+      "ms": 8.506944444444445
+    }
+  },
+  "pane_scroll_prototype": {
+    "address": 655360,
+    "bytes": 60,
+    "stream_hex": "110311801c1a374f1217070003081f00255c2057424d315020736f7572636520726f772033372072657461696e65642065786163746c791c003b4f00",
+    "exposed_source_line": "\\ WBM1P source row 37 retained exactly",
+    "method": "One native VTYPE of colour setup, text viewport, eight-pixel scroll, exposed text row and viewport restoration. TIMER@ brackets output plus ordered framebuffer CHAR@ fence. Excludes VIOS cache/paint-shadow maintenance and inspector refresh. Scratch buffer is backed up then readback-verified on write and restoration. No firmware change.",
+    "scratch_before": "13503e138ffadfc83e0b75ba30241c2f2dca04409f6ae58c5eef3fe3890d25c44468cd7e29c5cc273833abf02c8eb3594644595bdabfe1e6af7aeebb",
+    "scratch_restored": true
+  },
+  "after_extended": {
+    "revision": 142,
+    "catalog": 159,
+    "open": false,
+    "draft": true,
+    "dirty": true,
+    "staged": false,
+    "active": false,
+    "saved": false,
+    "length": 1969,
+    "cursor": 0,
+    "selection": 0,
+    "browser": 0,
+    "focus": 0,
+    "words": 86,
+    "words_max": 512,
+    "module": "WBM1P",
+    "version": "1.0",
+    "test": "",
+    "error": ""
+  },
+  "stacks_after_extended": {
+    "output": ".S\r\n<0> \r\n\r\nok\r\nvios> ",
+    "ok": true,
+    "compiling": false,
+    "pending": false,
+    "data_stack": {
+      "depth_text": "0",
+      "values_text": []
+    }
+  },
+  "vdp_after_extended": {
+    "output": "VDP-INFO\r\nvdp width 640 height 480 colours 4 mode 1 console-dropped 0\r\n\r\nok\r\nvios> ",
+    "ok": true,
+    "compiling": false,
+    "pending": false
+  }
+}

@@ -1,0 +1,9 @@
+full screen done
+edit, scroll and zoom done
+full_precomposed {'compose_ms': 125.71527777777777, 'native_ms': 177.51041666666666, 'elapsed_ms': 195, 'bytes': 2255, 'spans': 124, 'batches': 18, 'cells': 1769}
+full_precomposed_fenced {'compose_ms': 125.71527777777777, 'native_ms': 177.53472222222223, 'elapsed_ms': 202, 'bytes': 2255, 'spans': 124, 'batches': 18, 'cells': 1769}
+unchanged {'compose_ms': 1.2777777777777777, 'native_ms': 0.0, 'elapsed_ms': 3, 'bytes': 0, 'spans': 0, 'batches': 0, 'cells': 0}
+character_edit {'compose_ms': 7.850694444444445, 'native_ms': 3.0520833333333335, 'elapsed_ms': 9.0, 'bytes': 36.0, 'spans': 4.5, 'batches': 1.0, 'cells': 17.0}
+newline_edit {'compose_ms': 12.48611111111111, 'native_ms': 5.935763888888889, 'elapsed_ms': 14.5, 'bytes': 80.0, 'spans': 5.0, 'batches': 1.0, 'cells': 42.0}
+source_scroll {'compose_ms': 5.994791666666666, 'native_ms': 3.286458333333333, 'elapsed_ms': 11.0, 'bytes': 57.0, 'spans': 2.0, 'batches': 1.0, 'cells': 20.5}
+zoom_scroll {'compose_ms': 6.786458333333334, 'native_ms': 3.1597222222222223, 'elapsed_ms': 10.0, 'bytes': 57.0, 'spans': 2.0, 'batches': 1.0, 'cells': 20.5}

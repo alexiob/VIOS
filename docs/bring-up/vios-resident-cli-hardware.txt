@@ -1,0 +1,10 @@
+VIOS console — :help for commands.
+vios> 6 7 * . CR
+42 
+
+ok
+vios> RESOURCES
+engine DIRECT words 77/128 token-bytes 312 direct-bytes 947 data-bytes 24 source-bytes 281 data-peak 2 return-peak 0
+
+ok
+vios> 

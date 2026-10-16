@@ -1,0 +1,5011 @@
+{
+  "utc": "2026-10-16T13:00:07.805751+00:00",
+  "timer_hz": 288000,
+  "fixture_bytes": 2128,
+  "fixture_sha256": "b4630623585cf62c4d2351d7fc5bfcc3f3062639f5cfd180461d340dbf939e43",
+  "events": [
+    {
+      "tool": "wb_status",
+      "arguments": {},
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 84 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1972 cursor 1933 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 84,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 1972,
+          "cursor": 1933,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 60.50791702000424
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "DECIMAL",
+        "timeout": 30
+      },
+      "result": {
+        "output": "DECIMAL\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 29.355459002545103
+    },
+    {
+      "tool": "wb_open",
+      "arguments": {},
+      "result": {
+        "output": "WB-OPEN\r\nWB-STATUS revision 84 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1972 cursor 1933 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 84,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 1972,
+          "cursor": 1933,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 168.9657919923775
+    },
+    {
+      "tool": "wb_new",
+      "arguments": {
+        "module": "WBINC",
+        "version": "1",
+        "discard": true
+      },
+      "result": {
+        "output": "WB-NEW WBINC 1 1\r\nWB-STATUS revision 85 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 0 cursor 0 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 85,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 0,
+          "cursor": 0,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 174.81699999189004
+    },
+    {
+      "tool": "wb_status",
+      "arguments": {},
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 85 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 0 cursor 0 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 85,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 0,
+          "cursor": 0,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 113.66829101461917
+    },
+    {
+      "tool": "wb_patch",
+      "arguments": {
+        "revision": 85,
+        "offset": 0,
+        "remove": 0,
+        "source": ": WBM1P-VALUE 18 ;\r\n    \\ WBM1P source row 00 retained exactly\n\t\\ WBM1P source r"
+      },
+      "result": {
+        "output": "WB-PATCH 85 0 0 3A2057424D31502D56414C5545203138203B0D0A202020205C2057424D315020736F7572636520726F772030302072657461696E65642065786163746C790A095C2057424D315020736F757263652072\r\nWB-STATUS revision 86 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 80 cursor 80 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 86,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 80,
+          "cursor": 80,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 131.39954098733142
+    },
+    {
+      "tool": "wb_status",
+      "arguments": {},
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 86 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 80 cursor 80 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 86,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 80,
+          "cursor": 80,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 79.68237498425879
+    },
+    {
+      "tool": "wb_patch",
+      "arguments": {
+        "revision": 86,
+        "offset": 80,
+        "remove": 0,
+        "source": "ow 01 retained exactly\r\n    \\ WBM1P source row 02 retained exactly\r\n\t\\ WBM1P sou"
+      },
+      "result": {
+        "output": "WB-PATCH 86 80 0 6F772030312072657461696E65642065786163746C790D0A202020205C2057424D315020736F7572636520726F772030322072657461696E65642065786163746C790D0A095C2057424D315020736F75\r\nWB-STATUS revision 87 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 160 cursor 160 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 87,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 160,
+          "cursor": 160,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 132.32808400061913
+    },
+    {
+      "tool": "wb_status",
+      "arguments": {},
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 87 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 160 cursor 160 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 87,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 160,
+          "cursor": 160,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 63.11004198505543
+    },
+    {
+      "tool": "wb_patch",
+      "arguments": {
+        "revision": 87,
+        "offset": 160,
+        "remove": 0,
+        "source": "rce row 03 retained exactly\n    \\ WBM1P source row 04 retained exactly\r\n\t\\ WBM1P"
+      },
+      "result": {
+        "output": "WB-PATCH 87 160 0 72636520726F772030332072657461696E65642065786163746C790A202020205C2057424D315020736F7572636520726F772030342072657461696E65642065786163746C790D0A095C2057424D3150\r\nWB-STATUS revision 88 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 240 cursor 240 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 88,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 240,
+          "cursor": 240,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 133.3688749873545
+    },
+    {
+      "tool": "wb_status",
+      "arguments": {},
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 88 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 240 cursor 240 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 88,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 240,
+          "cursor": 240,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 70.48258298891596
+    },
+    {
+      "tool": "wb_patch",
+      "arguments": {
+        "revision": 88,
+        "offset": 240,
+        "remove": 0,
+        "source": " source row 05 retained exactly\r\n    \\ WBM1P source row 06 retained exactly\n\t\\ W"
+      },
+      "result": {
+        "output": "WB-PATCH 88 240 0 20736F7572636520726F772030352072657461696E65642065786163746C790D0A202020205C2057424D315020736F7572636520726F772030362072657461696E65642065786163746C790A095C2057\r\nWB-STATUS revision 89 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 320 cursor 320 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 89,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 320,
+          "cursor": 320,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 132.57208399591036
+    },
+    {
+      "tool": "wb_status",
+      "arguments": {},
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 89 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 320 cursor 320 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 89,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 320,
+          "cursor": 320,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 71.35987500078045
+    },
+    {
+      "tool": "wb_patch",
+      "arguments": {
+        "revision": 89,
+        "offset": 320,
+        "remove": 0,
+        "source": "BM1P source row 07 retained exactly\r\n    \\ WBM1P source row 08 retained exactly\r"
+      },
+      "result": {
+        "output": "WB-PATCH 89 320 0 424D315020736F7572636520726F772030372072657461696E65642065786163746C790D0A202020205C2057424D315020736F7572636520726F772030382072657461696E65642065786163746C790D\r\nWB-STATUS revision 90 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 400 cursor 400 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 90,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 400,
+          "cursor": 400,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 132.30925000971183
+    },
+    {
+      "tool": "wb_status",
+      "arguments": {},
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 90 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 400 cursor 400 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 90,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 400,
+          "cursor": 400,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 62.07745798747055
+    },
+    {
+      "tool": "wb_patch",
+      "arguments": {
+        "revision": 90,
+        "offset": 400,
+        "remove": 0,
+        "source": "\n\t\\ WBM1P source row 09 retained exactly\n    \\ WBM1P source row 10 retained exac"
+      },
+      "result": {
+        "output": "WB-PATCH 90 400 0 0A095C2057424D315020736F7572636520726F772030392072657461696E65642065786163746C790A202020205C2057424D315020736F7572636520726F772031302072657461696E65642065786163\r\nWB-STATUS revision 91 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 480 cursor 480 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 91,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 480,
+          "cursor": 480,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 134.043333993759
+    },
+    {
+      "tool": "wb_status",
+      "arguments": {},
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 91 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 480 cursor 480 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 91,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 480,
+          "cursor": 480,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 69.61137501639314
+    },
+    {
+      "tool": "wb_patch",
+      "arguments": {
+        "revision": 91,
+        "offset": 480,
+        "remove": 0,
+        "source": "tly\r\n\t\\ WBM1P source row 11 retained exactly\r\n    \\ WBM1P source row 12 retained"
+      },
+      "result": {
+        "output": "WB-PATCH 91 480 0 746C790D0A095C2057424D315020736F7572636520726F772031312072657461696E65642065786163746C790D0A202020205C2057424D315020736F7572636520726F772031322072657461696E6564\r\nWB-STATUS revision 92 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 560 cursor 560 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 92,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 560,
+          "cursor": 560,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 131.96420899475925
+    },
+    {
+      "tool": "wb_status",
+      "arguments": {},
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 92 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 560 cursor 560 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 92,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 560,
+          "cursor": 560,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 62.85158300306648
+    },
+    {
+      "tool": "wb_patch",
+      "arguments": {
+        "revision": 92,
+        "offset": 560,
+        "remove": 0,
+        "source": " exactly\n\t\\ WBM1P source row 13 retained exactly\r\n    \\ WBM1P source row 14 reta"
+      },
+      "result": {
+        "output": "WB-PATCH 92 560 0 2065786163746C790A095C2057424D315020736F7572636520726F772031332072657461696E65642065786163746C790D0A202020205C2057424D315020736F7572636520726F772031342072657461\r\nWB-STATUS revision 93 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 640 cursor 640 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 93,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 640,
+          "cursor": 640,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 132.85341698792763
+    },
+    {
+      "tool": "wb_status",
+      "arguments": {},
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 93 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 640 cursor 640 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 93,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 640,
+          "cursor": 640,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 62.34750000294298
+    },
+    {
+      "tool": "wb_patch",
+      "arguments": {
+        "revision": 93,
+        "offset": 640,
+        "remove": 0,
+        "source": "ined exactly\r\n\t\\ WBM1P source row 15 retained exactly\n    \\ WBM1P source row 16 "
+      },
+      "result": {
+        "output": "WB-PATCH 93 640 0 696E65642065786163746C790D0A095C2057424D315020736F7572636520726F772031352072657461696E65642065786163746C790A202020205C2057424D315020736F7572636520726F7720313620\r\nWB-STATUS revision 94 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 720 cursor 720 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 94,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 720,
+          "cursor": 720,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 133.1562919949647
+    },
+    {
+      "tool": "wb_status",
+      "arguments": {},
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 94 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 720 cursor 720 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 94,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 720,
+          "cursor": 720,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 61.56579201342538
+    },
+    {
+      "tool": "wb_patch",
+      "arguments": {
+        "revision": 94,
+        "offset": 720,
+        "remove": 0,
+        "source": "retained exactly\r\n\t\\ WBM1P source row 17 retained exactly\r\n    \\ WBM1P source ro"
+      },
+      "result": {
+        "output": "WB-PATCH 94 720 0 72657461696E65642065786163746C790D0A095C2057424D315020736F7572636520726F772031372072657461696E65642065786163746C790D0A202020205C2057424D315020736F7572636520726F\r\nWB-STATUS revision 95 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 800 cursor 800 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 95,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 800,
+          "cursor": 800,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 135.82399999722838
+    },
+    {
+      "tool": "wb_status",
+      "arguments": {},
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 95 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 800 cursor 800 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 95,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 800,
+          "cursor": 800,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 68.76820800243877
+    },
+    {
+      "tool": "wb_patch",
+      "arguments": {
+        "revision": 95,
+        "offset": 800,
+        "remove": 0,
+        "source": "w 18 retained exactly\n\t\\ WBM1P source row 19 retained exactly\r\n    \\ WBM1P sourc"
+      },
+      "result": {
+        "output": "WB-PATCH 95 800 0 772031382072657461696E65642065786163746C790A095C2057424D315020736F7572636520726F772031392072657461696E65642065786163746C790D0A202020205C2057424D315020736F757263\r\nWB-STATUS revision 96 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 880 cursor 880 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 96,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 880,
+          "cursor": 880,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 135.70508299744688
+    },
+    {
+      "tool": "wb_status",
+      "arguments": {},
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 96 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 880 cursor 880 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 96,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 880,
+          "cursor": 880,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 67.63837501057424
+    },
+    {
+      "tool": "wb_patch",
+      "arguments": {
+        "revision": 96,
+        "offset": 880,
+        "remove": 0,
+        "source": "e row 20 retained exactly\r\n\t\\ WBM1P source row 21 retained exactly\n    \\ WBM1P s"
+      },
+      "result": {
+        "output": "WB-PATCH 96 880 0 6520726F772032302072657461696E65642065786163746C790D0A095C2057424D315020736F7572636520726F772032312072657461696E65642065786163746C790A202020205C2057424D31502073\r\nWB-STATUS revision 97 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 960 cursor 960 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 97,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 960,
+          "cursor": 960,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 133.4795829898212
+    },
+    {
+      "tool": "wb_status",
+      "arguments": {},
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 97 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 960 cursor 960 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 97,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 960,
+          "cursor": 960,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 70.7111670053564
+    },
+    {
+      "tool": "wb_patch",
+      "arguments": {
+        "revision": 97,
+        "offset": 960,
+        "remove": 0,
+        "source": "ource row 22 retained exactly\r\n\t\\ WBM1P source row 23 retained exactly\r\n    \\ WB"
+      },
+      "result": {
+        "output": "WB-PATCH 97 960 0 6F7572636520726F772032322072657461696E65642065786163746C790D0A095C2057424D315020736F7572636520726F772032332072657461696E65642065786163746C790D0A202020205C205742\r\nWB-STATUS revision 98 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1040 cursor 1040 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 98,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 1040,
+          "cursor": 1040,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 133.63991701044142
+    },
+    {
+      "tool": "wb_status",
+      "arguments": {},
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 98 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1040 cursor 1040 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 98,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 1040,
+          "cursor": 1040,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 62.43975000688806
+    },
+    {
+      "tool": "wb_patch",
+      "arguments": {
+        "revision": 98,
+        "offset": 1040,
+        "remove": 0,
+        "source": "M1P source row 24 retained exactly\n\t\\ WBM1P source row 25 retained exactly\r\n    "
+      },
+      "result": {
+        "output": "WB-PATCH 98 1040 0 4D315020736F7572636520726F772032342072657461696E65642065786163746C790A095C2057424D315020736F7572636520726F772032352072657461696E65642065786163746C790D0A20202020\r\nWB-STATUS revision 99 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1120 cursor 1120 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 99,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 1120,
+          "cursor": 1120,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 133.5521669825539
+    },
+    {
+      "tool": "wb_status",
+      "arguments": {},
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 99 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1120 cursor 1120 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 99,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 1120,
+          "cursor": 1120,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 63.84875002549961
+    },
+    {
+      "tool": "wb_patch",
+      "arguments": {
+        "revision": 99,
+        "offset": 1120,
+        "remove": 0,
+        "source": "\\ WBM1P source row 26 retained exactly\r\n\t\\ WBM1P source row 27 retained exactly\n"
+      },
+      "result": {
+        "output": "WB-PATCH 99 1120 0 5C2057424D315020736F7572636520726F772032362072657461696E65642065786163746C790D0A095C2057424D315020736F7572636520726F772032372072657461696E65642065786163746C790A\r\nWB-STATUS revision 100 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1200 cursor 1200 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 100,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 1200,
+          "cursor": 1200,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 134.98970901127905
+    },
+    {
+      "tool": "wb_status",
+      "arguments": {},
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 100 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1200 cursor 1200 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 100,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 1200,
+          "cursor": 1200,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 62.24366699461825
+    },
+    {
+      "tool": "wb_patch",
+      "arguments": {
+        "revision": 100,
+        "offset": 1200,
+        "remove": 0,
+        "source": "    \\ WBM1P source row 28 retained exactly\r\n\t\\ WBM1P source row 29 retained exac"
+      },
+      "result": {
+        "output": "WB-PATCH 100 1200 0 202020205C2057424D315020736F7572636520726F772032382072657461696E65642065786163746C790D0A095C2057424D315020736F7572636520726F772032392072657461696E65642065786163\r\nWB-STATUS revision 101 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1280 cursor 1280 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 101,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 1280,
+          "cursor": 1280,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 135.83308301167563
+    },
+    {
+      "tool": "wb_status",
+      "arguments": {},
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 101 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1280 cursor 1280 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 101,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 1280,
+          "cursor": 1280,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 62.41091701667756
+    },
+    {
+      "tool": "wb_patch",
+      "arguments": {
+        "revision": 101,
+        "offset": 1280,
+        "remove": 0,
+        "source": "tly\r\n    \\ WBM1P source row 30 retained exactly\n\t\\ WBM1P source row 31 retained "
+      },
+      "result": {
+        "output": "WB-PATCH 101 1280 0 746C790D0A202020205C2057424D315020736F7572636520726F772033302072657461696E65642065786163746C790A095C2057424D315020736F7572636520726F772033312072657461696E656420\r\nWB-STATUS revision 102 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1360 cursor 1360 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 102,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 1360,
+          "cursor": 1360,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 135.24079200578853
+    },
+    {
+      "tool": "wb_status",
+      "arguments": {},
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 102 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1360 cursor 1360 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 102,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 1360,
+          "cursor": 1360,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 71.40008301939815
+    },
+    {
+      "tool": "wb_patch",
+      "arguments": {
+        "revision": 102,
+        "offset": 1360,
+        "remove": 0,
+        "source": "exactly\r\n    \\ WBM1P source row 32 retained exactly\r\n\t\\ WBM1P source row 33 reta"
+      },
+      "result": {
+        "output": "WB-PATCH 102 1360 0 65786163746C790D0A202020205C2057424D315020736F7572636520726F772033322072657461696E65642065786163746C790D0A095C2057424D315020736F7572636520726F772033332072657461\r\nWB-STATUS revision 103 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1440 cursor 1440 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 103,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 1440,
+          "cursor": 1440,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 136.6122500039637
+    },
+    {
+      "tool": "wb_status",
+      "arguments": {},
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 103 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1440 cursor 1440 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 103,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 1440,
+          "cursor": 1440,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 70.26141701499
+    },
+    {
+      "tool": "wb_patch",
+      "arguments": {
+        "revision": 103,
+        "offset": 1440,
+        "remove": 0,
+        "source": "ined exactly\n    \\ WBM1P source row 34 retained exactly\r\n\t\\ WBM1P source row 35 "
+      },
+      "result": {
+        "output": "WB-PATCH 103 1440 0 696E65642065786163746C790A202020205C2057424D315020736F7572636520726F772033342072657461696E65642065786163746C790D0A095C2057424D315020736F7572636520726F7720333520\r\nWB-STATUS revision 104 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1520 cursor 1520 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 104,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 1520,
+          "cursor": 1520,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 136.1038750037551
+    },
+    {
+      "tool": "wb_status",
+      "arguments": {},
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 104 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1520 cursor 1520 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 104,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 1520,
+          "cursor": 1520,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 68.9613749855198
+    },
+    {
+      "tool": "wb_patch",
+      "arguments": {
+        "revision": 104,
+        "offset": 1520,
+        "remove": 0,
+        "source": "retained exactly\r\n    \\ WBM1P source row 36 retained exactly\n\t\\ WBM1P source row"
+      },
+      "result": {
+        "output": "WB-PATCH 104 1520 0 72657461696E65642065786163746C790D0A202020205C2057424D315020736F7572636520726F772033362072657461696E65642065786163746C790A095C2057424D315020736F7572636520726F77\r\nWB-STATUS revision 105 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1600 cursor 1600 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 105,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 1600,
+          "cursor": 1600,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 136.6562919865828
+    },
+    {
+      "tool": "wb_status",
+      "arguments": {},
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 105 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1600 cursor 1600 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 105,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 1600,
+          "cursor": 1600,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 89.78533299523406
+    },
+    {
+      "tool": "wb_patch",
+      "arguments": {
+        "revision": 105,
+        "offset": 1600,
+        "remove": 0,
+        "source": " 37 retained exactly\r\n    \\ WBM1P source row 38 retained exactly\r\n\t\\ WBM1P sourc"
+      },
+      "result": {
+        "output": "WB-PATCH 105 1600 0 2033372072657461696E65642065786163746C790D0A202020205C2057424D315020736F7572636520726F772033382072657461696E65642065786163746C790D0A095C2057424D315020736F757263\r\nWB-STATUS revision 106 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1680 cursor 1680 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 106,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 1680,
+          "cursor": 1680,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 137.59708299767226
+    },
+    {
+      "tool": "wb_status",
+      "arguments": {},
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 106 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1680 cursor 1680 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 106,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 1680,
+          "cursor": 1680,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 86.6595419938676
+    },
+    {
+      "tool": "wb_patch",
+      "arguments": {
+        "revision": 106,
+        "offset": 1680,
+        "remove": 0,
+        "source": "e row 39 retained exactly\n    \\ WBM1P source row 40 retained exactly\r\n\t\\ WBM1P s"
+      },
+      "result": {
+        "output": "WB-PATCH 106 1680 0 6520726F772033392072657461696E65642065786163746C790A202020205C2057424D315020736F7572636520726F772034302072657461696E65642065786163746C790D0A095C2057424D31502073\r\nWB-STATUS revision 107 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1760 cursor 1760 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 107,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 1760,
+          "cursor": 1760,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 136.14537499961443
+    },
+    {
+      "tool": "wb_status",
+      "arguments": {},
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 107 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1760 cursor 1760 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 107,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 1760,
+          "cursor": 1760,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 88.29358298680745
+    },
+    {
+      "tool": "wb_patch",
+      "arguments": {
+        "revision": 107,
+        "offset": 1760,
+        "remove": 0,
+        "source": "ource row 41 retained exactly\r\n    \\ WBM1P source row 42 retained exactly\n\t\\ WBM"
+      },
+      "result": {
+        "output": "WB-PATCH 107 1760 0 6F7572636520726F772034312072657461696E65642065786163746C790D0A202020205C2057424D315020736F7572636520726F772034322072657461696E65642065786163746C790A095C2057424D\r\nWB-STATUS revision 108 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1840 cursor 1840 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 108,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 1840,
+          "cursor": 1840,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 140.8445829874836
+    },
+    {
+      "tool": "wb_status",
+      "arguments": {},
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 108 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1840 cursor 1840 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 108,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 1840,
+          "cursor": 1840,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 83.71445798547938
+    },
+    {
+      "tool": "wb_patch",
+      "arguments": {
+        "revision": 108,
+        "offset": 1840,
+        "remove": 0,
+        "source": "1P source row 43 retained exactly\r\n    \\ WBM1P source row 44 retained exactly\r\n\t"
+      },
+      "result": {
+        "output": "WB-PATCH 108 1840 0 315020736F7572636520726F772034332072657461696E65642065786163746C790D0A202020205C2057424D315020736F7572636520726F772034342072657461696E65642065786163746C790D0A09\r\nWB-STATUS revision 109 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1920 cursor 1920 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 109,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 1920,
+          "cursor": 1920,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 138.306749984622
+    },
+    {
+      "tool": "wb_status",
+      "arguments": {},
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 109 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1920 cursor 1920 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 109,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 1920,
+          "cursor": 1920,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 88.09070801362395
+    },
+    {
+      "tool": "wb_patch",
+      "arguments": {
+        "revision": 109,
+        "offset": 1920,
+        "remove": 0,
+        "source": "\\ WBM1P source row 45 retained exactly\n    \\ WBM1P source row 46 retained exactl"
+      },
+      "result": {
+        "output": "WB-PATCH 109 1920 0 5C2057424D315020736F7572636520726F772034352072657461696E65642065786163746C790A202020205C2057424D315020736F7572636520726F772034362072657461696E65642065786163746C\r\nWB-STATUS revision 110 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2000 cursor 2000 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 110,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 2000,
+          "cursor": 2000,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 138.8779999979306
+    },
+    {
+      "tool": "wb_status",
+      "arguments": {},
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 110 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2000 cursor 2000 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 110,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 2000,
+          "cursor": 2000,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 88.2152920239605
+    },
+    {
+      "tool": "wb_patch",
+      "arguments": {
+        "revision": 110,
+        "offset": 2000,
+        "remove": 0,
+        "source": "y\r\n\t\\ WBM1P source row 47 retained exactly\r\n    \\ WBM1P source row 48 retained e"
+      },
+      "result": {
+        "output": "WB-PATCH 110 2000 0 790D0A095C2057424D315020736F7572636520726F772034372072657461696E65642065786163746C790D0A202020205C2057424D315020736F7572636520726F772034382072657461696E65642065\r\nWB-STATUS revision 111 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2080 cursor 2080 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 111,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 2080,
+          "cursor": 2080,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 136.77870799438097
+    },
+    {
+      "tool": "wb_status",
+      "arguments": {},
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 111 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2080 cursor 2080 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 111,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 2080,
+          "cursor": 2080,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 90.3113330132328
+    },
+    {
+      "tool": "wb_patch",
+      "arguments": {
+        "revision": 111,
+        "offset": 2080,
+        "remove": 0,
+        "source": "xactly\n\t\\ WBM1P source row 49 retained exactly\r\n"
+      },
+      "result": {
+        "output": "WB-PATCH 111 2080 0 786163746C790A095C2057424D315020736F7572636520726F772034392072657461696E65642065786163746C790D0A\r\nWB-STATUS revision 112 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2128 cursor 2128 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 112,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 2128,
+          "cursor": 2128,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 109.34400002588518
+    },
+    {
+      "tool": "wb_status",
+      "arguments": {},
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 112 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2128 cursor 2128 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 112,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 2128,
+          "cursor": 2128,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 88.87679199688137
+    },
+    {
+      "tool": "wb_patch",
+      "arguments": {
+        "revision": 112,
+        "offset": 0,
+        "remove": 0,
+        "source": ""
+      },
+      "result": {
+        "output": "WB-PATCH 112 0 0 -\r\nWB-STATUS revision 113 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2128 cursor 0 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 113,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 2128,
+          "cursor": 0,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 73.37274999008514
+    },
+    {
+      "tool": "wb_browse",
+      "arguments": {
+        "browser": "MODULES"
+      },
+      "result": {
+        "output": "WB-BROWSE MODULES\r\nWB-ITEM module 0 name 4C4956453149 version 3131 active 1\r\nWB-ITEM module 1 name 4C4956453150 version 3131 active 1\r\nWB-ITEM module 2 name 4C4956453144 version 3131 active 1\r\nWB-ITEM module 3 name 57424D3150 version 312E30 active 1\r\nWB-STATUS revision 113 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2128 cursor 0 selection 0 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 113,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 2128,
+          "cursor": 0,
+          "selection": 0,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        },
+        "items": [
+          {
+            "index": 0,
+            "kind": "module",
+            "name": "LIVE1I",
+            "version": "11",
+            "active": true
+          },
+          {
+            "index": 1,
+            "kind": "module",
+            "name": "LIVE1P",
+            "version": "11",
+            "active": true
+          },
+          {
+            "index": 2,
+            "kind": "module",
+            "name": "LIVE1D",
+            "version": "11",
+            "active": true
+          },
+          {
+            "index": 3,
+            "kind": "module",
+            "name": "WBM1P",
+            "version": "1.0",
+            "active": true
+          }
+        ]
+      },
+      "host_ms": 117.14308298542164
+    },
+    {
+      "tool": "wb_status",
+      "arguments": {},
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 113 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2128 cursor 0 selection 0 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 113,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 2128,
+          "cursor": 0,
+          "selection": 0,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 63.20637502358295
+    },
+    {
+      "tool": "wb_flush",
+      "arguments": {},
+      "result": {
+        "output": "WB-FLUSH\r\nWB-FLUSH elapsed_ms 9 bytes 38 spans 4 batches 1 cells 10 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "elapsed_ms": 9,
+          "bytes": 38,
+          "spans": 4,
+          "batches": 1,
+          "cells": 10,
+          "pending": 0
+        }
+      },
+      "host_ms": 60.620667005423456
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "VDP-INFO",
+        "timeout": 30
+      },
+      "result": {
+        "output": "VDP-INFO\r\nvdp width 640 height 480 colours 4 mode 1 console-dropped 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 41.86408399255015
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-COMPOSE",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-COMPOSE\r\nWB-COMPOSE elapsed_ticks 299 timer_bits 16 timer_hz 288000\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 41.75362500245683
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-COMPOSE",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-COMPOSE\r\nWB-COMPOSE elapsed_ticks 299 timer_bits 16 timer_hz 288000\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 40.8698329993058
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-COMPOSE",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-COMPOSE\r\nWB-COMPOSE elapsed_ticks 299 timer_bits 16 timer_hz 288000\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 41.152582998620346
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-COMPOSE",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-COMPOSE\r\nWB-COMPOSE elapsed_ticks 299 timer_bits 16 timer_hz 288000\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 40.41720798704773
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-COMPOSE",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-COMPOSE\r\nWB-COMPOSE elapsed_ticks 299 timer_bits 16 timer_hz 288000\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 40.88029102422297
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-COMPOSE",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-COMPOSE\r\nWB-COMPOSE elapsed_ticks 299 timer_bits 16 timer_hz 288000\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 41.54991600080393
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-COMPOSE",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-COMPOSE\r\nWB-COMPOSE elapsed_ticks 299 timer_bits 16 timer_hz 288000\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 40.07454199017957
+    },
+    {
+      "tool": "wb_status",
+      "arguments": {},
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 113 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2128 cursor 0 selection 0 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 113,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 2128,
+          "cursor": 0,
+          "selection": 0,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 59.99824998434633
+    },
+    {
+      "tool": "wb_patch",
+      "arguments": {
+        "revision": 113,
+        "offset": 5,
+        "remove": 0,
+        "source": ""
+      },
+      "result": {
+        "output": "WB-PATCH 113 5 0 -\r\nWB-STATUS revision 114 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2128 cursor 5 selection 0 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 114,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 2128,
+          "cursor": 5,
+          "selection": 0,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 66.26883300486952
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-KEY 259 0 WB-COMPOSE",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-KEY 259 0 WB-COMPOSE\r\nWB-STATUS revision 114 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2128 cursor 6 selection 0 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\nWB-COMPOSE elapsed_ticks 424 timer_bits 16 timer_hz 288000\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 73.99020800949074
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-KEY 258 0 WB-COMPOSE",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-KEY 258 0 WB-COMPOSE\r\nWB-STATUS revision 114 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2128 cursor 5 selection 0 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\nWB-COMPOSE elapsed_ticks 423 timer_bits 16 timer_hz 288000\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 73.42000000062399
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-KEY 259 0 WB-COMPOSE",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-KEY 259 0 WB-COMPOSE\r\nWB-STATUS revision 114 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2128 cursor 6 selection 0 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\nWB-COMPOSE elapsed_ticks 424 timer_bits 16 timer_hz 288000\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 73.21758297621273
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-KEY 258 0 WB-COMPOSE",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-KEY 258 0 WB-COMPOSE\r\nWB-STATUS revision 114 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2128 cursor 5 selection 0 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\nWB-COMPOSE elapsed_ticks 423 timer_bits 16 timer_hz 288000\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 73.33712500985712
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-KEY 259 0 WB-COMPOSE",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-KEY 259 0 WB-COMPOSE\r\nWB-STATUS revision 114 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2128 cursor 6 selection 0 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\nWB-COMPOSE elapsed_ticks 424 timer_bits 16 timer_hz 288000\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 72.88937497651204
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-KEY 258 0 WB-COMPOSE",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-KEY 258 0 WB-COMPOSE\r\nWB-STATUS revision 114 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2128 cursor 5 selection 0 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\nWB-COMPOSE elapsed_ticks 423 timer_bits 16 timer_hz 288000\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 73.77799999085255
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-KEY 259 0 WB-COMPOSE",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-KEY 259 0 WB-COMPOSE\r\nWB-STATUS revision 114 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2128 cursor 6 selection 0 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\nWB-COMPOSE elapsed_ticks 424 timer_bits 16 timer_hz 288000\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 73.49062501452863
+    },
+    {
+      "tool": "wb_status",
+      "arguments": {},
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 114 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2128 cursor 6 selection 0 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 114,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 2128,
+          "cursor": 6,
+          "selection": 0,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 66.31979101803154
+    },
+    {
+      "tool": "wb_patch",
+      "arguments": {
+        "revision": 114,
+        "offset": 5,
+        "remove": 0,
+        "source": ""
+      },
+      "result": {
+        "output": "WB-PATCH 114 5 0 -\r\nWB-STATUS revision 115 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2128 cursor 5 selection 0 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 115,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 2128,
+          "cursor": 5,
+          "selection": 0,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 66.92712497897446
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-KEY 120 0 WB-COMPOSE",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-KEY 120 0 WB-COMPOSE\r\nWB-STATUS revision 116 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2129 cursor 6 selection 0 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\nWB-COMPOSE elapsed_ticks 2216 timer_bits 16 timer_hz 288000\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 79.59191600093618
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-KEY 8 0 WB-COMPOSE",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-KEY 8 0 WB-COMPOSE\r\nWB-STATUS revision 117 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2128 cursor 5 selection 0 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\nWB-COMPOSE elapsed_ticks 2217 timer_bits 16 timer_hz 288000\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 76.68212498538196
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-KEY 120 0 WB-COMPOSE",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-KEY 120 0 WB-COMPOSE\r\nWB-STATUS revision 118 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2129 cursor 6 selection 0 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\nWB-COMPOSE elapsed_ticks 2217 timer_bits 16 timer_hz 288000\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 79.68912500655279
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-KEY 8 0 WB-COMPOSE",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-KEY 8 0 WB-COMPOSE\r\nWB-STATUS revision 119 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2128 cursor 5 selection 0 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\nWB-COMPOSE elapsed_ticks 2217 timer_bits 16 timer_hz 288000\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 75.50091700977646
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-KEY 120 0 WB-COMPOSE",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-KEY 120 0 WB-COMPOSE\r\nWB-STATUS revision 120 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2129 cursor 6 selection 0 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\nWB-COMPOSE elapsed_ticks 2216 timer_bits 16 timer_hz 288000\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 79.11920800688677
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-KEY 8 0 WB-COMPOSE",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-KEY 8 0 WB-COMPOSE\r\nWB-STATUS revision 121 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2128 cursor 5 selection 0 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\nWB-COMPOSE elapsed_ticks 2217 timer_bits 16 timer_hz 288000\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 75.04145900020376
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-KEY 120 0 WB-COMPOSE",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-KEY 120 0 WB-COMPOSE\r\nWB-STATUS revision 122 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2129 cursor 6 selection 0 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\nWB-COMPOSE elapsed_ticks 2217 timer_bits 16 timer_hz 288000\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 80.75508300680667
+    },
+    {
+      "tool": "wb_status",
+      "arguments": {},
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 122 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2129 cursor 6 selection 0 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 122,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 2129,
+          "cursor": 6,
+          "selection": 0,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 61.126874992623925
+    },
+    {
+      "tool": "wb_patch",
+      "arguments": {
+        "revision": 122,
+        "offset": 5,
+        "remove": 0,
+        "source": ""
+      },
+      "result": {
+        "output": "WB-PATCH 122 5 0 -\r\nWB-STATUS revision 123 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2129 cursor 5 selection 0 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 123,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 2129,
+          "cursor": 5,
+          "selection": 0,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 66.99900000239722
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-KEY 13 0 WB-COMPOSE",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-KEY 13 0 WB-COMPOSE\r\nWB-STATUS revision 124 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2130 cursor 6 selection 0 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\nWB-COMPOSE elapsed_ticks 11466 timer_bits 16 timer_hz 288000\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 121.66695899213664
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-KEY 8 0 WB-COMPOSE",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-KEY 8 0 WB-COMPOSE\r\nWB-STATUS revision 125 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2129 cursor 5 selection 0 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\nWB-COMPOSE elapsed_ticks 11481 timer_bits 16 timer_hz 288000\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 127.31383301434107
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-KEY 13 0 WB-COMPOSE",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-KEY 13 0 WB-COMPOSE\r\nWB-STATUS revision 126 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2130 cursor 6 selection 0 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\nWB-COMPOSE elapsed_ticks 11466 timer_bits 16 timer_hz 288000\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 131.69083298998885
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-KEY 8 0 WB-COMPOSE",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-KEY 8 0 WB-COMPOSE\r\nWB-STATUS revision 127 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2129 cursor 5 selection 0 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\nWB-COMPOSE elapsed_ticks 11480 timer_bits 16 timer_hz 288000\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 135.0548749906011
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-KEY 13 0 WB-COMPOSE",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-KEY 13 0 WB-COMPOSE\r\nWB-STATUS revision 128 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2130 cursor 6 selection 0 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\nWB-COMPOSE elapsed_ticks 11467 timer_bits 16 timer_hz 288000\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 131.38158302172087
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-KEY 8 0 WB-COMPOSE",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-KEY 8 0 WB-COMPOSE\r\nWB-STATUS revision 129 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2129 cursor 5 selection 0 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\nWB-COMPOSE elapsed_ticks 11481 timer_bits 16 timer_hz 288000\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 129.55783301731572
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-KEY 13 0 WB-COMPOSE",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-KEY 13 0 WB-COMPOSE\r\nWB-STATUS revision 130 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2130 cursor 6 selection 0 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\nWB-COMPOSE elapsed_ticks 11467 timer_bits 16 timer_hz 288000\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 133.41512501938269
+    },
+    {
+      "tool": "wb_key",
+      "arguments": {
+        "code": 9
+      },
+      "result": {
+        "output": "WB-KEY 9 0\r\nWB-STATUS revision 130 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2130 cursor 6 selection 0 browser 0 focus 0 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 130,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 2130,
+          "cursor": 6,
+          "selection": 0,
+          "browser": 0,
+          "focus": 0,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 75.7961249910295
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-KEY 257 0 WB-COMPOSE",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-KEY 257 0 WB-COMPOSE\r\nWB-STATUS revision 130 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2130 cursor 6 selection 1 browser 0 focus 0 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\nWB-COMPOSE elapsed_ticks 3213 timer_bits 16 timer_hz 288000\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 80.14649999677204
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-KEY 256 0 WB-COMPOSE",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-KEY 256 0 WB-COMPOSE\r\nWB-STATUS revision 130 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2130 cursor 6 selection 0 browser 0 focus 0 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\nWB-COMPOSE elapsed_ticks 3199 timer_bits 16 timer_hz 288000\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 79.36383300693706
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-KEY 257 0 WB-COMPOSE",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-KEY 257 0 WB-COMPOSE\r\nWB-STATUS revision 130 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2130 cursor 6 selection 1 browser 0 focus 0 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\nWB-COMPOSE elapsed_ticks 3213 timer_bits 16 timer_hz 288000\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 79.77449998725206
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-KEY 256 0 WB-COMPOSE",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-KEY 256 0 WB-COMPOSE\r\nWB-STATUS revision 130 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2130 cursor 6 selection 0 browser 0 focus 0 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\nWB-COMPOSE elapsed_ticks 3198 timer_bits 16 timer_hz 288000\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 79.35616699978709
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-KEY 257 0 WB-COMPOSE",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-KEY 257 0 WB-COMPOSE\r\nWB-STATUS revision 130 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2130 cursor 6 selection 1 browser 0 focus 0 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\nWB-COMPOSE elapsed_ticks 3214 timer_bits 16 timer_hz 288000\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 80.04400000208989
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-KEY 256 0 WB-COMPOSE",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-KEY 256 0 WB-COMPOSE\r\nWB-STATUS revision 130 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2130 cursor 6 selection 0 browser 0 focus 0 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\nWB-COMPOSE elapsed_ticks 3198 timer_bits 16 timer_hz 288000\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 79.6567499928642
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-KEY 257 0 WB-COMPOSE",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-KEY 257 0 WB-COMPOSE\r\nWB-STATUS revision 130 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2130 cursor 6 selection 1 browser 0 focus 0 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\nWB-COMPOSE elapsed_ticks 3213 timer_bits 16 timer_hz 288000\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 81.48354099830613
+    },
+    {
+      "tool": "wb_key",
+      "arguments": {
+        "code": 9
+      },
+      "result": {
+        "output": "WB-KEY 9 0\r\nWB-STATUS revision 130 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2130 cursor 6 selection 1 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 130,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 2130,
+          "cursor": 6,
+          "selection": 1,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 62.20350001240149
+    },
+    {
+      "tool": "wb_source",
+      "arguments": {},
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 130 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2130 cursor 6 selection 1 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> WB-SOURCE 0 80\r\nWB-SOURCE revision 130 offset 0 total 2130 hex 3A2057424D0A7831502D56414C5545203138203B0D0A202020205C2057424D315020736F7572636520726F772030302072657461696E65642065786163746C790A095C2057424D315020736F75726365\r\n\r\nok\r\nvios> WB-SOURCE 80 80\r\nWB-SOURCE revision 130 offset 80 total 2130 hex 20726F772030312072657461696E65642065786163746C790D0A202020205C2057424D315020736F7572636520726F772030322072657461696E65642065786163746C790D0A095C2057424D31502073\r\n\r\nok\r\nvios> WB-SOURCE 160 80\r\nWB-SOURCE revision 130 offset 160 total 2130 hex 6F7572636520726F772030332072657461696E65642065786163746C790A202020205C2057424D315020736F7572636520726F772030342072657461696E65642065786163746C790D0A095C2057424D\r\n\r\nok\r\nvios> WB-SOURCE 240 80\r\nWB-SOURCE revision 130 offset 240 total 2130 hex 315020736F7572636520726F772030352072657461696E65642065786163746C790D0A202020205C2057424D315020736F7572636520726F772030362072657461696E65642065786163746C790A095C\r\n\r\nok\r\nvios> WB-SOURCE 320 80\r\nWB-SOURCE revision 130 offset 320 total 2130 hex 2057424D315020736F7572636520726F772030372072657461696E65642065786163746C790D0A202020205C2057424D315020736F7572636520726F772030382072657461696E65642065786163746C\r\n\r\nok\r\nvios> WB-SOURCE 400 80\r\nWB-SOURCE revision 130 offset 400 total 2130 hex 790D0A095C2057424D315020736F7572636520726F772030392072657461696E65642065786163746C790A202020205C2057424D315020736F7572636520726F772031302072657461696E6564206578\r\n\r\nok\r\nvios> WB-SOURCE 480 80\r\nWB-SOURCE revision 130 offset 480 total 2130 hex 6163746C790D0A095C2057424D315020736F7572636520726F772031312072657461696E65642065786163746C790D0A202020205C2057424D315020736F7572636520726F772031322072657461696E\r\n\r\nok\r\nvios> WB-SOURCE 560 80\r\nWB-SOURCE revision 130 offset 560 total 2130 hex 65642065786163746C790A095C2057424D315020736F7572636520726F772031332072657461696E65642065786163746C790D0A202020205C2057424D315020736F7572636520726F77203134207265\r\n\r\nok\r\nvios> WB-SOURCE 640 80\r\nWB-SOURCE revision 130 offset 640 total 2130 hex 7461696E65642065786163746C790D0A095C2057424D315020736F7572636520726F772031352072657461696E65642065786163746C790A202020205C2057424D315020736F7572636520726F772031\r\n\r\nok\r\nvios> WB-SOURCE 720 80\r\nWB-SOURCE revision 130 offset 720 total 2130 hex 362072657461696E65642065786163746C790D0A095C2057424D315020736F7572636520726F772031372072657461696E65642065786163746C790D0A202020205C2057424D315020736F7572636520\r\n\r\nok\r\nvios> WB-SOURCE 800 80\r\nWB-SOURCE revision 130 offset 800 total 2130 hex 726F772031382072657461696E65642065786163746C790A095C2057424D315020736F7572636520726F772031392072657461696E65642065786163746C790D0A202020205C2057424D315020736F75\r\n\r\nok\r\nvios> WB-SOURCE 880 80\r\nWB-SOURCE revision 130 offset 880 total 2130 hex 72636520726F772032302072657461696E65642065786163746C790D0A095C2057424D315020736F7572636520726F772032312072657461696E65642065786163746C790A202020205C2057424D3150\r\n\r\nok\r\nvios> WB-SOURCE 960 80\r\nWB-SOURCE revision 130 offset 960 total 2130 hex 20736F7572636520726F772032322072657461696E65642065786163746C790D0A095C2057424D315020736F7572636520726F772032332072657461696E65642065786163746C790D0A202020205C20\r\n\r\nok\r\nvios> WB-SOURCE 1040 80\r\nWB-SOURCE revision 130 offset 1040 total 2130 hex 57424D315020736F7572636520726F772032342072657461696E65642065786163746C790A095C2057424D315020736F7572636520726F772032352072657461696E65642065786163746C790D0A2020\r\n\r\nok\r\nvios> WB-SOURCE 1120 80\r\nWB-SOURCE revision 130 offset 1120 total 2130 hex 20205C2057424D315020736F7572636520726F772032362072657461696E65642065786163746C790D0A095C2057424D315020736F7572636520726F772032372072657461696E65642065786163746C\r\n\r\nok\r\nvios> WB-SOURCE 1200 80\r\nWB-SOURCE revision 130 offset 1200 total 2130 hex 790A202020205C2057424D315020736F7572636520726F772032382072657461696E65642065786163746C790D0A095C2057424D315020736F7572636520726F772032392072657461696E6564206578\r\n\r\nok\r\nvios> WB-SOURCE 1280 80\r\nWB-SOURCE revision 130 offset 1280 total 2130 hex 6163746C790D0A202020205C2057424D315020736F7572636520726F772033302072657461696E65642065786163746C790A095C2057424D315020736F7572636520726F772033312072657461696E65\r\n\r\nok\r\nvios> WB-SOURCE 1360 80\r\nWB-SOURCE revision 130 offset 1360 total 2130 hex 642065786163746C790D0A202020205C2057424D315020736F7572636520726F772033322072657461696E65642065786163746C790D0A095C2057424D315020736F7572636520726F77203333207265\r\n\r\nok\r\nvios> WB-SOURCE 1440 80\r\nWB-SOURCE revision 130 offset 1440 total 2130 hex 7461696E65642065786163746C790A202020205C2057424D315020736F7572636520726F772033342072657461696E65642065786163746C790D0A095C2057424D315020736F7572636520726F772033\r\n\r\nok\r\nvios> WB-SOURCE 1520 80\r\nWB-SOURCE revision 130 offset 1520 total 2130 hex 352072657461696E65642065786163746C790D0A202020205C2057424D315020736F7572636520726F772033362072657461696E65642065786163746C790A095C2057424D315020736F757263652072\r\n\r\nok\r\nvios> WB-SOURCE 1600 80\r\nWB-SOURCE revision 130 offset 1600 total 2130 hex 6F772033372072657461696E65642065786163746C790D0A202020205C2057424D315020736F7572636520726F772033382072657461696E65642065786163746C790D0A095C2057424D315020736F75\r\n\r\nok\r\nvios> WB-SOURCE 1680 80\r\nWB-SOURCE revision 130 offset 1680 total 2130 hex 72636520726F772033392072657461696E65642065786163746C790A202020205C2057424D315020736F7572636520726F772034302072657461696E65642065786163746C790D0A095C2057424D3150\r\n\r\nok\r\nvios> WB-SOURCE 1760 80\r\nWB-SOURCE revision 130 offset 1760 total 2130 hex 20736F7572636520726F772034312072657461696E65642065786163746C790D0A202020205C2057424D315020736F7572636520726F772034322072657461696E65642065786163746C790A095C2057\r\n\r\nok\r\nvios> WB-SOURCE 1840 80\r\nWB-SOURCE revision 130 offset 1840 total 2130 hex 424D315020736F7572636520726F772034332072657461696E65642065786163746C790D0A202020205C2057424D315020736F7572636520726F772034342072657461696E65642065786163746C790D\r\n\r\nok\r\nvios> WB-SOURCE 1920 80\r\nWB-SOURCE revision 130 offset 1920 total 2130 hex 0A095C2057424D315020736F7572636520726F772034352072657461696E65642065786163746C790A202020205C2057424D315020736F7572636520726F772034362072657461696E65642065786163\r\n\r\nok\r\nvios> WB-SOURCE 2000 80\r\nWB-SOURCE revision 130 offset 2000 total 2130 hex 746C790D0A095C2057424D315020736F7572636520726F772034372072657461696E65642065786163746C790D0A202020205C2057424D315020736F7572636520726F772034382072657461696E6564\r\n\r\nok\r\nvios> WB-SOURCE 2080 50\r\nWB-SOURCE revision 130 offset 2080 total 2130 hex 2065786163746C790A095C2057424D315020736F7572636520726F772034392072657461696E65642065786163746C790D0A\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 130,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 2130,
+          "cursor": 6,
+          "selection": 1,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        },
+        "source": ": WBM\nx1P-VALUE 18 ;\r\n    \\ WBM1P source row 00 retained exactly\n\t\\ WBM1P source row 01 retained exactly\r\n    \\ WBM1P source row 02 retained exactly\r\n\t\\ WBM1P source row 03 retained exactly\n    \\ WBM1P source row 04 retained exactly\r\n\t\\ WBM1P source row 05 retained exactly\r\n    \\ WBM1P source row 06 retained exactly\n\t\\ WBM1P source row 07 retained exactly\r\n    \\ WBM1P source row 08 retained exactly\r\n\t\\ WBM1P source row 09 retained exactly\n    \\ WBM1P source row 10 retained exactly\r\n\t\\ WBM1P source row 11 retained exactly\r\n    \\ WBM1P source row 12 retained exactly\n\t\\ WBM1P source row 13 retained exactly\r\n    \\ WBM1P source row 14 retained exactly\r\n\t\\ WBM1P source row 15 retained exactly\n    \\ WBM1P source row 16 retained exactly\r\n\t\\ WBM1P source row 17 retained exactly\r\n    \\ WBM1P source row 18 retained exactly\n\t\\ WBM1P source row 19 retained exactly\r\n    \\ WBM1P source row 20 retained exactly\r\n\t\\ WBM1P source row 21 retained exactly\n    \\ WBM1P source row 22 retained exactly\r\n\t\\ WBM1P source row 23 retained exactly\r\n    \\ WBM1P source row 24 retained exactly\n\t\\ WBM1P source row 25 retained exactly\r\n    \\ WBM1P source row 26 retained exactly\r\n\t\\ WBM1P source row 27 retained exactly\n    \\ WBM1P source row 28 retained exactly\r\n\t\\ WBM1P source row 29 retained exactly\r\n    \\ WBM1P source row 30 retained exactly\n\t\\ WBM1P source row 31 retained exactly\r\n    \\ WBM1P source row 32 retained exactly\r\n\t\\ WBM1P source row 33 retained exactly\n    \\ WBM1P source row 34 retained exactly\r\n\t\\ WBM1P source row 35 retained exactly\r\n    \\ WBM1P source row 36 retained exactly\n\t\\ WBM1P source row 37 retained exactly\r\n    \\ WBM1P source row 38 retained exactly\r\n\t\\ WBM1P source row 39 retained exactly\n    \\ WBM1P source row 40 retained exactly\r\n\t\\ WBM1P source row 41 retained exactly\r\n    \\ WBM1P source row 42 retained exactly\n\t\\ WBM1P source row 43 retained exactly\r\n    \\ WBM1P source row 44 retained exactly\r\n\t\\ WBM1P source row 45 retained exactly\n    \\ WBM1P source row 46 retained exactly\r\n\t\\ WBM1P source row 47 retained exactly\r\n    \\ WBM1P source row 48 retained exactly\n\t\\ WBM1P source row 49 retained exactly\r\n",
+        "revision": 130,
+        "bytes": 2130,
+        "crc32": 3744511214,
+        "crc32_hex": "DF30B4EE",
+        "source_sha256": "1f56cdbf904307ecb8683d6431171284e34bddf4850e73e07992b8bd79ae7399"
+      },
+      "host_ms": 1850.1365420233924
+    },
+    {
+      "tool": "wb_status",
+      "arguments": {},
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 130 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2130 cursor 6 selection 1 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 130,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 2130,
+          "cursor": 6,
+          "selection": 1,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 60.78104200423695
+    },
+    {
+      "tool": "wb_patch",
+      "arguments": {
+        "revision": 130,
+        "offset": 2130,
+        "remove": 0,
+        "source": ""
+      },
+      "result": {
+        "output": "WB-PATCH 130 2130 0 -\r\nWB-STATUS revision 131 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2130 cursor 2130 selection 1 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 131,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 2130,
+          "cursor": 2130,
+          "selection": 1,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 72.23079100367613
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-KEY 256 0 WB-COMPOSE",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-KEY 256 0 WB-COMPOSE\r\nWB-STATUS revision 131 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2130 cursor 2089 selection 1 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\nWB-COMPOSE elapsed_ticks 9905 timer_bits 16 timer_hz 288000\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 126.13683298695832
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-KEY 257 0 WB-COMPOSE",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-KEY 257 0 WB-COMPOSE\r\nWB-STATUS revision 131 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2130 cursor 2130 selection 1 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\nWB-COMPOSE elapsed_ticks 9926 timer_bits 16 timer_hz 288000\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 117.12654199800454
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-KEY 256 0 WB-COMPOSE",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-KEY 256 0 WB-COMPOSE\r\nWB-STATUS revision 131 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2130 cursor 2089 selection 1 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\nWB-COMPOSE elapsed_ticks 9936 timer_bits 16 timer_hz 288000\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 111.09887497150339
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-KEY 257 0 WB-COMPOSE",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-KEY 257 0 WB-COMPOSE\r\nWB-STATUS revision 131 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2130 cursor 2130 selection 1 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\nWB-COMPOSE elapsed_ticks 9929 timer_bits 16 timer_hz 288000\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 107.05766701721586
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-KEY 256 0 WB-COMPOSE",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-KEY 256 0 WB-COMPOSE\r\nWB-STATUS revision 131 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2130 cursor 2089 selection 1 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\nWB-COMPOSE elapsed_ticks 9936 timer_bits 16 timer_hz 288000\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 112.34620798495598
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-KEY 257 0 WB-COMPOSE",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-KEY 257 0 WB-COMPOSE\r\nWB-STATUS revision 131 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2130 cursor 2130 selection 1 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\nWB-COMPOSE elapsed_ticks 9929 timer_bits 16 timer_hz 288000\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 114.24495800747536
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-KEY 256 0 WB-COMPOSE",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-KEY 256 0 WB-COMPOSE\r\nWB-STATUS revision 131 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2130 cursor 2089 selection 1 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\nWB-COMPOSE elapsed_ticks 9936 timer_bits 16 timer_hz 288000\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 113.34683300810866
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-REDRAW MILLIS2 WB-VIEW 0 0 MILLIS2 . . . . CR",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-REDRAW MILLIS2 WB-VIEW 0 0 MILLIS2 . . . . CR\r\nWB-STATUS revision 131 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2130 cursor 2089 selection 1 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n0 116095 0 115948 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 348.21391600416973
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-REDRAW WB-COMPOSE",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-REDRAW WB-COMPOSE\r\nWB-STATUS revision 131 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2130 cursor 2089 selection 1 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\nWB-COMPOSE elapsed_ticks 41307 timer_bits 16 timer_hz 288000\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 325.82633299170993
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-REDRAW WB-COMPOSE",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-REDRAW WB-COMPOSE\r\nWB-STATUS revision 131 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2130 cursor 2089 selection 1 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\nWB-COMPOSE elapsed_ticks 41307 timer_bits 16 timer_hz 288000\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 322.63729101396166
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-REDRAW WB-COMPOSE",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-REDRAW WB-COMPOSE\r\nWB-STATUS revision 131 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2130 cursor 2089 selection 1 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\nWB-COMPOSE elapsed_ticks 41307 timer_bits 16 timer_hz 288000\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 322.54354198812507
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-REDRAW WB-COMPOSE",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-REDRAW WB-COMPOSE\r\nWB-STATUS revision 131 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2130 cursor 2089 selection 1 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\nWB-COMPOSE elapsed_ticks 41307 timer_bits 16 timer_hz 288000\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 323.27991697820835
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-REDRAW WB-COMPOSE",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-REDRAW WB-COMPOSE\r\nWB-STATUS revision 131 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2130 cursor 2089 selection 1 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\nWB-COMPOSE elapsed_ticks 41307 timer_bits 16 timer_hz 288000\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 324.00683299056254
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-REDRAW WB-COMPOSE",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-REDRAW WB-COMPOSE\r\nWB-STATUS revision 131 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2130 cursor 2089 selection 1 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\nWB-COMPOSE elapsed_ticks 41307 timer_bits 16 timer_hz 288000\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 323.48712501698174
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-REDRAW WB-COMPOSE",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-REDRAW WB-COMPOSE\r\nWB-STATUS revision 131 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2130 cursor 2089 selection 1 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\nWB-COMPOSE elapsed_ticks 41307 timer_bits 16 timer_hz 288000\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 320.29291699291207
+    },
+    {
+      "tool": "wb_flush",
+      "arguments": {},
+      "result": {
+        "output": "WB-FLUSH\r\nWB-FLUSH elapsed_ms 533 bytes 3897 spans 349 batches 32 cells 1454 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "elapsed_ms": 533,
+          "bytes": 3897,
+          "spans": 349,
+          "batches": 32,
+          "cells": 1454,
+          "pending": 0
+        }
+      },
+      "host_ms": 590.3755410108715
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {
+        "reset": true
+      },
+      "result": {
+        "output": "WB-RENDER-STATS RESET\r\nWB-RENDER-STATS cells 0 spans 0 batches 0 bytes 0 elapsed_ticks 0 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 0,
+          "spans": 0,
+          "batches": 0,
+          "bytes": 0,
+          "elapsed_ticks": 0,
+          "pending": 0
+        }
+      },
+      "host_ms": 47.465500014368445
+    },
+    {
+      "tool": "wb_redraw",
+      "arguments": {},
+      "result": {
+        "output": "WB-REDRAW\r\nWB-STATUS revision 131 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2130 cursor 2089 selection 1 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 131,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 2130,
+          "cursor": 2089,
+          "selection": 1,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 169.64879099396057
+    },
+    {
+      "tool": "wb_flush",
+      "arguments": {},
+      "result": {
+        "output": "WB-FLUSH\r\nWB-FLUSH elapsed_ms 550 bytes 4025 spans 361 batches 33 cells 1498 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "elapsed_ms": 550,
+          "bytes": 4025,
+          "spans": 361,
+          "batches": 33,
+          "cells": 1498,
+          "pending": 0
+        }
+      },
+      "host_ms": 725.7799999788404
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "$80 COLOUR 0 0 CHAR@ DROP",
+        "timeout": 30
+      },
+      "result": {
+        "output": "$80 COLOUR 0 0 CHAR@ DROP\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 39.79158299625851
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {},
+      "result": {
+        "output": "WB-RENDER-STATS\r\nWB-RENDER-STATS cells 1557 spans 370 batches 34 bytes 4147 elapsed_ticks 145898 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 1557,
+          "spans": 370,
+          "batches": 34,
+          "bytes": 4147,
+          "elapsed_ticks": 145898,
+          "pending": 0,
+          "host_ms": 993.1368750112597
+        }
+      },
+      "host_ms": 50.90095798368566
+    },
+    {
+      "tool": "wb_flush",
+      "arguments": {},
+      "result": {
+        "output": "WB-FLUSH\r\nWB-FLUSH elapsed_ms 2 bytes 0 spans 0 batches 0 cells 0 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "elapsed_ms": 2,
+          "bytes": 0,
+          "spans": 0,
+          "batches": 0,
+          "cells": 0,
+          "pending": 0
+        }
+      },
+      "host_ms": 46.19720802293159
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {
+        "reset": true
+      },
+      "result": {
+        "output": "WB-RENDER-STATS RESET\r\nWB-RENDER-STATS cells 0 spans 0 batches 0 bytes 0 elapsed_ticks 0 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 0,
+          "spans": 0,
+          "batches": 0,
+          "bytes": 0,
+          "elapsed_ticks": 0,
+          "pending": 0
+        }
+      },
+      "host_ms": 46.90350001328625
+    },
+    {
+      "tool": "wb_flush",
+      "arguments": {},
+      "result": {
+        "output": "WB-FLUSH\r\nWB-FLUSH elapsed_ms 2 bytes 0 spans 0 batches 0 cells 0 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "elapsed_ms": 2,
+          "bytes": 0,
+          "spans": 0,
+          "batches": 0,
+          "cells": 0,
+          "pending": 0
+        }
+      },
+      "host_ms": 45.3430829802528
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "$80 COLOUR 0 0 CHAR@ DROP",
+        "timeout": 30
+      },
+      "result": {
+        "output": "$80 COLOUR 0 0 CHAR@ DROP\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 39.018332987325266
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {},
+      "result": {
+        "output": "WB-RENDER-STATS\r\nWB-RENDER-STATS cells 0 spans 0 batches 0 bytes 0 elapsed_ticks 0 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 0,
+          "spans": 0,
+          "batches": 0,
+          "bytes": 0,
+          "elapsed_ticks": 0,
+          "pending": 0,
+          "host_ms": 133.2672080025077
+        }
+      },
+      "host_ms": 44.863374991109595
+    },
+    {
+      "tool": "wb_status",
+      "arguments": {},
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 131 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2130 cursor 2089 selection 1 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 131,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 2130,
+          "cursor": 2089,
+          "selection": 1,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 61.14299999899231
+    },
+    {
+      "tool": "wb_patch",
+      "arguments": {
+        "revision": 131,
+        "offset": 5,
+        "remove": 0,
+        "source": ""
+      },
+      "result": {
+        "output": "WB-PATCH 131 5 0 -\r\nWB-STATUS revision 132 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2130 cursor 5 selection 1 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 132,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 2130,
+          "cursor": 5,
+          "selection": 1,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 66.52187497820705
+    },
+    {
+      "tool": "wb_flush",
+      "arguments": {},
+      "result": {
+        "output": "WB-FLUSH\r\nWB-FLUSH elapsed_ms 64 bytes 395 spans 43 batches 4 cells 94 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "elapsed_ms": 64,
+          "bytes": 395,
+          "spans": 43,
+          "batches": 4,
+          "cells": 94,
+          "pending": 0
+        }
+      },
+      "host_ms": 133.45533300889656
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {
+        "reset": true
+      },
+      "result": {
+        "output": "WB-RENDER-STATS RESET\r\nWB-RENDER-STATS cells 0 spans 0 batches 0 bytes 0 elapsed_ticks 0 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 0,
+          "spans": 0,
+          "batches": 0,
+          "bytes": 0,
+          "elapsed_ticks": 0,
+          "pending": 0
+        }
+      },
+      "host_ms": 48.682749998988584
+    },
+    {
+      "tool": "wb_key",
+      "arguments": {
+        "code": 90
+      },
+      "result": {
+        "output": "WB-KEY 90 0\r\nWB-STATUS revision 133 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2131 cursor 6 selection 1 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 133,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 2131,
+          "cursor": 6,
+          "selection": 1,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 66.93087500752881
+    },
+    {
+      "tool": "wb_flush",
+      "arguments": {},
+      "result": {
+        "output": "WB-FLUSH\r\nWB-FLUSH elapsed_ms 2 bytes 0 spans 0 batches 0 cells 0 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "elapsed_ms": 2,
+          "bytes": 0,
+          "spans": 0,
+          "batches": 0,
+          "cells": 0,
+          "pending": 0
+        }
+      },
+      "host_ms": 45.97241699229926
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "$80 COLOUR 0 0 CHAR@ DROP",
+        "timeout": 30
+      },
+      "result": {
+        "output": "$80 COLOUR 0 0 CHAR@ DROP\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 40.12883399263956
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {},
+      "result": {
+        "output": "WB-RENDER-STATS\r\nWB-RENDER-STATS cells 4 spans 4 batches 1 bytes 32 elapsed_ticks 1213 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 4,
+          "spans": 4,
+          "batches": 1,
+          "bytes": 32,
+          "elapsed_ticks": 1213,
+          "pending": 0,
+          "host_ms": 207.41575001738966
+        }
+      },
+      "host_ms": 46.734999981708825
+    },
+    {
+      "tool": "wb_key",
+      "arguments": {
+        "code": 9
+      },
+      "result": {
+        "output": "WB-KEY 9 0\r\nWB-STATUS revision 133 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2131 cursor 6 selection 1 browser 0 focus 0 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 133,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 2131,
+          "cursor": 6,
+          "selection": 1,
+          "browser": 0,
+          "focus": 0,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 61.35291699320078
+    },
+    {
+      "tool": "wb_flush",
+      "arguments": {},
+      "result": {
+        "output": "WB-FLUSH\r\nWB-FLUSH elapsed_ms 2 bytes 0 spans 0 batches 0 cells 0 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "elapsed_ms": 2,
+          "bytes": 0,
+          "spans": 0,
+          "batches": 0,
+          "cells": 0,
+          "pending": 0
+        }
+      },
+      "host_ms": 46.10204201890156
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {
+        "reset": true
+      },
+      "result": {
+        "output": "WB-RENDER-STATS RESET\r\nWB-RENDER-STATS cells 0 spans 0 batches 0 bytes 0 elapsed_ticks 0 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 0,
+          "spans": 0,
+          "batches": 0,
+          "bytes": 0,
+          "elapsed_ticks": 0,
+          "pending": 0
+        }
+      },
+      "host_ms": 47.22679199767299
+    },
+    {
+      "tool": "wb_key",
+      "arguments": {
+        "code": 257
+      },
+      "result": {
+        "output": "WB-KEY 257 0\r\nWB-STATUS revision 133 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2131 cursor 6 selection 2 browser 0 focus 0 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 133,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 2131,
+          "cursor": 6,
+          "selection": 2,
+          "browser": 0,
+          "focus": 0,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 67.57508299779147
+    },
+    {
+      "tool": "wb_flush",
+      "arguments": {},
+      "result": {
+        "output": "WB-FLUSH\r\nWB-FLUSH elapsed_ms 2 bytes 0 spans 0 batches 0 cells 0 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "elapsed_ms": 2,
+          "bytes": 0,
+          "spans": 0,
+          "batches": 0,
+          "cells": 0,
+          "pending": 0
+        }
+      },
+      "host_ms": 45.80116699798964
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "$80 COLOUR 0 0 CHAR@ DROP",
+        "timeout": 30
+      },
+      "result": {
+        "output": "$80 COLOUR 0 0 CHAR@ DROP\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 38.45562500646338
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {},
+      "result": {
+        "output": "WB-RENDER-STATS\r\nWB-RENDER-STATS cells 16 spans 5 batches 1 bytes 51 elapsed_ticks 1905 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 16,
+          "spans": 5,
+          "batches": 1,
+          "bytes": 51,
+          "elapsed_ticks": 1905,
+          "pending": 0,
+          "host_ms": 205.88179098558612
+        }
+      },
+      "host_ms": 48.11500001233071
+    },
+    {
+      "tool": "wb_key",
+      "arguments": {
+        "code": 9
+      },
+      "result": {
+        "output": "WB-KEY 9 0\r\nWB-STATUS revision 133 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2131 cursor 6 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 133,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 2131,
+          "cursor": 6,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 61.902540997834876
+    },
+    {
+      "tool": "wb_source",
+      "arguments": {},
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 133 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2131 cursor 6 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> WB-SOURCE 0 80\r\nWB-SOURCE revision 133 offset 0 total 2131 hex 3A2057424D5A0A7831502D56414C5545203138203B0D0A202020205C2057424D315020736F7572636520726F772030302072657461696E65642065786163746C790A095C2057424D315020736F757263\r\n\r\nok\r\nvios> WB-SOURCE 80 80\r\nWB-SOURCE revision 133 offset 80 total 2131 hex 6520726F772030312072657461696E65642065786163746C790D0A202020205C2057424D315020736F7572636520726F772030322072657461696E65642065786163746C790D0A095C2057424D315020\r\n\r\nok\r\nvios> WB-SOURCE 160 80\r\nWB-SOURCE revision 133 offset 160 total 2131 hex 736F7572636520726F772030332072657461696E65642065786163746C790A202020205C2057424D315020736F7572636520726F772030342072657461696E65642065786163746C790D0A095C205742\r\n\r\nok\r\nvios> WB-SOURCE 240 80\r\nWB-SOURCE revision 133 offset 240 total 2131 hex 4D315020736F7572636520726F772030352072657461696E65642065786163746C790D0A202020205C2057424D315020736F7572636520726F772030362072657461696E65642065786163746C790A09\r\n\r\nok\r\nvios> WB-SOURCE 320 80\r\nWB-SOURCE revision 133 offset 320 total 2131 hex 5C2057424D315020736F7572636520726F772030372072657461696E65642065786163746C790D0A202020205C2057424D315020736F7572636520726F772030382072657461696E6564206578616374\r\n\r\nok\r\nvios> WB-SOURCE 400 80\r\nWB-SOURCE revision 133 offset 400 total 2131 hex 6C790D0A095C2057424D315020736F7572636520726F772030392072657461696E65642065786163746C790A202020205C2057424D315020736F7572636520726F772031302072657461696E65642065\r\n\r\nok\r\nvios> WB-SOURCE 480 80\r\nWB-SOURCE revision 133 offset 480 total 2131 hex 786163746C790D0A095C2057424D315020736F7572636520726F772031312072657461696E65642065786163746C790D0A202020205C2057424D315020736F7572636520726F77203132207265746169\r\n\r\nok\r\nvios> WB-SOURCE 560 80\r\nWB-SOURCE revision 133 offset 560 total 2131 hex 6E65642065786163746C790A095C2057424D315020736F7572636520726F772031332072657461696E65642065786163746C790D0A202020205C2057424D315020736F7572636520726F772031342072\r\n\r\nok\r\nvios> WB-SOURCE 640 80\r\nWB-SOURCE revision 133 offset 640 total 2131 hex 657461696E65642065786163746C790D0A095C2057424D315020736F7572636520726F772031352072657461696E65642065786163746C790A202020205C2057424D315020736F7572636520726F7720\r\n\r\nok\r\nvios> WB-SOURCE 720 80\r\nWB-SOURCE revision 133 offset 720 total 2131 hex 31362072657461696E65642065786163746C790D0A095C2057424D315020736F7572636520726F772031372072657461696E65642065786163746C790D0A202020205C2057424D315020736F75726365\r\n\r\nok\r\nvios> WB-SOURCE 800 80\r\nWB-SOURCE revision 133 offset 800 total 2131 hex 20726F772031382072657461696E65642065786163746C790A095C2057424D315020736F7572636520726F772031392072657461696E65642065786163746C790D0A202020205C2057424D315020736F\r\n\r\nok\r\nvios> WB-SOURCE 880 80\r\nWB-SOURCE revision 133 offset 880 total 2131 hex 7572636520726F772032302072657461696E65642065786163746C790D0A095C2057424D315020736F7572636520726F772032312072657461696E65642065786163746C790A202020205C2057424D31\r\n\r\nok\r\nvios> WB-SOURCE 960 80\r\nWB-SOURCE revision 133 offset 960 total 2131 hex 5020736F7572636520726F772032322072657461696E65642065786163746C790D0A095C2057424D315020736F7572636520726F772032332072657461696E65642065786163746C790D0A202020205C\r\n\r\nok\r\nvios> WB-SOURCE 1040 80\r\nWB-SOURCE revision 133 offset 1040 total 2131 hex 2057424D315020736F7572636520726F772032342072657461696E65642065786163746C790A095C2057424D315020736F7572636520726F772032352072657461696E65642065786163746C790D0A20\r\n\r\nok\r\nvios> WB-SOURCE 1120 80\r\nWB-SOURCE revision 133 offset 1120 total 2131 hex 2020205C2057424D315020736F7572636520726F772032362072657461696E65642065786163746C790D0A095C2057424D315020736F7572636520726F772032372072657461696E6564206578616374\r\n\r\nok\r\nvios> WB-SOURCE 1200 80\r\nWB-SOURCE revision 133 offset 1200 total 2131 hex 6C790A202020205C2057424D315020736F7572636520726F772032382072657461696E65642065786163746C790D0A095C2057424D315020736F7572636520726F772032392072657461696E65642065\r\n\r\nok\r\nvios> WB-SOURCE 1280 80\r\nWB-SOURCE revision 133 offset 1280 total 2131 hex 786163746C790D0A202020205C2057424D315020736F7572636520726F772033302072657461696E65642065786163746C790A095C2057424D315020736F7572636520726F772033312072657461696E\r\n\r\nok\r\nvios> WB-SOURCE 1360 80\r\nWB-SOURCE revision 133 offset 1360 total 2131 hex 65642065786163746C790D0A202020205C2057424D315020736F7572636520726F772033322072657461696E65642065786163746C790D0A095C2057424D315020736F7572636520726F772033332072\r\n\r\nok\r\nvios> WB-SOURCE 1440 80\r\nWB-SOURCE revision 133 offset 1440 total 2131 hex 657461696E65642065786163746C790A202020205C2057424D315020736F7572636520726F772033342072657461696E65642065786163746C790D0A095C2057424D315020736F7572636520726F7720\r\n\r\nok\r\nvios> WB-SOURCE 1520 80\r\nWB-SOURCE revision 133 offset 1520 total 2131 hex 33352072657461696E65642065786163746C790D0A202020205C2057424D315020736F7572636520726F772033362072657461696E65642065786163746C790A095C2057424D315020736F7572636520\r\n\r\nok\r\nvios> WB-SOURCE 1600 80\r\nWB-SOURCE revision 133 offset 1600 total 2131 hex 726F772033372072657461696E65642065786163746C790D0A202020205C2057424D315020736F7572636520726F772033382072657461696E65642065786163746C790D0A095C2057424D315020736F\r\n\r\nok\r\nvios> WB-SOURCE 1680 80\r\nWB-SOURCE revision 133 offset 1680 total 2131 hex 7572636520726F772033392072657461696E65642065786163746C790A202020205C2057424D315020736F7572636520726F772034302072657461696E65642065786163746C790D0A095C2057424D31\r\n\r\nok\r\nvios> WB-SOURCE 1760 80\r\nWB-SOURCE revision 133 offset 1760 total 2131 hex 5020736F7572636520726F772034312072657461696E65642065786163746C790D0A202020205C2057424D315020736F7572636520726F772034322072657461696E65642065786163746C790A095C20\r\n\r\nok\r\nvios> WB-SOURCE 1840 80\r\nWB-SOURCE revision 133 offset 1840 total 2131 hex 57424D315020736F7572636520726F772034332072657461696E65642065786163746C790D0A202020205C2057424D315020736F7572636520726F772034342072657461696E65642065786163746C79\r\n\r\nok\r\nvios> WB-SOURCE 1920 80\r\nWB-SOURCE revision 133 offset 1920 total 2131 hex 0D0A095C2057424D315020736F7572636520726F772034352072657461696E65642065786163746C790A202020205C2057424D315020736F7572636520726F772034362072657461696E656420657861\r\n\r\nok\r\nvios> WB-SOURCE 2000 80\r\nWB-SOURCE revision 133 offset 2000 total 2131 hex 63746C790D0A095C2057424D315020736F7572636520726F772034372072657461696E65642065786163746C790D0A202020205C2057424D315020736F7572636520726F772034382072657461696E65\r\n\r\nok\r\nvios> WB-SOURCE 2080 51\r\nWB-SOURCE revision 133 offset 2080 total 2131 hex 642065786163746C790A095C2057424D315020736F7572636520726F772034392072657461696E65642065786163746C790D0A\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 133,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 2131,
+          "cursor": 6,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        },
+        "source": ": WBMZ\nx1P-VALUE 18 ;\r\n    \\ WBM1P source row 00 retained exactly\n\t\\ WBM1P source row 01 retained exactly\r\n    \\ WBM1P source row 02 retained exactly\r\n\t\\ WBM1P source row 03 retained exactly\n    \\ WBM1P source row 04 retained exactly\r\n\t\\ WBM1P source row 05 retained exactly\r\n    \\ WBM1P source row 06 retained exactly\n\t\\ WBM1P source row 07 retained exactly\r\n    \\ WBM1P source row 08 retained exactly\r\n\t\\ WBM1P source row 09 retained exactly\n    \\ WBM1P source row 10 retained exactly\r\n\t\\ WBM1P source row 11 retained exactly\r\n    \\ WBM1P source row 12 retained exactly\n\t\\ WBM1P source row 13 retained exactly\r\n    \\ WBM1P source row 14 retained exactly\r\n\t\\ WBM1P source row 15 retained exactly\n    \\ WBM1P source row 16 retained exactly\r\n\t\\ WBM1P source row 17 retained exactly\r\n    \\ WBM1P source row 18 retained exactly\n\t\\ WBM1P source row 19 retained exactly\r\n    \\ WBM1P source row 20 retained exactly\r\n\t\\ WBM1P source row 21 retained exactly\n    \\ WBM1P source row 22 retained exactly\r\n\t\\ WBM1P source row 23 retained exactly\r\n    \\ WBM1P source row 24 retained exactly\n\t\\ WBM1P source row 25 retained exactly\r\n    \\ WBM1P source row 26 retained exactly\r\n\t\\ WBM1P source row 27 retained exactly\n    \\ WBM1P source row 28 retained exactly\r\n\t\\ WBM1P source row 29 retained exactly\r\n    \\ WBM1P source row 30 retained exactly\n\t\\ WBM1P source row 31 retained exactly\r\n    \\ WBM1P source row 32 retained exactly\r\n\t\\ WBM1P source row 33 retained exactly\n    \\ WBM1P source row 34 retained exactly\r\n\t\\ WBM1P source row 35 retained exactly\r\n    \\ WBM1P source row 36 retained exactly\n\t\\ WBM1P source row 37 retained exactly\r\n    \\ WBM1P source row 38 retained exactly\r\n\t\\ WBM1P source row 39 retained exactly\n    \\ WBM1P source row 40 retained exactly\r\n\t\\ WBM1P source row 41 retained exactly\r\n    \\ WBM1P source row 42 retained exactly\n\t\\ WBM1P source row 43 retained exactly\r\n    \\ WBM1P source row 44 retained exactly\r\n\t\\ WBM1P source row 45 retained exactly\n    \\ WBM1P source row 46 retained exactly\r\n\t\\ WBM1P source row 47 retained exactly\r\n    \\ WBM1P source row 48 retained exactly\n\t\\ WBM1P source row 49 retained exactly\r\n",
+        "revision": 133,
+        "bytes": 2131,
+        "crc32": 53953506,
+        "crc32_hex": "033743E2",
+        "source_sha256": "50b3779110a43475cf749353554c2f7bf3c8ccdb093dee04a6280311de2a1f2f"
+      },
+      "host_ms": 1840.3519580024295
+    },
+    {
+      "tool": "wb_status",
+      "arguments": {},
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 133 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2131 cursor 6 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 133,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 2131,
+          "cursor": 6,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 60.55162500706501
+    },
+    {
+      "tool": "wb_patch",
+      "arguments": {
+        "revision": 133,
+        "offset": 2131,
+        "remove": 0,
+        "source": ""
+      },
+      "result": {
+        "output": "WB-PATCH 133 2131 0 -\r\nWB-STATUS revision 134 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2131 cursor 2131 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 134,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 2131,
+          "cursor": 2131,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 68.05708300089464
+    },
+    {
+      "tool": "wb_flush",
+      "arguments": {},
+      "result": {
+        "output": "WB-FLUSH\r\nWB-FLUSH elapsed_ms 74 bytes 463 spans 49 batches 4 cells 120 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "elapsed_ms": 74,
+          "bytes": 463,
+          "spans": 49,
+          "batches": 4,
+          "cells": 120,
+          "pending": 0
+        }
+      },
+      "host_ms": 146.88341700821184
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {
+        "reset": true
+      },
+      "result": {
+        "output": "WB-RENDER-STATS RESET\r\nWB-RENDER-STATS cells 0 spans 0 batches 0 bytes 0 elapsed_ticks 0 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 0,
+          "spans": 0,
+          "batches": 0,
+          "bytes": 0,
+          "elapsed_ticks": 0,
+          "pending": 0
+        }
+      },
+      "host_ms": 47.72999999113381
+    },
+    {
+      "tool": "wb_key",
+      "arguments": {
+        "code": 256
+      },
+      "result": {
+        "output": "WB-KEY 256 0\r\nWB-STATUS revision 134 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2131 cursor 2090 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 134,
+          "catalog": 155,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 2131,
+          "cursor": 2090,
+          "selection": 2,
+          "browser": 0,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBINC",
+          "version": "1",
+          "test": "",
+          "error": ""
+        }
+      },
+      "host_ms": 64.10920899361372
+    },
+    {
+      "tool": "wb_flush",
+      "arguments": {},
+      "result": {
+        "output": "WB-FLUSH\r\nWB-FLUSH elapsed_ms 43 bytes 259 spans 29 batches 3 cells 56 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "elapsed_ms": 43,
+          "bytes": 259,
+          "spans": 29,
+          "batches": 3,
+          "cells": 56,
+          "pending": 0
+        }
+      },
+      "host_ms": 110.12658398249187
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "$80 COLOUR 0 0 CHAR@ DROP",
+        "timeout": 30
+      },
+      "result": {
+        "output": "$80 COLOUR 0 0 CHAR@ DROP\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 39.5350829930976
+    },
+    {
+      "tool": "wb_render_stats",
+      "arguments": {},
+      "result": {
+        "output": "WB-RENDER-STATS\r\nWB-RENDER-STATS cells 72 spans 44 batches 4 bytes 380 elapsed_ticks 15053 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "render": {
+          "cells": 72,
+          "spans": 44,
+          "batches": 4,
+          "bytes": 380,
+          "elapsed_ticks": 15053,
+          "pending": 0,
+          "host_ms": 270.7239169976674
+        }
+      },
+      "host_ms": 48.90441699535586
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "VDP-INFO",
+        "timeout": 30
+      },
+      "result": {
+        "output": "VDP-INFO\r\nvdp width 640 height 480 colours 4 mode 1 console-dropped 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 41.542582999682054
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-REDRAW",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-REDRAW\r\nWB-STATUS revision 134 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2131 cursor 2090 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 169.62941701058298
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "\\ 1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "timeout": 30
+      },
+      "result": {
+        "output": "\\ 1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 215.26600001379848
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "\\ 2xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "timeout": 30
+      },
+      "result": {
+        "output": "\\ 2xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 127.7387909940444
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "\\ 3xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "timeout": 30
+      },
+      "result": {
+        "output": "\\ 3xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 124.99691598350182
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "\\ 4xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "timeout": 30
+      },
+      "result": {
+        "output": "\\ 4xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 127.09995900513604
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "\\ 5xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "timeout": 30
+      },
+      "result": {
+        "output": "\\ 5xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 129.93779199314304
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "\\ 6xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "timeout": 30
+      },
+      "result": {
+        "output": "\\ 6xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 136.23595898388885
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "\\ 7xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "timeout": 30
+      },
+      "result": {
+        "output": "\\ 7xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 133.24437499977648
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "\\ 8xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "timeout": 30
+      },
+      "result": {
+        "output": "\\ 8xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 129.8501249984838
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "\\ 9xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "timeout": 30
+      },
+      "result": {
+        "output": "\\ 9xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 135.0993340020068
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-REDRAW",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-REDRAW\r\nWB-STATUS revision 134 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2131 cursor 2090 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 206.1172079993412
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "\\ 11xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "timeout": 30
+      },
+      "result": {
+        "output": "\\ 11xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 216.35445801075548
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "\\ 12xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "timeout": 30
+      },
+      "result": {
+        "output": "\\ 12xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 125.40462499600835
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "\\ 13xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "timeout": 30
+      },
+      "result": {
+        "output": "\\ 13xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 130.07229199865833
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "\\ 14xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "timeout": 30
+      },
+      "result": {
+        "output": "\\ 14xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 127.52445801743306
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "\\ 15xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "timeout": 30
+      },
+      "result": {
+        "output": "\\ 15xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 127.34570799511857
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "\\ 16xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "timeout": 30
+      },
+      "result": {
+        "output": "\\ 16xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 129.06891701277345
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "\\ 17xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "timeout": 30
+      },
+      "result": {
+        "output": "\\ 17xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 122.23345800885
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "\\ 18xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "timeout": 30
+      },
+      "result": {
+        "output": "\\ 18xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 125.14745802036487
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "\\ 19xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "timeout": 30
+      },
+      "result": {
+        "output": "\\ 19xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 131.67387497378513
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-REDRAW",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-REDRAW\r\nWB-STATUS revision 134 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2131 cursor 2090 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 200.4832910024561
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "\\ 21xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "timeout": 30
+      },
+      "result": {
+        "output": "\\ 21xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 218.21066600386985
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "\\ 22xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "timeout": 30
+      },
+      "result": {
+        "output": "\\ 22xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 123.5520830086898
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "\\ 23xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "timeout": 30
+      },
+      "result": {
+        "output": "\\ 23xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 125.33091599470936
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "\\ 24xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "timeout": 30
+      },
+      "result": {
+        "output": "\\ 24xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 127.03550001606345
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "\\ 25xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "timeout": 30
+      },
+      "result": {
+        "output": "\\ 25xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 120.89195800945163
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "\\ 26xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "timeout": 30
+      },
+      "result": {
+        "output": "\\ 26xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 126.2782919802703
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "\\ 27xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "timeout": 30
+      },
+      "result": {
+        "output": "\\ 27xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 129.97616699431092
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "\\ 28xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "timeout": 30
+      },
+      "result": {
+        "output": "\\ 28xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 130.27708401205018
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "\\ 29xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "timeout": 30
+      },
+      "result": {
+        "output": "\\ 29xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 124.71683300100267
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-REDRAW",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-REDRAW\r\nWB-STATUS revision 134 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2131 cursor 2090 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 201.52408399735577
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "\\ 31xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "timeout": 30
+      },
+      "result": {
+        "output": "\\ 31xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 214.5537080068607
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "\\ 32xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "timeout": 30
+      },
+      "result": {
+        "output": "\\ 32xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 137.89245899533853
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "\\ 33xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "timeout": 30
+      },
+      "result": {
+        "output": "\\ 33xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 125.43995899613947
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "\\ 34xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "timeout": 30
+      },
+      "result": {
+        "output": "\\ 34xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 124.95466700056568
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "\\ 35xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "timeout": 30
+      },
+      "result": {
+        "output": "\\ 35xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 132.37770801060833
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "\\ 36xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "timeout": 30
+      },
+      "result": {
+        "output": "\\ 36xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 125.32516699866392
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "\\ 37xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "timeout": 30
+      },
+      "result": {
+        "output": "\\ 37xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 121.5822080266662
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "\\ 38xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "timeout": 30
+      },
+      "result": {
+        "output": "\\ 38xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 134.1931250062771
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "\\ 39xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "timeout": 30
+      },
+      "result": {
+        "output": "\\ 39xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 126.1768749973271
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-REDRAW",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-REDRAW\r\nWB-STATUS revision 134 catalog 155 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 2131 cursor 2090 selection 2 browser 0 focus 1 words 82 words_max 512 module 5742494E43 version 31 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 185.1547499827575
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "\\ 41xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "timeout": 30
+      },
+      "result": {
+        "output": "\\ 41xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 214.6258749999106
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "\\ 42xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "timeout": 30
+      },
+      "result": {
+        "output": "\\ 42xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 129.12295901332982
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "\\ 43xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "timeout": 30
+      },
+      "result": {
+        "output": "\\ 43xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 123.08083398966119
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "\\ 44xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "timeout": 30
+      },
+      "result": {
+        "output": "\\ 44xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 127.99662500037812
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "\\ 45xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "timeout": 30
+      },
+      "result": {
+        "output": "\\ 45xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 125.98995899315923
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "\\ 46xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "timeout": 30
+      },
+      "result": {
+        "output": "\\ 46xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 129.41091597895138
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "\\ 47xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "timeout": 30
+      },
+      "result": {
+        "output": "\\ 47xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 124.87899998086505
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "\\ 48xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "timeout": 30
+      },
+      "result": {
+        "output": "\\ 48xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 124.93154100957327
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "\\ 49xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "timeout": 30
+      },
+      "result": {
+        "output": "\\ 49xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 129.74233401473612
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "VDP-INFO",
+        "timeout": 30
+      },
+      "result": {
+        "output": "VDP-INFO\r\nvdp width 640 height 480 colours 4 mode 1 console-dropped 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "host_ms": 56.52524999459274
+    }
+  ],
+  "composition": {
+    "unchanged": {
+      "ticks": [
+        299,
+        299,
+        299,
+        299,
+        299,
+        299,
+        299
+      ],
+      "median_ms": 1.0381944444444444
+    },
+    "cursor": {
+      "ticks": [
+        424,
+        423,
+        424,
+        423,
+        424,
+        423,
+        424
+      ],
+      "median_ms": 1.4722222222222223
+    },
+    "character_edit": {
+      "ticks": [
+        2216,
+        2217,
+        2217,
+        2217,
+        2216,
+        2217,
+        2217
+      ],
+      "median_ms": 7.697916666666667
+    },
+    "newline_edit": {
+      "ticks": [
+        11466,
+        11481,
+        11466,
+        11480,
+        11467,
+        11481,
+        11467
+      ],
+      "median_ms": 39.81597222222222
+    },
+    "browser_selection": {
+      "ticks": [
+        3213,
+        3199,
+        3213,
+        3198,
+        3214,
+        3198,
+        3213
+      ],
+      "median_ms": 11.15625
+    },
+    "source_scroll": {
+      "ticks": [
+        9905,
+        9926,
+        9936,
+        9929,
+        9936,
+        9929,
+        9936
+      ],
+      "median_ms": 34.47569444444444
+    },
+    "full_fallback": {
+      "ticks": [
+        41307,
+        41307,
+        41307,
+        41307,
+        41307,
+        41307,
+        41307
+      ],
+      "median_ms": 143.42708333333334
+    }
+  },
+  "rendering": {
+    "full_repaint": {
+      "cells": 1557,
+      "spans": 370,
+      "batches": 34,
+      "bytes": 4147,
+      "elapsed_ticks": 145898,
+      "pending": 0,
+      "host_ms": 993.1368750112597
+    },
+    "unchanged": {
+      "cells": 0,
+      "spans": 0,
+      "batches": 0,
+      "bytes": 0,
+      "elapsed_ticks": 0,
+      "pending": 0,
+      "host_ms": 133.2672080025077
+    },
+    "character_edit": {
+      "cells": 4,
+      "spans": 4,
+      "batches": 1,
+      "bytes": 32,
+      "elapsed_ticks": 1213,
+      "pending": 0,
+      "host_ms": 207.41575001738966
+    },
+    "browser_selection": {
+      "cells": 16,
+      "spans": 5,
+      "batches": 1,
+      "bytes": 51,
+      "elapsed_ticks": 1905,
+      "pending": 0,
+      "host_ms": 205.88179098558612
+    },
+    "source_scroll": {
+      "cells": 72,
+      "spans": 44,
+      "batches": 4,
+      "bytes": 380,
+      "elapsed_ticks": 15053,
+      "pending": 0,
+      "host_ms": 270.7239169976674
+    }
+  },
+  "composition_method": "WB-COMPOSE; inspected DS unchanged",
+  "before": {
+    "revision": 84,
+    "catalog": 155,
+    "open": true,
+    "draft": true,
+    "dirty": true,
+    "staged": false,
+    "active": false,
+    "saved": false,
+    "length": 1972,
+    "cursor": 1933,
+    "selection": 2,
+    "browser": 0,
+    "focus": 1,
+    "words": 82,
+    "words_max": 512,
+    "module": "WBINC",
+    "version": "1",
+    "test": "",
+    "error": ""
+  },
+  "vdp_before": {
+    "output": "VDP-INFO\r\nvdp width 640 height 480 colours 4 mode 1 console-dropped 0\r\n\r\nok\r\nvios> ",
+    "ok": true,
+    "compiling": false,
+    "pending": false
+  },
+  "full_frame_millis_crosscheck": 147,
+  "stress_before": {
+    "output": "VDP-INFO\r\nvdp width 640 height 480 colours 4 mode 1 console-dropped 0\r\n\r\nok\r\nvios> ",
+    "ok": true,
+    "compiling": false,
+    "pending": false
+  },
+  "stress_after": {
+    "output": "VDP-INFO\r\nvdp width 640 height 480 colours 4 mode 1 console-dropped 0\r\n\r\nok\r\nvios> ",
+    "ok": true,
+    "compiling": false,
+    "pending": false
+  },
+  "status": "passed"
+}

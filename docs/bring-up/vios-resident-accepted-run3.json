@@ -1,0 +1,3309 @@
+{
+  "schema": 1,
+  "started_utc": "2026-10-16T10:26:26.274171+00:00",
+  "namespace": "LIVE1",
+  "phases": [
+    "core",
+    "modules",
+    "boot"
+  ],
+  "status": "passed",
+  "hardware_run": true,
+  "checks": [
+    {
+      "name": "attach-resident-no-deploy",
+      "status": "passed",
+      "result": {
+        "output": "boot recovery: built-in kernel, no valid source bundle\r\n\r\nVIOS Forth 24 / Agon Light 2\r\nvios> @B224B356 !00000000 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "connected": true,
+        "identity": "ID 0007 REV AA STAT 18"
+      },
+      "elapsed_ms": 34271.445
+    },
+    {
+      "name": "require-idle-empty-stack",
+      "status": "passed",
+      "result": {
+        "output": ".S\r\n<0> \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "data_stack": {
+          "depth_text": "0",
+          "values_text": []
+        }
+      },
+      "elapsed_ms": 28.583
+    },
+    {
+      "name": "initial-resources",
+      "status": "passed",
+      "result": {
+        "output": "RESOURCES\r\nengine DIRECT words 71/128 token-bytes 268 direct-bytes 860 data-bytes 21 source-bytes 173 data-peak 1 return-peak 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "resources": {
+          "engine": "DIRECT",
+          "words": "71/128",
+          "token-bytes": 268,
+          "direct-bytes": 860,
+          "data-bytes": 21,
+          "source-bytes": 173,
+          "data-peak": 1,
+          "return-peak": 0
+        }
+      },
+      "elapsed_ms": 50.779
+    },
+    {
+      "name": "boot-require-clean-unconfirmed-baseline",
+      "status": "passed",
+      "result": {
+        "output": "BOOT-STATUS\r\nboot confirmed NONE candidate NONE state CLEAN current NONE generation 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "boot": {
+          "confirmed": "NONE",
+          "candidate": "NONE",
+          "state": "CLEAN",
+          "current": "NONE",
+          "generation": 0
+        }
+      },
+      "elapsed_ms": 191.88
+    },
+    {
+      "name": "arithmetic-DIRECT",
+      "status": "passed",
+      "result": {
+        "output": "ENGINE DIRECT DECIMAL 6 7 * . -7 3 / . -7 3 MOD . CR\r\n42 -2 -1 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          42,
+          -2,
+          -1
+        ]
+      },
+      "elapsed_ms": 57.412
+    },
+    {
+      "name": "arithmetic-TOKEN",
+      "status": "passed",
+      "result": {
+        "output": "ENGINE TOKEN DECIMAL 6 7 * . -7 3 / . -7 3 MOD . CR\r\n42 -2 -1 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          42,
+          -2,
+          -1
+        ]
+      },
+      "elapsed_ms": 55.633
+    },
+    {
+      "name": "arithmetic-C",
+      "status": "passed",
+      "result": {
+        "output": "ENGINE C DECIMAL 6 7 * . -7 3 / . -7 3 MOD . CR\r\n42 -2 -1 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          42,
+          -2,
+          -1
+        ]
+      },
+      "elapsed_ms": 55.2
+    },
+    {
+      "name": "default-direct-engine",
+      "status": "passed",
+      "result": {
+        "output": "ENGINE DIRECT\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "elapsed_ms": 32.051
+    },
+    {
+      "name": "max-line-two-fragment-01",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          579
+        ]
+      },
+      "elapsed_ms": 139.76
+    },
+    {
+      "name": "max-line-two-fragment-02",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          579
+        ]
+      },
+      "elapsed_ms": 142.688
+    },
+    {
+      "name": "max-line-two-fragment-03",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          579
+        ]
+      },
+      "elapsed_ms": 137.088
+    },
+    {
+      "name": "max-line-two-fragment-04",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          579
+        ]
+      },
+      "elapsed_ms": 137.58
+    },
+    {
+      "name": "max-line-two-fragment-05",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          579
+        ]
+      },
+      "elapsed_ms": 144.53
+    },
+    {
+      "name": "max-line-two-fragment-06",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          579
+        ]
+      },
+      "elapsed_ms": 136.336
+    },
+    {
+      "name": "max-line-two-fragment-07",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          579
+        ]
+      },
+      "elapsed_ms": 142.258
+    },
+    {
+      "name": "max-line-two-fragment-08",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          579
+        ]
+      },
+      "elapsed_ms": 153.927
+    },
+    {
+      "name": "max-line-two-fragment-09",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          579
+        ]
+      },
+      "elapsed_ms": 139.273
+    },
+    {
+      "name": "max-line-two-fragment-10",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          579
+        ]
+      },
+      "elapsed_ms": 139.912
+    },
+    {
+      "name": "max-line-two-fragment-11",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          579
+        ]
+      },
+      "elapsed_ms": 144.423
+    },
+    {
+      "name": "max-line-two-fragment-12",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          579
+        ]
+      },
+      "elapsed_ms": 139.816
+    },
+    {
+      "name": "max-line-two-fragment-13",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          579
+        ]
+      },
+      "elapsed_ms": 140.302
+    },
+    {
+      "name": "max-line-two-fragment-14",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          579
+        ]
+      },
+      "elapsed_ms": 144.226
+    },
+    {
+      "name": "max-line-two-fragment-15",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          579
+        ]
+      },
+      "elapsed_ms": 139.322
+    },
+    {
+      "name": "max-line-two-fragment-16",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          579
+        ]
+      },
+      "elapsed_ms": 140.581
+    },
+    {
+      "name": "max-line-two-fragment-17",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          579
+        ]
+      },
+      "elapsed_ms": 153.114
+    },
+    {
+      "name": "max-line-two-fragment-18",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          579
+        ]
+      },
+      "elapsed_ms": 136.523
+    },
+    {
+      "name": "max-line-two-fragment-19",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          579
+        ]
+      },
+      "elapsed_ms": 140.651
+    },
+    {
+      "name": "max-line-two-fragment-20",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          579
+        ]
+      },
+      "elapsed_ms": 155.242
+    },
+    {
+      "name": "max-line-two-fragment-21",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          579
+        ]
+      },
+      "elapsed_ms": 139.461
+    },
+    {
+      "name": "max-line-two-fragment-22",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          579
+        ]
+      },
+      "elapsed_ms": 142.402
+    },
+    {
+      "name": "max-line-two-fragment-23",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          579
+        ]
+      },
+      "elapsed_ms": 155.014
+    },
+    {
+      "name": "max-line-two-fragment-24",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          579
+        ]
+      },
+      "elapsed_ms": 137.276
+    },
+    {
+      "name": "max-line-two-fragment-25",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          579
+        ]
+      },
+      "elapsed_ms": 139.598
+    },
+    {
+      "name": "max-line-two-fragment-26",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          579
+        ]
+      },
+      "elapsed_ms": 156.063
+    },
+    {
+      "name": "max-line-two-fragment-27",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          579
+        ]
+      },
+      "elapsed_ms": 138.646
+    },
+    {
+      "name": "max-line-two-fragment-28",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          579
+        ]
+      },
+      "elapsed_ms": 139.975
+    },
+    {
+      "name": "max-line-two-fragment-29",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          579
+        ]
+      },
+      "elapsed_ms": 155.416
+    },
+    {
+      "name": "max-line-two-fragment-30",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          579
+        ]
+      },
+      "elapsed_ms": 136.491
+    },
+    {
+      "name": "max-line-two-fragment-31",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          579
+        ]
+      },
+      "elapsed_ms": 144.069
+    },
+    {
+      "name": "max-line-two-fragment-32",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          579
+        ]
+      },
+      "elapsed_ms": 156.492
+    },
+    {
+      "name": "max-line-two-fragment-33",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          579
+        ]
+      },
+      "elapsed_ms": 139.276
+    },
+    {
+      "name": "max-line-two-fragment-34",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          579
+        ]
+      },
+      "elapsed_ms": 142.302
+    },
+    {
+      "name": "max-line-two-fragment-35",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          579
+        ]
+      },
+      "elapsed_ms": 155.528
+    },
+    {
+      "name": "max-line-two-fragment-36",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          579
+        ]
+      },
+      "elapsed_ms": 137.915
+    },
+    {
+      "name": "max-line-two-fragment-37",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          579
+        ]
+      },
+      "elapsed_ms": 142.524
+    },
+    {
+      "name": "max-line-two-fragment-38",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          579
+        ]
+      },
+      "elapsed_ms": 154.779
+    },
+    {
+      "name": "max-line-two-fragment-39",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          579
+        ]
+      },
+      "elapsed_ms": 137.226
+    },
+    {
+      "name": "max-line-two-fragment-40",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          579
+        ]
+      },
+      "elapsed_ms": 143.687
+    },
+    {
+      "name": "max-line-two-fragment-41",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          579
+        ]
+      },
+      "elapsed_ms": 153.345
+    },
+    {
+      "name": "max-line-two-fragment-42",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          579
+        ]
+      },
+      "elapsed_ms": 137.299
+    },
+    {
+      "name": "max-line-two-fragment-43",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          579
+        ]
+      },
+      "elapsed_ms": 142.031
+    },
+    {
+      "name": "max-line-two-fragment-44",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          579
+        ]
+      },
+      "elapsed_ms": 156.029
+    },
+    {
+      "name": "max-line-two-fragment-45",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          579
+        ]
+      },
+      "elapsed_ms": 137.285
+    },
+    {
+      "name": "max-line-two-fragment-46",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          579
+        ]
+      },
+      "elapsed_ms": 144.28
+    },
+    {
+      "name": "max-line-two-fragment-47",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          579
+        ]
+      },
+      "elapsed_ms": 156.495
+    },
+    {
+      "name": "max-line-two-fragment-48",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          579
+        ]
+      },
+      "elapsed_ms": 137.573
+    },
+    {
+      "name": "max-line-two-fragment-49",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          579
+        ]
+      },
+      "elapsed_ms": 142.792
+    },
+    {
+      "name": "max-line-two-fragment-50",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 123 456 + . CR                                                                                                                                                                                                                     \r\n579 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          579
+        ]
+      },
+      "elapsed_ms": 155.426
+    },
+    {
+      "name": "key-pending",
+      "status": "passed",
+      "result": {
+        "output": "@9B5720FE !CB379FC4 KEY . CR\r\n",
+        "ok": false,
+        "pending": true,
+        "compiling": false,
+        "remaining_source": "",
+        "error": "Evaluation still pending; use console_input for KEY, then await_result"
+      },
+      "elapsed_ms": 338.788
+    },
+    {
+      "name": "key-inject-A",
+      "status": "passed",
+      "result": {
+        "sent": 1,
+        "pending": true
+      },
+      "elapsed_ms": 2.818
+    },
+    {
+      "name": "key-completion",
+      "status": "passed",
+      "result": {
+        "output": "KEY . CR\r\n65 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          65
+        ]
+      },
+      "elapsed_ms": 14.406
+    },
+    {
+      "name": "debug-registers",
+      "status": "passed",
+      "result": {
+        "status": 152,
+        "registers": {
+          "af": 32864,
+          "bc": 8192,
+          "de": 10944935,
+          "hl": 486404,
+          "ix": 720576,
+          "iy": 485856,
+          "sp": 720573,
+          "pc": 284120
+        },
+        "raw": "REGS 98 008060 002000 A701A7 076C04 0AFEC0 0769E0 0AFEBD 0455D8"
+      },
+      "elapsed_ms": 55.42
+    },
+    {
+      "name": "debug-scratch-map-guard",
+      "status": "passed",
+      "result": {
+        "map": "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/build/vios-resident.map",
+        "map_sha256": "32d34ad3f59c4b2e2599c354abac3898bffd739ca55cf9fca4dfba6cbb71cc4b",
+        "bss_end": 524518,
+        "stack_bottom": 716800,
+        "address": 655360,
+        "count": 16,
+        "assumption": "Supplied map describes the actually deployed resident image"
+      },
+      "elapsed_ms": 2.79
+    },
+    {
+      "name": "debug-scratch-original",
+      "status": "passed",
+      "result": {
+        "address": 655360,
+        "count": 16,
+        "hex": "11701e13affaafcc3c2f74ba30101c2f",
+        "crc32": "e11a437f"
+      },
+      "elapsed_ms": 52.858
+    },
+    {
+      "name": "debug-scratch-write-verified",
+      "status": "passed",
+      "result": {
+        "address": 655360,
+        "count": 16,
+        "verified": true,
+        "crc32": "8407759b"
+      },
+      "elapsed_ms": 75.242
+    },
+    {
+      "name": "debug-scratch-independent-readback",
+      "status": "passed",
+      "result": {
+        "address": 655360,
+        "count": 16,
+        "hex": "00112233445566778899aabbccddeeff",
+        "crc32": "8407759b"
+      },
+      "elapsed_ms": 52.615
+    },
+    {
+      "name": "debug-scratch-restore",
+      "status": "passed",
+      "result": {
+        "address": 655360,
+        "count": 16,
+        "verified": true,
+        "crc32": "e11a437f"
+      },
+      "elapsed_ms": 74.362
+    },
+    {
+      "name": "debug-scratch-restored-readback",
+      "status": "passed",
+      "result": {
+        "address": 655360,
+        "count": 16,
+        "hex": "11701e13affaafcc3c2f74ba30101c2f",
+        "crc32": "e11a437f"
+      },
+      "elapsed_ms": 52.199
+    },
+    {
+      "name": "debug-resume",
+      "status": "passed",
+      "result": {
+        "paused": false,
+        "compiling": false,
+        "synchronized": true
+      },
+      "elapsed_ms": 0.005
+    },
+    {
+      "name": "post-debug-evaluation",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 20 22 + . CR\r\n42 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          42
+        ]
+      },
+      "elapsed_ms": 37.104
+    },
+    {
+      "name": "vdp-select-pinned-mode-1",
+      "status": "passed",
+      "result": {
+        "output": "1 MODE\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "elapsed_ms": 130.114
+    },
+    {
+      "name": "vdp-physical-pixel-coordinates",
+      "status": "passed",
+      "result": {
+        "output": "23 VDU 0 VDU 192 VDU 0 VDU\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "elapsed_ms": 39.126
+    },
+    {
+      "name": "vdp-mode-info",
+      "status": "passed",
+      "result": {
+        "output": "VDP-INFO\r\nvdp width 640 height 480 colours 4 mode 1 console-dropped 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "vdp": {
+          "width": 640,
+          "height": 480,
+          "colours": 4,
+          "mode": 1,
+          "console_dropped": 0
+        }
+      },
+      "elapsed_ms": 40.873
+    },
+    {
+      "name": "vdp-clear-background",
+      "status": "passed",
+      "result": {
+        "output": "CLS 0 0 PIXEL@ . . CR\r\n0 0 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          0,
+          0
+        ]
+      },
+      "elapsed_ms": 40.344
+    },
+    {
+      "name": "vdp-text-red-V",
+      "status": "passed",
+      "result": {
+        "output": "1 COLOUR S\" V\" VTYPE\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "elapsed_ms": 35.537
+    },
+    {
+      "name": "vdp-character-readback",
+      "status": "passed",
+      "result": {
+        "output": "0 0 CHAR@ . CR\r\n86 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          86
+        ]
+      },
+      "elapsed_ms": 35.669
+    },
+    {
+      "name": "vdp-red-pixel-readback",
+      "status": "passed",
+      "result": {
+        "output": "1 0 PIXEL@ . . CR\r\n1 255 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          1,
+          255
+        ]
+      },
+      "elapsed_ms": 39.424
+    },
+    {
+      "name": "vdp-beep-acknowledgment",
+      "status": "passed",
+      "result": {
+        "output": "440 25 BEEP . CR\r\n1 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          1
+        ]
+      },
+      "elapsed_ms": 36.344
+    },
+    {
+      "name": "latency-nine-evaluate",
+      "status": "passed",
+      "result": {
+        "samples_ms": [
+          34.972,
+          33.864,
+          34.238,
+          34.979,
+          34.902,
+          34.998,
+          35.067,
+          34.925,
+          35.088
+        ],
+        "median_ms": 34.972,
+        "minimum_ms": 33.864,
+        "maximum_ms": 35.088,
+        "responses": [
+          {
+            "output": "DECIMAL 6 7 * . CR\r\n42 \r\n\r\nok\r\nvios> ",
+            "ok": true,
+            "compiling": false,
+            "pending": false,
+            "numbers": [
+              42
+            ]
+          },
+          {
+            "output": "DECIMAL 6 7 * . CR\r\n42 \r\n\r\nok\r\nvios> ",
+            "ok": true,
+            "compiling": false,
+            "pending": false,
+            "numbers": [
+              42
+            ]
+          },
+          {
+            "output": "DECIMAL 6 7 * . CR\r\n42 \r\n\r\nok\r\nvios> ",
+            "ok": true,
+            "compiling": false,
+            "pending": false,
+            "numbers": [
+              42
+            ]
+          },
+          {
+            "output": "DECIMAL 6 7 * . CR\r\n42 \r\n\r\nok\r\nvios> ",
+            "ok": true,
+            "compiling": false,
+            "pending": false,
+            "numbers": [
+              42
+            ]
+          },
+          {
+            "output": "DECIMAL 6 7 * . CR\r\n42 \r\n\r\nok\r\nvios> ",
+            "ok": true,
+            "compiling": false,
+            "pending": false,
+            "numbers": [
+              42
+            ]
+          },
+          {
+            "output": "DECIMAL 6 7 * . CR\r\n42 \r\n\r\nok\r\nvios> ",
+            "ok": true,
+            "compiling": false,
+            "pending": false,
+            "numbers": [
+              42
+            ]
+          },
+          {
+            "output": "DECIMAL 6 7 * . CR\r\n42 \r\n\r\nok\r\nvios> ",
+            "ok": true,
+            "compiling": false,
+            "pending": false,
+            "numbers": [
+              42
+            ]
+          },
+          {
+            "output": "DECIMAL 6 7 * . CR\r\n42 \r\n\r\nok\r\nvios> ",
+            "ok": true,
+            "compiling": false,
+            "pending": false,
+            "numbers": [
+              42
+            ]
+          },
+          {
+            "output": "DECIMAL 6 7 * . CR\r\n42 \r\n\r\nok\r\nvios> ",
+            "ok": true,
+            "compiling": false,
+            "pending": false,
+            "numbers": [
+              42
+            ]
+          }
+        ]
+      },
+      "elapsed_ms": 313.138
+    },
+    {
+      "name": "latency-nine-inspect",
+      "status": "passed",
+      "result": {
+        "samples_ms": [
+          42.668,
+          41.721,
+          41.977,
+          41.924,
+          41.998,
+          42.559,
+          43.522,
+          42.219,
+          42.154
+        ],
+        "median_ms": 42.154,
+        "minimum_ms": 41.721,
+        "maximum_ms": 43.522,
+        "responses": [
+          {
+            "output": "SEE +\r\nprimitive +\r\nword + xt 5 kind 0 token 376427 direct 392843 token-bytes 2 direct-bytes 10\r\n\r\nok\r\nvios> ",
+            "ok": true,
+            "compiling": false,
+            "pending": false,
+            "word": {
+              "name": "+",
+              "xt": 5,
+              "kind": 0,
+              "token": 376427,
+              "direct": 392843,
+              "token-bytes": 2,
+              "direct-bytes": 10
+            }
+          },
+          {
+            "output": "SEE +\r\nprimitive +\r\nword + xt 5 kind 0 token 376427 direct 392843 token-bytes 2 direct-bytes 10\r\n\r\nok\r\nvios> ",
+            "ok": true,
+            "compiling": false,
+            "pending": false,
+            "word": {
+              "name": "+",
+              "xt": 5,
+              "kind": 0,
+              "token": 376427,
+              "direct": 392843,
+              "token-bytes": 2,
+              "direct-bytes": 10
+            }
+          },
+          {
+            "output": "SEE +\r\nprimitive +\r\nword + xt 5 kind 0 token 376427 direct 392843 token-bytes 2 direct-bytes 10\r\n\r\nok\r\nvios> ",
+            "ok": true,
+            "compiling": false,
+            "pending": false,
+            "word": {
+              "name": "+",
+              "xt": 5,
+              "kind": 0,
+              "token": 376427,
+              "direct": 392843,
+              "token-bytes": 2,
+              "direct-bytes": 10
+            }
+          },
+          {
+            "output": "SEE +\r\nprimitive +\r\nword + xt 5 kind 0 token 376427 direct 392843 token-bytes 2 direct-bytes 10\r\n\r\nok\r\nvios> ",
+            "ok": true,
+            "compiling": false,
+            "pending": false,
+            "word": {
+              "name": "+",
+              "xt": 5,
+              "kind": 0,
+              "token": 376427,
+              "direct": 392843,
+              "token-bytes": 2,
+              "direct-bytes": 10
+            }
+          },
+          {
+            "output": "SEE +\r\nprimitive +\r\nword + xt 5 kind 0 token 376427 direct 392843 token-bytes 2 direct-bytes 10\r\n\r\nok\r\nvios> ",
+            "ok": true,
+            "compiling": false,
+            "pending": false,
+            "word": {
+              "name": "+",
+              "xt": 5,
+              "kind": 0,
+              "token": 376427,
+              "direct": 392843,
+              "token-bytes": 2,
+              "direct-bytes": 10
+            }
+          },
+          {
+            "output": "SEE +\r\nprimitive +\r\nword + xt 5 kind 0 token 376427 direct 392843 token-bytes 2 direct-bytes 10\r\n\r\nok\r\nvios> ",
+            "ok": true,
+            "compiling": false,
+            "pending": false,
+            "word": {
+              "name": "+",
+              "xt": 5,
+              "kind": 0,
+              "token": 376427,
+              "direct": 392843,
+              "token-bytes": 2,
+              "direct-bytes": 10
+            }
+          },
+          {
+            "output": "SEE +\r\nprimitive +\r\nword + xt 5 kind 0 token 376427 direct 392843 token-bytes 2 direct-bytes 10\r\n\r\nok\r\nvios> ",
+            "ok": true,
+            "compiling": false,
+            "pending": false,
+            "word": {
+              "name": "+",
+              "xt": 5,
+              "kind": 0,
+              "token": 376427,
+              "direct": 392843,
+              "token-bytes": 2,
+              "direct-bytes": 10
+            }
+          },
+          {
+            "output": "SEE +\r\nprimitive +\r\nword + xt 5 kind 0 token 376427 direct 392843 token-bytes 2 direct-bytes 10\r\n\r\nok\r\nvios> ",
+            "ok": true,
+            "compiling": false,
+            "pending": false,
+            "word": {
+              "name": "+",
+              "xt": 5,
+              "kind": 0,
+              "token": 376427,
+              "direct": 392843,
+              "token-bytes": 2,
+              "direct-bytes": 10
+            }
+          },
+          {
+            "output": "SEE +\r\nprimitive +\r\nword + xt 5 kind 0 token 376427 direct 392843 token-bytes 2 direct-bytes 10\r\n\r\nok\r\nvios> ",
+            "ok": true,
+            "compiling": false,
+            "pending": false,
+            "word": {
+              "name": "+",
+              "xt": 5,
+              "kind": 0,
+              "token": 376427,
+              "direct": 392843,
+              "token-bytes": 2,
+              "direct-bytes": 10
+            }
+          }
+        ]
+      },
+      "elapsed_ms": 380.821
+    },
+    {
+      "name": "latency-nine-resources",
+      "status": "passed",
+      "result": {
+        "samples_ms": [
+          50.791,
+          50.929,
+          50.874,
+          51.0,
+          50.921,
+          61.304,
+          50.709,
+          50.972,
+          51.061
+        ],
+        "median_ms": 50.929,
+        "minimum_ms": 50.709,
+        "maximum_ms": 61.304,
+        "responses": [
+          {
+            "output": "RESOURCES\r\nengine DIRECT words 71/128 token-bytes 268 direct-bytes 860 data-bytes 23 source-bytes 173 data-peak 3 return-peak 0\r\n\r\nok\r\nvios> ",
+            "ok": true,
+            "compiling": false,
+            "pending": false,
+            "resources": {
+              "engine": "DIRECT",
+              "words": "71/128",
+              "token-bytes": 268,
+              "direct-bytes": 860,
+              "data-bytes": 23,
+              "source-bytes": 173,
+              "data-peak": 3,
+              "return-peak": 0
+            }
+          },
+          {
+            "output": "RESOURCES\r\nengine DIRECT words 71/128 token-bytes 268 direct-bytes 860 data-bytes 23 source-bytes 173 data-peak 3 return-peak 0\r\n\r\nok\r\nvios> ",
+            "ok": true,
+            "compiling": false,
+            "pending": false,
+            "resources": {
+              "engine": "DIRECT",
+              "words": "71/128",
+              "token-bytes": 268,
+              "direct-bytes": 860,
+              "data-bytes": 23,
+              "source-bytes": 173,
+              "data-peak": 3,
+              "return-peak": 0
+            }
+          },
+          {
+            "output": "RESOURCES\r\nengine DIRECT words 71/128 token-bytes 268 direct-bytes 860 data-bytes 23 source-bytes 173 data-peak 3 return-peak 0\r\n\r\nok\r\nvios> ",
+            "ok": true,
+            "compiling": false,
+            "pending": false,
+            "resources": {
+              "engine": "DIRECT",
+              "words": "71/128",
+              "token-bytes": 268,
+              "direct-bytes": 860,
+              "data-bytes": 23,
+              "source-bytes": 173,
+              "data-peak": 3,
+              "return-peak": 0
+            }
+          },
+          {
+            "output": "RESOURCES\r\nengine DIRECT words 71/128 token-bytes 268 direct-bytes 860 data-bytes 23 source-bytes 173 data-peak 3 return-peak 0\r\n\r\nok\r\nvios> ",
+            "ok": true,
+            "compiling": false,
+            "pending": false,
+            "resources": {
+              "engine": "DIRECT",
+              "words": "71/128",
+              "token-bytes": 268,
+              "direct-bytes": 860,
+              "data-bytes": 23,
+              "source-bytes": 173,
+              "data-peak": 3,
+              "return-peak": 0
+            }
+          },
+          {
+            "output": "RESOURCES\r\nengine DIRECT words 71/128 token-bytes 268 direct-bytes 860 data-bytes 23 source-bytes 173 data-peak 3 return-peak 0\r\n\r\nok\r\nvios> ",
+            "ok": true,
+            "compiling": false,
+            "pending": false,
+            "resources": {
+              "engine": "DIRECT",
+              "words": "71/128",
+              "token-bytes": 268,
+              "direct-bytes": 860,
+              "data-bytes": 23,
+              "source-bytes": 173,
+              "data-peak": 3,
+              "return-peak": 0
+            }
+          },
+          {
+            "output": "RESOURCES\r\nengine DIRECT words 71/128 token-bytes 268 direct-bytes 860 data-bytes 23 source-bytes 173 data-peak 3 return-peak 0\r\n\r\nok\r\nvios> ",
+            "ok": true,
+            "compiling": false,
+            "pending": false,
+            "resources": {
+              "engine": "DIRECT",
+              "words": "71/128",
+              "token-bytes": 268,
+              "direct-bytes": 860,
+              "data-bytes": 23,
+              "source-bytes": 173,
+              "data-peak": 3,
+              "return-peak": 0
+            }
+          },
+          {
+            "output": "RESOURCES\r\nengine DIRECT words 71/128 token-bytes 268 direct-bytes 860 data-bytes 23 source-bytes 173 data-peak 3 return-peak 0\r\n\r\nok\r\nvios> ",
+            "ok": true,
+            "compiling": false,
+            "pending": false,
+            "resources": {
+              "engine": "DIRECT",
+              "words": "71/128",
+              "token-bytes": 268,
+              "direct-bytes": 860,
+              "data-bytes": 23,
+              "source-bytes": 173,
+              "data-peak": 3,
+              "return-peak": 0
+            }
+          },
+          {
+            "output": "RESOURCES\r\nengine DIRECT words 71/128 token-bytes 268 direct-bytes 860 data-bytes 23 source-bytes 173 data-peak 3 return-peak 0\r\n\r\nok\r\nvios> ",
+            "ok": true,
+            "compiling": false,
+            "pending": false,
+            "resources": {
+              "engine": "DIRECT",
+              "words": "71/128",
+              "token-bytes": 268,
+              "direct-bytes": 860,
+              "data-bytes": 23,
+              "source-bytes": 173,
+              "data-peak": 3,
+              "return-peak": 0
+            }
+          },
+          {
+            "output": "RESOURCES\r\nengine DIRECT words 71/128 token-bytes 268 direct-bytes 860 data-bytes 23 source-bytes 173 data-peak 3 return-peak 0\r\n\r\nok\r\nvios> ",
+            "ok": true,
+            "compiling": false,
+            "pending": false,
+            "resources": {
+              "engine": "DIRECT",
+              "words": "71/128",
+              "token-bytes": 268,
+              "direct-bytes": 860,
+              "data-bytes": 23,
+              "source-bytes": 173,
+              "data-peak": 3,
+              "return-peak": 0
+            }
+          }
+        ]
+      },
+      "elapsed_ms": 468.659
+    },
+    {
+      "name": "benchmark-all-45-conditions-once",
+      "status": "passed",
+      "result": {
+        "path": "docs/bring-up/vios-resident-accepted-run3.bench.txt",
+        "conditions": 45,
+        "rows": [
+          {
+            "engine": 0,
+            "word": "ARITH",
+            "n": 25,
+            "result": 3,
+            "ticks": [
+              2868,
+              2868,
+              2868,
+              2868,
+              2868,
+              2868,
+              2867,
+              2867,
+              2867
+            ],
+            "median": 2868
+          },
+          {
+            "engine": 0,
+            "word": "ARITH",
+            "n": 50,
+            "result": 0,
+            "ticks": [
+              5619,
+              5619,
+              5619,
+              5619,
+              5619,
+              5620,
+              5620,
+              5620,
+              5620
+            ],
+            "median": 5619
+          },
+          {
+            "engine": 0,
+            "word": "ARITH",
+            "n": 100,
+            "result": 0,
+            "ticks": [
+              11124,
+              11124,
+              11124,
+              11123,
+              11123,
+              11123,
+              11123,
+              11123,
+              11123
+            ],
+            "median": 11123
+          },
+          {
+            "engine": 0,
+            "word": "CALL",
+            "n": 25,
+            "result": 75,
+            "ticks": [
+              1987,
+              1987,
+              1987,
+              1987,
+              1987,
+              1986,
+              1986,
+              1986,
+              1986
+            ],
+            "median": 1987
+          },
+          {
+            "engine": 0,
+            "word": "CALL",
+            "n": 50,
+            "result": 150,
+            "ticks": [
+              3861,
+              3860,
+              3860,
+              3861,
+              3860,
+              3860,
+              3860,
+              3861,
+              3860
+            ],
+            "median": 3860
+          },
+          {
+            "engine": 0,
+            "word": "CALL",
+            "n": 100,
+            "result": 300,
+            "ticks": [
+              7607,
+              7608,
+              7608,
+              7608,
+              7608,
+              7608,
+              7608,
+              7608,
+              7607
+            ],
+            "median": 7608
+          },
+          {
+            "engine": 0,
+            "word": "BRANCH",
+            "n": 25,
+            "result": 49,
+            "ticks": [
+              3047,
+              3046,
+              3046,
+              3046,
+              3046,
+              3047,
+              3046,
+              3046,
+              3047
+            ],
+            "median": 3046
+          },
+          {
+            "engine": 0,
+            "word": "BRANCH",
+            "n": 50,
+            "result": 100,
+            "ticks": [
+              5987,
+              5988,
+              5987,
+              5987,
+              5987,
+              5987,
+              5987,
+              5987,
+              5988
+            ],
+            "median": 5987
+          },
+          {
+            "engine": 0,
+            "word": "BRANCH",
+            "n": 100,
+            "result": 200,
+            "ticks": [
+              11855,
+              11855,
+              11855,
+              11855,
+              11855,
+              11856,
+              11856,
+              11856,
+              11856
+            ],
+            "median": 11855
+          },
+          {
+            "engine": 0,
+            "word": "LOOP",
+            "n": 25,
+            "result": 300,
+            "ticks": [
+              1226,
+              1226,
+              1226,
+              1226,
+              1225,
+              1226,
+              1226,
+              1226,
+              1226
+            ],
+            "median": 1226
+          },
+          {
+            "engine": 0,
+            "word": "LOOP",
+            "n": 50,
+            "result": 1225,
+            "ticks": [
+              2339,
+              2340,
+              2339,
+              2339,
+              2339,
+              2339,
+              2340,
+              2339,
+              2339
+            ],
+            "median": 2339
+          },
+          {
+            "engine": 0,
+            "word": "LOOP",
+            "n": 100,
+            "result": 4950,
+            "ticks": [
+              4565,
+              4566,
+              4566,
+              4566,
+              4566,
+              4566,
+              4565,
+              4566,
+              4566
+            ],
+            "median": 4566
+          },
+          {
+            "engine": 0,
+            "word": "MEM",
+            "n": 25,
+            "result": 25,
+            "ticks": [
+              3177,
+              3177,
+              3177,
+              3177,
+              3177,
+              3177,
+              3177,
+              3177,
+              3177
+            ],
+            "median": 3177
+          },
+          {
+            "engine": 0,
+            "word": "MEM",
+            "n": 50,
+            "result": 50,
+            "ticks": [
+              6186,
+              6186,
+              6186,
+              6186,
+              6186,
+              6186,
+              6186,
+              6186,
+              6185
+            ],
+            "median": 6186
+          },
+          {
+            "engine": 0,
+            "word": "MEM",
+            "n": 100,
+            "result": 100,
+            "ticks": [
+              12202,
+              12202,
+              12202,
+              12202,
+              12203,
+              12202,
+              12202,
+              12203,
+              12202
+            ],
+            "median": 12202
+          },
+          {
+            "engine": 1,
+            "word": "ARITH",
+            "n": 25,
+            "result": 3,
+            "ticks": [
+              655,
+              655,
+              655,
+              655,
+              655,
+              655,
+              655,
+              655,
+              656
+            ],
+            "median": 655
+          },
+          {
+            "engine": 1,
+            "word": "ARITH",
+            "n": 50,
+            "result": 0,
+            "ticks": [
+              1250,
+              1250,
+              1251,
+              1251,
+              1250,
+              1250,
+              1250,
+              1251,
+              1251
+            ],
+            "median": 1250
+          },
+          {
+            "engine": 1,
+            "word": "ARITH",
+            "n": 100,
+            "result": 0,
+            "ticks": [
+              2441,
+              2441,
+              2441,
+              2441,
+              2441,
+              2441,
+              2441,
+              2441,
+              2441
+            ],
+            "median": 2441
+          },
+          {
+            "engine": 1,
+            "word": "CALL",
+            "n": 25,
+            "result": 75,
+            "ticks": [
+              473,
+              474,
+              474,
+              474,
+              474,
+              474,
+              474,
+              474,
+              474
+            ],
+            "median": 474
+          },
+          {
+            "engine": 1,
+            "word": "CALL",
+            "n": 50,
+            "result": 150,
+            "ticks": [
+              891,
+              891,
+              891,
+              891,
+              891,
+              891,
+              891,
+              891,
+              891
+            ],
+            "median": 891
+          },
+          {
+            "engine": 1,
+            "word": "CALL",
+            "n": 100,
+            "result": 300,
+            "ticks": [
+              1725,
+              1725,
+              1725,
+              1725,
+              1726,
+              1726,
+              1725,
+              1725,
+              1725
+            ],
+            "median": 1725
+          },
+          {
+            "engine": 1,
+            "word": "BRANCH",
+            "n": 25,
+            "result": 49,
+            "ticks": [
+              634,
+              634,
+              634,
+              634,
+              633,
+              634,
+              634,
+              634,
+              634
+            ],
+            "median": 634
+          },
+          {
+            "engine": 1,
+            "word": "BRANCH",
+            "n": 50,
+            "result": 100,
+            "ticks": [
+              1205,
+              1206,
+              1206,
+              1206,
+              1206,
+              1205,
+              1206,
+              1206,
+              1206
+            ],
+            "median": 1206
+          },
+          {
+            "engine": 1,
+            "word": "BRANCH",
+            "n": 100,
+            "result": 200,
+            "ticks": [
+              2349,
+              2348,
+              2349,
+              2349,
+              2349,
+              2349,
+              2349,
+              2348,
+              2349
+            ],
+            "median": 2349
+          },
+          {
+            "engine": 1,
+            "word": "LOOP",
+            "n": 25,
+            "result": 300,
+            "ticks": [
+              339,
+              338,
+              338,
+              338,
+              339,
+              338,
+              338,
+              339,
+              338
+            ],
+            "median": 338
+          },
+          {
+            "engine": 1,
+            "word": "LOOP",
+            "n": 50,
+            "result": 1225,
+            "ticks": [
+              620,
+              620,
+              620,
+              620,
+              620,
+              620,
+              620,
+              620,
+              620
+            ],
+            "median": 620
+          },
+          {
+            "engine": 1,
+            "word": "LOOP",
+            "n": 100,
+            "result": 4950,
+            "ticks": [
+              1184,
+              1183,
+              1183,
+              1184,
+              1183,
+              1183,
+              1184,
+              1183,
+              1183
+            ],
+            "median": 1183
+          },
+          {
+            "engine": 1,
+            "word": "MEM",
+            "n": 25,
+            "result": 25,
+            "ticks": [
+              619,
+              620,
+              620,
+              620,
+              619,
+              620,
+              620,
+              620,
+              620
+            ],
+            "median": 620
+          },
+          {
+            "engine": 1,
+            "word": "MEM",
+            "n": 50,
+            "result": 50,
+            "ticks": [
+              1177,
+              1177,
+              1177,
+              1177,
+              1177,
+              1176,
+              1176,
+              1176,
+              1176
+            ],
+            "median": 1177
+          },
+          {
+            "engine": 1,
+            "word": "MEM",
+            "n": 100,
+            "result": 100,
+            "ticks": [
+              2289,
+              2290,
+              2290,
+              2290,
+              2290,
+              2290,
+              2289,
+              2290,
+              2290
+            ],
+            "median": 2290
+          },
+          {
+            "engine": 2,
+            "word": "ARITH",
+            "n": 25,
+            "result": 3,
+            "ticks": [
+              577,
+              577,
+              577,
+              577,
+              577,
+              577,
+              577,
+              577,
+              577
+            ],
+            "median": 577
+          },
+          {
+            "engine": 2,
+            "word": "ARITH",
+            "n": 50,
+            "result": 0,
+            "ticks": [
+              1095,
+              1096,
+              1096,
+              1095,
+              1095,
+              1096,
+              1096,
+              1095,
+              1095
+            ],
+            "median": 1095
+          },
+          {
+            "engine": 2,
+            "word": "ARITH",
+            "n": 100,
+            "result": 0,
+            "ticks": [
+              2133,
+              2133,
+              2132,
+              2133,
+              2133,
+              2133,
+              2132,
+              2133,
+              2133
+            ],
+            "median": 2133
+          },
+          {
+            "engine": 2,
+            "word": "CALL",
+            "n": 25,
+            "result": 75,
+            "ticks": [
+              413,
+              413,
+              413,
+              413,
+              413,
+              413,
+              413,
+              413,
+              413
+            ],
+            "median": 413
+          },
+          {
+            "engine": 2,
+            "word": "CALL",
+            "n": 50,
+            "result": 150,
+            "ticks": [
+              771,
+              771,
+              771,
+              771,
+              771,
+              771,
+              772,
+              771,
+              771
+            ],
+            "median": 771
+          },
+          {
+            "engine": 2,
+            "word": "CALL",
+            "n": 100,
+            "result": 300,
+            "ticks": [
+              1488,
+              1488,
+              1488,
+              1488,
+              1488,
+              1488,
+              1488,
+              1488,
+              1488
+            ],
+            "median": 1488
+          },
+          {
+            "engine": 2,
+            "word": "BRANCH",
+            "n": 25,
+            "result": 49,
+            "ticks": [
+              551,
+              550,
+              550,
+              550,
+              550,
+              550,
+              550,
+              550,
+              550
+            ],
+            "median": 550
+          },
+          {
+            "engine": 2,
+            "word": "BRANCH",
+            "n": 50,
+            "result": 100,
+            "ticks": [
+              1040,
+              1040,
+              1040,
+              1039,
+              1040,
+              1040,
+              1040,
+              1040,
+              1040
+            ],
+            "median": 1040
+          },
+          {
+            "engine": 2,
+            "word": "BRANCH",
+            "n": 100,
+            "result": 200,
+            "ticks": [
+              2019,
+              2019,
+              2019,
+              2019,
+              2018,
+              2018,
+              2019,
+              2019,
+              2019
+            ],
+            "median": 2019
+          },
+          {
+            "engine": 2,
+            "word": "LOOP",
+            "n": 25,
+            "result": 300,
+            "ticks": [
+              304,
+              304,
+              304,
+              304,
+              304,
+              304,
+              304,
+              304,
+              304
+            ],
+            "median": 304
+          },
+          {
+            "engine": 2,
+            "word": "LOOP",
+            "n": 50,
+            "result": 1225,
+            "ticks": [
+              552,
+              553,
+              553,
+              552,
+              552,
+              552,
+              553,
+              553,
+              553
+            ],
+            "median": 553
+          },
+          {
+            "engine": 2,
+            "word": "LOOP",
+            "n": 100,
+            "result": 4950,
+            "ticks": [
+              1050,
+              1050,
+              1050,
+              1050,
+              1050,
+              1050,
+              1050,
+              1051,
+              1050
+            ],
+            "median": 1050
+          },
+          {
+            "engine": 2,
+            "word": "MEM",
+            "n": 25,
+            "result": 25,
+            "ticks": [
+              540,
+              540,
+              540,
+              540,
+              540,
+              540,
+              540,
+              540,
+              540
+            ],
+            "median": 540
+          },
+          {
+            "engine": 2,
+            "word": "MEM",
+            "n": 50,
+            "result": 50,
+            "ticks": [
+              1020,
+              1021,
+              1020,
+              1021,
+              1020,
+              1020,
+              1020,
+              1020,
+              1020
+            ],
+            "median": 1020
+          },
+          {
+            "engine": 2,
+            "word": "MEM",
+            "n": 100,
+            "result": 100,
+            "ticks": [
+              1980,
+              1980,
+              1980,
+              1981,
+              1980,
+              1980,
+              1981,
+              1980,
+              1980
+            ],
+            "median": 1980
+          }
+        ]
+      },
+      "elapsed_ms": 4362.161
+    },
+    {
+      "name": "core-final-resources",
+      "status": "passed",
+      "result": {
+        "output": "RESOURCES\r\nengine DIRECT words 80/128 token-bytes 444 direct-bytes 1211 data-bytes 26 source-bytes 483 data-peak 3 return-peak 1\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "resources": {
+          "engine": "DIRECT",
+          "words": "80/128",
+          "token-bytes": 444,
+          "direct-bytes": 1211,
+          "data-bytes": 26,
+          "source-bytes": 483,
+          "data-peak": 3,
+          "return-peak": 1
+        }
+      },
+      "elapsed_ms": 50.842
+    },
+    {
+      "name": "module-inventory-before",
+      "status": "passed",
+      "result": {
+        "output": "MODULES\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "modules": []
+      },
+      "elapsed_ms": 28.078
+    },
+    {
+      "name": "module-stage-v1-interface",
+      "status": "passed",
+      "result": {
+        "output": "MODULE-BEGIN LIVE1I 11 -\r\n\r\nok\r\nvios> MODULE-DATA 4445464552204C495645312D53203A204C495645312D43204C495645312D53203B\r\n\r\nok\r\nvios> MODULE-STAGE\r\nstaged LIVE1I crc32 4203863728\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "name": "LIVE1I",
+        "version": "11",
+        "dependencies": [],
+        "bytes": 33,
+        "crc32": 4203863728,
+        "crc32_hex": "FA91DEB0",
+        "source_sha256": "8631d990e2099647b2433c44d5e2066033fd31657831e2749ba658d139edeb5e"
+      },
+      "elapsed_ms": 224.112
+    },
+    {
+      "name": "module-activate-v1-interface",
+      "status": "passed",
+      "result": {
+        "output": "MODULE-ACTIVATE LIVE1I\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "elapsed_ms": 131.271
+    },
+    {
+      "name": "module-source-v1-interface",
+      "status": "passed",
+      "result": {
+        "output": "MODULE-SOURCE LIVE1I\r\nsource-hex 4445464552204C495645312D53203A204C495645312D43204C495645312D53203B\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "name": "LIVE1I",
+        "previous": false,
+        "source": "DEFER LIVE1-S : LIVE1-C LIVE1-S ;",
+        "bytes": 33,
+        "crc32": 4203863728,
+        "crc32_hex": "FA91DEB0",
+        "source_sha256": "8631d990e2099647b2433c44d5e2066033fd31657831e2749ba658d139edeb5e"
+      },
+      "elapsed_ms": 49.657
+    },
+    {
+      "name": "module-save-v1-interface",
+      "status": "passed",
+      "result": {
+        "output": "SAVE LIVE1I\r\nsaved /VIOS/CDD1B05F/1FCD271D.VIM\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "path": "/VIOS/CDD1B05F/1FCD271D.VIM"
+      },
+      "elapsed_ms": 4319.112
+    },
+    {
+      "name": "module-stage-v1-provider",
+      "status": "passed",
+      "result": {
+        "output": "MODULE-BEGIN LIVE1P 11 LIVE1-T\r\n\r\nok\r\nvios> MODULE-DEP LIVE1I FA91DEB0\r\n\r\nok\r\nvios> MODULE-DATA 3A204C495645312D56203131203B203A204C495645312D54204C495645312D56203131203D203B2027204C495645312D56204953204C495645312D53\r\n\r\nok\r\nvios> MODULE-STAGE\r\nstaged LIVE1P crc32 2732385733\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "name": "LIVE1P",
+        "version": "11",
+        "dependencies": [
+          {
+            "name": "LIVE1I",
+            "crc32": 4203863728
+          }
+        ],
+        "bytes": 60,
+        "crc32": 2732385733,
+        "crc32_hex": "A2DCE5C5",
+        "source_sha256": "9a9d4500a08d0d370f6ba693c4b82c166c5fc51b6d647bb0ad345313bf591758"
+      },
+      "elapsed_ms": 298.917
+    },
+    {
+      "name": "module-activate-v1-provider",
+      "status": "passed",
+      "result": {
+        "output": "MODULE-ACTIVATE LIVE1P\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "elapsed_ms": 134.121
+    },
+    {
+      "name": "module-source-v1-provider",
+      "status": "passed",
+      "result": {
+        "output": "MODULE-SOURCE LIVE1P\r\nsource-hex 3A204C495645312D56203131203B203A204C495645312D54204C495645312D56203131203D203B2027204C495645312D56204953204C495645312D53\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "name": "LIVE1P",
+        "previous": false,
+        "source": ": LIVE1-V 11 ; : LIVE1-T LIVE1-V 11 = ; ' LIVE1-V IS LIVE1-S",
+        "bytes": 60,
+        "crc32": 2732385733,
+        "crc32_hex": "A2DCE5C5",
+        "source_sha256": "9a9d4500a08d0d370f6ba693c4b82c166c5fc51b6d647bb0ad345313bf591758"
+      },
+      "elapsed_ms": 59.681
+    },
+    {
+      "name": "module-save-v1-provider",
+      "status": "passed",
+      "result": {
+        "output": "SAVE LIVE1P\r\nsaved /VIOS/A9BA189F/8E362F26.VIM\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "path": "/VIOS/A9BA189F/8E362F26.VIM"
+      },
+      "elapsed_ms": 3528.84
+    },
+    {
+      "name": "module-reject-stale-dependency",
+      "status": "passed",
+      "result": {
+        "output": "MODULE-BEGIN LIVE1D bad LIVE1-U\r\n\r\nok\r\nvios> MODULE-DEP LIVE1P A2DCE5C4\r\n\r\nok\r\nvios> MODULE-DATA 3A204C495645312D44204C495645312D4320312B203B203A204C495645312D55204C495645312D44203132203D203B\r\n\r\nok\r\nvios> MODULE-STAGE\r\nerror: missing or stale module dependency\r\n\r\nerror\r\nvios> ",
+        "ok": false,
+        "compiling": false,
+        "pending": false,
+        "name": "LIVE1D",
+        "version": "bad",
+        "dependencies": [
+          {
+            "name": "LIVE1P",
+            "crc32": 2732385732
+          }
+        ],
+        "bytes": 47,
+        "crc32": 1721124452,
+        "crc32_hex": "66964664",
+        "source_sha256": "8c63ee9502bab4b8cfaf7d70cf27188186bac981fddff1dfaddc44a034250cd2"
+      },
+      "elapsed_ms": 200.796
+    },
+    {
+      "name": "module-discard-bad-builder",
+      "status": "passed",
+      "result": {
+        "output": "MODULE-DISCARD\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "elapsed_ms": 34.075
+    },
+    {
+      "name": "module-stage-v1-consumer",
+      "status": "passed",
+      "result": {
+        "output": "MODULE-BEGIN LIVE1D 11 LIVE1-U\r\n\r\nok\r\nvios> MODULE-DEP LIVE1I FA91DEB0\r\n\r\nok\r\nvios> MODULE-DEP LIVE1P A2DCE5C5\r\n\r\nok\r\nvios> MODULE-DATA 3A204C495645312D44204C495645312D4320312B203B203A204C495645312D55204C495645312D44203132203D203B\r\n\r\nok\r\nvios> MODULE-STAGE\r\nstaged LIVE1D crc32 1721124452\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "name": "LIVE1D",
+        "version": "11",
+        "dependencies": [
+          {
+            "name": "LIVE1I",
+            "crc32": 4203863728
+          },
+          {
+            "name": "LIVE1P",
+            "crc32": 2732385733
+          }
+        ],
+        "bytes": 47,
+        "crc32": 1721124452,
+        "crc32_hex": "66964664",
+        "source_sha256": "8c63ee9502bab4b8cfaf7d70cf27188186bac981fddff1dfaddc44a034250cd2"
+      },
+      "elapsed_ms": 329.957
+    },
+    {
+      "name": "module-activate-v1-consumer",
+      "status": "passed",
+      "result": {
+        "output": "MODULE-ACTIVATE LIVE1D\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "elapsed_ms": 134.067
+    },
+    {
+      "name": "module-source-v1-consumer",
+      "status": "passed",
+      "result": {
+        "output": "MODULE-SOURCE LIVE1D\r\nsource-hex 3A204C495645312D44204C495645312D4320312B203B203A204C495645312D55204C495645312D44203132203D203B\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "name": "LIVE1D",
+        "previous": false,
+        "source": ": LIVE1-D LIVE1-C 1+ ; : LIVE1-U LIVE1-D 12 = ;",
+        "bytes": 47,
+        "crc32": 1721124452,
+        "crc32_hex": "66964664",
+        "source_sha256": "8c63ee9502bab4b8cfaf7d70cf27188186bac981fddff1dfaddc44a034250cd2"
+      },
+      "elapsed_ms": 54.549
+    },
+    {
+      "name": "module-save-v1-consumer",
+      "status": "passed",
+      "result": {
+        "output": "SAVE LIVE1D\r\nsaved /VIOS/B360CCE2/3BC9C813.VIM\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "path": "/VIOS/B360CCE2/3BC9C813.VIM"
+      },
+      "elapsed_ms": 4785.334
+    },
+    {
+      "name": "module-values-v1",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL LIVE1-C . LIVE1-D . CR\r\n11 12 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          11,
+          12
+        ]
+      },
+      "elapsed_ms": 42.853
+    },
+    {
+      "name": "module-failed-test-restores-service",
+      "status": "passed",
+      "result": {
+        "output": "MODULE-BEGIN LIVE1P bad LIVE1-T\r\n\r\nok\r\nvios> MODULE-DEP LIVE1I FA91DEB0\r\n\r\nok\r\nvios> MODULE-DATA 3A204C495645312D56203939203B203A204C495645312D542030203B2027204C495645312D56204953204C495645312D53\r\n\r\nok\r\nvios> MODULE-STAGE\r\nerror: module test must return one true flag\r\n\r\nerror\r\nvios> ",
+        "ok": false,
+        "compiling": false,
+        "pending": false,
+        "name": "LIVE1P",
+        "version": "bad",
+        "dependencies": [
+          {
+            "name": "LIVE1I",
+            "crc32": 4203863728
+          }
+        ],
+        "bytes": 49,
+        "crc32": 3729263172,
+        "crc32_hex": "DE480A44",
+        "source_sha256": "a8ef4a25ee18f3501c99c5e1b2822d0d185a747362399132582b04c79163b144"
+      },
+      "elapsed_ms": 262.174
+    },
+    {
+      "name": "module-discard-failed-test",
+      "status": "passed",
+      "result": {
+        "output": "MODULE-DISCARD\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "elapsed_ms": 34.016
+    },
+    {
+      "name": "module-service-survives-failed-stage",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL LIVE1-C . LIVE1-D . CR\r\n11 12 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          11,
+          12
+        ]
+      },
+      "elapsed_ms": 42.371
+    },
+    {
+      "name": "module-source-survives-failed-stage",
+      "status": "passed",
+      "result": {
+        "output": "MODULE-SOURCE LIVE1P\r\nsource-hex 3A204C495645312D56203131203B203A204C495645312D54204C495645312D56203131203D203B2027204C495645312D56204953204C495645312D53\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "name": "LIVE1P",
+        "previous": false,
+        "source": ": LIVE1-V 11 ; : LIVE1-T LIVE1-V 11 = ; ' LIVE1-V IS LIVE1-S",
+        "bytes": 60,
+        "crc32": 2732385733,
+        "crc32_hex": "A2DCE5C5",
+        "source_sha256": "9a9d4500a08d0d370f6ba693c4b82c166c5fc51b6d647bb0ad345313bf591758"
+      },
+      "elapsed_ms": 59.132
+    },
+    {
+      "name": "module-inventory-after",
+      "status": "passed",
+      "result": {
+        "output": "MODULES\r\nmodule LIVE1I version 11 crc32 4203863728 bytes 33 deps 0 active 1 previous 0\r\nmodule LIVE1P version 11 crc32 2732385733 bytes 60 deps 1 active 1 previous 0\r\ndependency LIVE1P module LIVE1I crc32 4203863728\r\nmodule LIVE1D version 11 crc32 1721124452 bytes 47 deps 2 active 1 previous 0\r\ndependency LIVE1D module LIVE1I crc32 4203863728\r\ndependency LIVE1D module LIVE1P crc32 2732385733\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "modules": [
+          {
+            "name": "LIVE1I",
+            "version": "11",
+            "crc32": 4203863728,
+            "bytes": 33,
+            "dependency_count": 0,
+            "active": true,
+            "previous": false,
+            "dependencies": []
+          },
+          {
+            "name": "LIVE1P",
+            "version": "11",
+            "crc32": 2732385733,
+            "bytes": 60,
+            "dependency_count": 1,
+            "active": true,
+            "previous": false,
+            "dependencies": [
+              {
+                "name": "LIVE1I",
+                "crc32": 4203863728
+              }
+            ]
+          },
+          {
+            "name": "LIVE1D",
+            "version": "11",
+            "crc32": 1721124452,
+            "bytes": 47,
+            "dependency_count": 2,
+            "active": true,
+            "previous": false,
+            "dependencies": [
+              {
+                "name": "LIVE1I",
+                "crc32": 4203863728
+              },
+              {
+                "name": "LIVE1P",
+                "crc32": 2732385733
+              }
+            ]
+          }
+        ]
+      },
+      "elapsed_ms": 74.936
+    },
+    {
+      "name": "boot-require-clean-unconfirmed-baseline",
+      "status": "passed",
+      "result": {
+        "output": "BOOT-STATUS\r\nboot confirmed NONE candidate NONE state CLEAN current NONE generation 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "boot": {
+          "confirmed": "NONE",
+          "candidate": "NONE",
+          "state": "CLEAN",
+          "current": "NONE",
+          "generation": 0
+        }
+      },
+      "elapsed_ms": 264.342
+    },
+    {
+      "name": "boot-exact-v1-source-interface",
+      "status": "passed",
+      "result": {
+        "output": "MODULE-SOURCE LIVE1I\r\nsource-hex 4445464552204C495645312D53203A204C495645312D43204C495645312D53203B\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "name": "LIVE1I",
+        "previous": false,
+        "source": "DEFER LIVE1-S : LIVE1-C LIVE1-S ;",
+        "bytes": 33,
+        "crc32": 4203863728,
+        "crc32_hex": "FA91DEB0",
+        "source_sha256": "8631d990e2099647b2433c44d5e2066033fd31657831e2749ba658d139edeb5e"
+      },
+      "elapsed_ms": 50.223
+    },
+    {
+      "name": "boot-exact-v1-source-provider",
+      "status": "passed",
+      "result": {
+        "output": "MODULE-SOURCE LIVE1P\r\nsource-hex 3A204C495645312D56203131203B203A204C495645312D54204C495645312D56203131203D203B2027204C495645312D56204953204C495645312D53\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "name": "LIVE1P",
+        "previous": false,
+        "source": ": LIVE1-V 11 ; : LIVE1-T LIVE1-V 11 = ; ' LIVE1-V IS LIVE1-S",
+        "bytes": 60,
+        "crc32": 2732385733,
+        "crc32_hex": "A2DCE5C5",
+        "source_sha256": "9a9d4500a08d0d370f6ba693c4b82c166c5fc51b6d647bb0ad345313bf591758"
+      },
+      "elapsed_ms": 59.128
+    },
+    {
+      "name": "boot-exact-v1-source-consumer",
+      "status": "passed",
+      "result": {
+        "output": "MODULE-SOURCE LIVE1D\r\nsource-hex 3A204C495645312D44204C495645312D4320312B203B203A204C495645312D55204C495645312D44203132203D203B\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "name": "LIVE1D",
+        "previous": false,
+        "source": ": LIVE1-D LIVE1-C 1+ ; : LIVE1-U LIVE1-D 12 = ;",
+        "bytes": 47,
+        "crc32": 1721124452,
+        "crc32_hex": "66964664",
+        "source_sha256": "8c63ee9502bab4b8cfaf7d70cf27188186bac981fddff1dfaddc44a034250cd2"
+      },
+      "elapsed_ms": 53.985
+    },
+    {
+      "name": "boot-trial-v1",
+      "status": "passed",
+      "result": {
+        "output": "BOOT-TRIAL\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "elapsed_ms": 6029.642
+    },
+    {
+      "name": "boot-pending-v1",
+      "status": "passed",
+      "result": {
+        "output": "BOOT-STATUS\r\nboot confirmed NONE candidate A state PENDING current NONE generation 1\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "boot": {
+          "confirmed": "NONE",
+          "candidate": "A",
+          "state": "PENDING",
+          "current": "NONE",
+          "generation": 1
+        }
+      },
+      "elapsed_ms": 303.48
+    },
+    {
+      "name": "true-reboot-load-v1",
+      "status": "passed",
+      "result": {
+        "rebooted": true,
+        "forced": false,
+        "output": "boot trial confirmed A\r\n\r\nVIOS Forth 24 / Agon Light 2\r\nvios> @DD1C0A0F !00000000 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "connected": true,
+        "identity": "ID 0007 REV AA STAT 18"
+      },
+      "elapsed_ms": 37139.694
+    },
+    {
+      "name": "boot-confirmed-v1",
+      "status": "passed",
+      "result": {
+        "output": "BOOT-STATUS\r\nboot confirmed A candidate NONE state CLEAN current A generation 3\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "boot": {
+          "confirmed": "A",
+          "candidate": "NONE",
+          "state": "CLEAN",
+          "current": "A",
+          "generation": 3
+        }
+      },
+      "elapsed_ms": 342.416
+    },
+    {
+      "name": "boot-confirmed-v1-values",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL LIVE1-C . LIVE1-D . CR\r\n11 12 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          11,
+          12
+        ]
+      },
+      "elapsed_ms": 42.603
+    },
+    {
+      "name": "boot-confirm-v1-idempotent",
+      "status": "passed",
+      "result": {
+        "output": "BOOT-CONFIRM\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "elapsed_ms": 33.598
+    },
+    {
+      "name": "module-stage-v2-provider",
+      "status": "passed",
+      "result": {
+        "output": "MODULE-BEGIN LIVE1P 22 LIVE1-T\r\n\r\nok\r\nvios> MODULE-DEP LIVE1I FA91DEB0\r\n\r\nok\r\nvios> MODULE-DATA 3A204C495645312D56203232203B203A204C495645312D54204C495645312D56203232203D203B2027204C495645312D56204953204C495645312D53\r\n\r\nok\r\nvios> MODULE-STAGE\r\nstaged LIVE1P crc32 4272193240\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "name": "LIVE1P",
+        "version": "22",
+        "dependencies": [
+          {
+            "name": "LIVE1I",
+            "crc32": 4203863728
+          }
+        ],
+        "bytes": 60,
+        "crc32": 4272193240,
+        "crc32_hex": "FEA47ED8",
+        "source_sha256": "ec25c4f196cc0b63e69878a087494e1f01a37a7bd9241cc902f02a550927c73a"
+      },
+      "elapsed_ms": 317.968
+    },
+    {
+      "name": "module-activate-v2-provider",
+      "status": "passed",
+      "result": {
+        "output": "MODULE-ACTIVATE LIVE1P\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "elapsed_ms": 134.456
+    },
+    {
+      "name": "module-existing-caller-observes-v2",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL LIVE1-C . LIVE1-D . CR\r\n22 23 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          22,
+          23
+        ]
+      },
+      "elapsed_ms": 44.958
+    },
+    {
+      "name": "module-save-v2-provider",
+      "status": "passed",
+      "result": {
+        "output": "SAVE LIVE1P\r\nsaved /VIOS/A9BA189F/E7253C6E.VIM\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "path": "/VIOS/A9BA189F/E7253C6E.VIM"
+      },
+      "elapsed_ms": 2221.587
+    },
+    {
+      "name": "module-stage-v2-consumer",
+      "status": "passed",
+      "result": {
+        "output": "MODULE-BEGIN LIVE1D 22 LIVE1-U\r\n\r\nok\r\nvios> MODULE-DEP LIVE1I FA91DEB0\r\n\r\nok\r\nvios> MODULE-DEP LIVE1P FEA47ED8\r\n\r\nok\r\nvios> MODULE-DATA 3A204C495645312D44204C495645312D4320312B203B203A204C495645312D55204C495645312D44203233203D203B\r\n\r\nok\r\nvios> MODULE-STAGE\r\nstaged LIVE1D crc32 3714194810\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "name": "LIVE1D",
+        "version": "22",
+        "dependencies": [
+          {
+            "name": "LIVE1I",
+            "crc32": 4203863728
+          },
+          {
+            "name": "LIVE1P",
+            "crc32": 4272193240
+          }
+        ],
+        "bytes": 47,
+        "crc32": 3714194810,
+        "crc32_hex": "DD621D7A",
+        "source_sha256": "3fc697fb5d7f1af088418cf19592cec02c11cf58d300667b3a8f739bf0522769"
+      },
+      "elapsed_ms": 326.923
+    },
+    {
+      "name": "module-activate-v2-consumer",
+      "status": "passed",
+      "result": {
+        "output": "MODULE-ACTIVATE LIVE1D\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "elapsed_ms": 134.571
+    },
+    {
+      "name": "module-save-v2-consumer",
+      "status": "passed",
+      "result": {
+        "output": "SAVE LIVE1D\r\nsaved /VIOS/B360CCE2/E9393509.VIM\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "path": "/VIOS/B360CCE2/E9393509.VIM"
+      },
+      "elapsed_ms": 3478.329
+    },
+    {
+      "name": "module-values-v2-before-reboot",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL LIVE1-C . LIVE1-D . CR\r\n22 23 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          22,
+          23
+        ]
+      },
+      "elapsed_ms": 41.641
+    },
+    {
+      "name": "boot-trial-v2",
+      "status": "passed",
+      "result": {
+        "output": "BOOT-TRIAL\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "elapsed_ms": 6252.231
+    },
+    {
+      "name": "boot-pending-v2",
+      "status": "passed",
+      "result": {
+        "output": "BOOT-STATUS\r\nboot confirmed A candidate B state PENDING current A generation 4\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "boot": {
+          "confirmed": "A",
+          "candidate": "B",
+          "state": "PENDING",
+          "current": "A",
+          "generation": 4
+        }
+      },
+      "elapsed_ms": 342.281
+    },
+    {
+      "name": "true-reboot-load-v2",
+      "status": "passed",
+      "result": {
+        "rebooted": true,
+        "forced": false,
+        "output": "boot trial confirmed B\r\n\r\nVIOS Forth 24 / Agon Light 2\r\nvios> @BB611EB6 !00000000 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "connected": true,
+        "identity": "ID 0007 REV AA STAT 18"
+      },
+      "elapsed_ms": 37226.903
+    },
+    {
+      "name": "boot-confirmed-v2",
+      "status": "passed",
+      "result": {
+        "output": "BOOT-STATUS\r\nboot confirmed B candidate NONE state CLEAN current B generation 6\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "boot": {
+          "confirmed": "B",
+          "candidate": "NONE",
+          "state": "CLEAN",
+          "current": "B",
+          "generation": 6
+        }
+      },
+      "elapsed_ms": 342.751
+    },
+    {
+      "name": "boot-confirmed-v2-values",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL LIVE1-C . LIVE1-D . CR\r\n22 23 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          22,
+          23
+        ]
+      },
+      "elapsed_ms": 42.058
+    },
+    {
+      "name": "boot-source-v2-provider",
+      "status": "passed",
+      "result": {
+        "output": "MODULE-SOURCE LIVE1P\r\nsource-hex 3A204C495645312D56203232203B203A204C495645312D54204C495645312D56203232203D203B2027204C495645312D56204953204C495645312D53\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "name": "LIVE1P",
+        "previous": false,
+        "source": ": LIVE1-V 22 ; : LIVE1-T LIVE1-V 22 = ; ' LIVE1-V IS LIVE1-S",
+        "bytes": 60,
+        "crc32": 4272193240,
+        "crc32_hex": "FEA47ED8",
+        "source_sha256": "ec25c4f196cc0b63e69878a087494e1f01a37a7bd9241cc902f02a550927c73a"
+      },
+      "elapsed_ms": 59.431
+    },
+    {
+      "name": "boot-source-v2-consumer",
+      "status": "passed",
+      "result": {
+        "output": "MODULE-SOURCE LIVE1D\r\nsource-hex 3A204C495645312D44204C495645312D4320312B203B203A204C495645312D55204C495645312D44203233203D203B\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "name": "LIVE1D",
+        "previous": false,
+        "source": ": LIVE1-D LIVE1-C 1+ ; : LIVE1-U LIVE1-D 23 = ;",
+        "bytes": 47,
+        "crc32": 3714194810,
+        "crc32_hex": "DD621D7A",
+        "source_sha256": "3fc697fb5d7f1af088418cf19592cec02c11cf58d300667b3a8f739bf0522769"
+      },
+      "elapsed_ms": 54.136
+    },
+    {
+      "name": "boot-confirm-v2-idempotent",
+      "status": "passed",
+      "result": {
+        "output": "BOOT-CONFIRM\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "elapsed_ms": 31.704
+    },
+    {
+      "name": "boot-select-revert-v1",
+      "status": "passed",
+      "result": {
+        "output": "BOOT-REVERT\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "elapsed_ms": 999.758
+    },
+    {
+      "name": "true-reboot-revert-v1",
+      "status": "passed",
+      "result": {
+        "rebooted": true,
+        "forced": false,
+        "output": "boot confirmed A\r\n\r\nVIOS Forth 24 / Agon Light 2\r\nvios> @23304D3C !00000000 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "connected": true,
+        "identity": "ID 0007 REV AA STAT 18"
+      },
+      "elapsed_ms": 35963.657
+    },
+    {
+      "name": "boot-reverted-v1",
+      "status": "passed",
+      "result": {
+        "output": "BOOT-STATUS\r\nboot confirmed A candidate NONE state CLEAN current A generation 7\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "boot": {
+          "confirmed": "A",
+          "candidate": "NONE",
+          "state": "CLEAN",
+          "current": "A",
+          "generation": 7
+        }
+      },
+      "elapsed_ms": 343.065
+    },
+    {
+      "name": "boot-reverted-v1-values",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL LIVE1-C . LIVE1-D . CR\r\n11 12 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          11,
+          12
+        ]
+      },
+      "elapsed_ms": 43.733
+    },
+    {
+      "name": "boot-reverted-exact-provider-source",
+      "status": "passed",
+      "result": {
+        "output": "MODULE-SOURCE LIVE1P\r\nsource-hex 3A204C495645312D56203131203B203A204C495645312D54204C495645312D56203131203D203B2027204C495645312D56204953204C495645312D53\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "name": "LIVE1P",
+        "previous": false,
+        "source": ": LIVE1-V 11 ; : LIVE1-T LIVE1-V 11 = ; ' LIVE1-V IS LIVE1-S",
+        "bytes": 60,
+        "crc32": 2732385733,
+        "crc32_hex": "A2DCE5C5",
+        "source_sha256": "9a9d4500a08d0d370f6ba693c4b82c166c5fc51b6d647bb0ad345313bf591758"
+      },
+      "elapsed_ms": 59.669
+    },
+    {
+      "name": "boot-final-module-inventory",
+      "status": "passed",
+      "result": {
+        "output": "MODULES\r\nmodule LIVE1I version 11 crc32 4203863728 bytes 33 deps 0 active 1 previous 0\r\nmodule LIVE1P version 11 crc32 2732385733 bytes 60 deps 1 active 1 previous 0\r\ndependency LIVE1P module LIVE1I crc32 4203863728\r\nmodule LIVE1D version 11 crc32 1721124452 bytes 47 deps 2 active 1 previous 0\r\ndependency LIVE1D module LIVE1I crc32 4203863728\r\ndependency LIVE1D module LIVE1P crc32 2732385733\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "modules": [
+          {
+            "name": "LIVE1I",
+            "version": "11",
+            "crc32": 4203863728,
+            "bytes": 33,
+            "dependency_count": 0,
+            "active": true,
+            "previous": false,
+            "dependencies": []
+          },
+          {
+            "name": "LIVE1P",
+            "version": "11",
+            "crc32": 2732385733,
+            "bytes": 60,
+            "dependency_count": 1,
+            "active": true,
+            "previous": false,
+            "dependencies": [
+              {
+                "name": "LIVE1I",
+                "crc32": 4203863728
+              }
+            ]
+          },
+          {
+            "name": "LIVE1D",
+            "version": "11",
+            "crc32": 1721124452,
+            "bytes": 47,
+            "dependency_count": 2,
+            "active": true,
+            "previous": false,
+            "dependencies": [
+              {
+                "name": "LIVE1I",
+                "crc32": 4203863728
+              },
+              {
+                "name": "LIVE1P",
+                "crc32": 2732385733
+              }
+            ]
+          }
+        ]
+      },
+      "elapsed_ms": 74.5
+    },
+    {
+      "name": "restore-interpreter-base-and-engine",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL 10 BASE ! ENGINE DIRECT\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "elapsed_ms": 40.846
+    }
+  ],
+  "limits": [
+    "VDP replies do not prove visible or audible physical output",
+    "Boot phase changes startup only from an unconfirmed clean baseline",
+    "No flash write, ROM helper upload, image deployment or file cleanup"
+  ],
+  "port": "/dev/cu.usbserial-22430",
+  "identity": "ID 0007 REV AA STAT 18",
+  "initial_engine": "DIRECT",
+  "initial_base": 10,
+  "finished_utc": "2026-10-16T10:29:43.334296+00:00"
+}

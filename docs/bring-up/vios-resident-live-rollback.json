@@ -1,0 +1,147 @@
+{
+  "schema": 1,
+  "started_utc": "2026-10-16T10:46:20.464347+00:00",
+  "namespace": "ROLLBACK1",
+  "phases": [
+    "live-module-rollback"
+  ],
+  "status": "passed",
+  "hardware_run": true,
+  "checks": [
+    {
+      "name": "initial-v1",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL LIVE1-C . LIVE1-D . CR\r\n11 12 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          11,
+          12
+        ]
+      },
+      "elapsed_ms": 42.523
+    },
+    {
+      "name": "stage-v2",
+      "status": "passed",
+      "result": {
+        "output": "MODULE-BEGIN LIVE1P 22 LIVE1-T\r\n\r\nok\r\nvios> MODULE-DEP LIVE1I FA91DEB0\r\n\r\nok\r\nvios> MODULE-DATA 3A204C495645312D56203232203B203A204C495645312D54204C495645312D56203232203D203B2027204C495645312D56204953204C495645312D53\r\n\r\nok\r\nvios> MODULE-STAGE\r\nstaged LIVE1P crc32 4272193240\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "name": "LIVE1P",
+        "version": "22",
+        "dependencies": [
+          {
+            "name": "LIVE1I",
+            "crc32": 4203863728
+          }
+        ],
+        "bytes": 60,
+        "crc32": 4272193240,
+        "crc32_hex": "FEA47ED8",
+        "source_sha256": "ec25c4f196cc0b63e69878a087494e1f01a37a7bd9241cc902f02a550927c73a"
+      },
+      "elapsed_ms": 300.881
+    },
+    {
+      "name": "activate-v2",
+      "status": "passed",
+      "result": {
+        "output": "MODULE-ACTIVATE LIVE1P\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "elapsed_ms": 138.87
+    },
+    {
+      "name": "live-caller-and-dependent-observe-v2",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL LIVE1-C . LIVE1-D . CR\r\n22 23 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          22,
+          23
+        ]
+      },
+      "elapsed_ms": 44.738
+    },
+    {
+      "name": "strict-lifo-rollback",
+      "status": "passed",
+      "result": {
+        "output": "MODULE-ROLLBACK LIVE1P\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "elapsed_ms": 59.569
+    },
+    {
+      "name": "live-caller-and-dependent-restored-v1",
+      "status": "passed",
+      "result": {
+        "output": "DECIMAL LIVE1-C . LIVE1-D . CR\r\n11 12 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "numbers": [
+          11,
+          12
+        ]
+      },
+      "elapsed_ms": 42.98
+    },
+    {
+      "name": "exact-source-restored",
+      "status": "passed",
+      "result": {
+        "output": "MODULE-SOURCE LIVE1P\r\nsource-hex 3A204C495645312D56203131203B203A204C495645312D54204C495645312D56203131203D203B2027204C495645312D56204953204C495645312D53\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "name": "LIVE1P",
+        "previous": false,
+        "source": ": LIVE1-V 11 ; : LIVE1-T LIVE1-V 11 = ; ' LIVE1-V IS LIVE1-S",
+        "bytes": 60,
+        "crc32": 2732385733,
+        "crc32_hex": "A2DCE5C5",
+        "source_sha256": "9a9d4500a08d0d370f6ba693c4b82c166c5fc51b6d647bb0ad345313bf591758"
+      },
+      "elapsed_ms": 60.065
+    },
+    {
+      "name": "resources-restored",
+      "status": "passed",
+      "result": {
+        "output": "RESOURCES\r\nengine DIRECT words 77/128 token-bytes 312 direct-bytes 947 data-bytes 24 source-bytes 281 data-peak 2 return-peak 3\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "resources": {
+          "engine": "DIRECT",
+          "words": "77/128",
+          "token-bytes": 312,
+          "direct-bytes": 947,
+          "data-bytes": 24,
+          "source-bytes": 281,
+          "data-peak": 2,
+          "return-peak": 3
+        }
+      },
+      "elapsed_ms": 51.304
+    }
+  ],
+  "limits": [
+    "VDP replies do not prove visible or audible physical output",
+    "Boot phase changes startup only from an unconfirmed clean baseline",
+    "No flash write, ROM helper upload, image deployment or file cleanup"
+  ],
+  "sd_writes": false
+}

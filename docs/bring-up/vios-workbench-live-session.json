@@ -1,0 +1,18 @@
+{
+  "status": "running",
+  "recorded_utc": "2026-10-16T13:02:59.821034+00:00",
+  "pid": 41720,
+  "endpoint": "127.0.0.1:8765",
+  "serial": "/dev/cu.usbserial-22430",
+  "cpu_sha256": "7e47cda6905b69bcffadb77e53d02317b5a7b8af1e47c6ad049347880abc0753",
+  "resident_firmware_sha256": "e0ed0d20b2438e26e47404a152e9aeeeb98268f7c52113fcedec6854a8c845ae",
+  "workbench": "Original current WBM1P draft restored exactly; dirty, cursor0, browser MODULES selection0, browser focus, workbench CLOSED as initially found; DS0 BASE10",
+  "boot": "confirmed A, clean, generation7",
+  "stdio_mcp": [
+    "/usr/bin/nc",
+    "127.0.0.1",
+    "8765"
+  ],
+  "human_cli": ".venv/bin/python tools/vios_cli.py",
+  "log": "docs/bring-up/vios-source-rows-resident-live.serial.jsonl"
+}

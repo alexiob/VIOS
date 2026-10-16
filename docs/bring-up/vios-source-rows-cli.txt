@@ -1,0 +1,3 @@
+VIOS console — :help for commands.
+vios> workbench revision 142 catalog 159 open False draft True dirty True staged False active False saved False length 1969 cursor 0 selection 0 browser 0 focus 0 words 86 words_max 512 module WBM1P version 1.0 test  error 
+vios> 

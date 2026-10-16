@@ -1,0 +1,48 @@
+{"checkpoint": "temporary-ram-upload", "status": "running"}
+ID 0007 REV AA STAT 98
+RAM verified 72149 bytes 927658d5aae44a50403b17f17a8d7b27ff69dddb7ff171442daf02cd486e80dd
+GO 040000 USB/UART bridge 115200
+boot recovery: built-in kernel, no valid source bundle
+
+VIOS Forth 24 / Agon Light 2
+vios> {"checkpoint": "temporary-ram-upload", "status": "passed", "elapsed_ms": 66710.461}
+{"checkpoint": "attach", "status": "running"}
+{"checkpoint": "attach", "status": "passed", "elapsed_ms": 41.577}
+{"checkpoint": "paced-max-0", "status": "running"}
+{"checkpoint": "paced-max-0", "status": "passed", "elapsed_ms": 384.228}
+{"checkpoint": "paced-max-1", "status": "running"}
+{"checkpoint": "paced-max-1", "status": "passed", "elapsed_ms": 391.709}
+{"checkpoint": "paced-max-2", "status": "running"}
+{"checkpoint": "paced-max-2", "status": "passed", "elapsed_ms": 396.59}
+{"checkpoint": "paced-max-3", "status": "running"}
+{"checkpoint": "paced-max-3", "status": "passed", "elapsed_ms": 391.905}
+{"checkpoint": "paced-max-4", "status": "running"}
+{"checkpoint": "paced-max-4", "status": "passed", "elapsed_ms": 404.493}
+{"checkpoint": "burst-max-0", "status": "running"}
+{"checkpoint": "burst-max-0", "status": "passed", "elapsed_ms": 15076.603}
+{"checkpoint": "burst-max-1", "status": "running"}
+{"checkpoint": "burst-max-1", "status": "failed", "elapsed_ms": 0.103}
+Traceback (most recent call last):
+  File "/tmp/vios-rx-discriminant.py", line 28, in <module>
+    for i in range(3):r.check('burst-max-'+str(i),lambda:b.evaluate('DECIMAL 123 456 + . CR'.ljust(235)))
+                      ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/tools/vios_resident_acceptance.py", line 135, in check
+    result = action()
+  File "/tmp/vios-rx-discriminant.py", line 28, in <lambda>
+    for i in range(3):r.check('burst-max-'+str(i),lambda:b.evaluate('DECIMAL 123 456 + . CR'.ljust(235)))
+                                                         ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/tools/vios_board.py", line 163, in evaluate
+    raise RuntimeError('Board must be deployed, running and synchronized; await pending work or redeploy')
+RuntimeError: Board must be deployed, running and synchronized; await pending work or redeploy
+Traceback (most recent call last):
+  File "/tmp/vios-rx-discriminant.py", line 28, in <module>
+    for i in range(3):r.check('burst-max-'+str(i),lambda:b.evaluate('DECIMAL 123 456 + . CR'.ljust(235)))
+                      ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/tools/vios_resident_acceptance.py", line 135, in check
+    result = action()
+  File "/tmp/vios-rx-discriminant.py", line 28, in <lambda>
+    for i in range(3):r.check('burst-max-'+str(i),lambda:b.evaluate('DECIMAL 123 456 + . CR'.ljust(235)))
+                                                         ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/tools/vios_board.py", line 163, in evaluate
+    raise RuntimeError('Board must be deployed, running and synchronized; await pending work or redeploy')
+RuntimeError: Board must be deployed, running and synchronized; await pending work or redeploy

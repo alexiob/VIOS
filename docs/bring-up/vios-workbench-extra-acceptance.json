@@ -1,0 +1,540 @@
+{
+  "status": "passed",
+  "started_unix": 1792150386.34129,
+  "checks": [
+    {
+      "name": "typed_workbench_tools",
+      "result": [
+        "connect",
+        "reboot",
+        "module_stage",
+        "module_activate",
+        "module_discard",
+        "module_rollback",
+        "modules",
+        "module_source",
+        "module_save",
+        "module_load",
+        "load",
+        "boot_status",
+        "boot_trial",
+        "boot_confirm",
+        "boot_revert",
+        "deploy",
+        "evaluate",
+        "await_result",
+        "console_input",
+        "words",
+        "inspect_word",
+        "stacks",
+        "resources",
+        "benchmark",
+        "abort",
+        "debug_registers",
+        "memory_read",
+        "memory_write",
+        "resume",
+        "wb_status",
+        "wb_open",
+        "wb_close",
+        "wb_browse",
+        "wb_select",
+        "wb_edit",
+        "wb_new",
+        "wb_patch",
+        "wb_undo",
+        "wb_metadata",
+        "wb_stage",
+        "wb_activate",
+        "wb_save",
+        "wb_source",
+        "wb_view",
+        "wb_key",
+        "wb_redraw",
+        "wb_flush",
+        "wb_render_stats"
+      ],
+      "passed": true
+    },
+    {
+      "name": "boot_selection_before",
+      "result": {
+        "confirmed": "A",
+        "candidate": "NONE",
+        "state": "CLEAN",
+        "current": "A",
+        "generation": 7
+      },
+      "passed": true
+    },
+    {
+      "name": "owned_fixture",
+      "result": {
+        "revision": 33,
+        "catalog": 155,
+        "open": false,
+        "draft": true,
+        "dirty": false,
+        "staged": false,
+        "active": true,
+        "saved": true,
+        "length": 1969,
+        "cursor": 0,
+        "selection": 1,
+        "browser": 1,
+        "focus": 1,
+        "words": 82,
+        "words_max": 512,
+        "module": "WBM1P",
+        "version": "1.0",
+        "test": "",
+        "error": ""
+      },
+      "passed": true
+    },
+    {
+      "name": "typed_exact_source",
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 34 catalog 155 open 0 draft 1 dirty 0 staged 0 active 1 saved 0 length 1969 cursor 0 selection 1 browser 1 focus 1 words 82 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> WB-SOURCE 0 80\r\nWB-SOURCE revision 34 offset 0 total 1969 hex 3A2057424D31502D56414C5545203138203B0A5C2057424D315020736F7572636520726F772030302072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F7720303120\r\n\r\nok\r\nvios> WB-SOURCE 80 80\r\nWB-SOURCE revision 34 offset 80 total 1969 hex 72657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772030322072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F77203033207265\r\n\r\nok\r\nvios> WB-SOURCE 160 80\r\nWB-SOURCE revision 34 offset 160 total 1969 hex 7461696E65642065786163746C790A5C2057424D315020736F7572636520726F772030342072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772030352072657461\r\n\r\nok\r\nvios> WB-SOURCE 240 80\r\nWB-SOURCE revision 34 offset 240 total 1969 hex 696E65642065786163746C790A5C2057424D315020736F7572636520726F772030362072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772030372072657461696E\r\n\r\nok\r\nvios> WB-SOURCE 320 80\r\nWB-SOURCE revision 34 offset 320 total 1969 hex 65642065786163746C790A5C2057424D315020736F7572636520726F772030382072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772030392072657461696E6564\r\n\r\nok\r\nvios> WB-SOURCE 400 80\r\nWB-SOURCE revision 34 offset 400 total 1969 hex 2065786163746C790A5C2057424D315020736F7572636520726F772031302072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772031312072657461696E65642065\r\n\r\nok\r\nvios> WB-SOURCE 480 80\r\nWB-SOURCE revision 34 offset 480 total 1969 hex 786163746C790A5C2057424D315020736F7572636520726F772031322072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772031332072657461696E656420657861\r\n\r\nok\r\nvios> WB-SOURCE 560 80\r\nWB-SOURCE revision 34 offset 560 total 1969 hex 63746C790A5C2057424D315020736F7572636520726F772031342072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772031352072657461696E6564206578616374\r\n\r\nok\r\nvios> WB-SOURCE 640 80\r\nWB-SOURCE revision 34 offset 640 total 1969 hex 6C790A5C2057424D315020736F7572636520726F772031362072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772031372072657461696E65642065786163746C79\r\n\r\nok\r\nvios> WB-SOURCE 720 80\r\nWB-SOURCE revision 34 offset 720 total 1969 hex 0A5C2057424D315020736F7572636520726F772031382072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772031392072657461696E65642065786163746C790A5C\r\n\r\nok\r\nvios> WB-SOURCE 800 80\r\nWB-SOURCE revision 34 offset 800 total 1969 hex 2057424D315020736F7572636520726F772032302072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772032312072657461696E65642065786163746C790A5C2057\r\n\r\nok\r\nvios> WB-SOURCE 880 80\r\nWB-SOURCE revision 34 offset 880 total 1969 hex 424D315020736F7572636520726F772032322072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772032332072657461696E65642065786163746C790A5C2057424D\r\n\r\nok\r\nvios> WB-SOURCE 960 80\r\nWB-SOURCE revision 34 offset 960 total 1969 hex 315020736F7572636520726F772032342072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772032352072657461696E65642065786163746C790A5C2057424D3150\r\n\r\nok\r\nvios> WB-SOURCE 1040 80\r\nWB-SOURCE revision 34 offset 1040 total 1969 hex 20736F7572636520726F772032362072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772032372072657461696E65642065786163746C790A5C2057424D31502073\r\n\r\nok\r\nvios> WB-SOURCE 1120 80\r\nWB-SOURCE revision 34 offset 1120 total 1969 hex 6F7572636520726F772032382072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772032392072657461696E65642065786163746C790A5C2057424D315020736F75\r\n\r\nok\r\nvios> WB-SOURCE 1200 80\r\nWB-SOURCE revision 34 offset 1200 total 1969 hex 72636520726F772033302072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772033312072657461696E65642065786163746C790A5C2057424D315020736F757263\r\n\r\nok\r\nvios> WB-SOURCE 1280 80\r\nWB-SOURCE revision 34 offset 1280 total 1969 hex 6520726F772033322072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772033332072657461696E65642065786163746C790A5C2057424D315020736F7572636520\r\n\r\nok\r\nvios> WB-SOURCE 1360 80\r\nWB-SOURCE revision 34 offset 1360 total 1969 hex 726F772033342072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772033352072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F\r\n\r\nok\r\nvios> WB-SOURCE 1440 80\r\nWB-SOURCE revision 34 offset 1440 total 1969 hex 772033362072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772033372072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F7720\r\n\r\nok\r\nvios> WB-SOURCE 1520 80\r\nWB-SOURCE revision 34 offset 1520 total 1969 hex 33382072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772033392072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F77203430\r\n\r\nok\r\nvios> WB-SOURCE 1600 80\r\nWB-SOURCE revision 34 offset 1600 total 1969 hex 2072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772034312072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772034322072\r\n\r\nok\r\nvios> WB-SOURCE 1680 80\r\nWB-SOURCE revision 34 offset 1680 total 1969 hex 657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772034332072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F7720343420726574\r\n\r\nok\r\nvios> WB-SOURCE 1760 80\r\nWB-SOURCE revision 34 offset 1760 total 1969 hex 61696E65642065786163746C790A5C2057424D315020736F7572636520726F772034352072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F77203436207265746169\r\n\r\nok\r\nvios> WB-SOURCE 1840 80\r\nWB-SOURCE revision 34 offset 1840 total 1969 hex 6E65642065786163746C790A5C2057424D315020736F7572636520726F772034372072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772034382072657461696E65\r\n\r\nok\r\nvios> WB-SOURCE 1920 49\r\nWB-SOURCE revision 34 offset 1920 total 1969 hex 642065786163746C790A5C2057424D315020736F7572636520726F772034392072657461696E65642065786163746C790A\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 34,
+          "catalog": 155,
+          "open": false,
+          "draft": true,
+          "dirty": false,
+          "staged": false,
+          "active": true,
+          "saved": false,
+          "length": 1969,
+          "cursor": 0,
+          "selection": 1,
+          "browser": 1,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBM1P",
+          "version": "1.0",
+          "test": "",
+          "error": ""
+        },
+        "source": ": WBM1P-VALUE 18 ;\n\\ WBM1P source row 00 retained exactly\n\\ WBM1P source row 01 retained exactly\n\\ WBM1P source row 02 retained exactly\n\\ WBM1P source row 03 retained exactly\n\\ WBM1P source row 04 retained exactly\n\\ WBM1P source row 05 retained exactly\n\\ WBM1P source row 06 retained exactly\n\\ WBM1P source row 07 retained exactly\n\\ WBM1P source row 08 retained exactly\n\\ WBM1P source row 09 retained exactly\n\\ WBM1P source row 10 retained exactly\n\\ WBM1P source row 11 retained exactly\n\\ WBM1P source row 12 retained exactly\n\\ WBM1P source row 13 retained exactly\n\\ WBM1P source row 14 retained exactly\n\\ WBM1P source row 15 retained exactly\n\\ WBM1P source row 16 retained exactly\n\\ WBM1P source row 17 retained exactly\n\\ WBM1P source row 18 retained exactly\n\\ WBM1P source row 19 retained exactly\n\\ WBM1P source row 20 retained exactly\n\\ WBM1P source row 21 retained exactly\n\\ WBM1P source row 22 retained exactly\n\\ WBM1P source row 23 retained exactly\n\\ WBM1P source row 24 retained exactly\n\\ WBM1P source row 25 retained exactly\n\\ WBM1P source row 26 retained exactly\n\\ WBM1P source row 27 retained exactly\n\\ WBM1P source row 28 retained exactly\n\\ WBM1P source row 29 retained exactly\n\\ WBM1P source row 30 retained exactly\n\\ WBM1P source row 31 retained exactly\n\\ WBM1P source row 32 retained exactly\n\\ WBM1P source row 33 retained exactly\n\\ WBM1P source row 34 retained exactly\n\\ WBM1P source row 35 retained exactly\n\\ WBM1P source row 36 retained exactly\n\\ WBM1P source row 37 retained exactly\n\\ WBM1P source row 38 retained exactly\n\\ WBM1P source row 39 retained exactly\n\\ WBM1P source row 40 retained exactly\n\\ WBM1P source row 41 retained exactly\n\\ WBM1P source row 42 retained exactly\n\\ WBM1P source row 43 retained exactly\n\\ WBM1P source row 44 retained exactly\n\\ WBM1P source row 45 retained exactly\n\\ WBM1P source row 46 retained exactly\n\\ WBM1P source row 47 retained exactly\n\\ WBM1P source row 48 retained exactly\n\\ WBM1P source row 49 retained exactly\n",
+        "revision": 34,
+        "bytes": 1969,
+        "crc32": 3627393478,
+        "crc32_hex": "D835A1C6",
+        "source_sha256": "3e9f894e2ed2e81c86c003c88cf04417b9ab309a0a21b4af2346085bd58399f9"
+      },
+      "passed": true
+    },
+    {
+      "name": "guarded_save",
+      "result": {
+        "output": "WB-SAVE 34\r\nWB-STATUS revision 34 catalog 155 open 0 draft 1 dirty 0 staged 0 active 1 saved 1 length 1969 cursor 0 selection 1 browser 1 focus 1 words 82 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 34,
+          "catalog": 155,
+          "open": false,
+          "draft": true,
+          "dirty": false,
+          "staged": false,
+          "active": true,
+          "saved": true,
+          "length": 1969,
+          "cursor": 0,
+          "selection": 1,
+          "browser": 1,
+          "focus": 1,
+          "words": 82,
+          "words_max": 512,
+          "module": "WBM1P",
+          "version": "1.0",
+          "test": "",
+          "error": ""
+        }
+      },
+      "passed": true
+    },
+    {
+      "name": "saved_package_path",
+      "result": [
+        "/VIOS/A8783CA5/203C0319.VIM"
+      ],
+      "passed": true
+    },
+    {
+      "name": "compose_ticks_16bit_interval",
+      "result": [
+        50416,
+        50417,
+        50417,
+        50416,
+        50416,
+        50416,
+        50398,
+        50416,
+        50416
+      ],
+      "passed": true
+    },
+    {
+      "name": "compose_32bit_clock_crosscheck",
+      "result": {
+        "elapsed_ms": 177,
+        "result": {
+          "output": "MILLIS2 WB-VIEW 0 0 MILLIS2 . . . . CR\r\n0 282219 0 282042 \r\n\r\nok\r\nvios> ",
+          "ok": true,
+          "compiling": false,
+          "pending": false
+        }
+      },
+      "passed": true
+    },
+    {
+      "name": "vm_benchmark_while_workbench_open",
+      "result": {
+        "output": "BENCH\r\nBENCH VIOS checked24+peaks timer_hz=288000 wrap_ticks=65536 samples=9\r\nTIMER read-pair-ticks=1\r\nEMPTY engine=0 median=66\r\nSAMPLE engine=0 word=BM-ARITH n=25 result=3 ticks=2882,2882,2882,2882,2882,2882,2882,2882,2882 median=2882\r\nSAMPLE engine=0 word=BM-ARITH n=50 result=0 ticks=5634,5634,5634,5634,5634,5634,5634,5634,5634 median=5634\r\nSAMPLE engine=0 word=BM-ARITH n=100 result=0 ticks=11138,11138,11138,11138,11138,11138,11137,11138,11138 median=11138\r\nSAMPLE engine=0 word=BM-CALL n=25 result=75 ticks=1999,1999,1999,1999,1999,1999,1999,1999,1999 median=1999\r\nSAMPLE engine=0 word=BM-CALL n=50 result=150 ticks=3873,3873,3873,3873,3873,3873,3873,3872,3873 median=3873\r\nSAMPLE engine=0 word=BM-CALL n=100 result=300 ticks=7620,7620,7620,7620,7620,7620,7620,7620,7620 median=7620\r\nSAMPLE engine=0 word=BM-BRANCH n=25 result=49 ticks=3062,3063,3062,3062,3063,3062,3062,3063,3062 median=3062\r\nSAMPLE engine=0 word=BM-BRANCH n=50 result=100 ticks=6004,6003,6003,6003,6003,6003,6003,6003,6004 median=6003\r\nSAMPLE engine=0 word=BM-BRANCH n=100 result=200 ticks=11872,11872,11872,11872,11872,11872,11872,11872,11872 median=11872\r\nSAMPLE engine=0 word=BM-LOOP n=25 result=300 ticks=1238,1238,1238,1238,1238,1238,1239,1239,1239 median=1238\r\nSAMPLE engine=0 word=BM-LOOP n=50 result=1225 ticks=2352,2352,2352,2351,2352,2352,2352,2352,2351 median=2352\r\nSAMPLE engine=0 word=BM-LOOP n=100 result=4950 ticks=4579,4579,4578,4578,4579,4579,4578,4578,4579 median=4579\r\nSAMPLE engine=0 word=BM-MEM n=25 result=25 ticks=3189,3189,3189,3188,3188,3188,3188,3189,3189 median=3189\r\nSAMPLE engine=0 word=BM-MEM n=50 result=50 ticks=6197,6197,6197,6197,6197,6197,6197,6197,6197 median=6197\r\nSAMPLE engine=0 word=BM-MEM n=100 result=100 ticks=12213,12213,12213,12213,12213,12213,12214,12213,12213 median=12213\r\nEMPTY engine=1 median=62\r\nSAMPLE engine=1 word=BM-ARITH n=25 result=3 ticks=670,669,669,669,670,670,669,669,669 median=669\r\nSAMPLE engine=1 word=BM-ARITH n=50 result=0 ticks=1264,1264,1265,1265,1265,1265,1265,1265,1265 median=1265\r\nSAMPLE engine=1 word=BM-ARITH n=100 result=0 ticks=2455,2456,2455,2455,2456,2456,2455,2455,2456 median=2455\r\nSAMPLE engine=1 word=BM-CALL n=25 result=75 ticks=487,486,486,486,486,487,487,487,486 median=486\r\nSAMPLE engine=1 word=BM-CALL n=50 result=150 ticks=904,904,904,904,904,904,904,904,904 median=904\r\nSAMPLE engine=1 word=BM-CALL n=100 result=300 ticks=1738,1738,1738,1738,1738,1738,1738,1738,1738 median=1738\r\nSAMPLE engine=1 word=BM-BRANCH n=25 result=49 ticks=650,650,650,650,650,649,650,650,650 median=650\r\nSAMPLE engine=1 word=BM-BRANCH n=50 result=100 ticks=1222,1222,1222,1222,1222,1222,1222,1222,1222 median=1222\r\nSAMPLE engine=1 word=BM-BRANCH n=100 result=200 ticks=2365,2365,2365,2364,2365,2365,2365,2364,2365 median=2365\r\nSAMPLE engine=1 word=BM-LOOP n=25 result=300 ticks=351,351,351,351,350,351,351,351,351 median=351\r\nSAMPLE engine=1 word=BM-LOOP n=50 result=1225 ticks=632,632,632,632,632,632,633,633,633 median=632\r\nSAMPLE engine=1 word=BM-LOOP n=100 result=4950 ticks=1195,1196,1196,1196,1196,1195,1196,1196,1196 median=1196\r\nSAMPLE engine=1 word=BM-MEM n=25 result=25 ticks=631,631,631,630,630,630,631,631,631 median=631\r\nSAMPLE engine=1 word=BM-MEM n=50 result=50 ticks=1187,1187,1187,1188,1187,1187,1188,1188,1187 median=1187\r\nSAMPLE engine=1 word=BM-MEM n=100 result=100 ticks=2300,2300,2300,2300,2300,2300,2300,2300,2300 median=2300\r\nEMPTY engine=2 median=62\r\nSAMPLE engine=2 word=BM-ARITH n=25 result=3 ticks=591,591,591,591,591,591,591,591,591 median=591\r\nSAMPLE engine=2 word=BM-ARITH n=50 result=0 ticks=1110,1109,1109,1109,1109,1110,1110,1110,1110 median=1110\r\nSAMPLE engine=2 word=BM-ARITH n=100 result=0 ticks=2147,2147,2147,2147,2148,2147,2147,2147,2147 median=2147\r\nSAMPLE engine=2 word=BM-CALL n=25 result=75 ticks=426,426,426,426,426,426,426,426,426 median=426\r\nSAMPLE engine=2 word=BM-CALL n=50 result=150 ticks=784,784,784,784,784,783,784,784,784 median=784\r\nSAMPLE engine=2 word=BM-CALL n=100 result=300 ticks=1500,1500,1500,1501,1500,1500,1500,1500,1500 median=1500\r\nSAMPLE engine=2 word=BM-BRANCH n=25 result=49 ticks=566,567,566,566,566,566,566,566,567 median=566\r\nSAMPLE engine=2 word=BM-BRANCH n=50 result=100 ticks=1056,1055,1056,1056,1056,1056,1056,1056,1056 median=1056\r\nSAMPLE engine=2 word=BM-BRANCH n=100 result=200 ticks=2035,2035,2035,2035,2035,2035,2034,2035,2035 median=2035\r\nSAMPLE engine=2 word=BM-LOOP n=25 result=300 ticks=317,316,316,316,316,316,316,317,316 median=316\r\nSAMPLE engine=2 word=BM-LOOP n=50 result=1225 ticks=565,565,565,565,565,565,565,565,565 median=565\r\nSAMPLE engine=2 word=BM-LOOP n=100 result=4950 ticks=1063,1063,1063,1063,1063,1063,1063,1063,1062 median=1063\r\nSAMPLE engine=2 word=BM-MEM n=25 result=25 ticks=551,551,550,551,551,551,551,551,551 median=551\r\nSAMPLE engine=2 word=BM-MEM n=50 result=50 ticks=1031,1031,1031,1031,1031,1031,1031,1031,1031 median=1031\r\nSAMPLE engine=2 word=BM-MEM n=100 result=100 ticks=1991,1991,1991,1991,1992,1991,1992,1991,1991 median=1991\r\nCOMPILE chars=39 ticks=993\r\nCODE token-bytes=517 direct-bytes=1366\r\nBENCH DONE\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "passed": true
+    },
+    {
+      "name": "50_maximum_source_requests_during_repaints",
+      "result": {
+        "trials": [
+          {
+            "trial": 0,
+            "ok": true
+          },
+          {
+            "trial": 1,
+            "ok": true
+          },
+          {
+            "trial": 2,
+            "ok": true
+          },
+          {
+            "trial": 3,
+            "ok": true
+          },
+          {
+            "trial": 4,
+            "ok": true
+          },
+          {
+            "trial": 5,
+            "ok": true
+          },
+          {
+            "trial": 6,
+            "ok": true
+          },
+          {
+            "trial": 7,
+            "ok": true
+          },
+          {
+            "trial": 8,
+            "ok": true
+          },
+          {
+            "trial": 9,
+            "ok": true
+          },
+          {
+            "trial": 10,
+            "ok": true
+          },
+          {
+            "trial": 11,
+            "ok": true
+          },
+          {
+            "trial": 12,
+            "ok": true
+          },
+          {
+            "trial": 13,
+            "ok": true
+          },
+          {
+            "trial": 14,
+            "ok": true
+          },
+          {
+            "trial": 15,
+            "ok": true
+          },
+          {
+            "trial": 16,
+            "ok": true
+          },
+          {
+            "trial": 17,
+            "ok": true
+          },
+          {
+            "trial": 18,
+            "ok": true
+          },
+          {
+            "trial": 19,
+            "ok": true
+          },
+          {
+            "trial": 20,
+            "ok": true
+          },
+          {
+            "trial": 21,
+            "ok": true
+          },
+          {
+            "trial": 22,
+            "ok": true
+          },
+          {
+            "trial": 23,
+            "ok": true
+          },
+          {
+            "trial": 24,
+            "ok": true
+          },
+          {
+            "trial": 25,
+            "ok": true
+          },
+          {
+            "trial": 26,
+            "ok": true
+          },
+          {
+            "trial": 27,
+            "ok": true
+          },
+          {
+            "trial": 28,
+            "ok": true
+          },
+          {
+            "trial": 29,
+            "ok": true
+          },
+          {
+            "trial": 30,
+            "ok": true
+          },
+          {
+            "trial": 31,
+            "ok": true
+          },
+          {
+            "trial": 32,
+            "ok": true
+          },
+          {
+            "trial": 33,
+            "ok": true
+          },
+          {
+            "trial": 34,
+            "ok": true
+          },
+          {
+            "trial": 35,
+            "ok": true
+          },
+          {
+            "trial": 36,
+            "ok": true
+          },
+          {
+            "trial": 37,
+            "ok": true
+          },
+          {
+            "trial": 38,
+            "ok": true
+          },
+          {
+            "trial": 39,
+            "ok": true
+          },
+          {
+            "trial": 40,
+            "ok": true
+          },
+          {
+            "trial": 41,
+            "ok": true
+          },
+          {
+            "trial": 42,
+            "ok": true
+          },
+          {
+            "trial": 43,
+            "ok": true
+          },
+          {
+            "trial": 44,
+            "ok": true
+          },
+          {
+            "trial": 45,
+            "ok": true
+          },
+          {
+            "trial": 46,
+            "ok": true
+          },
+          {
+            "trial": 47,
+            "ok": true
+          },
+          {
+            "trial": 48,
+            "ok": true
+          },
+          {
+            "trial": 49,
+            "ok": true
+          }
+        ],
+        "vdp": {
+          "output": "VDP-INFO\r\nvdp width 640 height 480 colours 4 mode 1 console-dropped 0\r\n\r\nok\r\nvios> ",
+          "ok": true,
+          "compiling": false,
+          "pending": false
+        }
+      },
+      "passed": true
+    },
+    {
+      "name": "hardware_dictionary_over_255",
+      "result": {
+        "output": "RESOURCES\r\nengine DIRECT words 391/512 token-bytes 2017 direct-bytes 5266 data-bytes 30 source-bytes 5626 data-peak 6 return-peak 1\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "resources": {
+          "engine": "DIRECT",
+          "words": "391/512",
+          "token-bytes": 2017,
+          "direct-bytes": 5266,
+          "data-bytes": 30,
+          "source-bytes": 5626,
+          "data-peak": 6,
+          "return-peak": 1
+        }
+      },
+      "passed": true
+    },
+    {
+      "name": "high_xt_C",
+      "result": {
+        "output": "ENGINE C ' WBCAP299 EXECUTE . CR\r\n299 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "passed": true
+    },
+    {
+      "name": "high_xt_TOKEN",
+      "result": {
+        "output": "ENGINE TOKEN ' WBCAP299 EXECUTE . CR\r\n299 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "passed": true
+    },
+    {
+      "name": "high_xt_DIRECT",
+      "result": {
+        "output": "ENGINE DIRECT ' WBCAP299 EXECUTE . CR\r\n299 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      },
+      "passed": true
+    },
+    {
+      "name": "typed_large_word_browser",
+      "result": {
+        "count": 391
+      },
+      "passed": true
+    },
+    {
+      "name": "typed_full_view_batched_shared_owner",
+      "passed": true,
+      "result": {
+        "rows": 60,
+        "host_elapsed_seconds": 3.1883132079965435,
+        "workbench": {
+          "revision": 36,
+          "catalog": 464,
+          "open": true,
+          "draft": true,
+          "dirty": false,
+          "staged": false,
+          "active": true,
+          "saved": false,
+          "length": 1969,
+          "cursor": 0,
+          "selection": 3,
+          "browser": 0,
+          "focus": 0,
+          "words": 391,
+          "words_max": 512,
+          "module": "WBM1P",
+          "version": "1.0",
+          "test": "",
+          "error": "draft must be staged at this revision"
+        }
+      }
+    },
+    {
+      "name": "boot_selection_preserved",
+      "passed": true,
+      "result": {
+        "confirmed": "A",
+        "candidate": "NONE",
+        "state": "CLEAN",
+        "current": "A",
+        "generation": 7
+      }
+    },
+    {
+      "name": "startup_values_zero_drops",
+      "passed": true,
+      "result": {
+        "output": "VDP-INFO LIVE1-C . LIVE1-D . CR\r\nvdp width 640 height 480 colours 4 mode 1 console-dropped 0\r\n11 12 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    }
+  ],
+  "saved_package": "/VIOS/A8783CA5/203C0319.VIM",
+  "compose_timer_hz": 288000,
+  "vm_benchmark": {
+    "output": "BENCH\r\nBENCH VIOS checked24+peaks timer_hz=288000 wrap_ticks=65536 samples=9\r\nTIMER read-pair-ticks=1\r\nEMPTY engine=0 median=66\r\nSAMPLE engine=0 word=BM-ARITH n=25 result=3 ticks=2882,2882,2882,2882,2882,2882,2882,2882,2882 median=2882\r\nSAMPLE engine=0 word=BM-ARITH n=50 result=0 ticks=5634,5634,5634,5634,5634,5634,5634,5634,5634 median=5634\r\nSAMPLE engine=0 word=BM-ARITH n=100 result=0 ticks=11138,11138,11138,11138,11138,11138,11137,11138,11138 median=11138\r\nSAMPLE engine=0 word=BM-CALL n=25 result=75 ticks=1999,1999,1999,1999,1999,1999,1999,1999,1999 median=1999\r\nSAMPLE engine=0 word=BM-CALL n=50 result=150 ticks=3873,3873,3873,3873,3873,3873,3873,3872,3873 median=3873\r\nSAMPLE engine=0 word=BM-CALL n=100 result=300 ticks=7620,7620,7620,7620,7620,7620,7620,7620,7620 median=7620\r\nSAMPLE engine=0 word=BM-BRANCH n=25 result=49 ticks=3062,3063,3062,3062,3063,3062,3062,3063,3062 median=3062\r\nSAMPLE engine=0 word=BM-BRANCH n=50 result=100 ticks=6004,6003,6003,6003,6003,6003,6003,6003,6004 median=6003\r\nSAMPLE engine=0 word=BM-BRANCH n=100 result=200 ticks=11872,11872,11872,11872,11872,11872,11872,11872,11872 median=11872\r\nSAMPLE engine=0 word=BM-LOOP n=25 result=300 ticks=1238,1238,1238,1238,1238,1238,1239,1239,1239 median=1238\r\nSAMPLE engine=0 word=BM-LOOP n=50 result=1225 ticks=2352,2352,2352,2351,2352,2352,2352,2352,2351 median=2352\r\nSAMPLE engine=0 word=BM-LOOP n=100 result=4950 ticks=4579,4579,4578,4578,4579,4579,4578,4578,4579 median=4579\r\nSAMPLE engine=0 word=BM-MEM n=25 result=25 ticks=3189,3189,3189,3188,3188,3188,3188,3189,3189 median=3189\r\nSAMPLE engine=0 word=BM-MEM n=50 result=50 ticks=6197,6197,6197,6197,6197,6197,6197,6197,6197 median=6197\r\nSAMPLE engine=0 word=BM-MEM n=100 result=100 ticks=12213,12213,12213,12213,12213,12213,12214,12213,12213 median=12213\r\nEMPTY engine=1 median=62\r\nSAMPLE engine=1 word=BM-ARITH n=25 result=3 ticks=670,669,669,669,670,670,669,669,669 median=669\r\nSAMPLE engine=1 word=BM-ARITH n=50 result=0 ticks=1264,1264,1265,1265,1265,1265,1265,1265,1265 median=1265\r\nSAMPLE engine=1 word=BM-ARITH n=100 result=0 ticks=2455,2456,2455,2455,2456,2456,2455,2455,2456 median=2455\r\nSAMPLE engine=1 word=BM-CALL n=25 result=75 ticks=487,486,486,486,486,487,487,487,486 median=486\r\nSAMPLE engine=1 word=BM-CALL n=50 result=150 ticks=904,904,904,904,904,904,904,904,904 median=904\r\nSAMPLE engine=1 word=BM-CALL n=100 result=300 ticks=1738,1738,1738,1738,1738,1738,1738,1738,1738 median=1738\r\nSAMPLE engine=1 word=BM-BRANCH n=25 result=49 ticks=650,650,650,650,650,649,650,650,650 median=650\r\nSAMPLE engine=1 word=BM-BRANCH n=50 result=100 ticks=1222,1222,1222,1222,1222,1222,1222,1222,1222 median=1222\r\nSAMPLE engine=1 word=BM-BRANCH n=100 result=200 ticks=2365,2365,2365,2364,2365,2365,2365,2364,2365 median=2365\r\nSAMPLE engine=1 word=BM-LOOP n=25 result=300 ticks=351,351,351,351,350,351,351,351,351 median=351\r\nSAMPLE engine=1 word=BM-LOOP n=50 result=1225 ticks=632,632,632,632,632,632,633,633,633 median=632\r\nSAMPLE engine=1 word=BM-LOOP n=100 result=4950 ticks=1195,1196,1196,1196,1196,1195,1196,1196,1196 median=1196\r\nSAMPLE engine=1 word=BM-MEM n=25 result=25 ticks=631,631,631,630,630,630,631,631,631 median=631\r\nSAMPLE engine=1 word=BM-MEM n=50 result=50 ticks=1187,1187,1187,1188,1187,1187,1188,1188,1187 median=1187\r\nSAMPLE engine=1 word=BM-MEM n=100 result=100 ticks=2300,2300,2300,2300,2300,2300,2300,2300,2300 median=2300\r\nEMPTY engine=2 median=62\r\nSAMPLE engine=2 word=BM-ARITH n=25 result=3 ticks=591,591,591,591,591,591,591,591,591 median=591\r\nSAMPLE engine=2 word=BM-ARITH n=50 result=0 ticks=1110,1109,1109,1109,1109,1110,1110,1110,1110 median=1110\r\nSAMPLE engine=2 word=BM-ARITH n=100 result=0 ticks=2147,2147,2147,2147,2148,2147,2147,2147,2147 median=2147\r\nSAMPLE engine=2 word=BM-CALL n=25 result=75 ticks=426,426,426,426,426,426,426,426,426 median=426\r\nSAMPLE engine=2 word=BM-CALL n=50 result=150 ticks=784,784,784,784,784,783,784,784,784 median=784\r\nSAMPLE engine=2 word=BM-CALL n=100 result=300 ticks=1500,1500,1500,1501,1500,1500,1500,1500,1500 median=1500\r\nSAMPLE engine=2 word=BM-BRANCH n=25 result=49 ticks=566,567,566,566,566,566,566,566,567 median=566\r\nSAMPLE engine=2 word=BM-BRANCH n=50 result=100 ticks=1056,1055,1056,1056,1056,1056,1056,1056,1056 median=1056\r\nSAMPLE engine=2 word=BM-BRANCH n=100 result=200 ticks=2035,2035,2035,2035,2035,2035,2034,2035,2035 median=2035\r\nSAMPLE engine=2 word=BM-LOOP n=25 result=300 ticks=317,316,316,316,316,316,316,317,316 median=316\r\nSAMPLE engine=2 word=BM-LOOP n=50 result=1225 ticks=565,565,565,565,565,565,565,565,565 median=565\r\nSAMPLE engine=2 word=BM-LOOP n=100 result=4950 ticks=1063,1063,1063,1063,1063,1063,1063,1063,1062 median=1063\r\nSAMPLE engine=2 word=BM-MEM n=25 result=25 ticks=551,551,550,551,551,551,551,551,551 median=551\r\nSAMPLE engine=2 word=BM-MEM n=50 result=50 ticks=1031,1031,1031,1031,1031,1031,1031,1031,1031 median=1031\r\nSAMPLE engine=2 word=BM-MEM n=100 result=100 ticks=1991,1991,1991,1991,1992,1991,1992,1991,1991 median=1991\r\nCOMPILE chars=39 ticks=993\r\nCODE token-bytes=517 direct-bytes=1366\r\nBENCH DONE\r\n\r\nok\r\nvios> ",
+    "ok": true,
+    "compiling": false,
+    "pending": false
+  },
+  "finished_unix": 1792150467.754858,
+  "earlier_view_conflict": "Workbench view changed during read"
+}

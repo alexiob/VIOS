@@ -1,0 +1,8 @@
+AGONDEV="/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev" PYTHON="/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.venv/bin/python" tools/verification/forth-engine/check.sh
+   text	   data	    bss	    dec	    hex	filename
+   1305	      0	      3	   1308	    51c	build/verification/forth-engine/direct.o
+   1311	      0	      3	   1314	    522	build/verification/forth-engine/token.o
+PASS: 108 linked-disassembly execution probes across token/direct, including DOCOL and IX/IY/SP preservation
+PASS: 136 total linked-disassembly execution probes, including wrap/nested loops, corrupt-depth rejection, and trap resumption
+PASS: 142 total probes, including transient/nested high-water counters and monotonic peak preservation
+PASS: 146 total probes, including native service operand/trap/resume

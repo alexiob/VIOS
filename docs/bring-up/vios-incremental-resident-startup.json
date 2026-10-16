@@ -1,0 +1,46 @@
+{
+  "connect": {
+    "output": "boot confirmed A\r\n\r\nVIOS Forth 24 / Agon Light 2\r\nvios> @F01FB04C !00000000 \r\n\r\nok\r\nvios> ",
+    "ok": true,
+    "compiling": false,
+    "pending": false,
+    "connected": true,
+    "identity": "ID 0007 REV AA STAT 18"
+  },
+  "boot": {
+    "output": "BOOT-STATUS\r\nboot confirmed A candidate NONE state CLEAN current A generation 7\r\n\r\nok\r\nvios> ",
+    "ok": true,
+    "compiling": false,
+    "pending": false,
+    "boot": {
+      "confirmed": "A",
+      "candidate": "NONE",
+      "state": "CLEAN",
+      "current": "A",
+      "generation": 7
+    }
+  },
+  "startup_values": {
+    "output": "LIVE1-C . LIVE1-D . CR\r\n11 12 \r\n\r\nok\r\nvios> ",
+    "ok": true,
+    "compiling": false,
+    "pending": false
+  },
+  "resources": {
+    "output": "RESOURCES\r\nengine DIRECT words 80/512 token-bytes 327 direct-bytes 986 data-bytes 27 source-bytes 281 data-peak 2 return-peak 3\r\n\r\nok\r\nvios> ",
+    "ok": true,
+    "compiling": false,
+    "pending": false,
+    "resources": {
+      "engine": "DIRECT",
+      "words": "80/512",
+      "token-bytes": 327,
+      "direct-bytes": 986,
+      "data-bytes": 27,
+      "source-bytes": 281,
+      "data-peak": 2,
+      "return-peak": 3
+    }
+  },
+  "status": "passed"
+}

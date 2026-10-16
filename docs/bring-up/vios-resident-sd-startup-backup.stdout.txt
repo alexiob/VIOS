@@ -1,0 +1,26 @@
+{"checkpoint": "temporary-module-buffer", "status": "running"}
+{"checkpoint": "temporary-module-buffer", "status": "passed", "elapsed_ms": 1991.548}
+{"checkpoint": "backup-/VIOS/A9BA189F/8E362F26.VIM", "status": "running"}
+{"checkpoint": "backup-/VIOS/A9BA189F/8E362F26.VIM", "status": "passed", "elapsed_ms": 431.04}
+{"checkpoint": "backup-/VIOS/A9BA189F/E7253C6E.VIM", "status": "running"}
+{"checkpoint": "backup-/VIOS/A9BA189F/E7253C6E.VIM", "status": "passed", "elapsed_ms": 431.7}
+{"checkpoint": "backup-/VIOS/B360CCE2/3BC9C813.VIM", "status": "running"}
+{"checkpoint": "backup-/VIOS/B360CCE2/3BC9C813.VIM", "status": "passed", "elapsed_ms": 431.143}
+{"checkpoint": "backup-/VIOS/B360CCE2/E9393509.VIM", "status": "running"}
+{"checkpoint": "backup-/VIOS/B360CCE2/E9393509.VIM", "status": "passed", "elapsed_ms": 425.331}
+{"checkpoint": "backup-/VIOS/CDD1B05F/1FCD271D.VIM", "status": "running"}
+{"checkpoint": "backup-/VIOS/CDD1B05F/1FCD271D.VIM", "status": "passed", "elapsed_ms": 419.317}
+{"checkpoint": "backup-/VIOS/BOOT_A.VIB", "status": "running"}
+{"checkpoint": "backup-/VIOS/BOOT_A.VIB", "status": "passed", "elapsed_ms": 462.185}
+{"checkpoint": "backup-/VIOS/BOOT_B.VIB", "status": "running"}
+{"checkpoint": "backup-/VIOS/BOOT_B.VIB", "status": "passed", "elapsed_ms": 470.649}
+{"checkpoint": "backup-/VIOS/BOOT0.REC", "status": "running"}
+{"checkpoint": "backup-/VIOS/BOOT0.REC", "status": "passed", "elapsed_ms": 259.929}
+{"checkpoint": "backup-/VIOS/BOOT1.REC", "status": "running"}
+{"checkpoint": "backup-/VIOS/BOOT1.REC", "status": "passed", "elapsed_ms": 261.349}
+{"checkpoint": "explicit-mcp-reboot-to-reclaim-temporary-buffer", "status": "running"}
+{"checkpoint": "explicit-mcp-reboot-to-reclaim-temporary-buffer", "status": "passed", "elapsed_ms": 35950.288}
+{"checkpoint": "confirmed-startup-preserved", "status": "running"}
+{"checkpoint": "confirmed-startup-preserved", "status": "passed", "elapsed_ms": 342.999}
+{"checkpoint": "clean-resources", "status": "running"}
+{"checkpoint": "clean-resources", "status": "passed", "elapsed_ms": 51.162}

@@ -1,0 +1,49 @@
+make: Nothing to be done for `vios'.
+make: Nothing to be done for `esp32-probes'.
+.venv/bin/python -m unittest discover -s tests -v
+test_definitions_nested_calls_and_control_flow (test_forth_system.ForthSystemTests.test_definitions_nested_calls_and_control_flow) ... ok
+test_errors_rollback_and_recover (test_forth_system.ForthSystemTests.test_errors_rollback_and_recover) ... ok
+test_live_deferred_binding_changes_existing_caller (test_forth_system.ForthSystemTests.test_live_deferred_binding_changes_existing_caller) ... ok
+test_loop_index_survives_nested_calls (test_forth_system.ForthSystemTests.test_loop_index_survives_nested_calls) ... ok
+test_metadata_radix_is_fixed_decimal (test_forth_system.ForthSystemTests.test_metadata_radix_is_fixed_decimal) ... ok
+test_multiline_compile_abort_and_resource_exhaustion (test_forth_system.ForthSystemTests.test_multiline_compile_abort_and_resource_exhaustion) ... ok
+test_native_cell_memory_and_execution_tokens (test_forth_system.ForthSystemTests.test_native_cell_memory_and_execution_tokens) ... ok
+test_resource_report_tracks_transient_stack_peaks (test_forth_system.ForthSystemTests.test_resource_report_tracks_transient_stack_peaks) ... ok
+test_sync_is_state_neutral_even_during_compilation (test_forth_system.ForthSystemTests.test_sync_is_state_neutral_even_during_compilation) ... ok
+test_tagged_repl_completion_and_key_input (test_forth_system.ForthSystemTests.test_tagged_repl_completion_and_key_input) ... ok
+test_vm_semantics_and_memory_bounds (test_forth_vm.ForthVMTests.test_vm_semantics_and_memory_bounds) ... ok
+test_portable_monitor_and_vdp_frames (test_native.NativeTests.test_portable_monitor_and_vdp_frames) ... ok
+test_command_echo_containing_prompt_does_not_finish_response (test_transfer.SerialPolicyTests.test_command_echo_containing_prompt_does_not_finish_response) ... ok
+test_pinned_legacy_sender_never_negotiates_an_extended_record (test_transfer.SerialPolicyTests.test_pinned_legacy_sender_never_negotiates_an_extended_record) ... ok
+test_records_preserve_addresses_across_64k_boundary (test_transfer.TransferTests.test_records_preserve_addresses_across_64k_boundary) ... ok
+test_rejects_missing_header_and_unsafe_ram_ranges (test_transfer.TransferTests.test_rejects_missing_header_and_unsafe_ram_ranges) ... ok
+test_debug_memory_preserves_pause_state_and_write_verifies (test_vios_harness.HarnessTests.test_debug_memory_preserves_pause_state_and_write_verifies) ... ok
+test_envelope_boundary_and_abort_compile_without_queued_sync (test_vios_harness.HarnessTests.test_envelope_boundary_and_abort_compile_without_queued_sync) ... ok
+test_failed_debug_and_resume_transitions_block_unsafe_followups (test_vios_harness.HarnessTests.test_failed_debug_and_resume_transitions_block_unsafe_followups) ... ok
+test_failed_debug_verification_resumes_and_timeout_does_not_queue_more_input (test_vios_harness.HarnessTests.test_failed_debug_verification_resumes_and_timeout_does_not_queue_more_input) ... ok
+test_failed_deployment_cannot_leave_a_falsely_paused_session (test_vios_harness.HarnessTests.test_failed_deployment_cannot_leave_a_falsely_paused_session) ... ok
+test_fast_console_sends_one_complete_envelope_write_per_line (test_vios_harness.HarnessTests.test_fast_console_sends_one_complete_envelope_write_per_line) ... ok
+test_framing_bad_json_invalid_request_and_clean_stdio (test_vios_harness.HarnessTests.test_framing_bad_json_invalid_request_and_clean_stdio) ... ok
+test_key_wait_retains_partial_marker_and_resumes_without_new_input (test_vios_harness.HarnessTests.test_key_wait_retains_partial_marker_and_resumes_without_new_input) ... ok
+test_loopback_tcp_uses_shared_backend_and_rejects_external_bind (test_vios_harness.HarnessTests.test_loopback_tcp_uses_shared_backend_and_rejects_external_bind) ... ok
+test_partial_source_write_blocks_input_until_explicit_same_port_deploy (test_vios_harness.HarnessTests.test_partial_source_write_blocks_input_until_explicit_same_port_deploy) ... ok
+test_rejects_bad_source_before_any_input_and_reports_language_error (test_vios_harness.HarnessTests.test_rejects_bad_source_before_any_input_and_reports_language_error) ... ok
+test_rpc_lifecycle_listing_tool_errors_and_notifications (test_vios_harness.HarnessTests.test_rpc_lifecycle_listing_tool_errors_and_notifications) ... ok
+test_session_persists_and_multiline_waits_before_next_line (test_vios_harness.HarnessTests.test_session_persists_and_multiline_waits_before_next_line) ... esptool progress
+deploy progress
+deploy progress
+ok
+test_long_running_word_finishes_before_nonce_enters_sixteen_byte_fifo (test_vios_transport.TransportTests.test_long_running_word_finishes_before_nonce_enters_sixteen_byte_fifo) ... ok
+
+----------------------------------------------------------------------
+Ran 30 tests in 1.645s
+
+OK
+Uploaded 100 bytes; SHA256 e69143d307fa7e220581dcf319e802d854e4d6faa456fefd1c60c4bd3cab2d2f verification: legacy Intel HEX/CPU checksums (not CRC32)
+AGONDEV="/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev" PYTHON="/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.venv/bin/python" tools/verification/forth-engine/check.sh
+   text	   data	    bss	    dec	    hex	filename
+   1288	      0	      3	   1291	    50b	build/verification/forth-engine/direct.o
+   1294	      0	      3	   1297	    511	build/verification/forth-engine/token.o
+PASS: 108 linked-disassembly execution probes across token/direct, including DOCOL and IX/IY/SP preservation
+PASS: 136 total linked-disassembly execution probes, including wrap/nested loops, corrupt-depth rejection, and trap resumption
+PASS: 142 total probes, including transient/nested high-water counters and monotonic peak preservation

@@ -1,0 +1,18 @@
+{
+  "utc": "2026-10-16T12:31:44.174347+00:00",
+  "baseline_archive": "artifacts/vios-workbench-2026-10-16/source-code.tar.gz",
+  "baseline_archive_sha256": "51013d71ad553990abb2649d03c082dcec8dd2a7e6924be0319c568d7cdd3c65",
+  "baseline_member": "kernel/workbench.c",
+  "baseline_member_sha256": "36af994c7954cbbac2463c08ef300acbaa3ce5c24cbedb448c27b5a0a7f80724",
+  "reviewed_source_sha256": {
+    "kernel/workbench.c": "ab34ce39643d9fe9775b82d9139de99e16f3fc4bb3d123c63ad46ce367f70837",
+    "kernel/workbench_runtime.c": "9eafce01ebd1970f68716556b2283bd8d603acacc244130509cad017c694ae51",
+    "tests/workbench_native.c": "a875eb342186ca52e74a3a3d8a8dd3883ea7f7fe90be82d5ff31d832a35ed8ae",
+    "drivers/agon-vdp/text_screen.c": "8b55bce64b58357df856f428a18625ae7faa3856e3d1eeafe41a67a0de55ed88"
+  },
+  "harness_sha256": "d1215038e08c033787f0cca1ce89a943cfe8f8e3f34b8f2fe2ed3e4d894ae5fa",
+  "initial_draft_bytes": 4096,
+  "random_operations": 30000,
+  "seed": 7781,
+  "compare": "all 4800 character and attribute cells every third operation"
+}

@@ -1,0 +1,3 @@
+# Preserve exact bytes across clones: firmware/source manifests and frozen
+# qualification evidence depend on their recorded hashes, including line ends.
+* -text

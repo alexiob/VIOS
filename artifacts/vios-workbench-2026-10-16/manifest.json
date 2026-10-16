@@ -1,0 +1,254 @@
+{
+  "schema": 1,
+  "project": "VIOS",
+  "milestone": "first hybrid text workbench",
+  "created_utc": "2026-10-16T11:52:05.757140+00:00",
+  "status": "accepted_on_hardware_and_resident",
+  "accepted_cpu": {
+    "path": "artifacts/vios-workbench-2026-10-16/vios-accepted.bin",
+    "size": 98270,
+    "sha256": "36fb5f932f477a182a556ae45f033820d0ce250396718fa0a795d77323383bbe"
+  },
+  "accepted_firmware": {
+    "path": "artifacts/vios-workbench-2026-10-16/firmware-accepted.bin",
+    "size": 656512,
+    "sha256": "643a3ef6517077f4910471b44719ada1d246160a9a00b401b169cd7c25ab31dc"
+  },
+  "native_stage0": {
+    "path": "artifacts/vios-workbench-2026-10-16/agon-stage0.bin",
+    "size": 46,
+    "sha256": "18b33b49aa06ffd22e68b9ce640904a1d990d994edd509ab98ce96945a08b82f"
+  },
+  "cpu_layout": {
+    "load_address": 262144,
+    "payload_bytes": 98270,
+    "bss_bytes": 240828,
+    "bss_end": 601242,
+    "stack_bottom": 716800,
+    "stack_top": 720896,
+    "remaining_before_stack_bytes": 115558,
+    "workbench_incremental_bss_bytes": 29050,
+    "dictionary_expansion_bss_bytes": 21696
+  },
+  "esp32": {
+    "app0_offset": 65536,
+    "app0_limit": 1310720,
+    "static_ram_bytes": 37948,
+    "program_bytes": 656141,
+    "runtime_allocations_additional": true
+  },
+  "dictionary": {
+    "capacity": 512,
+    "hash_buckets": 128,
+    "target_bytes_per_entry": 55,
+    "hardware_live_words_tested": 391
+  },
+  "verification": {
+    "tests_passed": 163,
+    "native_engine_probes": 146,
+    "hardware_requests": 355,
+    "framebuffer_glyph_comparisons": 8,
+    "maximum_source_stress_trials": 50,
+    "resident_startup_checks": 14,
+    "mcp_tools": 48,
+    "workbench_mcp_tools": 19
+  },
+  "hardware_reports": [
+    {
+      "path": "docs/bring-up/vios-workbench-hardware-run4.json",
+      "size": 223671,
+      "sha256": "6c5d87cde977d0032177801778eb460dd97878295dfd4591abb6aa1853b2ac28"
+    },
+    {
+      "path": "docs/bring-up/vios-workbench-extra-acceptance.json",
+      "size": 30692,
+      "sha256": "490e14013a1f2983cf3a82d3feb1fe13db1f9df589f8dd15f851ca2532677bb7"
+    },
+    {
+      "path": "docs/bring-up/vios-workbench-resident-acceptance.json",
+      "size": 16475,
+      "sha256": "0265483bd0b01f5bce8d361d255973703edeccf113cc8e4b85f74b2eab34dd98"
+    },
+    {
+      "path": "docs/bring-up/vios-workbench-mcp-stdio-proxy.json",
+      "size": 28296,
+      "sha256": "6cb301c98ac22b7f90e8f5f7e7331a0a27821ca875729e9d91f146e8da87f310"
+    }
+  ],
+  "user_visual_confirmation": {
+    "path": "docs/bring-up/vios-workbench-user-display-confirmation.json",
+    "size": 391,
+    "sha256": "3fa58133fc737a6183aa73a8a4506892d4503151614be6a57b4f01405bd98c77"
+  },
+  "benchmarks": {
+    "path": "docs/benchmarks/workbench-2026-10-16.json",
+    "size": 3534,
+    "sha256": "7c17a29dddf376a5a6cda8be882d85acd22d63a16d99b9d29a951b8c0e0b68c1"
+  },
+  "toolchains": {
+    "agondev": "v0.22",
+    "clang": "15.0.7 / AgonPlatform c76386c0083e6a6236ff774275227e2389f85538",
+    "platformio": "espressif32@6.3.0",
+    "arduino_esp32": "2.0.9",
+    "xtensa_pio": "8.4.0+2021r2-patch5",
+    "ESP32Time": "2.0.0"
+  },
+  "source_files": 5236,
+  "source_manifest": "source-sha256.json",
+  "previous_app0_backup": {
+    "path": "backups/esp32/pre-vios-workbench-app0-2026-10-16.bin",
+    "size": 630544,
+    "sha256": "0a064beaba2be05f07960a9e05da1bb5a161af8ac7799c55fc6f4c3459e2a129"
+  },
+  "limitations": [
+    "Full-frame composition remains about 175 ms for the populated fixture; incremental pane/line composition is next",
+    "CLI evaluation workspace remains USB; no general local graphical workspace in this milestone",
+    "One 4096-byte RAM draft and one source undo; explicit stage/activate/save",
+    "PageUp/PageDown currently alias Home/End",
+    "Raw native/VDP operations remain trusted; independent supervisor recovery retained",
+    "A/B source boot shares one FAT32 card and is not ESP firmware A/B rollback"
+  ],
+  "git_repository": false,
+  "files": [
+    {
+      "path": "artifacts/vios-workbench-2026-10-16/README.md",
+      "size": 2751,
+      "sha256": "ef2c883601baeb5b05c42c5b9cc99b1e020c953de4c910cc7cf48fc07571f765"
+    },
+    {
+      "path": "artifacts/vios-workbench-2026-10-16/agon-stage0.bin",
+      "size": 46,
+      "sha256": "18b33b49aa06ffd22e68b9ce640904a1d990d994edd509ab98ce96945a08b82f"
+    },
+    {
+      "path": "artifacts/vios-workbench-2026-10-16/app0-backup.txt",
+      "size": 14285,
+      "sha256": "981bdf9171ddd9cefd853821d2473b511279247870ace1b076c0d128f602dc72"
+    },
+    {
+      "path": "artifacts/vios-workbench-2026-10-16/app0-flash.txt",
+      "size": 2670,
+      "sha256": "6fc482db338d907e334532fe8537fbbd87f4a860f0e5a9f370f028e9fd95bcd8"
+    },
+    {
+      "path": "artifacts/vios-workbench-2026-10-16/build-manifest-accepted.json",
+      "size": 6765,
+      "sha256": "24d9f99befb50684203b4b2835084577daec3abf74d237d0cd10781131ee3cd6"
+    },
+    {
+      "path": "artifacts/vios-workbench-2026-10-16/diagnostics/full-scan-render.bin",
+      "size": 97735,
+      "sha256": "69a66a45246884be88177af74d15d3e876c9bac31880b593ff86785c4983213b"
+    },
+    {
+      "path": "artifacts/vios-workbench-2026-10-16/diagnostics/full-scan-render.elf",
+      "size": 192308,
+      "sha256": "9779cf76d2d3c1459778a826da595c2bc448c6c33f5d4f9452fdbc942428061c"
+    },
+    {
+      "path": "artifacts/vios-workbench-2026-10-16/diagnostics/full-scan-render.map",
+      "size": 51331,
+      "sha256": "fd25d82c29a944680874cd76afefda6b7a2f0f48ed9e009cb3840b56f724e237"
+    },
+    {
+      "path": "artifacts/vios-workbench-2026-10-16/diagnostics/rx-window-before.bin",
+      "size": 97551,
+      "sha256": "fa2fd4588f43d8cd2e50306853f7f957de7f5b1bcfe0c2b0096b2ff6b4097250"
+    },
+    {
+      "path": "artifacts/vios-workbench-2026-10-16/diagnostics/rx-window-before.elf",
+      "size": 192056,
+      "sha256": "01ad45f179d99815db2fe1a192a50cecb891bd61014a73167f69f7a67a7e5d52"
+    },
+    {
+      "path": "artifacts/vios-workbench-2026-10-16/diagnostics/rx-window-before.map",
+      "size": 51266,
+      "sha256": "52c74e5609d48fb1149064063bdec1f10dbecff8c646fc9e99f888e9820a9276"
+    },
+    {
+      "path": "artifacts/vios-workbench-2026-10-16/documentation-evidence.tar.gz",
+      "size": 16736032,
+      "sha256": "a184d542d0f04f2bf8862ae487367c19aed4d398358df19cd83b941c8b3c0066"
+    },
+    {
+      "path": "artifacts/vios-workbench-2026-10-16/esp-build.txt",
+      "size": 1995,
+      "sha256": "d97ffe8893fa452e984ede4c6bdd0cfe97fcbcd48afedb3e6370f6e65514b24b"
+    },
+    {
+      "path": "artifacts/vios-workbench-2026-10-16/extra-acceptance.py",
+      "size": 4864,
+      "sha256": "26cfd1ca4b10c984d34d02d6c62ac4d8336636937494501ceb42b65491cdae33"
+    },
+    {
+      "path": "artifacts/vios-workbench-2026-10-16/firmware-accepted.bin",
+      "size": 656512,
+      "sha256": "643a3ef6517077f4910471b44719ada1d246160a9a00b401b169cd7c25ab31dc"
+    },
+    {
+      "path": "artifacts/vios-workbench-2026-10-16/freeze-release.py",
+      "size": 8716,
+      "sha256": "611b4deac180dd13dc968e0440e52c4fa52ec9f3af07c1617b981324acc011ee"
+    },
+    {
+      "path": "artifacts/vios-workbench-2026-10-16/host-native-checks.txt",
+      "size": 26413,
+      "sha256": "6dfafedf73d1d621d3c69ca0aa2397a8a898bcddc05bbc980aa88285749477a2"
+    },
+    {
+      "path": "artifacts/vios-workbench-2026-10-16/live-serial-at-release.jsonl",
+      "size": 737705,
+      "sha256": "22d73fecf399886cb633444f5e0e647c0416e0a75d9a34b702fe9fbc676c1502"
+    },
+    {
+      "path": "artifacts/vios-workbench-2026-10-16/native-engine-checks.txt",
+      "size": 826,
+      "sha256": "2d83d080db99c4b06bedc34c004f3fe1e9e5aaa80bf4836b7a51ab3fffde34d2"
+    },
+    {
+      "path": "artifacts/vios-workbench-2026-10-16/saved-module/README.md",
+      "size": 366,
+      "sha256": "26b26f5cff475623c98e37c4c2a6ed2a30906cee8dd4f6e5102264a227aa2059"
+    },
+    {
+      "path": "artifacts/vios-workbench-2026-10-16/saved-module/VIOS/A8783CA5/203C0319.VIM",
+      "size": 2233,
+      "sha256": "a8b3d9867bf93cc5f141445f8288d4b9546877a212271bd5ea2c42790e552e27"
+    },
+    {
+      "path": "artifacts/vios-workbench-2026-10-16/screen-model.json",
+      "size": 84217,
+      "sha256": "8d5b786ef4783c0cfc0235b8bc0ddc495a0360ce100d6d84a4181cd5238f72bf"
+    },
+    {
+      "path": "artifacts/vios-workbench-2026-10-16/screen-model.png",
+      "size": 23227,
+      "sha256": "1dccb469d2ea6984792319f674e039843d9cb46367552d9b1e8498b14536454f"
+    },
+    {
+      "path": "artifacts/vios-workbench-2026-10-16/source-code.tar.gz",
+      "size": 23678996,
+      "sha256": "51013d71ad553990abb2649d03c082dcec8dd2a7e6924be0319c568d7cdd3c65"
+    },
+    {
+      "path": "artifacts/vios-workbench-2026-10-16/source-sha256.json",
+      "size": 859027,
+      "sha256": "0ae67b0b26efbb27fd610b1fcd2c0c53c46ea12c143a77d07b8312e210c50554"
+    },
+    {
+      "path": "artifacts/vios-workbench-2026-10-16/vios-accepted.bin",
+      "size": 98270,
+      "sha256": "36fb5f932f477a182a556ae45f033820d0ce250396718fa0a795d77323383bbe"
+    },
+    {
+      "path": "artifacts/vios-workbench-2026-10-16/vios-accepted.elf",
+      "size": 192920,
+      "sha256": "969ff182bfe4deb5713e250cb3ad1ffb08d91e4f2094345f2c6b8eb7f42b069a"
+    },
+    {
+      "path": "artifacts/vios-workbench-2026-10-16/vios-accepted.map",
+      "size": 51331,
+      "sha256": "866fe52d9d442a7bd38ef16e7614c908d0c25644635fbc2d50c7c5950120c30f"
+    }
+  ]
+}

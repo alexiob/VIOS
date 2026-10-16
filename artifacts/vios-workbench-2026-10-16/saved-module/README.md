@@ -1,0 +1,1 @@
+This VIM1 package was reconstructed from the exact hardware source readback and saved metadata. Its format CRC32 matches the verified immutable SD filename 203C0319, and the native module loader successfully reloaded that SD package after the resident restart. This is a reconstruction, not a raw SD-sector copy. Preserve existing card contents before any recovery.

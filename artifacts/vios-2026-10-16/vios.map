@@ -1,0 +1,309 @@
+Archive member included to satisfy reference by file (symbol)
+
+/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(ldivu.o)
+                              build/vios/bench/forth_bench.o (__ldivu)
+/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(ldivs.o)
+                              build/vios/forth/vm_reference.o (__ldivs)
+/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(lrems.o)
+                              build/vios/forth/vm_reference.o (__lrems)
+/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(lneg.o)
+                              /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(ldivs.o) (__lneg)
+/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(or.o)
+                              build/vios/forth/vm_reference.o (__ior)
+/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(ldvrmu.o)
+                              /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(ldivu.o) (__ldvrmu)
+/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(ishl.o)
+                              build/vios/forth/system.o (__ishl)
+/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(frameset0.o)
+                              build/vios/forth/system.o (__frameset0)
+/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(ineg_sneg.o)
+                              build/vios/forth/system.o (__ineg)
+/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(lcmps.o)
+                              build/vios/forth/vm_reference.o (__lcmps)
+/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(imulu.o)
+                              build/vios/forth/system.o (__imulu)
+/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(lshl.o)
+                              build/vios/forth/vm_reference.o (__lshl)
+/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(lcmpu.o)
+                              build/vios/bench/forth_bench.o (__lcmpu)
+/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(ishrs.o)
+                              build/vios/forth/system.o (__ishru)
+/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(setflag.o)
+                              build/vios/forth/system.o (__setflag)
+/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(and.o)
+                              build/vios/forth/system.o (__iand)
+/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(inot.o)
+                              build/vios/forth/system.o (__inot)
+/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(ladd.o)
+                              build/vios/forth/vm_reference.o (__ladd)
+/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(ldivs_lrems_common.o)
+                              /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(ldivs.o) (__ldivs_lrems_common)
+/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(frameset.o)
+                              build/vios/forth/system.o (__frameset)
+/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(xor.o)
+                              build/vios/forth/vm_reference.o (__ixor)
+/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(idivu.o)
+                              build/vios/forth/system.o (__idivu)
+/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(lremu.o)
+                              /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(lrems.o) (__lremu)
+/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(idvrmu.o)
+                              /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(idivu.o) (__idvrmu)
+
+Discarded input sections
+
+ .comment       0x00000000       0x77 build/vios/forth/agon_main.o
+ .comment       0x00000000       0x77 build/vios/forth/system.o
+ .comment       0x00000000       0x77 build/vios/forth/vm_reference.o
+ .comment       0x00000000       0x77 build/vios/forth/vm_memory.o
+ .comment       0x00000000       0x77 build/vios/boards/agon-light-2/platform_raw.o
+ .comment       0x00000000       0x77 build/vios/bench/forth_bench.o
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+RAM              0x00040000         0x00070000         xrw
+*default*        0x00000000         0xffffffff
+
+Linker script and memory map
+
+
+.init           0x00040000       0x77
+ *(.init)
+ .init          0x00040000       0x77 build/vios/arch/ez80/start.o
+                0x00040000                _image_start
+                0x00040045                _start
+                0x0004006b                _platform_restart
+
+.text           0x00040077     0x4317
+ *(.text .text.*)
+ .text          0x00040077       0x1a build/vios/forth/agon_main.o
+                0x00040077                _kernel_main
+ .text          0x00040091     0x2476 build/vios/forth/system.o
+                0x00040091                _forth_execute
+                0x000403c5                _forth_eval
+                0x00041abf                _forth_report
+                0x00041b92                _forth_init
+                0x00041cb3                _forth_set_engine
+                0x00041cc1                _forth_engine
+                0x00041cc6                _forth_last_error
+                0x00041ccb                _forth_compiling
+                0x00041ce4                _forth_code_bytes
+                0x00041d7e                _forth_get_base
+                0x00041d89                _forth_set_base
+                0x00041db1                _forth_repl
+ .text          0x00042507      0x9a7 build/vios/forth/vm_reference.o
+                0x00042507                _fvm_reset
+                0x00042530                _fvm_push
+                0x00042599                _fvm_pop
+                0x000425cc                _fvm_complex
+                0x000427bd                _fvm_reference_run
+ .text          0x00042eae       0xb9 build/vios/forth/vm_memory.o
+                0x00042eae                _fvm_memory_reset
+                0x00042eaf                _fvm_region
+                0x00042eba                _fvm_address
+                0x00042ec4                _fvm_read8
+                0x00042ecf                _fvm_write8
+                0x00042edd                _fvm_read_cell
+                0x00042f32                _fvm_write_cell
+ .text          0x00042f67       0x42 build/vios/boards/agon-light-2/platform_raw.o
+                0x00042f67                _platform_console_init
+                0x00042f6b                _platform_console_putc
+                0x00042f8e                _platform_console_getc
+                0x00042fa4                _platform_identity
+ .text          0x00042fa9      0x74d build/vios/bench/forth_bench.o
+                0x00042fa9                _forth_benchmark
+ .text          0x000436f6        0x0 build/vios/arch/ez80/start.o
+ .text          0x000436f6       0x23 build/vios/arch/ez80/uart0.o
+                0x000436f6                _ez80_uart0_status
+                0x000436fa                _ez80_uart0_modem
+                0x000436fe                _ez80_uart0_read
+                0x00043702                _ez80_uart0_write
+                0x0004370c                _ez80_uart0_polling
+ .text          0x00043719       0x3a build/vios/arch/ez80/uart0_raw.o
+                0x00043719                _ez80_uart0_raw_init
+ .text          0x00043753       0x2c build/vios/arch/ez80/timer.o
+                0x00043753                _platform_timer_init
+                0x00043774                _platform_timer_read
+ .text          0x0004377f      0x50e build/vios/engine-token.o
+                0x0004377f                _fvm_token_run
+ .text          0x00043c8d      0x508 build/vios/engine-direct.o
+                0x00043c8d                _fvm_direct_run
+                0x00043e52                _fvm_docol
+                0x0004411a                _fvm_direct_primitives
+ .text          0x00044195       0x10 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(ldivu.o)
+                0x00044195                __ldivu
+ .text          0x000441a5       0x18 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(ldivs.o)
+                0x000441a5                __ldivs
+ .text          0x000441bd       0x13 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(lrems.o)
+                0x000441bd                __lrems
+ .text          0x000441d0        0xd /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(lneg.o)
+                0x000441d0                __lneg
+ .text          0x000441dd       0x1b /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(or.o)
+                0x000441dd                __lor
+                0x000441e1                __ior
+ .text          0x000441f8       0x24 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(ldvrmu.o)
+                0x000441f8                __ldvrmu
+ .text          0x0004421c       0x26 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(ishl.o)
+                0x0004421c                __sshl
+                0x0004421c                __ishl
+ .text          0x00044242        0xb /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(frameset0.o)
+                0x00044242                __frameset0
+ .text          0x0004424d        0x9 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(ineg_sneg.o)
+                0x0004424d                __ineg
+                0x0004424d                __sneg
+ .text          0x00044256        0xd /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(lcmps.o)
+                0x00044256                __lcmps
+ .text          0x00044263       0x30 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(imulu.o)
+                0x00044263                __imuls
+                0x00044263                __imulu
+ .text          0x00044293        0xd /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(lshl.o)
+                0x00044293                __lshl
+ .text          0x000442a0        0x8 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(lcmpu.o)
+                0x000442a0                __lcmpu
+ .text          0x000442a8       0x41 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(ishrs.o)
+                0x000442a8                __ishru
+                0x000442ad                __ishrs
+ .text          0x000442e9        0xf /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(setflag.o)
+                0x000442e9                __setflag
+ .text          0x000442f8       0x1c /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(and.o)
+                0x000442f8                __land
+                0x000442fd                __iand
+                0x000442fe                __iand.hijack_land
+ .text          0x00044314        0xa /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(inot.o)
+                0x00044314                __inot
+ .text          0x0004431e        0x6 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(ladd.o)
+                0x0004431e                __ladd
+ .text          0x00044324       0x11 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(ldivs_lrems_common.o)
+                0x00044324                __ldivs_lrems_common
+ .text          0x00044335        0xe /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(frameset.o)
+                0x00044335                __frameset
+ .text          0x00044343       0x1b /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(xor.o)
+                0x00044343                __lxor
+                0x00044347                __ixor
+ .text          0x0004435e        0x8 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(idivu.o)
+                0x0004435e                __idivu
+ .text          0x00044366       0x10 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(lremu.o)
+                0x00044366                __lremu
+ .text          0x00044376       0x18 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(idvrmu.o)
+                0x00044376                __idvrmu
+                0x0004437a                __idvrmu.hijack_a_iters_ude_dividend
+
+.rodata         0x0004438e      0xa43
+ *(.rodata .rodata.*)
+ .rodata        0x0004438e      0x6c1 build/vios/forth/system.o
+ .rodata        0x00044a4f       0x96 build/vios/forth/vm_reference.o
+ .rodata        0x00044ae5       0x3c build/vios/boards/agon-light-2/platform_raw.o
+ .rodata        0x00044b21      0x2b0 build/vios/bench/forth_bench.o
+
+.data           0x00044dd1        0x0
+ *(.data .data.*)
+ .data          0x00044dd1        0x0 build/vios/forth/agon_main.o
+ .data          0x00044dd1        0x0 build/vios/forth/system.o
+ .data          0x00044dd1        0x0 build/vios/forth/vm_reference.o
+ .data          0x00044dd1        0x0 build/vios/forth/vm_memory.o
+ .data          0x00044dd1        0x0 build/vios/boards/agon-light-2/platform_raw.o
+ .data          0x00044dd1        0x0 build/vios/bench/forth_bench.o
+ .data          0x00044dd1        0x0 build/vios/arch/ez80/start.o
+ .data          0x00044dd1        0x0 build/vios/arch/ez80/uart0.o
+ .data          0x00044dd1        0x0 build/vios/arch/ez80/uart0_raw.o
+ .data          0x00044dd1        0x0 build/vios/arch/ez80/timer.o
+ .data          0x00044dd1        0x0 build/vios/engine-token.o
+ .data          0x00044dd1        0x0 build/vios/engine-direct.o
+ .data          0x00044dd1        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(ldivu.o)
+ .data          0x00044dd1        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(ldivs.o)
+ .data          0x00044dd1        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(lrems.o)
+ .data          0x00044dd1        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(lneg.o)
+ .data          0x00044dd1        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(or.o)
+ .data          0x00044dd1        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(ldvrmu.o)
+ .data          0x00044dd1        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(ishl.o)
+ .data          0x00044dd1        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(frameset0.o)
+ .data          0x00044dd1        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(ineg_sneg.o)
+ .data          0x00044dd1        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(lcmps.o)
+ .data          0x00044dd1        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(imulu.o)
+ .data          0x00044dd1        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(lshl.o)
+ .data          0x00044dd1        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(lcmpu.o)
+ .data          0x00044dd1        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(ishrs.o)
+ .data          0x00044dd1        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(setflag.o)
+ .data          0x00044dd1        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(and.o)
+ .data          0x00044dd1        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(inot.o)
+ .data          0x00044dd1        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(ladd.o)
+ .data          0x00044dd1        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(ldivs_lrems_common.o)
+ .data          0x00044dd1        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(frameset.o)
+ .data          0x00044dd1        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(xor.o)
+ .data          0x00044dd1        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(idivu.o)
+ .data          0x00044dd1        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(lremu.o)
+ .data          0x00044dd1        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(idvrmu.o)
+
+.bss            0x00044dd1    0x126e6
+                0x00044dd1                        __bss_start = .
+ *(.bss .bss.* COMMON)
+ .bss           0x00044dd1        0x0 build/vios/forth/agon_main.o
+ .bss           0x00044dd1    0x11d07 build/vios/forth/system.o
+ .bss           0x00056ad8      0x6d8 build/vios/forth/vm_reference.o
+                0x00056ad8                _fvm_error
+                0x00056adb                _fvm_ip
+                0x00056ade                _fvm_ldepth
+                0x00056ae1                _fvm_rdepth
+                0x00056ae4                _fvm_depth
+                0x00056ae7                _fvm_rs_peak
+                0x00056aea                _fvm_ds_peak
+                0x00056aed                _fvm_budget
+                0x00056af0                _fvm_ds
+                0x00056df0                _fvm_rs
+                0x000570f0                _fvm_loops
+ .bss           0x000571b0        0x0 build/vios/forth/vm_memory.o
+ .bss           0x000571b0        0x0 build/vios/boards/agon-light-2/platform_raw.o
+ .bss           0x000571b0      0x301 build/vios/bench/forth_bench.o
+ .bss           0x000574b1        0x0 build/vios/arch/ez80/start.o
+ .bss           0x000574b1        0x0 build/vios/arch/ez80/uart0.o
+ .bss           0x000574b1        0x0 build/vios/arch/ez80/uart0_raw.o
+ .bss           0x000574b1        0x0 build/vios/arch/ez80/timer.o
+ .bss           0x000574b1        0x3 build/vios/engine-token.o
+ .bss           0x000574b4        0x3 build/vios/engine-direct.o
+ .bss           0x000574b7        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(ldivu.o)
+ .bss           0x000574b7        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(ldivs.o)
+ .bss           0x000574b7        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(lrems.o)
+ .bss           0x000574b7        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(lneg.o)
+ .bss           0x000574b7        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(or.o)
+ .bss           0x000574b7        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(ldvrmu.o)
+ .bss           0x000574b7        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(ishl.o)
+ .bss           0x000574b7        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(frameset0.o)
+ .bss           0x000574b7        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(ineg_sneg.o)
+ .bss           0x000574b7        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(lcmps.o)
+ .bss           0x000574b7        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(imulu.o)
+ .bss           0x000574b7        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(lshl.o)
+ .bss           0x000574b7        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(lcmpu.o)
+ .bss           0x000574b7        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(ishrs.o)
+ .bss           0x000574b7        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(setflag.o)
+ .bss           0x000574b7        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(and.o)
+ .bss           0x000574b7        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(inot.o)
+ .bss           0x000574b7        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(ladd.o)
+ .bss           0x000574b7        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(ldivs_lrems_common.o)
+ .bss           0x000574b7        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(frameset.o)
+ .bss           0x000574b7        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(xor.o)
+ .bss           0x000574b7        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(idivu.o)
+ .bss           0x000574b7        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(lremu.o)
+ .bss           0x000574b7        0x0 /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a(idvrmu.o)
+                0x000574b7                        __bss_end = .
+
+/DISCARD/
+ *(.comment .note* .eh_frame*)
+                0x000126e6                        __bss_size = (__bss_end - __bss_start)
+                0x000b0000                        __stack_top = 0xb0000
+                0x000af000                        __stack_bottom = (__stack_top - 0x1000)
+                0x00000001                        ASSERT ((__bss_end <= __stack_bottom), payload overlaps the 4 KiB stack)
+                0x00000001                        ASSERT ((__bss_size <= (LENGTH (RAM) - 0x1000)), BSS exceeds RAM below the reserved stack)
+LOAD build/vios/forth/agon_main.o
+LOAD build/vios/forth/system.o
+LOAD build/vios/forth/vm_reference.o
+LOAD build/vios/forth/vm_memory.o
+LOAD build/vios/boards/agon-light-2/platform_raw.o
+LOAD build/vios/bench/forth_bench.o
+LOAD build/vios/arch/ez80/start.o
+LOAD build/vios/arch/ez80/uart0.o
+LOAD build/vios/arch/ez80/uart0_raw.o
+LOAD build/vios/arch/ez80/timer.o
+LOAD build/vios/engine-token.o
+LOAD build/vios/engine-direct.o
+LOAD /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.tools/agondev/lib/libagon.a
+OUTPUT(build/vios.elf elf32-z80)

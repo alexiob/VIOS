@@ -1,0 +1,272 @@
+{
+  "status": "passed",
+  "events": [
+    {
+      "tool": "connect",
+      "result": {
+        "output": "boot confirmed A\r\n\r\nVIOS Forth 24 / Agon Light 2\r\nvios> @4A9536BF !00000000 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "connected": true,
+        "identity": "ID 0007 REV AA STAT 18"
+      }
+    },
+    {
+      "tool": "boot_status",
+      "result": {
+        "output": "BOOT-STATUS\r\nboot confirmed A candidate NONE state CLEAN current A generation 7\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "boot": {
+          "confirmed": "A",
+          "candidate": "NONE",
+          "state": "CLEAN",
+          "current": "A",
+          "generation": 7
+        }
+      }
+    },
+    {
+      "tool": "evaluate",
+      "result": {
+        "output": "VDP-INFO WB-OPEN WB-FLUSH-FENCED\r\nvdp width 640 height 480 colours 4 mode 1 console-dropped 0\r\nWB-STATUS revision 1 catalog 153 open 1 draft 0 dirty 0 staged 0 active 0 saved 0 length 0 cursor 0 selection 0 browser 0 focus 0 words 80 words_max 512 module - version - test - error -\r\nWB-FLUSH elapsed_ms 142 bytes 622 spans 77 batches 5 cells 364 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    },
+    {
+      "view": 1,
+      "output_bytes": 21318,
+      "sha256": "bd0dc8d1f93bf8565ba9eb7b521344a6ddba43b55cced516bb55b1927a9ebf11",
+      "seconds": 3.05195900000399
+    },
+    {
+      "view": 2,
+      "output_bytes": 21318,
+      "sha256": "bd0dc8d1f93bf8565ba9eb7b521344a6ddba43b55cced516bb55b1927a9ebf11",
+      "seconds": 3.0500396670249756
+    },
+    {
+      "view": 3,
+      "output_bytes": 21318,
+      "sha256": "bd0dc8d1f93bf8565ba9eb7b521344a6ddba43b55cced516bb55b1927a9ebf11",
+      "seconds": 3.066696416004561
+    },
+    {
+      "view": 4,
+      "output_bytes": 21318,
+      "sha256": "bd0dc8d1f93bf8565ba9eb7b521344a6ddba43b55cced516bb55b1927a9ebf11",
+      "seconds": 3.084945249982411
+    },
+    {
+      "view": 5,
+      "output_bytes": 21318,
+      "sha256": "bd0dc8d1f93bf8565ba9eb7b521344a6ddba43b55cced516bb55b1927a9ebf11",
+      "seconds": 3.077398124994943
+    },
+    {
+      "view": 6,
+      "output_bytes": 21318,
+      "sha256": "bd0dc8d1f93bf8565ba9eb7b521344a6ddba43b55cced516bb55b1927a9ebf11",
+      "seconds": 3.0715578329982236
+    },
+    {
+      "view": 7,
+      "output_bytes": 21318,
+      "sha256": "bd0dc8d1f93bf8565ba9eb7b521344a6ddba43b55cced516bb55b1927a9ebf11",
+      "seconds": 3.060067041980801
+    },
+    {
+      "view": 8,
+      "output_bytes": 21318,
+      "sha256": "bd0dc8d1f93bf8565ba9eb7b521344a6ddba43b55cced516bb55b1927a9ebf11",
+      "seconds": 3.055351042014081
+    },
+    {
+      "view": 9,
+      "output_bytes": 21318,
+      "sha256": "bd0dc8d1f93bf8565ba9eb7b521344a6ddba43b55cced516bb55b1927a9ebf11",
+      "seconds": 3.0709621670248453
+    },
+    {
+      "view": 10,
+      "output_bytes": 21318,
+      "sha256": "bd0dc8d1f93bf8565ba9eb7b521344a6ddba43b55cced516bb55b1927a9ebf11",
+      "seconds": 3.0706860000209417
+    },
+    {
+      "view": 11,
+      "output_bytes": 21318,
+      "sha256": "bd0dc8d1f93bf8565ba9eb7b521344a6ddba43b55cced516bb55b1927a9ebf11",
+      "seconds": 3.0510364589863457
+    },
+    {
+      "view": 12,
+      "output_bytes": 21318,
+      "sha256": "bd0dc8d1f93bf8565ba9eb7b521344a6ddba43b55cced516bb55b1927a9ebf11",
+      "seconds": 3.0467062500247266
+    },
+    {
+      "view": 13,
+      "output_bytes": 21318,
+      "sha256": "bd0dc8d1f93bf8565ba9eb7b521344a6ddba43b55cced516bb55b1927a9ebf11",
+      "seconds": 3.065602624992607
+    },
+    {
+      "view": 14,
+      "output_bytes": 21318,
+      "sha256": "bd0dc8d1f93bf8565ba9eb7b521344a6ddba43b55cced516bb55b1927a9ebf11",
+      "seconds": 3.0793129579978995
+    },
+    {
+      "view": 15,
+      "output_bytes": 21318,
+      "sha256": "bd0dc8d1f93bf8565ba9eb7b521344a6ddba43b55cced516bb55b1927a9ebf11",
+      "seconds": 3.0619282909901813
+    },
+    {
+      "view": 16,
+      "output_bytes": 21318,
+      "sha256": "bd0dc8d1f93bf8565ba9eb7b521344a6ddba43b55cced516bb55b1927a9ebf11",
+      "seconds": 3.0389292910113
+    },
+    {
+      "view": 17,
+      "output_bytes": 21318,
+      "sha256": "bd0dc8d1f93bf8565ba9eb7b521344a6ddba43b55cced516bb55b1927a9ebf11",
+      "seconds": 3.0832399999781046
+    },
+    {
+      "view": 18,
+      "output_bytes": 21318,
+      "sha256": "bd0dc8d1f93bf8565ba9eb7b521344a6ddba43b55cced516bb55b1927a9ebf11",
+      "seconds": 3.0871878750040196
+    },
+    {
+      "view": 19,
+      "output_bytes": 21318,
+      "sha256": "bd0dc8d1f93bf8565ba9eb7b521344a6ddba43b55cced516bb55b1927a9ebf11",
+      "seconds": 3.071886916994117
+    },
+    {
+      "view": 20,
+      "output_bytes": 21318,
+      "sha256": "bd0dc8d1f93bf8565ba9eb7b521344a6ddba43b55cced516bb55b1927a9ebf11",
+      "seconds": 3.0647958330227993
+    },
+    {
+      "view": 21,
+      "output_bytes": 21318,
+      "sha256": "bd0dc8d1f93bf8565ba9eb7b521344a6ddba43b55cced516bb55b1927a9ebf11",
+      "seconds": 3.0661364999832585
+    },
+    {
+      "view": 22,
+      "output_bytes": 21318,
+      "sha256": "bd0dc8d1f93bf8565ba9eb7b521344a6ddba43b55cced516bb55b1927a9ebf11",
+      "seconds": 3.072511082980782
+    },
+    {
+      "view": 23,
+      "output_bytes": 21318,
+      "sha256": "bd0dc8d1f93bf8565ba9eb7b521344a6ddba43b55cced516bb55b1927a9ebf11",
+      "seconds": 3.0392237910127733
+    },
+    {
+      "view": 24,
+      "output_bytes": 21318,
+      "sha256": "bd0dc8d1f93bf8565ba9eb7b521344a6ddba43b55cced516bb55b1927a9ebf11",
+      "seconds": 3.0450967499928083
+    },
+    {
+      "view": 25,
+      "output_bytes": 21318,
+      "sha256": "bd0dc8d1f93bf8565ba9eb7b521344a6ddba43b55cced516bb55b1927a9ebf11",
+      "seconds": 3.089558625011705
+    },
+    {
+      "view": 26,
+      "output_bytes": 21318,
+      "sha256": "bd0dc8d1f93bf8565ba9eb7b521344a6ddba43b55cced516bb55b1927a9ebf11",
+      "seconds": 3.072849292017054
+    },
+    {
+      "view": 27,
+      "output_bytes": 21318,
+      "sha256": "bd0dc8d1f93bf8565ba9eb7b521344a6ddba43b55cced516bb55b1927a9ebf11",
+      "seconds": 3.0744402920245193
+    },
+    {
+      "view": 28,
+      "output_bytes": 21318,
+      "sha256": "bd0dc8d1f93bf8565ba9eb7b521344a6ddba43b55cced516bb55b1927a9ebf11",
+      "seconds": 3.0643818330136128
+    },
+    {
+      "view": 29,
+      "output_bytes": 21318,
+      "sha256": "bd0dc8d1f93bf8565ba9eb7b521344a6ddba43b55cced516bb55b1927a9ebf11",
+      "seconds": 3.074672583024949
+    },
+    {
+      "view": 30,
+      "output_bytes": 21318,
+      "sha256": "bd0dc8d1f93bf8565ba9eb7b521344a6ddba43b55cced516bb55b1927a9ebf11",
+      "seconds": 3.0572863749985117
+    },
+    {
+      "tool": "debug_registers",
+      "result": {
+        "status": 152,
+        "registers": {
+          "af": 16992,
+          "bc": 8192,
+          "de": 0,
+          "hl": 0,
+          "ix": 720579,
+          "iy": 589709,
+          "sp": 720579,
+          "pc": 318401
+        },
+        "raw": "REGS 98 004260 002000 000000 000000 0AFEC3 08FF8D 0AFEC3 04DBC1"
+      }
+    },
+    {
+      "tool": "memory_read",
+      "result": {
+        "address": 262208,
+        "count": 5,
+        "hex": "4d4f530001",
+        "crc32": "bccb83f1"
+      }
+    },
+    {
+      "tool": "evaluate",
+      "result": {
+        "output": "VDP-INFO 6 7 * . CR\r\nvdp width 640 height 480 colours 4 mode 1 console-dropped 0\r\n42 \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    },
+    {
+      "tool": "boot_status",
+      "result": {
+        "output": "BOOT-STATUS\r\nboot confirmed A candidate NONE state CLEAN current A generation 7\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "boot": {
+          "confirmed": "A",
+          "candidate": "NONE",
+          "state": "CLEAN",
+          "current": "A",
+          "generation": 7
+        }
+      }
+    }
+  ]
+}

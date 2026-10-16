@@ -1,0 +1,8 @@
+{
+  "utc": "2026-10-16T12:30:27.428121+00:00",
+  "path": "backups/esp32/pre-vios-incremental-app0-2026-10-16.bin",
+  "offset": 65536,
+  "size": 656512,
+  "sha256": "643a3ef6517077f4910471b44719ada1d246160a9a00b401b169cd7c25ab31dc",
+  "verification": "fresh read from physical app0 matches previously accepted workbench firmware"
+}

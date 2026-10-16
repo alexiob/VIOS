@@ -1,0 +1,35 @@
+full screen done
+Traceback (most recent call last):
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/tools/vios_cli.py", line 109, in tool
+    data = json.loads(text)
+  File "/Users/alex/.pyenv/versions/3.14.6/lib/python3.14/json/__init__.py", line 352, in loads
+    return _default_decoder.decode(s)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "/Users/alex/.pyenv/versions/3.14.6/lib/python3.14/json/decoder.py", line 345, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/alex/.pyenv/versions/3.14.6/lib/python3.14/json/decoder.py", line 363, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/tools/vios_fast_display_bench.py", line 115, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/tools/vios_fast_display_bench.py", line 114, in main
+    with RPCClient(timeout=120) as c:c.initialize();Bench(c,a.output,a.baud,a.samples,FIXTURE if a.fixture=='plain' else MIXED_FIXTURE).run()
+                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/tools/vios_fast_display_bench.py", line 83, in run
+    self.framebuffer('after-edit-pairs')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/tools/vios_fast_display_bench.py", line 66, in framebuffer
+    again=self.call('wb_view',{'row':0,'count':60})['rows'];assert rows==again,tag
+          ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/tools/vios_fast_display_bench.py", line 33, in call
+    start=time.perf_counter();v=self.c.tool(n,a)
+                                ~~~~~~~~~~~^^^^^
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/tools/vios_cli.py", line 112, in tool
+    raise ToolError(text) from error
+vios_cli.ToolError: VIOS wire integrity lost; explicitly redeploy

@@ -1,0 +1,21 @@
+esptool v5.1.0
+Serial port /dev/cu.usbserial-22430:
+Connecting....
+Connected to ESP32 on /dev/cu.usbserial-22430:
+Chip type:          ESP32-PICO-D4 (revision v1.0)
+Features:           Wi-Fi, BT, Dual Core + LP Core, 240MHz, Embedded Flash, Vref calibration in eFuse, Coding Scheme None
+Crystal frequency:  40MHz
+MAC:                0c:8b:95:aa:17:4c
+
+Uploading stub flasher...
+Running stub flasher...
+Stub flasher running.
+
+Flash Memory Information:
+=========================
+Manufacturer: c8
+Device: 4016
+Detected flash size: 4MB
+Flash voltage set by a strapping pin: 3.3V
+
+Staying in bootloader.

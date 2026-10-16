@@ -1,0 +1,27 @@
+[
+  {
+    "file": "autoexec.txt",
+    "bytes": 23,
+    "sha256": "c3971b547e88864d65ec52fb14a90c85d96e9ae31a769f2a5c89ea4eec43d781"
+  },
+  {
+    "file": "console.bin",
+    "bytes": 138,
+    "sha256": "2a1d7fcbf3a34e1e1fb6818978241894645812d3dd19ef319da1c9d83fc77ee8"
+  },
+  {
+    "file": "monitor.bin",
+    "bytes": 1390,
+    "sha256": "203032fd1aeaed5ee0342bde1a8676c65756315fa0f64ca4ed18e92b2664dd68"
+  },
+  {
+    "file": "mos/hexload.bin",
+    "bytes": 315,
+    "sha256": "7951e7b5eb4b13e3fa10d7bbe97799a1af9044984b59421ccfeb5861fc50ac9a"
+  },
+  {
+    "file": "mos/hexload.dll",
+    "bytes": 6520,
+    "sha256": "81c553796bcdc95be75bc4fa060b8772d91af8609a47bcdb17f4f539c34a1a2e"
+  }
+]

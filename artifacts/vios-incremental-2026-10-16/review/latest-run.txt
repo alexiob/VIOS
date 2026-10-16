@@ -1,0 +1,51 @@
+{
+  "utc": "2026-10-16T12:31:44.174347+00:00",
+  "baseline_archive": "artifacts/vios-workbench-2026-10-16/source-code.tar.gz",
+  "baseline_archive_sha256": "51013d71ad553990abb2649d03c082dcec8dd2a7e6924be0319c568d7cdd3c65",
+  "baseline_member": "kernel/workbench.c",
+  "baseline_member_sha256": "36af994c7954cbbac2463c08ef300acbaa3ce5c24cbedb448c27b5a0a7f80724",
+  "reviewed_source_sha256": {
+    "kernel/workbench.c": "ab34ce39643d9fe9775b82d9139de99e16f3fc4bb3d123c63ad46ce367f70837",
+    "kernel/workbench_runtime.c": "9eafce01ebd1970f68716556b2283bd8d603acacc244130509cad017c694ae51",
+    "tests/workbench_native.c": "a875eb342186ca52e74a3a3d8a8dd3883ea7f7fe90be82d5ff31d832a35ed8ae",
+    "drivers/agon-vdp/text_screen.c": "8b55bce64b58357df856f428a18625ae7faa3856e3d1eeafe41a67a0de55ed88"
+  },
+  "harness_sha256": "d1215038e08c033787f0cca1ce89a943cfe8f8e3f34b8f2fe2ed3e4d894ae5fa",
+  "initial_draft_bytes": 4096,
+  "random_operations": 30000,
+  "seed": 7781,
+  "compare": "all 4800 character and attribute cells every third operation"
+}
+$ cc --version
+Apple clang version 21.0.0 (clang-2100.3.34.2)
+Target: arm64-apple-darwin27.0.0
+Thread model: posix
+InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
+exit=0; expected=0
+$ cc -std=c99 -g -fsanitize=address,undefined -fno-sanitize-recover=all -I/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/include -Dvios_workbench_activate=old_vios_workbench_activate -Dvios_workbench_active=old_vios_workbench_active -Dvios_workbench_browse=old_vios_workbench_browse -Dvios_workbench_can_save=old_vios_workbench_can_save -Dvios_workbench_close=old_vios_workbench_close -Dvios_workbench_compose=old_vios_workbench_compose -Dvios_workbench_edit=old_vios_workbench_edit -Dvios_workbench_error=old_vios_workbench_error -Dvios_workbench_init=old_vios_workbench_init -Dvios_workbench_key=old_vios_workbench_key -Dvios_workbench_mark_saved=old_vios_workbench_mark_saved -Dvios_workbench_new=old_vios_workbench_new -Dvios_workbench_note_error=old_vios_workbench_note_error -Dvios_workbench_open=old_vios_workbench_open -Dvios_workbench_patch=old_vios_workbench_patch -Dvios_workbench_select_module=old_vios_workbench_select_module -Dvios_workbench_select_word=old_vios_workbench_select_word -Dvios_workbench_selected_word=old_vios_workbench_selected_word -Dvios_workbench_set_metadata=old_vios_workbench_set_metadata -Dvios_workbench_source=old_vios_workbench_source -Dvios_workbench_stage=old_vios_workbench_stage -Dvios_workbench_status=old_vios_workbench_status -Dvios_workbench_undo=old_vios_workbench_undo -c /var/folders/gn/x0c2r4851fvf1ldtt37688p80000gn/T/vios-review-_g4dmoi5/baseline.c -o /var/folders/gn/x0c2r4851fvf1ldtt37688p80000gn/T/vios-review-_g4dmoi5/baseline.o
+
+exit=0; expected=0
+$ cc -std=c99 -g -fsanitize=address,undefined -fno-sanitize-recover=all -I/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/include /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/artifacts/vios-incremental-2026-10-16/review/workbench_differential.c /var/folders/gn/x0c2r4851fvf1ldtt37688p80000gn/T/vios-review-_g4dmoi5/baseline.o /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/forth/system.c /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/forth/modules.c /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/forth/vm_reference.c /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/forth/vm_memory.c /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/kernel/workbench.c -o /var/folders/gn/x0c2r4851fvf1ldtt37688p80000gn/T/vios-review-_g4dmoi5/current-differential
+
+exit=0; expected=0
+$ /var/folders/gn/x0c2r4851fvf1ldtt37688p80000gn/T/vios-review-_g4dmoi5/current-differential --cursor-row
+cursor row reproduction: fixed output matches baseline
+exit=0; expected=0
+$ /var/folders/gn/x0c2r4851fvf1ldtt37688p80000gn/T/vios-review-_g4dmoi5/current-differential --cursor-column
+cursor column reproduction: fixed output matches baseline
+exit=0; expected=0
+$ /var/folders/gn/x0c2r4851fvf1ldtt37688p80000gn/T/vios-review-_g4dmoi5/current-differential
+differential pass: 30000 operations, seed 7781, initial 4096 bytes; all 4800 characters and styles compared every third operation; live variable/defer/dictionary/DS/BASE scenarios passed
+exit=0; expected=0
+$ cc -std=c99 -g -fsanitize=address,undefined -fno-sanitize-recover=all -I/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/include /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/artifacts/vios-incremental-2026-10-16/review/workbench_differential.c /var/folders/gn/x0c2r4851fvf1ldtt37688p80000gn/T/vios-review-_g4dmoi5/baseline.o /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/forth/system.c /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/forth/modules.c /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/forth/vm_reference.c /Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/forth/vm_memory.c /var/folders/gn/x0c2r4851fvf1ldtt37688p80000gn/T/vios-review-_g4dmoi5/missing-cursor-damage.c -o /var/folders/gn/x0c2r4851fvf1ldtt37688p80000gn/T/vios-review-_g4dmoi5/negative-control
+
+exit=0; expected=0
+$ /var/folders/gn/x0c2r4851fvf1ldtt37688p80000gn/T/vios-review-_g4dmoi5/negative-control --cursor-row
+step 0 diff at 26,19 old  /32 new  /3 cursor 3 len 4
+SOURCE: 61 09 0a 0a
+exit=2; expected=2
+$ /var/folders/gn/x0c2r4851fvf1ldtt37688p80000gn/T/vios-review-_g4dmoi5/negative-control --cursor-column
+step 0 diff at 26,19 old b/32 new b/3 cursor 3 len 4
+SOURCE: 78 61 0a 62
+exit=2; expected=2
+PASS: latest source matches immutable baseline; both reconstructed negative controls reproduce the original cursor defects.

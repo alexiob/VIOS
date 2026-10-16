@@ -1,0 +1,41 @@
+Processing esp32-vios (platform: espressif32@6.3.0; board: esp32dev; framework: arduino)
+--------------------------------------------------------------------------------
+Verbose mode can be enabled via `-v, --verbose` option
+CONFIGURATION: https://docs.platformio.org/page/boards/espressif32/esp32dev.html
+PLATFORM: Espressif 32 (6.3.0) > Espressif ESP32 Dev Module
+HARDWARE: ESP32 240MHz, 320KB RAM, 1.25MB Flash
+DEBUG: Current (cmsis-dap) External (cmsis-dap, esp-bridge, esp-prog, iot-bus-jtag, jlink, minimodule, olimex-arm-usb-ocd, olimex-arm-usb-ocd-h, olimex-arm-usb-tiny-h, olimex-jtag-tiny, tumpa)
+PACKAGES: 
+ - framework-arduinoespressif32 @ 3.20009.0 (2.0.9) 
+ - tool-esptoolpy @ 1.40501.0 (4.5.1) 
+ - toolchain-xtensa-esp32 @ 8.4.0+2021r2-patch5
+Converting video.ino
+LDF: Library Dependency Finder -> https://bit.ly/configure-pio-ldf
+LDF Modes: Finder ~ chain, Compatibility ~ soft
+Found 36 compatible libraries
+Scanning dependencies...
+Dependency Graph
+|-- ESP32Time @ 2.0.0
+|-- WiFi @ 2.0.0
+|-- vdp-gl @ 1.0.3
+|-- vios-wire @ 1.0.0
+Building in release mode
+Compiling .pio/build/esp32-vios/src/video.ino.cpp.o
+Linking .pio/build/esp32-vios/firmware.elf
+Retrieving maximum program size .pio/build/esp32-vios/firmware.elf
+Checking size .pio/build/esp32-vios/firmware.elf
+Advanced Memory Usage is available via "PlatformIO Home > Project Inspect"
+RAM:   [=         ]  11.6% (used 37948 bytes from 327680 bytes)
+Flash: [=====     ]  50.1% (used 656141 bytes from 1310720 bytes)
+Building .pio/build/esp32-vios/firmware.bin
+esptool.py v4.5.1
+Creating esp32 image...
+Merged 2 ELF sections
+Successfully created esp32 image.
+write_manifest([".pio/build/esp32-vios/firmware.bin"], [".pio/build/esp32-vios/firmware.elf"])
+========================= [SUCCESS] Took 6.21 seconds =========================
+
+Environment    Status    Duration
+-------------  --------  ------------
+esp32-vios     SUCCESS   00:00:06.210
+========================= 1 succeeded in 00:00:06.210 =========================

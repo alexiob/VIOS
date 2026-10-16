@@ -1,0 +1,22 @@
+
+--- Capture 2026-10-16T06:06:27.546038+00:00 115200 8N1 ---
+ets Jun  8 2016 00:22:57
+
+rst:0x1 (POWERON_RESET),boot:0x12 (SPI_FAST_FLASH_BOOT)
+configsip: 188777542, SPIWP:0xee
+clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+mode:DIO, clock div:1
+load:0x3fff0030,len:1344
+load:0x40078000,len:13864
+load:0x40080400,len:3608
+entry 0x400805f0
+Инициализиране.........................................[ [32mГОТОВО[0m ]
+Всички в 1.............................................[ [31mГРЕШКА[0m ]
+Късо между GND и GPIO39(EXT.6:MCU.8)
+Късо между GND и GPIO35(EXT.7:MCU.11)
+Късо между GND и GPIO36(EXT.10:MCU.5)
+Късо между GND и GPIO37(EXT.11:MCU.6)
+Късо между GND и GPIO38(EXT.12:MCU.7)
+Всички в 0.............................................[ [31mГРЕШКА[0m ]
+Късо между VCC и GPIO27(EXT.8:MCU.16)
+

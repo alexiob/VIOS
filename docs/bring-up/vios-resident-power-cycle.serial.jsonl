@@ -1,0 +1,1110 @@
+{"time": 1792147062.56323, "direction": "tx", "hex": "04010201020207420a6911d87d00", "text": "\u0004\u0001\u0002\u0001\u0002\u0002\u0007B\ni\u0011\ufffd}\u0000"}
+{"time": 1792147062.5672882, "direction": "rx", "hex": "65", "text": "e"}
+{"time": 1792147062.5673769, "direction": "rx", "hex": "7473204a756e20203820323031362030303a32323a35370d0a0d0a7273743a", "text": "ts Jun  8 2016 00:22:57\r\n\r\nrst:"}
+{"time": 1792147062.569935, "direction": "rx", "hex": "30", "text": "0"}
+{"time": 1792147062.569962, "direction": "rx", "hex": "78312028504f5745524f4e5f5245534554292c626f6f743a30783132202853", "text": "x1 (POWERON_RESET),boot:0x12 (S"}
+{"time": 1792147062.572714, "direction": "rx", "hex": "50", "text": "P"}
+{"time": 1792147062.572743, "direction": "rx", "hex": "495f464153545f464c4153485f424f4f54290d0a636f6e6669677369703a20", "text": "I_FAST_FLASH_BOOT)\r\nconfigsip: "}
+{"time": 1792147062.575629, "direction": "rx", "hex": "31", "text": "1"}
+{"time": 1792147062.575653, "direction": "rx", "hex": "38383737373534322c2053504957503a307865650d0a636c6b5f6472763a30", "text": "88777542, SPIWP:0xee\r\nclk_drv:0"}
+{"time": 1792147062.578422, "direction": "rx", "hex": "78", "text": "x"}
+{"time": 1792147062.578444, "direction": "rx", "hex": "30302c715f6472763a307830302c645f6472763a307830302c6373305f6472", "text": "00,q_drv:0x00,d_drv:0x00,cs0_dr"}
+{"time": 1792147062.5812778, "direction": "rx", "hex": "76", "text": "v"}
+{"time": 1792147062.581323, "direction": "rx", "hex": "3a307830302c68645f6472763a307830302c77705f6472763a307830300d0a", "text": ":0x00,hd_drv:0x00,wp_drv:0x00\r\n"}
+{"time": 1792147062.583957, "direction": "rx", "hex": "6d", "text": "m"}
+{"time": 1792147062.583999, "direction": "rx", "hex": "6f64653a44494f2c20636c6f636b206469763a310d0a6c6f61643a30783366", "text": "ode:DIO, clock div:1\r\nload:0x3f"}
+{"time": 1792147062.586821, "direction": "rx", "hex": "66", "text": "f"}
+{"time": 1792147062.5868568, "direction": "rx", "hex": "66303033302c6c656e3a313334340d0a6c6f61643a30783430303738303030", "text": "f0030,len:1344\r\nload:0x40078000"}
+{"time": 1792147062.589582, "direction": "rx", "hex": "2c", "text": ","}
+{"time": 1792147062.589608, "direction": "rx", "hex": "6c656e3a31333836340d0a6c6f61643a307834303038303430302c6c656e3a", "text": "len:13864\r\nload:0x40080400,len:"}
+{"time": 1792147062.59376, "direction": "rx", "hex": "33", "text": "3"}
+{"time": 1792147062.5937831, "direction": "rx", "hex": "3630380d0a656e74727920307834303038303566300d0a", "text": "608\r\nentry 0x400805f0\r\n"}
+{"time": 1792147062.8013382, "direction": "rx", "hex": "45202832333329206573705f636f72655f64756d705f666ce1e6f8064b0272bd", "text": "E (233) esp_core_dump_fl\ufffd\ufffd\ufffd\u0006K\u0002r\ufffd"}
+{"time": 1792147062.803434, "direction": "rx", "hex": "81", "text": "\ufffd"}
+{"time": 1792147062.803524, "direction": "rx", "hex": "636f72652064756d7020706172746974696f6e20666f756e64210d0a452028", "text": "core dump partition found!\r\nE ("}
+{"time": 1792147062.807106, "direction": "rx", "hex": "32", "text": "2"}
+{"time": 1792147062.8076081, "direction": "rx", "hex": "333329206573705f636f72655f64756d705f666c6173683a204e6f20636f72", "text": "33) esp_core_dump_flash: No cor"}
+{"time": 1792147062.8105679, "direction": "rx", "hex": "65", "text": "e"}
+{"time": 1792147062.81077, "direction": "rx", "hex": "2064756d7020706172746974696f6e20666f756e64210d0a", "text": " dump partition found!\r\n"}
+{"time": 1792147063.457717, "direction": "rx", "hex": "5b", "text": "["}
+{"time": 1792147063.4580438, "direction": "rx", "hex": "2020203635385d5b455d5b65737033322d68616c2d6d6973632e633a313433", "text": "   658][E][esp32-hal-misc.c:143"}
+{"time": 1792147063.459745, "direction": "rx", "hex": "5d", "text": "]"}
+{"time": 1792147063.459886, "direction": "rx", "hex": "2064697361626c65436f72653157445428293a204661696c656420746f2072", "text": " disableCore1WDT(): Failed to r"}
+{"time": 1792147063.462503, "direction": "rx", "hex": "65", "text": "e"}
+{"time": 1792147063.462632, "direction": "rx", "hex": "6d6f766520436f726520312049444c45207461736b2066726f6d205744540d", "text": "move Core 1 IDLE task from WDT\r"}
+{"time": 1792147063.465333, "direction": "rx", "hex": "0a", "text": "\n"}
+{"time": 1792147063.657137, "direction": "rx", "hex": "00", "text": "\u0000"}
+{"time": 1792147067.614233, "direction": "tx", "hex": "04010202020207420ac7634cfb00", "text": "\u0004\u0001\u0002\u0002\u0002\u0002\u0007B\n\ufffdcL\ufffd\u0000"}
+{"time": 1792147067.621481, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147067.621515, "direction": "rx", "hex": "010202020f14424f4f54205354415254494e470d0a7162134500", "text": "\u0001\u0002\u0002\u0002\u000f\u0014BOOT STARTING\r\nqb\u0013E\u0000"}
+{"time": 1792147067.676608, "direction": "tx", "hex": "04010203020207420a62b0103000", "text": "\u0004\u0001\u0002\u0003\u0002\u0002\u0007B\nb\ufffd\u00100\u0000"}
+{"time": 1792147067.6844301, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147067.68452, "direction": "rx", "hex": "010203020f14424f4f54205354415254494e470d0a29e2f19200", "text": "\u0001\u0002\u0003\u0002\u000f\u0014BOOT STARTING\r\n)\ufffd\ufffd\u0000"}
+{"time": 1792147067.740122, "direction": "tx", "hex": "04010204020207420ada80152d00", "text": "\u0004\u0001\u0002\u0004\u0002\u0002\u0007B\n\u0680\u0015-\u0000"}
+{"time": 1792147067.747454, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147067.747636, "direction": "rx", "hex": "010204020f14424f4f54205354415254494e470d0a6269cfd800", "text": "\u0001\u0002\u0004\u0002\u000f\u0014BOOT STARTING\r\nbi\ufffd\ufffd\u0000"}
+{"time": 1792147067.801737, "direction": "tx", "hex": "04010205020207420a7f5349e600", "text": "\u0004\u0001\u0002\u0005\u0002\u0002\u0007B\n\u007fSI\ufffd\u0000"}
+{"time": 1792147067.809452, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147067.809692, "direction": "rx", "hex": "010205020f14424f4f54205354415254494e470d0a3ae92d0f00", "text": "\u0001\u0002\u0005\u0002\u000f\u0014BOOT STARTING\r\n:\ufffd-\u000f\u0000"}
+{"time": 1792147067.865663, "direction": "tx", "hex": "04010206020207420ad121dd6000", "text": "\u0004\u0001\u0002\u0006\u0002\u0002\u0007B\n\ufffd!\ufffd`\u0000"}
+{"time": 1792147067.868258, "direction": "rx", "hex": "03010301021b20424f4f542056494f532056445020312e3034206d75782d76310d0af2707d420003010301021a1f424f4f542072657461696e6564206661696c7572657320300d0ae4e4174b00", "text": "\u0003\u0001\u0003\u0001\u0002\u001b BOOT VIOS VDP 1.04 mux-v1\r\n\ufffdp}B\u0000\u0003\u0001\u0003\u0001\u0002\u001a\u001fBOOT retained failures 0\r\n\ufffd\ufffd\u0017K\u0000"}
+{"time": 1792147067.873437, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147067.873523, "direction": "rx", "hex": "010206020f14424f4f54205354415254494e470d0a936f7bac00", "text": "\u0001\u0002\u0006\u0002\u000f\u0014BOOT STARTING\r\n\ufffdo{\ufffd\u0000"}
+{"time": 1792147067.9268951, "direction": "tx", "hex": "04010207020207420a74f281ab00", "text": "\u0004\u0001\u0002\u0007\u0002\u0002\u0007B\nt\ufffd\u0000"}
+{"time": 1792147067.9293282, "direction": "rx", "hex": "03010301023237444953434f5645522052414d2042352030302042372042372042342038302038302038302042415345204237453030300d0a38a8c52e0003010301022b304e41544956452052414d204237453030302043533020303420304220303820303120444f4e452041350d0af654223200", "text": "\u0003\u0001\u0003\u0001\u000227DISCOVER RAM B5 00 B7 B7 B4 80 80 80 BASE B7E000\r\n8\ufffd\ufffd.\u0000\u0003\u0001\u0003\u0001\u0002+0NATIVE RAM B7E000 CS0 04 0B 08 01 DONE A5\r\n\ufffdT\"2\u0000"}
+{"time": 1792147067.9637141, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147067.964054, "direction": "rx", "hex": "010207020f14424f4f54205354415254494e470d0acbef997b00", "text": "\u0001\u0002\u0007\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\ufffd{\u0000"}
+{"time": 1792147068.016771, "direction": "tx", "hex": "04010208020207420aa140d75a00", "text": "\u0004\u0001\u0002\b\u0002\u0002\u0007B\n\ufffd@\ufffdZ\u0000"}
+{"time": 1792147068.0644639, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147068.064689, "direction": "rx", "hex": "010208020f14424f4f54205354415254494e470d0a0579063800", "text": "\u0001\u0002\b\u0002\u000f\u0014BOOT STARTING\r\n\u0005y\u00068\u0000"}
+{"time": 1792147068.1165152, "direction": "tx", "hex": "04010209020207420a04938b9100", "text": "\u0004\u0001\u0002\t\u0002\u0002\u0007B\n\u0004\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792147068.16545, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147068.166736, "direction": "rx", "hex": "010209020f14424f4f54205354415254494e470d0a5df9e4ef00", "text": "\u0001\u0002\t\u0002\u000f\u0014BOOT STARTING\r\n]\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792147068.22189, "direction": "tx", "hex": "0401020a020207420aaae11f1700", "text": "\u0004\u0001\u0002\n\u0002\u0002\u0007B\n\ufffd\ufffd\u001f\u0017\u0000"}
+{"time": 1792147068.266565, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147068.266942, "direction": "rx", "hex": "01020a020f14424f4f54205354415254494e470d0af47fb24c00", "text": "\u0001\u0002\n\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\u007f\ufffdL\u0000"}
+{"time": 1792147068.321866, "direction": "tx", "hex": "0401020b020207420a0f3243dc00", "text": "\u0004\u0001\u0002\u000b\u0002\u0002\u0007B\n\u000f2C\ufffd\u0000"}
+{"time": 1792147068.3674428, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147068.367552, "direction": "rx", "hex": "01020b020f14424f4f54205354415254494e470d0aacff509b00", "text": "\u0001\u0002\u000b\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\ufffdP\ufffd\u0000"}
+{"time": 1792147068.422642, "direction": "tx", "hex": "0401020c020207420ab70246c100", "text": "\u0004\u0001\u0002\f\u0002\u0002\u0007B\n\ufffd\u0002F\ufffd\u0000"}
+{"time": 1792147068.468569, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147068.468778, "direction": "rx", "hex": "01020c020f14424f4f54205354415254494e470d0ae7746ed100", "text": "\u0001\u0002\f\u0002\u000f\u0014BOOT STARTING\r\n\ufffdtn\ufffd\u0000"}
+{"time": 1792147068.52403, "direction": "tx", "hex": "0401020d020207420a12d11a0a00", "text": "\u0004\u0001\u0002\r\u0002\u0002\u0007B\n\u0012\ufffd\u001a\n\u0000"}
+{"time": 1792147068.56941, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147068.569664, "direction": "rx", "hex": "01020d020f14424f4f54205354415254494e470d0abff48c0600", "text": "\u0001\u0002\r\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\ufffd\u0006\u0000"}
+{"time": 1792147068.6225028, "direction": "tx", "hex": "0401020e020207420abca38e8c00", "text": "\u0004\u0001\u0002\u000e\u0002\u0002\u0007B\n\ufffd\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792147068.6705542, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147068.6706471, "direction": "rx", "hex": "01020e020f14424f4f54205354415254494e470d0a1672daa500", "text": "\u0001\u0002\u000e\u0002\u000f\u0014BOOT STARTING\r\n\u0016r\u06a5\u0000"}
+{"time": 1792147068.725739, "direction": "tx", "hex": "0401020f020207420a1970d24700", "text": "\u0004\u0001\u0002\u000f\u0002\u0002\u0007B\n\u0019p\ufffdG\u0000"}
+{"time": 1792147068.7714229, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147068.7716212, "direction": "rx", "hex": "01020f020f14424f4f54205354415254494e470d0a4ef2387200", "text": "\u0001\u0002\u000f\u0002\u000f\u0014BOOT STARTING\r\nN\ufffd8r\u0000"}
+{"time": 1792147068.823228, "direction": "tx", "hex": "04010210020207420a57c052b500", "text": "\u0004\u0001\u0002\u0010\u0002\u0002\u0007B\nW\ufffdR\ufffd\u0000"}
+{"time": 1792147068.873775, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147068.8740249, "direction": "rx", "hex": "010210020f14424f4f54205354415254494e470d0a8a5fe52200", "text": "\u0001\u0002\u0010\u0002\u000f\u0014BOOT STARTING\r\n\ufffd_\ufffd\"\u0000"}
+{"time": 1792147068.929266, "direction": "tx", "hex": "04010211020207420af2130e7e00", "text": "\u0004\u0001\u0002\u0011\u0002\u0002\u0007B\n\ufffd\u0013\u000e~\u0000"}
+{"time": 1792147068.973732, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147068.9739652, "direction": "rx", "hex": "010211020f14424f4f54205354415254494e470d0ad2df07f500", "text": "\u0001\u0002\u0011\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\ufffd\u0007\ufffd\u0000"}
+{"time": 1792147069.028289, "direction": "tx", "hex": "04010212020207420a5c619af800", "text": "\u0004\u0001\u0002\u0012\u0002\u0002\u0007B\n\\a\ufffd\ufffd\u0000"}
+{"time": 1792147069.074848, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147069.075052, "direction": "rx", "hex": "010212020f14424f4f54205354415254494e470d0a7b59515600", "text": "\u0001\u0002\u0012\u0002\u000f\u0014BOOT STARTING\r\n{YQV\u0000"}
+{"time": 1792147069.128721, "direction": "tx", "hex": "04010213020207420af9b2c63300", "text": "\u0004\u0001\u0002\u0013\u0002\u0002\u0007B\n\ufffd\ufffd\ufffd3\u0000"}
+{"time": 1792147069.175493, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147069.1756852, "direction": "rx", "hex": "010213020f14424f4f54205354415254494e470d0a23d9b38100", "text": "\u0001\u0002\u0013\u0002\u000f\u0014BOOT STARTING\r\n#\u0673\ufffd\u0000"}
+{"time": 1792147069.230325, "direction": "tx", "hex": "04010214020207420a4182c32e00", "text": "\u0004\u0001\u0002\u0014\u0002\u0002\u0007B\nA\ufffd\ufffd.\u0000"}
+{"time": 1792147069.276521, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147069.276614, "direction": "rx", "hex": "010214020f14424f4f54205354415254494e470d0a68528dcb00", "text": "\u0001\u0002\u0014\u0002\u000f\u0014BOOT STARTING\r\nhR\ufffd\ufffd\u0000"}
+{"time": 1792147069.3317142, "direction": "tx", "hex": "04010215020207420ae4519fe500", "text": "\u0004\u0001\u0002\u0015\u0002\u0002\u0007B\n\ufffdQ\ufffd\ufffd\u0000"}
+{"time": 1792147069.377599, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147069.3776991, "direction": "rx", "hex": "010215020f14424f4f54205354415254494e470d0a30d26f1c00", "text": "\u0001\u0002\u0015\u0002\u000f\u0014BOOT STARTING\r\n0\ufffdo\u001c\u0000"}
+{"time": 1792147069.432875, "direction": "tx", "hex": "04010216020207420a4a230b6300", "text": "\u0004\u0001\u0002\u0016\u0002\u0002\u0007B\nJ#\u000bc\u0000"}
+{"time": 1792147069.478591, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147069.478868, "direction": "rx", "hex": "010216020f14424f4f54205354415254494e470d0a995439bf00", "text": "\u0001\u0002\u0016\u0002\u000f\u0014BOOT STARTING\r\n\ufffdT9\ufffd\u0000"}
+{"time": 1792147069.5331368, "direction": "tx", "hex": "04010217020207420aeff057a800", "text": "\u0004\u0001\u0002\u0017\u0002\u0002\u0007B\n\ufffd\ufffdW\ufffd\u0000"}
+{"time": 1792147069.579645, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147069.579895, "direction": "rx", "hex": "010217020f14424f4f54205354415254494e470d0ac1d4db6800", "text": "\u0001\u0002\u0017\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\ufffd\ufffdh\u0000"}
+{"time": 1792147069.632087, "direction": "tx", "hex": "04010218020207420a3a42015900", "text": "\u0004\u0001\u0002\u0018\u0002\u0002\u0007B\n:B\u0001Y\u0000"}
+{"time": 1792147069.680483, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147069.680732, "direction": "rx", "hex": "010218020f14424f4f54205354415254494e470d0a0f42442b00", "text": "\u0001\u0002\u0018\u0002\u000f\u0014BOOT STARTING\r\n\u000fBD+\u0000"}
+{"time": 1792147069.734675, "direction": "tx", "hex": "04010219020207420a9f915d9200", "text": "\u0004\u0001\u0002\u0019\u0002\u0002\u0007B\n\ufffd\ufffd]\ufffd\u0000"}
+{"time": 1792147069.781922, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147069.782207, "direction": "rx", "hex": "010219020f14424f4f54205354415254494e470d0a57c2a6fc00", "text": "\u0001\u0002\u0019\u0002\u000f\u0014BOOT STARTING\r\nW\u00a6\ufffd\u0000"}
+{"time": 1792147069.834252, "direction": "tx", "hex": "0401021a020207420a31e3c91400", "text": "\u0004\u0001\u0002\u001a\u0002\u0002\u0007B\n1\ufffd\ufffd\u0014\u0000"}
+{"time": 1792147069.882557, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147069.8827462, "direction": "rx", "hex": "01021a020f14424f4f54205354415254494e470d0afe44f05f00", "text": "\u0001\u0002\u001a\u0002\u000f\u0014BOOT STARTING\r\n\ufffdD\ufffd_\u0000"}
+{"time": 1792147069.9353092, "direction": "tx", "hex": "0401021b020207420a943095df00", "text": "\u0004\u0001\u0002\u001b\u0002\u0002\u0007B\n\ufffd0\ufffd\ufffd\u0000"}
+{"time": 1792147069.983568, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147069.9838452, "direction": "rx", "hex": "01021b020f14424f4f54205354415254494e470d0aa6c4128800", "text": "\u0001\u0002\u001b\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\ufffd\u0012\ufffd\u0000"}
+{"time": 1792147070.0360801, "direction": "tx", "hex": "0401021c020204420a2c0390c200", "text": "\u0004\u0001\u0002\u001c\u0002\u0002\u0004B\n,\u0003\ufffd\ufffd\u0000"}
+{"time": 1792147070.084615, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147070.0848918, "direction": "rx", "hex": "01021c020f14424f4f54205354415254494e470d0aed4f2cc200", "text": "\u0001\u0002\u001c\u0002\u000f\u0014BOOT STARTING\r\n\ufffdO,\ufffd\u0000"}
+{"time": 1792147070.136511, "direction": "tx", "hex": "0401021d020207420a89d3cc0900", "text": "\u0004\u0001\u0002\u001d\u0002\u0002\u0007B\n\ufffd\ufffd\ufffd\t\u0000"}
+{"time": 1792147070.185444, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147070.1857321, "direction": "rx", "hex": "01021d020f14424f4f54205354415254494e470d0ab5cfce1500", "text": "\u0001\u0002\u001d\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\ufffd\ufffd\u0015\u0000"}
+{"time": 1792147070.2412338, "direction": "tx", "hex": "0401021e020207420a27a1588f00", "text": "\u0004\u0001\u0002\u001e\u0002\u0002\u0007B\n'\ufffdX\ufffd\u0000"}
+{"time": 1792147070.286369, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147070.2865741, "direction": "rx", "hex": "01021e020f14424f4f54205354415254494e470d0a1c4998b600", "text": "\u0001\u0002\u001e\u0002\u000f\u0014BOOT STARTING\r\n\u001cI\ufffd\ufffd\u0000"}
+{"time": 1792147070.340554, "direction": "tx", "hex": "0401021f020207420a8272044400", "text": "\u0004\u0001\u0002\u001f\u0002\u0002\u0007B\n\ufffdr\u0004D\u0000"}
+{"time": 1792147070.387464, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147070.3875499, "direction": "rx", "hex": "01021f020f14424f4f54205354415254494e470d0a44c97a6100", "text": "\u0001\u0002\u001f\u0002\u000f\u0014BOOT STARTING\r\nD\ufffdza\u0000"}
+{"time": 1792147070.442644, "direction": "tx", "hex": "04010220020207420afac728b100", "text": "\u0004\u0001\u0002 \u0002\u0002\u0007B\n\ufffd\ufffd(\ufffd\u0000"}
+{"time": 1792147070.488548, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147070.488846, "direction": "rx", "hex": "010220020f14424f4f54205354415254494e470d0a9412231700", "text": "\u0001\u0002 \u0002\u000f\u0014BOOT STARTING\r\n\ufffd\u0012#\u0017\u0000"}
+{"time": 1792147070.541017, "direction": "tx", "hex": "04010221020207420a5f14747a00", "text": "\u0004\u0001\u0002!\u0002\u0002\u0007B\n_\u0014tz\u0000"}
+{"time": 1792147070.589578, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147070.590122, "direction": "rx", "hex": "010221020f14424f4f54205354415254494e470d0acc92c1c000", "text": "\u0001\u0002!\u0002\u000f\u0014BOOT STARTING\r\n\u0312\ufffd\ufffd\u0000"}
+{"time": 1792147070.643723, "direction": "tx", "hex": "04010222020207420af166e0fc00", "text": "\u0004\u0001\u0002\"\u0002\u0002\u0007B\n\ufffdf\ufffd\ufffd\u0000"}
+{"time": 1792147070.6905432, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147070.690649, "direction": "rx", "hex": "010222020f14424f4f54205354415254494e470d0a6514976300", "text": "\u0001\u0002\"\u0002\u000f\u0014BOOT STARTING\r\ne\u0014\ufffdc\u0000"}
+{"time": 1792147070.742284, "direction": "tx", "hex": "04010223020207420a54b5bc3700", "text": "\u0004\u0001\u0002#\u0002\u0002\u0007B\nT\ufffd\ufffd7\u0000"}
+{"time": 1792147070.79156, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147070.791667, "direction": "rx", "hex": "010223020f14424f4f54205354415254494e470d0a3d9475b400", "text": "\u0001\u0002#\u0002\u000f\u0014BOOT STARTING\r\n=\ufffdu\ufffd\u0000"}
+{"time": 1792147070.846775, "direction": "tx", "hex": "04010224020207420aec85b92a00", "text": "\u0004\u0001\u0002$\u0002\u0002\u0007B\n\uc179*\u0000"}
+{"time": 1792147070.892477, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147070.892603, "direction": "rx", "hex": "010224020f14424f4f54205354415254494e470d0a761f4bfe00", "text": "\u0001\u0002$\u0002\u000f\u0014BOOT STARTING\r\nv\u001fK\ufffd\u0000"}
+{"time": 1792147070.947745, "direction": "tx", "hex": "04010225020207420a4956e5e100", "text": "\u0004\u0001\u0002%\u0002\u0002\u0007B\nIV\ufffd\ufffd\u0000"}
+{"time": 1792147070.9949172, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147070.99505, "direction": "rx", "hex": "010225020f14424f4f54205354415254494e470d0a2e9fa92900", "text": "\u0001\u0002%\u0002\u000f\u0014BOOT STARTING\r\n.\ufffd\ufffd)\u0000"}
+{"time": 1792147071.0502028, "direction": "tx", "hex": "04010226020207420ae724716700", "text": "\u0004\u0001\u0002&\u0002\u0002\u0007B\n\ufffd$qg\u0000"}
+{"time": 1792147071.0944588, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147071.094561, "direction": "rx", "hex": "010226020f14424f4f54205354415254494e470d0a8719ff8a00", "text": "\u0001\u0002&\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\u0019\ufffd\ufffd\u0000"}
+{"time": 1792147071.149651, "direction": "tx", "hex": "04010227020207420a42f72dac00", "text": "\u0004\u0001\u0002'\u0002\u0002\u0007B\nB\ufffd-\ufffd\u0000"}
+{"time": 1792147071.195497, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147071.195601, "direction": "rx", "hex": "010227020f14424f4f54205354415254494e470d0adf991d5d00", "text": "\u0001\u0002'\u0002\u000f\u0014BOOT STARTING\r\n\u07d9\u001d]\u0000"}
+{"time": 1792147071.248085, "direction": "tx", "hex": "04010228020207420a97457b5d00", "text": "\u0004\u0001\u0002(\u0002\u0002\u0007B\n\ufffdE{]\u0000"}
+{"time": 1792147071.296316, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147071.296416, "direction": "rx", "hex": "010228020f14424f4f54205354415254494e470d0a110f821e00", "text": "\u0001\u0002(\u0002\u000f\u0014BOOT STARTING\r\n\u0011\u000f\ufffd\u001e\u0000"}
+{"time": 1792147071.348052, "direction": "tx", "hex": "04010229020207420a3296279600", "text": "\u0004\u0001\u0002)\u0002\u0002\u0007B\n2\ufffd'\ufffd\u0000"}
+{"time": 1792147071.397472, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147071.397589, "direction": "rx", "hex": "010229020f14424f4f54205354415254494e470d0a498f60c900", "text": "\u0001\u0002)\u0002\u000f\u0014BOOT STARTING\r\nI\ufffd`\ufffd\u0000"}
+{"time": 1792147071.448098, "direction": "tx", "hex": "0401022a020207420a9ce4b31000", "text": "\u0004\u0001\u0002*\u0002\u0002\u0007B\n\ufffd\ufffd\u0010\u0000"}
+{"time": 1792147071.498506, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147071.49861, "direction": "rx", "hex": "01022a020f14424f4f54205354415254494e470d0ae009366a00", "text": "\u0001\u0002*\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\t6j\u0000"}
+{"time": 1792147071.5537002, "direction": "tx", "hex": "0401022b020207420a3937efdb00", "text": "\u0004\u0001\u0002+\u0002\u0002\u0007B\n97\ufffd\ufffd\u0000"}
+{"time": 1792147071.599639, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147071.5997481, "direction": "rx", "hex": "01022b020f14424f4f54205354415254494e470d0ab889d4bd00", "text": "\u0001\u0002+\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\ufffd\u053d\u0000"}
+{"time": 1792147071.6523461, "direction": "tx", "hex": "0401022c020207420a8107eac600", "text": "\u0004\u0001\u0002,\u0002\u0002\u0007B\n\ufffd\u0007\ufffd\ufffd\u0000"}
+{"time": 1792147071.7004979, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147071.700604, "direction": "rx", "hex": "01022c020f14424f4f54205354415254494e470d0af302eaf700", "text": "\u0001\u0002,\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\u0002\ufffd\ufffd\u0000"}
+{"time": 1792147071.755692, "direction": "tx", "hex": "0401022d020207420a24d4b60d00", "text": "\u0004\u0001\u0002-\u0002\u0002\u0007B\n$\u0536\r\u0000"}
+{"time": 1792147071.80143, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147071.801538, "direction": "rx", "hex": "01022d020f14424f4f54205354415254494e470d0aab82082000", "text": "\u0001\u0002-\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\ufffd\b \u0000"}
+{"time": 1792147071.8553028, "direction": "tx", "hex": "0401022e020207420a8aa6228b00", "text": "\u0004\u0001\u0002.\u0002\u0002\u0007B\n\ufffd\ufffd\"\ufffd\u0000"}
+{"time": 1792147071.902455, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147071.902577, "direction": "rx", "hex": "01022e020f14424f4f54205354415254494e470d0a02045e8300", "text": "\u0001\u0002.\u0002\u000f\u0014BOOT STARTING\r\n\u0002\u0004^\ufffd\u0000"}
+{"time": 1792147071.956555, "direction": "tx", "hex": "0401022f020207420a2f757e4000", "text": "\u0004\u0001\u0002/\u0002\u0002\u0007B\n/u~@\u0000"}
+{"time": 1792147072.003489, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147072.003606, "direction": "rx", "hex": "01022f020f14424f4f54205354415254494e470d0a5a84bc5400", "text": "\u0001\u0002/\u0002\u000f\u0014BOOT STARTING\r\nZ\ufffd\ufffdT\u0000"}
+{"time": 1792147072.0587242, "direction": "tx", "hex": "04010230020207420a61c5feb200", "text": "\u0004\u0001\u00020\u0002\u0002\u0007B\na\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792147072.104553, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147072.104644, "direction": "rx", "hex": "010230020f14424f4f54205354415254494e470d0a9e29610400", "text": "\u0001\u00020\u0002\u000f\u0014BOOT STARTING\r\n\ufffd)a\u0004\u0000"}
+{"time": 1792147072.158786, "direction": "tx", "hex": "04010231020207420ac416a27900", "text": "\u0004\u0001\u00021\u0002\u0002\u0007B\n\ufffd\u0016\ufffdy\u0000"}
+{"time": 1792147072.205556, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147072.205662, "direction": "rx", "hex": "010231020f14424f4f54205354415254494e470d0ac6a983d300", "text": "\u0001\u00021\u0002\u000f\u0014BOOT STARTING\r\n\u01a9\ufffd\ufffd\u0000"}
+{"time": 1792147072.260756, "direction": "tx", "hex": "04010232020207420a6a6436ff00", "text": "\u0004\u0001\u00022\u0002\u0002\u0007B\njd6\ufffd\u0000"}
+{"time": 1792147072.306571, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147072.306677, "direction": "rx", "hex": "010232020f14424f4f54205354415254494e470d0a6f2fd57000", "text": "\u0001\u00022\u0002\u000f\u0014BOOT STARTING\r\no/\ufffdp\u0000"}
+{"time": 1792147072.357717, "direction": "tx", "hex": "04010233020207420acfb76a3400", "text": "\u0004\u0001\u00023\u0002\u0002\u0007B\n\u03f7j4\u0000"}
+{"time": 1792147072.407409, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147072.40751, "direction": "rx", "hex": "010233020f14424f4f54205354415254494e470d0a37af37a700", "text": "\u0001\u00023\u0002\u000f\u0014BOOT STARTING\r\n7\ufffd7\ufffd\u0000"}
+{"time": 1792147072.4626079, "direction": "tx", "hex": "04010234020207420a77876f2900", "text": "\u0004\u0001\u00024\u0002\u0002\u0007B\nw\ufffdo)\u0000"}
+{"time": 1792147072.508567, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147072.508658, "direction": "rx", "hex": "010234020f14424f4f54205354415254494e470d0a7c2409ed00", "text": "\u0001\u00024\u0002\u000f\u0014BOOT STARTING\r\n|$\t\ufffd\u0000"}
+{"time": 1792147072.563888, "direction": "tx", "hex": "04010235020207420ad25433e200", "text": "\u0004\u0001\u00025\u0002\u0002\u0007B\n\ufffdT3\ufffd\u0000"}
+{"time": 1792147072.610293, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147072.6105752, "direction": "rx", "hex": "010235020f14424f4f54205354415254494e470d0a24a4eb3a00", "text": "\u0001\u00025\u0002\u000f\u0014BOOT STARTING\r\n$\ufffd\ufffd:\u0000"}
+{"time": 1792147072.665807, "direction": "tx", "hex": "04010236020207420a7c26a76400", "text": "\u0004\u0001\u00026\u0002\u0002\u0007B\n|&\ufffdd\u0000"}
+{"time": 1792147072.7112708, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147072.711474, "direction": "rx", "hex": "010236020f14424f4f54205354415254494e470d0a8d22bd9900", "text": "\u0001\u00026\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\"\ufffd\ufffd\u0000"}
+{"time": 1792147072.766134, "direction": "tx", "hex": "04010237020207420ad9f5fbaf00", "text": "\u0004\u0001\u00027\u0002\u0002\u0007B\n\ufffd\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792147072.8115258, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147072.811627, "direction": "rx", "hex": "010237020f14424f4f54205354415254494e470d0ad5a25f4e00", "text": "\u0001\u00027\u0002\u000f\u0014BOOT STARTING\r\n\u0562_N\u0000"}
+{"time": 1792147072.8679402, "direction": "tx", "hex": "04010238020207420a0c47ad5e00", "text": "\u0004\u0001\u00028\u0002\u0002\u0007B\n\fG\ufffd^\u0000"}
+{"time": 1792147072.912742, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147072.9133692, "direction": "rx", "hex": "010238020f14424f4f54205354415254494e470d0a1b34c00d00", "text": "\u0001\u00028\u0002\u000f\u0014BOOT STARTING\r\n\u001b4\ufffd\r\u0000"}
+{"time": 1792147072.967768, "direction": "tx", "hex": "04010239020207420aa994f19500", "text": "\u0004\u0001\u00029\u0002\u0002\u0007B\n\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792147073.0134149, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147073.013639, "direction": "rx", "hex": "010239020f14424f4f54205354415254494e470d0a43b422da00", "text": "\u0001\u00029\u0002\u000f\u0014BOOT STARTING\r\nC\ufffd\"\ufffd\u0000"}
+{"time": 1792147073.067816, "direction": "tx", "hex": "0401023a020207420a07e6651300", "text": "\u0004\u0001\u0002:\u0002\u0002\u0007B\n\u0007\ufffde\u0013\u0000"}
+{"time": 1792147073.1144671, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147073.1147058, "direction": "rx", "hex": "01023a020f14424f4f54205354415254494e470d0aea32747900", "text": "\u0001\u0002:\u0002\u000f\u0014BOOT STARTING\r\n\ufffd2ty\u0000"}
+{"time": 1792147073.1707299, "direction": "tx", "hex": "0401023b020207420aa23539d800", "text": "\u0004\u0001\u0002;\u0002\u0002\u0007B\n\ufffd59\ufffd\u0000"}
+{"time": 1792147073.2165718, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147073.2168808, "direction": "rx", "hex": "01023b020f14424f4f54205354415254494e470d0ab2b296ae00", "text": "\u0001\u0002;\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792147073.2688699, "direction": "tx", "hex": "0401023c020207420a1a053cc500", "text": "\u0004\u0001\u0002<\u0002\u0002\u0007B\n\u001a\u0005<\ufffd\u0000"}
+{"time": 1792147073.316752, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147073.3168588, "direction": "rx", "hex": "01023c020f14424f4f54205354415254494e470d0af939a8e400", "text": "\u0001\u0002<\u0002\u000f\u0014BOOT STARTING\r\n\ufffd9\ufffd\ufffd\u0000"}
+{"time": 1792147073.369816, "direction": "tx", "hex": "0401023d020207420abfd6600e00", "text": "\u0004\u0001\u0002=\u0002\u0002\u0007B\n\ufffd\ufffd`\u000e\u0000"}
+{"time": 1792147073.417435, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147073.41754, "direction": "rx", "hex": "01023d020f14424f4f54205354415254494e470d0aa1b94a3300", "text": "\u0001\u0002=\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\ufffdJ3\u0000"}
+{"time": 1792147073.47419, "direction": "tx", "hex": "0401023e020207420a11a4f48800", "text": "\u0004\u0001\u0002>\u0002\u0002\u0007B\n\u0011\ufffd\ufffd\u0000"}
+{"time": 1792147073.5194361, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147073.5196302, "direction": "rx", "hex": "01023e020f14424f4f54205354415254494e470d0a083f1c9000", "text": "\u0001\u0002>\u0002\u000f\u0014BOOT STARTING\r\n\b?\u001c\ufffd\u0000"}
+{"time": 1792147073.5747929, "direction": "tx", "hex": "0401023f020207420ab477a84300", "text": "\u0004\u0001\u0002?\u0002\u0002\u0007B\n\ufffdw\ufffdC\u0000"}
+{"time": 1792147073.619448, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147073.6196969, "direction": "rx", "hex": "01023f020f14424f4f54205354415254494e470d0a50bffe4700", "text": "\u0001\u0002?\u0002\u000f\u0014BOOT STARTING\r\nP\ufffd\ufffdG\u0000"}
+{"time": 1792147073.6761868, "direction": "tx", "hex": "04010240020207420aa0c8dcb900", "text": "\u0004\u0001\u0002@\u0002\u0002\u0007B\n\ufffd\ufffd\u0739\u0000"}
+{"time": 1792147073.720526, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147073.720793, "direction": "rx", "hex": "010240020f14424f4f54205354415254494e470d0aa888af7c00", "text": "\u0001\u0002@\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\ufffd\ufffd|\u0000"}
+{"time": 1792147073.7759979, "direction": "tx", "hex": "04010241020207420a051b807200", "text": "\u0004\u0001\u0002A\u0002\u0002\u0007B\n\u0005\u001b\ufffdr\u0000"}
+{"time": 1792147073.8216152, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147073.8216991, "direction": "rx", "hex": "010241020f14424f4f54205354415254494e470d0af0084dab00", "text": "\u0001\u0002A\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\bM\ufffd\u0000"}
+{"time": 1792147073.876846, "direction": "tx", "hex": "04010242020207420aab6914f400", "text": "\u0004\u0001\u0002B\u0002\u0002\u0007B\n\ufffdi\u0014\ufffd\u0000"}
+{"time": 1792147073.922432, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147073.923108, "direction": "rx", "hex": "010242020f14424f4f54205354415254494e470d0a598e1b0800", "text": "\u0001\u0002B\u0002\u000f\u0014BOOT STARTING\r\nY\ufffd\u001b\b\u0000"}
+{"time": 1792147073.978496, "direction": "tx", "hex": "04010243020207420a0eba483f00", "text": "\u0004\u0001\u0002C\u0002\u0002\u0007B\n\u000e\ufffdH?\u0000"}
+{"time": 1792147074.023376, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147074.023468, "direction": "rx", "hex": "010243020f14424f4f54205354415254494e470d0a010ef9df00", "text": "\u0001\u0002C\u0002\u000f\u0014BOOT STARTING\r\n\u0001\u000e\ufffd\ufffd\u0000"}
+{"time": 1792147074.078762, "direction": "tx", "hex": "04010244020207420ab68a4d2200", "text": "\u0004\u0001\u0002D\u0002\u0002\u0007B\n\ufffd\ufffdM\"\u0000"}
+{"time": 1792147074.12451, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147074.1246212, "direction": "rx", "hex": "010244020f14424f4f54205354415254494e470d0a4a85c79500", "text": "\u0001\u0002D\u0002\u000f\u0014BOOT STARTING\r\nJ\ufffd\u01d5\u0000"}
+{"time": 1792147074.179801, "direction": "tx", "hex": "04010245020207420a135911e900", "text": "\u0004\u0001\u0002E\u0002\u0002\u0007B\n\u0013Y\u0011\ufffd\u0000"}
+{"time": 1792147074.2256498, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147074.226006, "direction": "rx", "hex": "010245020f14424f4f54205354415254494e470d0a1205254200", "text": "\u0001\u0002E\u0002\u000f\u0014BOOT STARTING\r\n\u0012\u0005%B\u0000"}
+{"time": 1792147074.281454, "direction": "tx", "hex": "04010246020207420abd2b856f00", "text": "\u0004\u0001\u0002F\u0002\u0002\u0007B\n\ufffd+\ufffdo\u0000"}
+{"time": 1792147074.326592, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147074.326825, "direction": "rx", "hex": "010246020f14424f4f54205354415254494e470d0abb8373e100", "text": "\u0001\u0002F\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\ufffds\ufffd\u0000"}
+{"time": 1792147074.382038, "direction": "tx", "hex": "04010247020207420a18f8d9a400", "text": "\u0004\u0001\u0002G\u0002\u0002\u0007B\n\u0018\ufffd\u0664\u0000"}
+{"time": 1792147074.4276092, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147074.427704, "direction": "rx", "hex": "010247020f14424f4f54205354415254494e470d0ae303913600", "text": "\u0001\u0002G\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\u0003\ufffd6\u0000"}
+{"time": 1792147074.482879, "direction": "tx", "hex": "04010248020207420acd4a8f5500", "text": "\u0004\u0001\u0002H\u0002\u0002\u0007B\n\ufffdJ\ufffdU\u0000"}
+{"time": 1792147074.528499, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147074.528815, "direction": "rx", "hex": "010248020f14424f4f54205354415254494e470d0a2d950e7500", "text": "\u0001\u0002H\u0002\u000f\u0014BOOT STARTING\r\n-\ufffd\u000eu\u0000"}
+{"time": 1792147074.582578, "direction": "tx", "hex": "04010249020207420a6899d39e00", "text": "\u0004\u0001\u0002I\u0002\u0002\u0007B\nh\ufffd\u04de\u0000"}
+{"time": 1792147074.6294909, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147074.62979, "direction": "rx", "hex": "010249020f14424f4f54205354415254494e470d0a7515eca200", "text": "\u0001\u0002I\u0002\u000f\u0014BOOT STARTING\r\nu\u0015\ufffd\u0000"}
+{"time": 1792147074.681261, "direction": "tx", "hex": "0401024a020207420ac6eb471800", "text": "\u0004\u0001\u0002J\u0002\u0002\u0007B\n\ufffd\ufffdG\u0018\u0000"}
+{"time": 1792147074.730458, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147074.7305741, "direction": "rx", "hex": "01024a020f14424f4f54205354415254494e470d0adc93ba0100", "text": "\u0001\u0002J\u0002\u000f\u0014BOOT STARTING\r\n\u0713\ufffd\u0001\u0000"}
+{"time": 1792147074.7826052, "direction": "tx", "hex": "0401024b020207420a63381bd300", "text": "\u0004\u0001\u0002K\u0002\u0002\u0007B\nc8\u001b\ufffd\u0000"}
+{"time": 1792147074.831813, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147074.832088, "direction": "rx", "hex": "01024b020f14424f4f54205354415254494e470d0a841358d600", "text": "\u0001\u0002K\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\u0013X\ufffd\u0000"}
+{"time": 1792147074.887222, "direction": "tx", "hex": "0401024c020207420adb081ece00", "text": "\u0004\u0001\u0002L\u0002\u0002\u0007B\n\ufffd\b\u001e\ufffd\u0000"}
+{"time": 1792147074.9325922, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147074.933186, "direction": "rx", "hex": "01024c020f14424f4f54205354415254494e470d0acf98669c00", "text": "\u0001\u0002L\u0002\u000f\u0014BOOT STARTING\r\n\u03d8f\ufffd\u0000"}
+{"time": 1792147074.98477, "direction": "tx", "hex": "0401024d020207420a7edb420500", "text": "\u0004\u0001\u0002M\u0002\u0002\u0007B\n~\ufffdB\u0005\u0000"}
+{"time": 1792147075.033489, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147075.033665, "direction": "rx", "hex": "01024d020f14424f4f54205354415254494e470d0a9718844b00", "text": "\u0001\u0002M\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\u0018\ufffdK\u0000"}
+{"time": 1792147075.088799, "direction": "tx", "hex": "0401024e020207420ad0a9d68300", "text": "\u0004\u0001\u0002N\u0002\u0002\u0007B\n\u0429\u0583\u0000"}
+{"time": 1792147075.134453, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147075.1345558, "direction": "rx", "hex": "01024e020f14424f4f54205354415254494e470d0a3e9ed2e800", "text": "\u0001\u0002N\u0002\u000f\u0014BOOT STARTING\r\n>\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792147075.189666, "direction": "tx", "hex": "0401024f020207420a757a8a4800", "text": "\u0004\u0001\u0002O\u0002\u0002\u0007B\nuz\ufffdH\u0000"}
+{"time": 1792147075.235337, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147075.235434, "direction": "rx", "hex": "01024f020f14424f4f54205354415254494e470d0a661e303f00", "text": "\u0001\u0002O\u0002\u000f\u0014BOOT STARTING\r\nf\u001e0?\u0000"}
+{"time": 1792147075.287791, "direction": "tx", "hex": "04010250020207420a3bca0aba00", "text": "\u0004\u0001\u0002P\u0002\u0002\u0007B\n;\ufffd\n\ufffd\u0000"}
+{"time": 1792147075.336534, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147075.336627, "direction": "rx", "hex": "010250020f14424f4f54205354415254494e470d0aa2b3ed6f00", "text": "\u0001\u0002P\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\ufffd\ufffdo\u0000"}
+{"time": 1792147075.391698, "direction": "tx", "hex": "04010251020207420a9e19567100", "text": "\u0004\u0001\u0002Q\u0002\u0002\u0007B\n\ufffd\u0019Vq\u0000"}
+{"time": 1792147075.4376168, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147075.4376802, "direction": "rx", "hex": "010251020f14424f4f54205354415254494e470d0afa330fb800", "text": "\u0001\u0002Q\u0002\u000f\u0014BOOT STARTING\r\n\ufffd3\u000f\ufffd\u0000"}
+{"time": 1792147075.492805, "direction": "tx", "hex": "04010252020207420a306bc2f700", "text": "\u0004\u0001\u0002R\u0002\u0002\u0007B\n0k\ufffd\ufffd\u0000"}
+{"time": 1792147075.538384, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147075.5386188, "direction": "rx", "hex": "010252020f14424f4f54205354415254494e470d0a53b5591b00", "text": "\u0001\u0002R\u0002\u000f\u0014BOOT STARTING\r\nS\ufffdY\u001b\u0000"}
+{"time": 1792147075.59316, "direction": "tx", "hex": "04010253020207420a95b89e3c00", "text": "\u0004\u0001\u0002S\u0002\u0002\u0007B\n\ufffd\ufffd\ufffd<\u0000"}
+{"time": 1792147075.6393752, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147075.640547, "direction": "rx", "hex": "010253020f14424f4f54205354415254494e470d0a0b35bbcc00", "text": "\u0001\u0002S\u0002\u000f\u0014BOOT STARTING\r\n\u000b5\ufffd\ufffd\u0000"}
+{"time": 1792147075.6936169, "direction": "tx", "hex": "04010254020207420a2d889b2100", "text": "\u0004\u0001\u0002T\u0002\u0002\u0007B\n-\ufffd\ufffd!\u0000"}
+{"time": 1792147075.740611, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147075.7408159, "direction": "rx", "hex": "010254020f14424f4f54205354415254494e470d0a40be858600", "text": "\u0001\u0002T\u0002\u000f\u0014BOOT STARTING\r\n@\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792147075.795904, "direction": "tx", "hex": "04010255020207420a885bc7ea00", "text": "\u0004\u0001\u0002U\u0002\u0002\u0007B\n\ufffd[\ufffd\ufffd\u0000"}
+{"time": 1792147075.842064, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147075.842391, "direction": "rx", "hex": "010255020f14424f4f54205354415254494e470d0a183e675100", "text": "\u0001\u0002U\u0002\u000f\u0014BOOT STARTING\r\n\u0018>gQ\u0000"}
+{"time": 1792147075.894505, "direction": "tx", "hex": "04010256020207420a2629536c00", "text": "\u0004\u0001\u0002V\u0002\u0002\u0007B\n&)Sl\u0000"}
+{"time": 1792147075.942539, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147075.942724, "direction": "rx", "hex": "010256020f14424f4f54205354415254494e470d0ab1b831f200", "text": "\u0001\u0002V\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\ufffd1\ufffd\u0000"}
+{"time": 1792147075.997615, "direction": "tx", "hex": "04010257020207420a83fa0fa700", "text": "\u0004\u0001\u0002W\u0002\u0002\u0007B\n\ufffd\ufffd\u000f\ufffd\u0000"}
+{"time": 1792147076.044811, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147076.045106, "direction": "rx", "hex": "010257020f14424f4f54205354415254494e470d0ae938d32500", "text": "\u0001\u0002W\u0002\u000f\u0014BOOT STARTING\r\n\ufffd8\ufffd%\u0000"}
+{"time": 1792147076.100617, "direction": "tx", "hex": "04010258020207420a5648595600", "text": "\u0004\u0001\u0002X\u0002\u0002\u0007B\nVHYV\u0000"}
+{"time": 1792147076.1445818, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147076.1450298, "direction": "rx", "hex": "010258020f14424f4f54205354415254494e470d0a27ae4c6600", "text": "\u0001\u0002X\u0002\u000f\u0014BOOT STARTING\r\n'\ufffdLf\u0000"}
+{"time": 1792147076.2002969, "direction": "tx", "hex": "04010259020207420af39b059d00", "text": "\u0004\u0001\u0002Y\u0002\u0002\u0007B\n\ufffd\u0005\ufffd\u0000"}
+{"time": 1792147076.245423, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147076.2455301, "direction": "rx", "hex": "010259020f14424f4f54205354415254494e470d0a7f2eaeb100", "text": "\u0001\u0002Y\u0002\u000f\u0014BOOT STARTING\r\n\u007f.\ufffd\ufffd\u0000"}
+{"time": 1792147076.30069, "direction": "tx", "hex": "0401025a020207420a5de9911b00", "text": "\u0004\u0001\u0002Z\u0002\u0002\u0007B\n]\ufffd\u001b\u0000"}
+{"time": 1792147076.3466089, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147076.346875, "direction": "rx", "hex": "01025a020f14424f4f54205354415254494e470d0ad6a8f81200", "text": "\u0001\u0002Z\u0002\u000f\u0014BOOT STARTING\r\n\u05a8\ufffd\u0012\u0000"}
+{"time": 1792147076.397525, "direction": "tx", "hex": "0401025b020207420af83acdd000", "text": "\u0004\u0001\u0002[\u0002\u0002\u0007B\n\ufffd:\ufffd\ufffd\u0000"}
+{"time": 1792147076.4474938, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147076.447596, "direction": "rx", "hex": "01025b020f14424f4f54205354415254494e470d0a8e281ac500", "text": "\u0001\u0002[\u0002\u000f\u0014BOOT STARTING\r\n\ufffd(\u001a\ufffd\u0000"}
+{"time": 1792147076.500819, "direction": "tx", "hex": "0401025c020207420a400ac8cd00", "text": "\u0004\u0001\u0002\\\u0002\u0002\u0007B\n@\n\ufffd\ufffd\u0000"}
+{"time": 1792147076.5485902, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147076.5489018, "direction": "rx", "hex": "01025c020f14424f4f54205354415254494e470d0ac5a3248f00", "text": "\u0001\u0002\\\u0002\u000f\u0014BOOT STARTING\r\n\u0163$\ufffd\u0000"}
+{"time": 1792147076.6004019, "direction": "tx", "hex": "0401025d020207420ae5d9940600", "text": "\u0004\u0001\u0002]\u0002\u0002\u0007B\n\ufffd\u0654\u0006\u0000"}
+{"time": 1792147076.6494699, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147076.6497312, "direction": "rx", "hex": "01025d020f14424f4f54205354415254494e470d0a9d23c65800", "text": "\u0001\u0002]\u0002\u000f\u0014BOOT STARTING\r\n\ufffd#\ufffdX\u0000"}
+{"time": 1792147076.70326, "direction": "tx", "hex": "0401025e020205420a4bab028000", "text": "\u0004\u0001\u0002^\u0002\u0002\u0005B\nK\ufffd\u0002\ufffd\u0000"}
+{"time": 1792147076.75048, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147076.750758, "direction": "rx", "hex": "01025e020f14424f4f54205354415254494e470d0a34a590fb00", "text": "\u0001\u0002^\u0002\u000f\u0014BOOT STARTING\r\n4\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792147076.8057249, "direction": "tx", "hex": "0401025f020207420aee785c4b00", "text": "\u0004\u0001\u0002_\u0002\u0002\u0007B\n\ufffdx\\K\u0000"}
+{"time": 1792147076.8519208, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147076.8521442, "direction": "rx", "hex": "01025f020f14424f4f54205354415254494e470d0a6c25722c00", "text": "\u0001\u0002_\u0002\u000f\u0014BOOT STARTING\r\nl%r,\u0000"}
+{"time": 1792147076.906262, "direction": "tx", "hex": "04010260020207420a96cd70be00", "text": "\u0004\u0001\u0002`\u0002\u0002\u0007B\n\ufffd\ufffdp\ufffd\u0000"}
+{"time": 1792147076.952443, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147076.952523, "direction": "rx", "hex": "010260020f14424f4f54205354415254494e470d0abcfe2b5a00", "text": "\u0001\u0002`\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\ufffd+Z\u0000"}
+{"time": 1792147077.008268, "direction": "tx", "hex": "04010261020207420a331e2c7500", "text": "\u0004\u0001\u0002a\u0002\u0002\u0007B\n3\u001e,u\u0000"}
+{"time": 1792147077.053445, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147077.053559, "direction": "rx", "hex": "010261020f14424f4f54205354415254494e470d0ae47ec98d00", "text": "\u0001\u0002a\u0002\u000f\u0014BOOT STARTING\r\n\ufffd~\u024d\u0000"}
+{"time": 1792147077.108853, "direction": "tx", "hex": "04010262020207420a9d6cb8f300", "text": "\u0004\u0001\u0002b\u0002\u0002\u0007B\n\ufffdl\ufffd\ufffd\u0000"}
+{"time": 1792147077.154614, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147077.1549282, "direction": "rx", "hex": "010262020f14424f4f54205354415254494e470d0a4df89f2e00", "text": "\u0001\u0002b\u0002\u000f\u0014BOOT STARTING\r\nM\ufffd\ufffd.\u0000"}
+{"time": 1792147077.2099462, "direction": "tx", "hex": "04010263020207420a38bfe43800", "text": "\u0004\u0001\u0002c\u0002\u0002\u0007B\n8\ufffd\ufffd8\u0000"}
+{"time": 1792147077.25545, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147077.255693, "direction": "rx", "hex": "010263020f14424f4f54205354415254494e470d0a15787df900", "text": "\u0001\u0002c\u0002\u000f\u0014BOOT STARTING\r\n\u0015x}\ufffd\u0000"}
+{"time": 1792147077.309102, "direction": "tx", "hex": "04010264020207420a808fe12500", "text": "\u0004\u0001\u0002d\u0002\u0002\u0007B\n\ufffd\ufffd\ufffd%\u0000"}
+{"time": 1792147077.3581219, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147077.358408, "direction": "rx", "hex": "010264020f14424f4f54205354415254494e470d0a5ef343b300", "text": "\u0001\u0002d\u0002\u000f\u0014BOOT STARTING\r\n^\ufffdC\ufffd\u0000"}
+{"time": 1792147077.413085, "direction": "tx", "hex": "04010265020207420a255cbdee00", "text": "\u0004\u0001\u0002e\u0002\u0002\u0007B\n%\\\ufffd\ufffd\u0000"}
+{"time": 1792147077.4574652, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147077.457559, "direction": "rx", "hex": "010265020f14424f4f54205354415254494e470d0a0673a16400", "text": "\u0001\u0002e\u0002\u000f\u0014BOOT STARTING\r\n\u0006s\ufffdd\u0000"}
+{"time": 1792147077.512652, "direction": "tx", "hex": "04010266020207420a8b2e296800", "text": "\u0004\u0001\u0002f\u0002\u0002\u0007B\n\ufffd.)h\u0000"}
+{"time": 1792147077.55849, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147077.558592, "direction": "rx", "hex": "010266020f14424f4f54205354415254494e470d0aaff5f7c700", "text": "\u0001\u0002f\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792147077.613753, "direction": "tx", "hex": "04010267020207420a2efd75a300", "text": "\u0004\u0001\u0002g\u0002\u0002\u0007B\n.\ufffdu\ufffd\u0000"}
+{"time": 1792147077.659472, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147077.659803, "direction": "rx", "hex": "010267020f14424f4f54205354415254494e470d0af775151000", "text": "\u0001\u0002g\u0002\u000f\u0014BOOT STARTING\r\n\ufffdu\u0015\u0010\u0000"}
+{"time": 1792147077.720423, "direction": "tx", "hex": "04010268020207420afb4f235200", "text": "\u0004\u0001\u0002h\u0002\u0002\u0007B\n\ufffdO#R\u0000"}
+{"time": 1792147077.760465, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147077.76075, "direction": "rx", "hex": "010268020f14424f4f54205354415254494e470d0a39e38a5300", "text": "\u0001\u0002h\u0002\u000f\u0014BOOT STARTING\r\n9\ufffdS\u0000"}
+{"time": 1792147077.815016, "direction": "tx", "hex": "04010269020207420a5e9c7f9900", "text": "\u0004\u0001\u0002i\u0002\u0002\u0007B\n^\ufffd\u007f\ufffd\u0000"}
+{"time": 1792147077.861536, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147077.861829, "direction": "rx", "hex": "010269020f14424f4f54205354415254494e470d0a6163688400", "text": "\u0001\u0002i\u0002\u000f\u0014BOOT STARTING\r\nach\ufffd\u0000"}
+{"time": 1792147077.916258, "direction": "tx", "hex": "0401026a020207420af0eeeb1f00", "text": "\u0004\u0001\u0002j\u0002\u0002\u0007B\n\ufffd\ufffd\ufffd\u001f\u0000"}
+{"time": 1792147077.962431, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147077.962635, "direction": "rx", "hex": "01026a020f14424f4f54205354415254494e470d0ac8e53e2700", "text": "\u0001\u0002j\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\ufffd>'\u0000"}
+{"time": 1792147078.0176482, "direction": "tx", "hex": "0401026b020207420a553db7d400", "text": "\u0004\u0001\u0002k\u0002\u0002\u0007B\nU=\ufffd\ufffd\u0000"}
+{"time": 1792147078.063448, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147078.063663, "direction": "rx", "hex": "01026b020f14424f4f54205354415254494e470d0a9065dcf000", "text": "\u0001\u0002k\u0002\u000f\u0014BOOT STARTING\r\n\ufffde\ufffd\ufffd\u0000"}
+{"time": 1792147078.115956, "direction": "tx", "hex": "0401026c020207420aed0db2c900", "text": "\u0004\u0001\u0002l\u0002\u0002\u0007B\n\ufffd\r\ufffd\ufffd\u0000"}
+{"time": 1792147078.16472, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147078.1650088, "direction": "rx", "hex": "01026c020f14424f4f54205354415254494e470d0adbeee2ba00", "text": "\u0001\u0002l\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792147078.219807, "direction": "tx", "hex": "0401026d020207420a48deee0200", "text": "\u0004\u0001\u0002m\u0002\u0002\u0007B\nH\ufffd\ufffd\u0002\u0000"}
+{"time": 1792147078.266366, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147078.2666528, "direction": "rx", "hex": "01026d020f12424f4f54205354415254494e470d0a836e026d00", "text": "\u0001\u0002m\u0002\u000f\u0012BOOT STARTING\r\n\ufffdn\u0002m\u0000"}
+{"time": 1792147078.318709, "direction": "tx", "hex": "0401026e020207420ae6ac7a8400", "text": "\u0004\u0001\u0002n\u0002\u0002\u0007B\n\ufffdz\ufffd\u0000"}
+{"time": 1792147078.366616, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147078.367104, "direction": "rx", "hex": "01026e020f14424f4f54205354415254494e470d0a2ae856ce00", "text": "\u0001\u0002n\u0002\u000f\u0014BOOT STARTING\r\n*\ufffdV\ufffd\u0000"}
+{"time": 1792147078.4225159, "direction": "tx", "hex": "0401026f020207420a437f264f00", "text": "\u0004\u0001\u0002o\u0002\u0002\u0007B\nC\u007f&O\u0000"}
+{"time": 1792147078.467647, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147078.468211, "direction": "rx", "hex": "01026f020f14424f4f54205354415254494e470d0a7268b41900", "text": "\u0001\u0002o\u0002\u000f\u0014BOOT STARTING\r\nrh\ufffd\u0019\u0000"}
+{"time": 1792147078.5191522, "direction": "tx", "hex": "04010270020207420a0dcfa6bd00", "text": "\u0004\u0001\u0002p\u0002\u0002\u0007B\n\r\u03e6\ufffd\u0000"}
+{"time": 1792147078.568574, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147078.56879, "direction": "rx", "hex": "010270020f14424f4f54205354415254494e470d0ab6c5694900", "text": "\u0001\u0002p\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\ufffdiI\u0000"}
+{"time": 1792147078.623771, "direction": "tx", "hex": "04010271020207420aa81cfa7600", "text": "\u0004\u0001\u0002q\u0002\u0002\u0007B\n\ufffd\u001c\ufffdv\u0000"}
+{"time": 1792147078.669508, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147078.669603, "direction": "rx", "hex": "010271020f14424f4f54205354415254494e470d0aee458b9e00", "text": "\u0001\u0002q\u0002\u000f\u0014BOOT STARTING\r\n\ufffdE\ufffd\ufffd\u0000"}
+{"time": 1792147078.724721, "direction": "tx", "hex": "04010272020207420a066e6ef000", "text": "\u0004\u0001\u0002r\u0002\u0002\u0007B\n\u0006nn\ufffd\u0000"}
+{"time": 1792147078.7703621, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147078.770567, "direction": "rx", "hex": "010272020f14424f4f54205354415254494e470d0a47c3dd3d00", "text": "\u0001\u0002r\u0002\u000f\u0014BOOT STARTING\r\nG\ufffd\ufffd=\u0000"}
+{"time": 1792147078.825444, "direction": "tx", "hex": "04010273020207420aa3bd323b00", "text": "\u0004\u0001\u0002s\u0002\u0002\u0007B\n\ufffd\ufffd2;\u0000"}
+{"time": 1792147078.871438, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147078.871653, "direction": "rx", "hex": "010273020f14424f4f54205354415254494e470d0a1f433fea00", "text": "\u0001\u0002s\u0002\u000f\u0014BOOT STARTING\r\n\u001fC?\ufffd\u0000"}
+{"time": 1792147078.923141, "direction": "tx", "hex": "04010274020207420a1b8d372600", "text": "\u0004\u0001\u0002t\u0002\u0002\u0007B\n\u001b\ufffd7&\u0000"}
+{"time": 1792147078.972448, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147078.972681, "direction": "rx", "hex": "010274020f14424f4f54205354415254494e470d0a54c801a000", "text": "\u0001\u0002t\u0002\u000f\u0014BOOT STARTING\r\nT\ufffd\u0001\ufffd\u0000"}
+{"time": 1792147079.02806, "direction": "tx", "hex": "04010275020207420abe5e6bed00", "text": "\u0004\u0001\u0002u\u0002\u0002\u0007B\n\ufffd^k\ufffd\u0000"}
+{"time": 1792147079.0743139, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147079.074539, "direction": "rx", "hex": "010275020f14424f4f54205354415254494e470d0a0c48e37700", "text": "\u0001\u0002u\u0002\u000f\u0014BOOT STARTING\r\n\fH\ufffdw\u0000"}
+{"time": 1792147079.128729, "direction": "tx", "hex": "04010276020207420a102cff6b00", "text": "\u0004\u0001\u0002v\u0002\u0002\u0007B\n\u0010,\ufffdk\u0000"}
+{"time": 1792147079.174552, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147079.1747808, "direction": "rx", "hex": "010276020f14424f4f54205354415254494e470d0aa5ceb5d400", "text": "\u0001\u0002v\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\u03b5\ufffd\u0000"}
+{"time": 1792147079.229172, "direction": "tx", "hex": "04010277020207420ab5ffa3a000", "text": "\u0004\u0001\u0002w\u0002\u0002\u0007B\n\ufffd\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792147079.275438, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147079.275861, "direction": "rx", "hex": "010277020f14424f4f54205354415254494e470d0afd4e570300", "text": "\u0001\u0002w\u0002\u000f\u0014BOOT STARTING\r\n\ufffdNW\u0003\u0000"}
+{"time": 1792147079.330849, "direction": "tx", "hex": "04010278020207420a604df55100", "text": "\u0004\u0001\u0002x\u0002\u0002\u0007B\n`M\ufffdQ\u0000"}
+{"time": 1792147079.378659, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147079.378907, "direction": "rx", "hex": "010278020f14424f4f54205354415254494e470d0a33d8c84000", "text": "\u0001\u0002x\u0002\u000f\u0014BOOT STARTING\r\n3\ufffd\ufffd@\u0000"}
+{"time": 1792147079.433992, "direction": "tx", "hex": "04010279020207420ac59ea99a00", "text": "\u0004\u0001\u0002y\u0002\u0002\u0007B\n\u015e\ufffd\ufffd\u0000"}
+{"time": 1792147079.477408, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147079.477494, "direction": "rx", "hex": "010279020f14424f4f54205354415254494e470d0a6b582a9700", "text": "\u0001\u0002y\u0002\u000f\u0014BOOT STARTING\r\nkX*\ufffd\u0000"}
+{"time": 1792147079.532584, "direction": "tx", "hex": "0401027a020207420a6bec3d1c00", "text": "\u0004\u0001\u0002z\u0002\u0002\u0007B\nk\ufffd=\u001c\u0000"}
+{"time": 1792147079.57842, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147079.5786188, "direction": "rx", "hex": "01027a020f14424f4f54205354415254494e470d0ac2de7c3400", "text": "\u0001\u0002z\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\ufffd|4\u0000"}
+{"time": 1792147079.632998, "direction": "tx", "hex": "0401027b020207420ace3f61d700", "text": "\u0004\u0001\u0002{\u0002\u0002\u0007B\n\ufffd?a\ufffd\u0000"}
+{"time": 1792147079.679432, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147079.6796181, "direction": "rx", "hex": "01027b020f14424f4f54205354415254494e470d0a9a5e9ee300", "text": "\u0001\u0002{\u0002\u000f\u0014BOOT STARTING\r\n\ufffd^\ufffd\ufffd\u0000"}
+{"time": 1792147079.7345998, "direction": "tx", "hex": "0401027c020207420a760f64ca00", "text": "\u0004\u0001\u0002|\u0002\u0002\u0007B\nv\u000fd\ufffd\u0000"}
+{"time": 1792147079.780621, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147079.780985, "direction": "rx", "hex": "01027c020f14424f4f54205354415254494e470d0ad1d5a0a900", "text": "\u0001\u0002|\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\u0560\ufffd\u0000"}
+{"time": 1792147079.834524, "direction": "tx", "hex": "0401027d020207420ad3dc380100", "text": "\u0004\u0001\u0002}\u0002\u0002\u0007B\n\ufffd\ufffd8\u0001\u0000"}
+{"time": 1792147079.8816168, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147079.882792, "direction": "rx", "hex": "01027d020f14424f4f54205354415254494e470d0a8955427e00", "text": "\u0001\u0002}\u0002\u000f\u0014BOOT STARTING\r\n\ufffdUB~\u0000"}
+{"time": 1792147079.9375849, "direction": "tx", "hex": "0401027e020207420a7daeac8700", "text": "\u0004\u0001\u0002~\u0002\u0002\u0007B\n}\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792147079.9828322, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147079.983399, "direction": "rx", "hex": "01027e020f14424f4f54205354415254494e470d0a20d314dd00", "text": "\u0001\u0002~\u0002\u000f\u0014BOOT STARTING\r\n \ufffd\u0014\ufffd\u0000"}
+{"time": 1792147080.036345, "direction": "tx", "hex": "0401027f020207420ad87df04c00", "text": "\u0004\u0001\u0002\u007f\u0002\u0002\u0007B\n\ufffd}\ufffdL\u0000"}
+{"time": 1792147080.08346, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147080.083698, "direction": "rx", "hex": "01027f020f14424f4f54205354415254494e470d0a7853f60a00", "text": "\u0001\u0002\u007f\u0002\u000f\u0014BOOT STARTING\r\nxS\ufffd\n\u0000"}
+{"time": 1792147080.1348858, "direction": "tx", "hex": "04010280020207420a14d634a800", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\u0014\ufffd4\ufffd\u0000"}
+{"time": 1792147080.184552, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147080.184835, "direction": "rx", "hex": "010280020f14424f4f54205354415254494e470d0ad0bcb6ab00", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\u043c\ufffd\ufffd\u0000"}
+{"time": 1792147080.236288, "direction": "tx", "hex": "04010281020207420ab105686300", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffd\u0005hc\u0000"}
+{"time": 1792147080.2855942, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147080.2858791, "direction": "rx", "hex": "010281020f14424f4f54205354415254494e470d0a883c547c00", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffd<T|\u0000"}
+{"time": 1792147080.34112, "direction": "tx", "hex": "04010282020207420a1f77fce500", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\u001fw\ufffd\ufffd\u0000"}
+{"time": 1792147080.3864808, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147080.386571, "direction": "rx", "hex": "010282020f14424f4f54205354415254494e470d0a21ba02df00", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n!\ufffd\u0002\ufffd\u0000"}
+{"time": 1792147080.441738, "direction": "tx", "hex": "04010283020207420abaa4a02e00", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffd\ufffd\ufffd.\u0000"}
+{"time": 1792147080.4874969, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147080.487763, "direction": "rx", "hex": "010283020f14424f4f54205354415254494e470d0a793ae00800", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\ny:\ufffd\b\u0000"}
+{"time": 1792147080.539257, "direction": "tx", "hex": "04010284020207420a0294a53300", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\u0002\ufffd\ufffd3\u0000"}
+{"time": 1792147080.588576, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147080.588865, "direction": "rx", "hex": "010284020f14424f4f54205354415254494e470d0a32b1de4200", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n2\ufffd\ufffdB\u0000"}
+{"time": 1792147080.63982, "direction": "tx", "hex": "04010285020207420aa747f9f800", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffdG\ufffd\ufffd\u0000"}
+{"time": 1792147080.692241, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147080.6927161, "direction": "rx", "hex": "010285020f14424f4f54205354415254494e470d0a6a313c9500", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\nj1<\ufffd\u0000"}
+{"time": 1792147080.744939, "direction": "tx", "hex": "04010286020207420a09356d7e00", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\t5m~\u0000"}
+{"time": 1792147080.790605, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147080.790881, "direction": "rx", "hex": "010286020f14424f4f54205354415254494e470d0ac3b76a3600", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\u00f7j6\u0000"}
+{"time": 1792147080.843853, "direction": "tx", "hex": "04010287020207420aace631b500", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffd\ufffd1\ufffd\u0000"}
+{"time": 1792147080.8913732, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147080.891457, "direction": "rx", "hex": "010287020f14424f4f54205354415254494e470d0a9b3788e100", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffd7\ufffd\ufffd\u0000"}
+{"time": 1792147080.946591, "direction": "tx", "hex": "04010288020207420a7954674400", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\nyTgD\u0000"}
+{"time": 1792147080.992546, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147080.992848, "direction": "rx", "hex": "010288020f14424f4f54205354415254494e470d0a55a117a200", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\nU\ufffd\u0017\ufffd\u0000"}
+{"time": 1792147081.047733, "direction": "tx", "hex": "04010289020207420adc873b8f00", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\u0707;\ufffd\u0000"}
+{"time": 1792147081.0935931, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147081.094078, "direction": "rx", "hex": "010289020f14424f4f54205354415254494e470d0a0d21f57500", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\r!\ufffdu\u0000"}
+{"time": 1792147081.1495109, "direction": "tx", "hex": "0401028a020207420a72f5af0900", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\nr\ufffd\ufffd\t\u0000"}
+{"time": 1792147081.1946602, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147081.195178, "direction": "rx", "hex": "01028a020f14424f4f54205354415254494e470d0aa4a7a3d600", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792147081.247784, "direction": "tx", "hex": "0401028b020207420ad726f3c200", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffd&\ufffd\ufffd\u0000"}
+{"time": 1792147081.295582, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147081.295798, "direction": "rx", "hex": "01028b020f14424f4f54205354415254494e470d0afc27410100", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffd'A\u0001\u0000"}
+{"time": 1792147081.3508239, "direction": "tx", "hex": "0401028c020207420a6f16f6df00", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\no\u0016\ufffd\ufffd\u0000"}
+{"time": 1792147081.396506, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147081.396681, "direction": "rx", "hex": "01028c020f14424f4f54205354415254494e470d0ab7ac7f4b00", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\ufffd\u007fK\u0000"}
+{"time": 1792147081.449574, "direction": "tx", "hex": "0401028d020207420acac5aa1400", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffd\u016a\u0014\u0000"}
+{"time": 1792147081.497482, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147081.498156, "direction": "rx", "hex": "01028d020f14424f4f54205354415254494e470d0aef2c9d9c00", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffd,\ufffd\ufffd\u0000"}
+{"time": 1792147081.548713, "direction": "tx", "hex": "0401028e020207420a64b73e9200", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\nd\ufffd>\ufffd\u0000"}
+{"time": 1792147081.598497, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147081.598604, "direction": "rx", "hex": "01028e020f14424f4f54205354415254494e470d0a46aacb3f00", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\nF\ufffd\ufffd?\u0000"}
+{"time": 1792147081.65377, "direction": "tx", "hex": "0401028f020207420ac164625900", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffddbY\u0000"}
+{"time": 1792147081.69946, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147081.69958, "direction": "rx", "hex": "01028f020f14424f4f54205354415254494e470d0a1e2a29e800", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\u001e*)\ufffd\u0000"}
+{"time": 1792147081.754726, "direction": "tx", "hex": "04010290020207420a8fd4e2ab00", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792147081.800582, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147081.8009431, "direction": "rx", "hex": "010290020f14424f4f54205354415254494e470d0ada87f4b800", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\u0687\ufffd\ufffd\u0000"}
+{"time": 1792147081.855267, "direction": "tx", "hex": "04010291020207420a2a07be6000", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n*\u0007\ufffd`\u0000"}
+{"time": 1792147081.9016168, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147081.901834, "direction": "rx", "hex": "010291020f14424f4f54205354415254494e470d0a8207166f00", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\u0007\u0016o\u0000"}
+{"time": 1792147081.9521348, "direction": "tx", "hex": "04010292020207420a84752ae600", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffdu*\ufffd\u0000"}
+{"time": 1792147082.002574, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147082.002783, "direction": "rx", "hex": "010292020f14424f4f54205354415254494e470d0a2b8140cc00", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n+\ufffd@\ufffd\u0000"}
+{"time": 1792147082.056, "direction": "tx", "hex": "04010293020207420a21a6762d00", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n!\ufffdv-\u0000"}
+{"time": 1792147082.1033878, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147082.103594, "direction": "rx", "hex": "010293020f14424f4f54205354415254494e470d0a7301a21b00", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\ns\u0001\ufffd\u001b\u0000"}
+{"time": 1792147082.155552, "direction": "tx", "hex": "04010294020207420a9996733000", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffd\ufffds0\u0000"}
+{"time": 1792147082.204407, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147082.2046049, "direction": "rx", "hex": "010294020f14424f4f54205354415254494e470d0a388a9c5100", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n8\ufffd\ufffdQ\u0000"}
+{"time": 1792147082.259743, "direction": "tx", "hex": "04010295020207420a3c452ffb00", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n<E/\ufffd\u0000"}
+{"time": 1792147082.3054552, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147082.3055518, "direction": "rx", "hex": "010295020f14424f4f54205354415254494e470d0a600a7e8600", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n`\n~\ufffd\u0000"}
+{"time": 1792147082.360712, "direction": "tx", "hex": "04010296020207420a9237bb7d00", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffd7\ufffd}\u0000"}
+{"time": 1792147082.406476, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147082.40657, "direction": "rx", "hex": "010296020f14424f4f54205354415254494e470d0ac98c282500", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\u024c(%\u0000"}
+{"time": 1792147082.461717, "direction": "tx", "hex": "04010297020207420a37e4e7b600", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n7\ufffd\ufffd\u0000"}
+{"time": 1792147082.5079749, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147082.508211, "direction": "rx", "hex": "010297020f14424f4f54205354415254494e470d0a910ccaf200", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\f\ufffd\ufffd\u0000"}
+{"time": 1792147082.561216, "direction": "tx", "hex": "04010298020207420ae256b14700", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffdV\ufffdG\u0000"}
+{"time": 1792147082.608462, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147082.6086972, "direction": "rx", "hex": "010298020f14424f4f54205354415254494e470d0a5f9a55b100", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n_\ufffdU\ufffd\u0000"}
+{"time": 1792147082.65965, "direction": "tx", "hex": "04010299020207420a4785ed8c00", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\nG\ufffd\ufffd\u0000"}
+{"time": 1792147082.709569, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147082.70968, "direction": "rx", "hex": "010299020f14424f4f54205354415254494e470d0a071ab76600", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\u0007\u001a\ufffdf\u0000"}
+{"time": 1792147082.764843, "direction": "tx", "hex": "0401029a020207420ae9f7790a00", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffd\ufffdy\n\u0000"}
+{"time": 1792147082.810585, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147082.81086, "direction": "rx", "hex": "01029a020f14424f4f54205354415254494e470d0aae9ce1c500", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792147082.8667982, "direction": "tx", "hex": "0401029b020207420a4c2425c100", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\nL$%\ufffd\u0000"}
+{"time": 1792147082.9115362, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147082.911815, "direction": "rx", "hex": "01029b020f14424f4f54205354415254494e470d0af61c031200", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\u001c\u0003\u0012\u0000"}
+{"time": 1792147082.9669518, "direction": "tx", "hex": "0401029c020207420af41420dc00", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffd\u0014 \ufffd\u0000"}
+{"time": 1792147083.012349, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147083.012557, "direction": "rx", "hex": "01029c020f14424f4f54205354415254494e470d0abd973d5800", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\ufffd=X\u0000"}
+{"time": 1792147083.066028, "direction": "tx", "hex": "0401029d020207420a51c77c1700", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\nQ\ufffd|\u0017\u0000"}
+{"time": 1792147083.113446, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147083.1136231, "direction": "rx", "hex": "01029d020f14424f4f54205354415254494e470d0ae517df8f00", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\u0017\u07cf\u0000"}
+{"time": 1792147083.1672661, "direction": "tx", "hex": "0401029e020207420affb5e89100", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792147083.21448, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147083.214766, "direction": "rx", "hex": "01029e020f14424f4f54205354415254494e470d0a4c91892c00", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\nL\ufffd\ufffd,\u0000"}
+{"time": 1792147083.2685828, "direction": "tx", "hex": "0401029f020207420a5a66b45a00", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\nZf\ufffdZ\u0000"}
+{"time": 1792147083.31543, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147083.31554, "direction": "rx", "hex": "01029f020f14424f4f54205354415254494e470d0a14116bfb00", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\u0014\u0011k\ufffd\u0000"}
+{"time": 1792147083.3706849, "direction": "tx", "hex": "040102a0020207420a22d398af00", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\"\u04d8\ufffd\u0000"}
+{"time": 1792147083.416512, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147083.416802, "direction": "rx", "hex": "0102a0020f14424f4f54205354415254494e470d0ac4ca328d00", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\ufffd2\ufffd\u0000"}
+{"time": 1792147083.470337, "direction": "tx", "hex": "040102a1020204420a8703c46400", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0004B\n\ufffd\u0003\ufffdd\u0000"}
+{"time": 1792147083.517647, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147083.517924, "direction": "rx", "hex": "0102a1020f14424f4f54205354415254494e470d0a9c4ad05a00", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffdJ\ufffdZ\u0000"}
+{"time": 1792147083.5688262, "direction": "tx", "hex": "040102a2020207420a297250e200", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n)rP\ufffd\u0000"}
+{"time": 1792147083.61846, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147083.618639, "direction": "rx", "hex": "0102a2020f14424f4f54205354415254494e470d0a35cc86f900", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n5\u0306\ufffd\u0000"}
+{"time": 1792147083.671038, "direction": "tx", "hex": "040102a3020207420a8ca10c2900", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffd\ufffd\f)\u0000"}
+{"time": 1792147083.719359, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147083.7194722, "direction": "rx", "hex": "0102a3020f14424f4f54205354415254494e470d0a6d4c642e00", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\nmLd.\u0000"}
+{"time": 1792147083.774615, "direction": "tx", "hex": "040102a4020207420a3491093400", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n4\ufffd\t4\u0000"}
+{"time": 1792147083.820576, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147083.820863, "direction": "rx", "hex": "0102a4020f14424f4f54205354415254494e470d0a26c75a6400", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n&\ufffdZd\u0000"}
+{"time": 1792147083.871536, "direction": "tx", "hex": "040102a5020207420a914255ff00", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffdBU\ufffd\u0000"}
+{"time": 1792147083.92156, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147083.921849, "direction": "rx", "hex": "0102a5020f14424f4f54205354415254494e470d0a7e47b8b300", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n~G\ufffd\ufffd\u0000"}
+{"time": 1792147083.97712, "direction": "tx", "hex": "040102a6020207420a3f30c17900", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n?0\ufffdy\u0000"}
+{"time": 1792147084.022607, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147084.022902, "direction": "rx", "hex": "0102a6020f14424f4f54205354415254494e470d0ad7c1ee1000", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\ufffd\ufffd\u0010\u0000"}
+{"time": 1792147084.075765, "direction": "tx", "hex": "040102a7020207420a9ae39db200", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffd\u3772\u0000"}
+{"time": 1792147084.123652, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147084.123929, "direction": "rx", "hex": "0102a7020f14424f4f54205354415254494e470d0a8f410cc700", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffdA\f\ufffd\u0000"}
+{"time": 1792147084.176867, "direction": "tx", "hex": "040102a8020207420a4f51cb4300", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\nOQ\ufffdC\u0000"}
+{"time": 1792147084.2243688, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147084.224585, "direction": "rx", "hex": "0102a8020f14424f4f54205354415254494e470d0a41d7938400", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\nA\u05d3\ufffd\u0000"}
+{"time": 1792147084.275436, "direction": "tx", "hex": "040102a9020207420aea82978800", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ua097\ufffd\u0000"}
+{"time": 1792147084.3254778, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147084.325713, "direction": "rx", "hex": "0102a9020f14424f4f54205354415254494e470d0a1957715300", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\u0019WqS\u0000"}
+{"time": 1792147084.380924, "direction": "tx", "hex": "040102aa020207420a44f0030e00", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\nD\ufffd\u0003\u000e\u0000"}
+{"time": 1792147084.426535, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147084.4268212, "direction": "rx", "hex": "0102aa020f14424f4f54205354415254494e470d0ab0d127f000", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\ufffd'\ufffd\u0000"}
+{"time": 1792147084.481259, "direction": "tx", "hex": "040102ab020207420ae1235fc500", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffd#_\ufffd\u0000"}
+{"time": 1792147084.52752, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147084.527796, "direction": "rx", "hex": "0102ab020f14424f4f54205354415254494e470d0ae851c52700", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffdQ\ufffd'\u0000"}
+{"time": 1792147084.582825, "direction": "tx", "hex": "040102ac020207420a59135ad800", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\nY\u0013Z\ufffd\u0000"}
+{"time": 1792147084.6283982, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147084.62848, "direction": "rx", "hex": "0102ac020f14424f4f54205354415254494e470d0aa3dafb6d00", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\ufffd\ufffdm\u0000"}
+{"time": 1792147084.683556, "direction": "tx", "hex": "040102ad020207420afcc0061300", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffd\ufffd\u0006\u0013\u0000"}
+{"time": 1792147084.729391, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147084.729614, "direction": "rx", "hex": "0102ad020f14424f4f54205354415254494e470d0afb5a19ba00", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffdZ\u0019\ufffd\u0000"}
+{"time": 1792147084.783492, "direction": "tx", "hex": "040102ae020207420a52b2929500", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\nR\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792147084.830521, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147084.8306298, "direction": "rx", "hex": "0102ae020f14424f4f54205354415254494e470d0a52dc4f1900", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\nR\ufffdO\u0019\u0000"}
+{"time": 1792147084.88572, "direction": "tx", "hex": "040102af020207420af761ce5e00", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffda\ufffd^\u0000"}
+{"time": 1792147084.931493, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147084.9317272, "direction": "rx", "hex": "0102af020f14424f4f54205354415254494e470d0a0a5cadce00", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\n\\\ufffd\ufffd\u0000"}
+{"time": 1792147084.983553, "direction": "tx", "hex": "040102b0020207420ab9d14eac00", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffd\ufffdN\ufffd\u0000"}
+{"time": 1792147085.0333009, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147085.0336251, "direction": "rx", "hex": "0102b0020f14424f4f54205354415254494e470d0acef1709e00", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\ufffdp\ufffd\u0000"}
+{"time": 1792147085.0863419, "direction": "tx", "hex": "040102b1020207420a1c02126700", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\u001c\u0002\u0012g\u0000"}
+{"time": 1792147085.13379, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147085.134096, "direction": "rx", "hex": "0102b1020f14424f4f54205354415254494e470d0a9671924900", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffdq\ufffdI\u0000"}
+{"time": 1792147085.185984, "direction": "tx", "hex": "040102b2020207420ab27086e100", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffdp\ufffd\ufffd\u0000"}
+{"time": 1792147085.2344341, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147085.234678, "direction": "rx", "hex": "0102b2020f14424f4f54205354415254494e470d0a3ff7c4ea00", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n?\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792147085.2896729, "direction": "tx", "hex": "040102b3020207420a17a3da2a00", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\u0017\ufffd\ufffd*\u0000"}
+{"time": 1792147085.3357172, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147085.336066, "direction": "rx", "hex": "0102b3020f14424f4f54205354415254494e470d0a6777263d00", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\ngw&=\u0000"}
+{"time": 1792147085.389902, "direction": "tx", "hex": "040102b4020207420aaf93df3700", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffd\ufffd\ufffd7\u0000"}
+{"time": 1792147085.436468, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147085.436703, "direction": "rx", "hex": "0102b4020f14424f4f54205354415254494e470d0a2cfc187700", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n,\ufffd\u0018w\u0000"}
+{"time": 1792147085.4911091, "direction": "tx", "hex": "040102b5020207420a0a4083fc00", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\n@\ufffd\ufffd\u0000"}
+{"time": 1792147085.537529, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147085.537767, "direction": "rx", "hex": "0102b5020f14424f4f54205354415254494e470d0a747cfaa000", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\nt|\ufffd\ufffd\u0000"}
+{"time": 1792147085.589845, "direction": "tx", "hex": "040102b6020207420aa432177a00", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffd2\u0017z\u0000"}
+{"time": 1792147085.638577, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147085.638676, "direction": "rx", "hex": "0102b6020f14424f4f54205354415254494e470d0addfaac0300", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\ufffd\ufffd\u0003\u0000"}
+{"time": 1792147085.694648, "direction": "tx", "hex": "040102b7020207420a01e14bb100", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\u0001\ufffdK\ufffd\u0000"}
+{"time": 1792147085.739672, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147085.741319, "direction": "rx", "hex": "0102b7020f14424f4f54205354415254494e470d0a857a4ed400", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffdzN\ufffd\u0000"}
+{"time": 1792147085.796587, "direction": "tx", "hex": "040102b8020207420ad4531d4000", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffdS\u001d@\u0000"}
+{"time": 1792147085.8405252, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147085.840637, "direction": "rx", "hex": "0102b8020f14424f4f54205354415254494e470d0a4becd19700", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\nK\ufffd\u0457\u0000"}
+{"time": 1792147085.892926, "direction": "tx", "hex": "040102b9020207420a7180418b00", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\nq\ufffdA\ufffd\u0000"}
+{"time": 1792147085.9415932, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147085.941987, "direction": "rx", "hex": "0102b9020f14424f4f54205354415254494e470d0a136c334000", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\u0013l3@\u0000"}
+{"time": 1792147085.99294, "direction": "tx", "hex": "040102ba020207420adff2d50d00", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffd\ufffd\ufffd\r\u0000"}
+{"time": 1792147086.042621, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147086.0429199, "direction": "rx", "hex": "0102ba020f14424f4f54205354415254494e470d0abaea65e300", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\ufffde\ufffd\u0000"}
+{"time": 1792147086.097994, "direction": "tx", "hex": "040102bb020207420a7a2189c600", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\nz!\ufffd\ufffd\u0000"}
+{"time": 1792147086.143764, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147086.143997, "direction": "rx", "hex": "0102bb020f14424f4f54205354415254494e470d0ae26a873400", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffdj\ufffd4\u0000"}
+{"time": 1792147086.1995149, "direction": "tx", "hex": "040102bc020207420ac2118cdb00", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffd\u0011\ufffd\ufffd\u0000"}
+{"time": 1792147086.2445388, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147086.244763, "direction": "rx", "hex": "0102bc020f14424f4f54205354415254494e470d0aa9e1b97e00", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\ufffd~\u0000"}
+{"time": 1792147086.299882, "direction": "tx", "hex": "040102bd020207420a67c2d01000", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\ng\ufffd\ufffd\u0010\u0000"}
+{"time": 1792147086.34543, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147086.345527, "direction": "rx", "hex": "0102bd020f14424f4f54205354415254494e470d0af1615ba900", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffda[\ufffd\u0000"}
+{"time": 1792147086.400604, "direction": "tx", "hex": "040102be020207420ac9b0449600", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\u0270D\ufffd\u0000"}
+{"time": 1792147086.4464488, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147086.446527, "direction": "rx", "hex": "0102be020f14424f4f54205354415254494e470d0a58e70d0a00", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\nX\ufffd\r\n\u0000"}
+{"time": 1792147086.5016372, "direction": "tx", "hex": "040102bf020207420a6c63185d00", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\nlc\u0018]\u0000"}
+{"time": 1792147086.5476868, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147086.547967, "direction": "rx", "hex": "0102bf020f10424f4f54205354415254494e470d0a0467efdd00", "text": "\u0001\u0002\ufffd\u0002\u000f\u0010BOOT STARTING\r\n\u0004g\ufffd\ufffd\u0000"}
+{"time": 1792147086.598801, "direction": "tx", "hex": "040102c0020207420a78dc6ca700", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\nx\ufffdl\ufffd\u0000"}
+{"time": 1792147086.6485162, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147086.648612, "direction": "rx", "hex": "0102c0020f14424f4f54205354415254494e470d0af850bee600", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffdP\ufffd\ufffd\u0000"}
+{"time": 1792147086.703923, "direction": "tx", "hex": "040102c1020207420add0f306c00", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffd\u000f0l\u0000"}
+{"time": 1792147086.750155, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147086.75048, "direction": "rx", "hex": "0102c1020f14424f4f54205354415254494e470d0aa0d05c3100", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\ufffd\\1\u0000"}
+{"time": 1792147086.805717, "direction": "tx", "hex": "040102c2020207420a737da4ea00", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\ns}\ufffd\ufffd\u0000"}
+{"time": 1792147086.85045, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147086.850702, "direction": "rx", "hex": "0102c2020f14424f4f54205354415254494e470d0a09560a9200", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\tV\n\ufffd\u0000"}
+{"time": 1792147086.903913, "direction": "tx", "hex": "040102c3020207420ad6aef82100", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\u05ae\ufffd!\u0000"}
+{"time": 1792147086.951523, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147086.951806, "direction": "rx", "hex": "0102c3020f14424f4f54205354415254494e470d0a51d6e84500", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\nQ\ufffd\ufffdE\u0000"}
+{"time": 1792147087.010192, "direction": "tx", "hex": "040102c4020207420a6e9efd3c00", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\nn\ufffd\ufffd<\u0000"}
+{"time": 1792147087.052413, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147087.052624, "direction": "rx", "hex": "0102c4020f14424f4f54205354415254494e470d0a1a5dd60f00", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\u001a]\ufffd\u000f\u0000"}
+{"time": 1792147087.107792, "direction": "tx", "hex": "040102c5020207420acb4da1f700", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffdM\ufffd\ufffd\u0000"}
+{"time": 1792147087.15352, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147087.1536078, "direction": "rx", "hex": "0102c5020f14424f4f54205354415254494e470d0a42dd34d800", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\nB\ufffd4\ufffd\u0000"}
+{"time": 1792147087.208715, "direction": "tx", "hex": "040102c6020207420a653f357100", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\ne?5q\u0000"}
+{"time": 1792147087.254556, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147087.2546492, "direction": "rx", "hex": "0102c6020f14424f4f54205354415254494e470d0aeb5b627b00", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffd[b{\u0000"}
+{"time": 1792147087.30973, "direction": "tx", "hex": "040102c7020207420ac0ec69ba00", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffd\ufffdi\ufffd\u0000"}
+{"time": 1792147087.355411, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147087.355505, "direction": "rx", "hex": "0102c7020f14424f4f54205354415254494e470d0ab3db80ac00", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\u06c0\ufffd\u0000"}
+{"time": 1792147087.411408, "direction": "tx", "hex": "040102c8020207420a155e3f4b00", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\u0015^?K\u0000"}
+{"time": 1792147087.456416, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147087.4604921, "direction": "rx", "hex": "0102c8020f14424f4f54205354415254494e470d0a7d4d1fef00", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n}M\u001f\ufffd\u0000"}
+{"time": 1792147087.515616, "direction": "tx", "hex": "040102c9020207420ab08d638000", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffd\ufffdc\ufffd\u0000"}
+{"time": 1792147087.557409, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147087.557506, "direction": "rx", "hex": "0102c9020f14424f4f54205354415254494e470d0a25cdfd3800", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n%\ufffd\ufffd8\u0000"}
+{"time": 1792147087.608371, "direction": "tx", "hex": "040102ca020207420a1efff70600", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\u001e\ufffd\ufffd\u0006\u0000"}
+{"time": 1792147087.658441, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147087.65853, "direction": "rx", "hex": "0102ca020f14424f4f54205354415254494e470d0a8c4bab9b00", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffdK\ufffd\ufffd\u0000"}
+{"time": 1792147087.713656, "direction": "tx", "hex": "040102cb020207420abb2cabcd00", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffd,\ufffd\ufffd\u0000"}
+{"time": 1792147087.759561, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147087.759858, "direction": "rx", "hex": "0102cb020f14424f4f54205354415254494e470d0ad4cb494c00", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\ufffdIL\u0000"}
+{"time": 1792147087.815232, "direction": "tx", "hex": "040102cc020207420a031caed000", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\u0003\u001c\ufffd\ufffd\u0000"}
+{"time": 1792147087.860459, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147087.860754, "direction": "rx", "hex": "0102cc020f14424f4f54205354415254494e470d0a9f40770600", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffd@w\u0006\u0000"}
+{"time": 1792147087.9164128, "direction": "tx", "hex": "040102cd020207420aa6cff21b00", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffd\ufffd\ufffd\u001b\u0000"}
+{"time": 1792147087.961511, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147087.961815, "direction": "rx", "hex": "0102cd020f14424f4f54205354415254494e470d0ac7c095d100", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792147088.016469, "direction": "tx", "hex": "040102ce020207420a08bd669d00", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\b\ufffdf\ufffd\u0000"}
+{"time": 1792147088.062437, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147088.062639, "direction": "rx", "hex": "0102ce020f14424f4f54205354415254494e470d0a6e46c37200", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\nnF\ufffdr\u0000"}
+{"time": 1792147088.116673, "direction": "tx", "hex": "040102cf020207420aad6e3a5600", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffdn:V\u0000"}
+{"time": 1792147088.1635258, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147088.163796, "direction": "rx", "hex": "0102cf020f14424f4f54205354415254494e470d0a36c621a500", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n6\ufffd!\ufffd\u0000"}
+{"time": 1792147088.217723, "direction": "tx", "hex": "040102d0020207420ae3debaa400", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffd\u07ba\ufffd\u0000"}
+{"time": 1792147088.264561, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147088.2648408, "direction": "rx", "hex": "0102d0020f14424f4f54205354415254494e470d0af26bfcf500", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffdk\ufffd\ufffd\u0000"}
+{"time": 1792147088.320409, "direction": "tx", "hex": "040102d1020207420a460de66f00", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\nF\r\ufffdo\u0000"}
+{"time": 1792147088.365431, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147088.366975, "direction": "rx", "hex": "0102d1020f14424f4f54205354415254494e470d0aaaeb1e2200", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\ufffd\u001e\"\u0000"}
+{"time": 1792147088.422302, "direction": "tx", "hex": "040102d2020207420ae87f72e900", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffd\u007fr\ufffd\u0000"}
+{"time": 1792147088.466502, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147088.4674518, "direction": "rx", "hex": "0102d2020f14424f4f54205354415254494e470d0a036d488100", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\u0003mH\ufffd\u0000"}
+{"time": 1792147088.518764, "direction": "tx", "hex": "040102d3020207420a4dac2e2200", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\nM\ufffd.\"\u0000"}
+{"time": 1792147088.567512, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147088.567745, "direction": "rx", "hex": "0102d3020f14424f4f54205354415254494e470d0a5bedaa5600", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n[\ufffd\ufffdV\u0000"}
+{"time": 1792147088.6226602, "direction": "tx", "hex": "040102d4020207420af59c2b3f00", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffd\ufffd+?\u0000"}
+{"time": 1792147088.6684852, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147088.668608, "direction": "rx", "hex": "0102d4020f14424f4f54205354415254494e470d0a1066941c00", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\u0010f\ufffd\u001c\u0000"}
+{"time": 1792147088.724422, "direction": "tx", "hex": "040102d5020207420a504f77f400", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\nPOw\ufffd\u0000"}
+{"time": 1792147088.7694662, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147088.769671, "direction": "rx", "hex": "0102d5020f14424f4f54205354415254494e470d0a48e676cb00", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\nH\ufffdv\ufffd\u0000"}
+{"time": 1792147088.824848, "direction": "tx", "hex": "040102d6020207420afe3de37200", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffd=\ufffdr\u0000"}
+{"time": 1792147088.870672, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147088.870784, "direction": "rx", "hex": "0102d6020f14424f4f54205354415254494e470d0ae160206800", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffd` h\u0000"}
+{"time": 1792147088.925925, "direction": "tx", "hex": "040102d7020207420a5beebfb900", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n[\ueff9\u0000"}
+{"time": 1792147088.971424, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147088.971662, "direction": "rx", "hex": "0102d7020f14424f4f54205354415254494e470d0ab9e0c2bf00", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\ufffd\u00bf\u0000"}
+{"time": 1792147089.026079, "direction": "tx", "hex": "040102d8020207420a8e5ce94800", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffd\\\ufffdH\u0000"}
+{"time": 1792147089.072412, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147089.072521, "direction": "rx", "hex": "0102d8020f14424f4f54205354415254494e470d0a77765dfc00", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\nwv]\ufffd\u0000"}
+{"time": 1792147089.1276789, "direction": "tx", "hex": "040102d9020207420a2b8fb58300", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n+\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792147089.178774, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147089.17937, "direction": "rx", "hex": "0102d9020f14424f4f54205354415254494e470d0a2ff6bf2b00", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n/\ufffd\ufffd+\u0000"}
+{"time": 1792147089.233139, "direction": "tx", "hex": "040102da020207420a85fd210500", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffd\ufffd!\u0005\u0000"}
+{"time": 1792147089.275247, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147089.275489, "direction": "rx", "hex": "0102da020f14424f4f54205354415254494e470d0a8670e98800", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffdp\ufffd\u0000"}
+{"time": 1792147089.328367, "direction": "tx", "hex": "040102db020207420a202e7dce00", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n .}\ufffd\u0000"}
+{"time": 1792147089.376842, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147089.381069, "direction": "rx", "hex": "0102db020f14424f4f54205354415254494e470d0adef00b5f00", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\ufffd\u000b_\u0000"}
+{"time": 1792147089.43251, "direction": "tx", "hex": "040102dc020207420a981e78d300", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffd\u001ex\ufffd\u0000"}
+{"time": 1792147089.4764569, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147089.476567, "direction": "rx", "hex": "0102dc020f14424f4f54205354415254494e470d0a957b351500", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffd{5\u0015\u0000"}
+{"time": 1792147089.531693, "direction": "tx", "hex": "040102dd020207420a3dcd241800", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n=\ufffd$\u0018\u0000"}
+{"time": 1792147089.5775292, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147089.577651, "direction": "rx", "hex": "0102dd020f14424f4f54205354415254494e470d0acdfbd7c200", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792147089.632525, "direction": "tx", "hex": "040102de020207420a93bfb09e00", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffd\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792147089.678781, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147089.678863, "direction": "rx", "hex": "0102de020f14424f4f54205354415254494e470d0a647d816100", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\nd}\ufffda\u0000"}
+{"time": 1792147089.733958, "direction": "tx", "hex": "040102df020207420a366cec5500", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n6l\ufffdU\u0000"}
+{"time": 1792147089.7794628, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147089.779549, "direction": "rx", "hex": "0102df020f14424f4f54205354415254494e470d0a3cfd63b600", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n<\ufffdc\ufffd\u0000"}
+{"time": 1792147089.834635, "direction": "tx", "hex": "040102e0020207420a4ed9c0a000", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\nN\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792147089.880509, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147089.880594, "direction": "rx", "hex": "0102e0020f14424f4f54205354415254494e470d0aec263ac000", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffd&:\ufffd\u0000"}
+{"time": 1792147089.935841, "direction": "tx", "hex": "040102e1020207420aeb0a9c6b00", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffd\n\ufffdk\u0000"}
+{"time": 1792147089.9814, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147089.9816651, "direction": "rx", "hex": "0102e1020f14424f4f54205354415254494e470d0ab4a6d81700", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\ufffd\ufffd\u0017\u0000"}
+{"time": 1792147090.0357308, "direction": "tx", "hex": "040102e2020207420a457808ed00", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\nEx\b\ufffd\u0000"}
+{"time": 1792147090.082367, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147090.083328, "direction": "rx", "hex": "0102e2020f14424f4f54205354415254494e470d0a1d208eb400", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\u001d \ufffd\ufffd\u0000"}
+{"time": 1792147090.1356978, "direction": "tx", "hex": "040102e3020207420ae0ab542600", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffdT&\u0000"}
+{"time": 1792147090.183421, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147090.1836019, "direction": "rx", "hex": "0102e3020f14424f4f54205354415254494e470d0a45a06c6300", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\nE\ufffdlc\u0000"}
+{"time": 1792147090.238615, "direction": "tx", "hex": "040102e4020207420a589b513b00", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\nX\ufffdQ;\u0000"}
+{"time": 1792147090.284437, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147090.284682, "direction": "rx", "hex": "0102e4020f14424f4f54205354415254494e470d0a0e2b522900", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\u000e+R)\u0000"}
+{"time": 1792147090.339935, "direction": "tx", "hex": "040102e5020207420afd480df000", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffdH\r\ufffd\u0000"}
+{"time": 1792147090.385628, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147090.385955, "direction": "rx", "hex": "0102e5020f14424f4f54205354415254494e470d0a56abb0fe00", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\nV\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792147090.439616, "direction": "tx", "hex": "040102e6020207420a533a997600", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\nS:\ufffdv\u0000"}
+{"time": 1792147090.4866428, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147090.486919, "direction": "rx", "hex": "0102e6020f14424f4f54205354415254494e470d0aff2de65d00", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffd-\ufffd]\u0000"}
+{"time": 1792147090.5400581, "direction": "tx", "hex": "040102e7020207420af6e9c5bd00", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffd\ufffd\u017d\u0000"}
+{"time": 1792147090.587472, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147090.587735, "direction": "rx", "hex": "0102e7020f14424f4f54205354415254494e470d0aa7ad048a00", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\ufffd\u0004\ufffd\u0000"}
+{"time": 1792147090.642428, "direction": "tx", "hex": "040102e8020207420a235b934c00", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n#[\ufffdL\u0000"}
+{"time": 1792147090.688567, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147090.688641, "direction": "rx", "hex": "0102e8020f14424f4f54205354415254494e470d0a693b9bc900", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\ni;\ufffd\ufffd\u0000"}
+{"time": 1792147090.743776, "direction": "tx", "hex": "040102e9020207420a8688cf8700", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffd\ufffd\u03c7\u0000"}
+{"time": 1792147090.7894762, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147090.789772, "direction": "rx", "hex": "0102e9020f14424f4f54205354415254494e470d0a31bb791e00", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n1\ufffdy\u001e\u0000"}
+{"time": 1792147090.845689, "direction": "tx", "hex": "040102ea020207420a28fa5b0100", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n(\ufffd[\u0001\u0000"}
+{"time": 1792147090.8905358, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147090.8907342, "direction": "rx", "hex": "0102ea020f14424f4f54205354415254494e470d0a983d2fbd00", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffd=/\ufffd\u0000"}
+{"time": 1792147090.941581, "direction": "tx", "hex": "040102eb020207420a8d2907ca00", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffd)\u0007\ufffd\u0000"}
+{"time": 1792147090.991586, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147090.992044, "direction": "rx", "hex": "0102eb020f14424f4f54205354415254494e470d0ac0bdcd6a00", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\ufffd\ufffdj\u0000"}
+{"time": 1792147091.046187, "direction": "tx", "hex": "040102ec020207420a351902d700", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n5\u0019\u0002\ufffd\u0000"}
+{"time": 1792147091.092544, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147091.092782, "direction": "rx", "hex": "0102ec020f14424f4f54205354415254494e470d0a8b36f32000", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffd6\ufffd \u0000"}
+{"time": 1792147091.1480389, "direction": "tx", "hex": "040102ed020207420a90ca5e1c00", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffd\ufffd^\u001c\u0000"}
+{"time": 1792147091.193391, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147091.193558, "direction": "rx", "hex": "0102ed020f14424f4f54205354415254494e470d0ad3b611f700", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\u04f6\u0011\ufffd\u0000"}
+{"time": 1792147091.244534, "direction": "tx", "hex": "040102ee020207420a3eb8ca9a00", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n>\ufffd\u029a\u0000"}
+{"time": 1792147091.2945228, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147091.294729, "direction": "rx", "hex": "0102ee020f14424f4f54205354415254494e470d0a7a30475400", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\nz0GT\u0000"}
+{"time": 1792147091.349728, "direction": "tx", "hex": "040102ef020207420a9b6b965100", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffdk\ufffdQ\u0000"}
+{"time": 1792147091.3954508, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147091.39567, "direction": "rx", "hex": "0102ef020f14424f4f54205354415254494e470d0a22b0a58300", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\"\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792147091.448569, "direction": "tx", "hex": "040102f0020207420ad5db16a300", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffd\ufffd\u0016\ufffd\u0000"}
+{"time": 1792147091.49663, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147091.497213, "direction": "rx", "hex": "0102f0020f14424f4f54205354415254494e470d0ae61d78d300", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\u001dx\ufffd\u0000"}
+{"time": 1792147091.550048, "direction": "tx", "hex": "040102f1020207420a70084a6800", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\np\bJh\u0000"}
+{"time": 1792147091.597454, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147091.597774, "direction": "rx", "hex": "0102f1020f14424f4f54205354415254494e470d0abe9d9a0400", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\ufffd\ufffd\u0004\u0000"}
+{"time": 1792147091.650131, "direction": "tx", "hex": "040102f2020207420ade7adeee00", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffdz\ufffd\ufffd\u0000"}
+{"time": 1792147091.698378, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147091.6984682, "direction": "rx", "hex": "0102f2020f14424f4f54205354415254494e470d0a171bcca700", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\u0017\u001b\u0327\u0000"}
+{"time": 1792147091.7493, "direction": "tx", "hex": "040102f3020207420a7ba9822500", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n{\ufffd\ufffd%\u0000"}
+{"time": 1792147091.800195, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147091.800672, "direction": "rx", "hex": "0102f3020f14424f4f54205354415254494e470d0a4f9b2e7000", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\nO\ufffd.p\u0000"}
+{"time": 1792147091.855963, "direction": "tx", "hex": "040102f4020207420ac399873800", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\u00d9\ufffd8\u0000"}
+{"time": 1792147091.900854, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147091.901143, "direction": "rx", "hex": "0102f4020f14424f4f54205354415254494e470d0a0410103a00", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\u0004\u0010\u0010:\u0000"}
+{"time": 1792147091.9531531, "direction": "tx", "hex": "040102f5020207420a664adbf300", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\nfJ\ufffd\ufffd\u0000"}
+{"time": 1792147092.002086, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147092.0022972, "direction": "rx", "hex": "0102f5020f14424f4f54205354415254494e470d0a5c90f2ed00", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\\\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792147092.057607, "direction": "tx", "hex": "040102f6020207420ac8384f7500", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffd8Ou\u0000"}
+{"time": 1792147092.1026402, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147092.102912, "direction": "rx", "hex": "0102f6020f14424f4f54205354415254494e470d0af516a44e00", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\u0016\ufffdN\u0000"}
+{"time": 1792147092.15819, "direction": "tx", "hex": "040102f7020207420a6deb13be00", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\nm\ufffd\u0013\ufffd\u0000"}
+{"time": 1792147092.2034152, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147092.203639, "direction": "rx", "hex": "0102f7020f14424f4f54205354415254494e470d0aad96469900", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\ufffdF\ufffd\u0000"}
+{"time": 1792147092.257194, "direction": "tx", "hex": "040102f8020207420ab859454f00", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffdYEO\u0000"}
+{"time": 1792147092.304437, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147092.304529, "direction": "rx", "hex": "0102f8020f11424f4f54205354415254494e470d0a6303d9da00", "text": "\u0001\u0002\ufffd\u0002\u000f\u0011BOOT STARTING\r\nc\u0003\ufffd\ufffd\u0000"}
+{"time": 1792147092.357761, "direction": "tx", "hex": "040102f9020207420a1d8a198400", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\u001d\ufffd\u0019\ufffd\u0000"}
+{"time": 1792147092.4054558, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147092.405559, "direction": "rx", "hex": "0102f9020f14424f4f54205354415254494e470d0a3b803b0d00", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n;\ufffd;\r\u0000"}
+{"time": 1792147092.459523, "direction": "tx", "hex": "040102fa020207420ab3f88d0200", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffd\ufffd\ufffd\u0002\u0000"}
+{"time": 1792147092.5064719, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147092.5066712, "direction": "rx", "hex": "0102fa020f14424f4f54205354415254494e470d0a92066dae00", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\u0006m\ufffd\u0000"}
+{"time": 1792147092.560989, "direction": "tx", "hex": "040102fb020207420a162bd1c900", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\u0016+\ufffd\ufffd\u0000"}
+{"time": 1792147092.608267, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147092.608504, "direction": "rx", "hex": "0102fb020f14424f4f54205354415254494e470d0aca868f7900", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\u0286\ufffdy\u0000"}
+{"time": 1792147092.662154, "direction": "tx", "hex": "040102fc020207420aae1bd4d400", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffd\u001b\ufffd\ufffd\u0000"}
+{"time": 1792147092.7089229, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147092.7091389, "direction": "rx", "hex": "0102fc020f14424f4f54205354415254494e470d0a810db13300", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\r\ufffd3\u0000"}
+{"time": 1792147092.759973, "direction": "tx", "hex": "040102fd020207420a0bc8881f00", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\u000b\u0208\u001f\u0000"}
+{"time": 1792147092.809497, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147092.8095932, "direction": "rx", "hex": "0102fd020f14424f4f54205354415254494e470d0ad98d53e400", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n\u064dS\ufffd\u0000"}
+{"time": 1792147092.864761, "direction": "tx", "hex": "040102fe020207420aa5ba1c9900", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0007B\n\ufffd\ufffd\u001c\ufffd\u0000"}
+{"time": 1792147092.910487, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147092.910589, "direction": "rx", "hex": "0102fe020f14424f4f54205354415254494e470d0a700b054700", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\np\u000b\u0005G\u0000"}
+{"time": 1792147092.96726, "direction": "tx", "hex": "040102ff020203420a0469405200", "text": "\u0004\u0001\u0002\ufffd\u0002\u0002\u0003B\n\u0004i@R\u0000"}
+{"time": 1792147093.011876, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792147093.0121, "direction": "rx", "hex": "0102ff020f14424f4f54205354415254494e470d0a288be79000", "text": "\u0001\u0002\ufffd\u0002\u000f\u0014BOOT STARTING\r\n(\ufffd\ufffd\u0000"}
+{"time": 1792147093.066798, "direction": "tx", "hex": "03010203010207420a7cebe48b00", "text": "\u0003\u0001\u0002\u0003\u0001\u0002\u0007B\n|\ufffd\ufffd\u0000"}
+{"time": 1792147093.1125891, "direction": "rx", "hex": "03", "text": "\u0003"}
+{"time": 1792147093.1128268, "direction": "rx", "hex": "010203010f14424f4f54205354415254494e470d0a61d2f5de00", "text": "\u0001\u0002\u0003\u0001\u000f\u0014BOOT STARTING\r\na\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792147093.16707, "direction": "tx", "hex": "06010201010207420ad938b84000", "text": "\u0006\u0001\u0002\u0001\u0001\u0002\u0007B\n\ufffd8\ufffd@\u0000"}
+{"time": 1792147093.213551, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147093.2137878, "direction": "rx", "hex": "010201010f14424f4f54205354415254494e470d0a3952170900", "text": "\u0001\u0002\u0001\u0001\u000f\u0014BOOT STARTING\r\n9R\u0017\t\u0000"}
+{"time": 1792147093.26705, "direction": "tx", "hex": "06010202010207420a774a2cc600", "text": "\u0006\u0001\u0002\u0002\u0001\u0002\u0007B\nwJ,\ufffd\u0000"}
+{"time": 1792147093.314364, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147093.314466, "direction": "rx", "hex": "010202010f14424f4f54205354415254494e470d0a90d441aa00", "text": "\u0001\u0002\u0002\u0001\u000f\u0014BOOT STARTING\r\n\ufffd\ufffdA\ufffd\u0000"}
+{"time": 1792147093.366115, "direction": "tx", "hex": "06010203010207420ad299700d00", "text": "\u0006\u0001\u0002\u0003\u0001\u0002\u0007B\n\u0499p\r\u0000"}
+{"time": 1792147093.4155462, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147093.415807, "direction": "rx", "hex": "010203010f14424f4f54205354415254494e470d0ac854a37d00", "text": "\u0001\u0002\u0003\u0001\u000f\u0014BOOT STARTING\r\n\ufffdT\ufffd}\u0000"}
+{"time": 1792147093.470121, "direction": "tx", "hex": "06010204010207420a6aa9751000", "text": "\u0006\u0001\u0002\u0004\u0001\u0002\u0007B\nj\ufffdu\u0010\u0000"}
+{"time": 1792147093.516876, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147093.517262, "direction": "rx", "hex": "010204010f14424f4f54205354415254494e470d0a83df9d3700", "text": "\u0001\u0002\u0004\u0001\u000f\u0014BOOT STARTING\r\n\ufffd\u07dd7\u0000"}
+{"time": 1792147093.5677729, "direction": "tx", "hex": "06010205010207420acf7a29db00", "text": "\u0006\u0001\u0002\u0005\u0001\u0002\u0007B\n\ufffdz)\ufffd\u0000"}
+{"time": 1792147093.617804, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147093.618119, "direction": "rx", "hex": "010205010f14424f4f54205354415254494e470d0adb5f7fe000", "text": "\u0001\u0002\u0005\u0001\u000f\u0014BOOT STARTING\r\n\ufffd_\u007f\ufffd\u0000"}
+{"time": 1792147093.673394, "direction": "tx", "hex": "06010206010207420a6108bd5d00", "text": "\u0006\u0001\u0002\u0006\u0001\u0002\u0007B\na\b\ufffd]\u0000"}
+{"time": 1792147093.718344, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147093.718459, "direction": "rx", "hex": "010206010f14424f4f54205354415254494e470d0a72d9294300", "text": "\u0001\u0002\u0006\u0001\u000f\u0014BOOT STARTING\r\nr\ufffd)C\u0000"}
+{"time": 1792147093.769675, "direction": "tx", "hex": "06010207010207420ac4dbe19600", "text": "\u0006\u0001\u0002\u0007\u0001\u0002\u0007B\n\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792147093.819438, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147093.819541, "direction": "rx", "hex": "010207010f14424f4f54205354415254494e470d0a2a59cb9400", "text": "\u0001\u0002\u0007\u0001\u000f\u0014BOOT STARTING\r\n*Y\u02d4\u0000"}
+{"time": 1792147093.876561, "direction": "tx", "hex": "06010208010207420a1169b76700", "text": "\u0006\u0001\u0002\b\u0001\u0002\u0007B\n\u0011i\ufffdg\u0000"}
+{"time": 1792147093.920622, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147093.920906, "direction": "rx", "hex": "010208010f14424f4f54205354415254494e470d0ae4cf54d700", "text": "\u0001\u0002\b\u0001\u000f\u0014BOOT STARTING\r\n\ufffd\ufffdT\ufffd\u0000"}
+{"time": 1792147093.975073, "direction": "tx", "hex": "06010209010207420ab4baebac00", "text": "\u0006\u0001\u0002\t\u0001\u0002\u0007B\n\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792147094.021431, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147094.021646, "direction": "rx", "hex": "010209010f13424f4f54205354415254494e470d0abc4fb60100", "text": "\u0001\u0002\t\u0001\u000f\u0013BOOT STARTING\r\n\ufffdO\ufffd\u0001\u0000"}
+{"time": 1792147094.076842, "direction": "tx", "hex": "0601020a010207420a1ac87f2a00", "text": "\u0006\u0001\u0002\n\u0001\u0002\u0007B\n\u001a\ufffd\u007f*\u0000"}
+{"time": 1792147094.122587, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147094.122871, "direction": "rx", "hex": "01020a010f14424f4f54205354415254494e470d0a15c9e0a300", "text": "\u0001\u0002\n\u0001\u000f\u0014BOOT STARTING\r\n\u0015\ufffd\ufffd\u0000"}
+{"time": 1792147094.177753, "direction": "tx", "hex": "0601020b010207420abf1b23e100", "text": "\u0006\u0001\u0002\u000b\u0001\u0002\u0007B\n\ufffd\u001b#\ufffd\u0000"}
+{"time": 1792147094.223409, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147094.223669, "direction": "rx", "hex": "01020b010f14424f4f54205354415254494e470d0a4d49027400", "text": "\u0001\u0002\u000b\u0001\u000f\u0014BOOT STARTING\r\nMI\u0002t\u0000"}
+{"time": 1792147094.278469, "direction": "tx", "hex": "0601020c010207420a072b26fc00", "text": "\u0006\u0001\u0002\f\u0001\u0002\u0007B\n\u0007+&\ufffd\u0000"}
+{"time": 1792147094.327801, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147094.329837, "direction": "rx", "hex": "01020c010f14424f4f54205354415254494e470d0a06c23c3e00", "text": "\u0001\u0002\f\u0001\u000f\u0014BOOT STARTING\r\n\u0006\ufffd<>\u0000"}
+{"time": 1792147094.384732, "direction": "tx", "hex": "0601020d010207420aa2f87a3700", "text": "\u0006\u0001\u0002\r\u0001\u0002\u0007B\n\ufffd\ufffdz7\u0000"}
+{"time": 1792147094.425499, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147094.425771, "direction": "rx", "hex": "01020d010f14424f4f54205354415254494e470d0a5e42dee900", "text": "\u0001\u0002\r\u0001\u000f\u0014BOOT STARTING\r\n^B\ufffd\ufffd\u0000"}
+{"time": 1792147094.48112, "direction": "tx", "hex": "0601020e010207420a0c8aeeb100", "text": "\u0006\u0001\u0002\u000e\u0001\u0002\u0007B\n\f\ufffd\ufffd\u0000"}
+{"time": 1792147094.526432, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147094.52663, "direction": "rx", "hex": "01020e010f14424f4f54205354415254494e470d0af7c4884a00", "text": "\u0001\u0002\u000e\u0001\u000f\u0014BOOT STARTING\r\n\ufffd\u0108J\u0000"}
+{"time": 1792147094.581829, "direction": "tx", "hex": "0601020f010207420aa959b27a00", "text": "\u0006\u0001\u0002\u000f\u0001\u0002\u0007B\n\ufffdY\ufffdz\u0000"}
+{"time": 1792147094.6274948, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147094.627734, "direction": "rx", "hex": "01020f010f14424f4f54205354415254494e470d0aaf446a9d00", "text": "\u0001\u0002\u000f\u0001\u000f\u0014BOOT STARTING\r\n\ufffdDj\ufffd\u0000"}
+{"time": 1792147094.6854022, "direction": "tx", "hex": "06010210010207420ae7e9328800", "text": "\u0006\u0001\u0002\u0010\u0001\u0002\u0007B\n\ufffd\ufffd2\ufffd\u0000"}
+{"time": 1792147094.7288, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147094.729028, "direction": "rx", "hex": "010210010f14424f4f54205354415254494e470d0a6be9b7cd00", "text": "\u0001\u0002\u0010\u0001\u000f\u0014BOOT STARTING\r\nk\ufffd\ufffd\u0000"}
+{"time": 1792147094.782829, "direction": "tx", "hex": "06010211010207420a423a6e4300", "text": "\u0006\u0001\u0002\u0011\u0001\u0002\u0007B\nB:nC\u0000"}
+{"time": 1792147094.831306, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147094.8315158, "direction": "rx", "hex": "010211010f14424f4f54205354415254494e470d0a3369551a00", "text": "\u0001\u0002\u0011\u0001\u000f\u0014BOOT STARTING\r\n3iU\u001a\u0000"}
+{"time": 1792147094.883874, "direction": "tx", "hex": "06010212010207420aec48fac500", "text": "\u0006\u0001\u0002\u0012\u0001\u0002\u0007B\n\ufffdH\ufffd\ufffd\u0000"}
+{"time": 1792147094.930465, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147094.930767, "direction": "rx", "hex": "010212010f14424f4f54205354415254494e470d0a9aef03b900", "text": "\u0001\u0002\u0012\u0001\u000f\u0014BOOT STARTING\r\n\ufffd\ufffd\u0003\ufffd\u0000"}
+{"time": 1792147094.9839702, "direction": "tx", "hex": "06010213010207420a499ba60e00", "text": "\u0006\u0001\u0002\u0013\u0001\u0002\u0007B\nI\ufffd\ufffd\u000e\u0000"}
+{"time": 1792147095.031444, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147095.031693, "direction": "rx", "hex": "010213010f14424f4f54205354415254494e470d0ac26fe16e00", "text": "\u0001\u0002\u0013\u0001\u000f\u0014BOOT STARTING\r\n\ufffdo\ufffdn\u0000"}
+{"time": 1792147095.0824919, "direction": "tx", "hex": "06010214010207420af1aba31300", "text": "\u0006\u0001\u0002\u0014\u0001\u0002\u0007B\n\ufffd\u0013\u0000"}
+{"time": 1792147095.132478, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147095.132693, "direction": "rx", "hex": "010214010f14424f4f54205354415254494e470d0a89e4df2400", "text": "\u0001\u0002\u0014\u0001\u000f\u0014BOOT STARTING\r\n\ufffd\ufffd\ufffd$\u0000"}
+{"time": 1792147095.187211, "direction": "tx", "hex": "06010215010207420a5478ffd800", "text": "\u0006\u0001\u0002\u0015\u0001\u0002\u0007B\nTx\ufffd\ufffd\u0000"}
+{"time": 1792147095.2335958, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147095.235374, "direction": "rx", "hex": "010215010f14424f4f54205354415254494e470d0ad1643df300", "text": "\u0001\u0002\u0015\u0001\u000f\u0014BOOT STARTING\r\n\ufffdd=\ufffd\u0000"}
+{"time": 1792147095.290686, "direction": "tx", "hex": "06010216010207420afa0a6b5e00", "text": "\u0006\u0001\u0002\u0016\u0001\u0002\u0007B\n\ufffd\nk^\u0000"}
+{"time": 1792147095.334552, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147095.334829, "direction": "rx", "hex": "010216010f14424f4f54205354415254494e470d0a78e26b5000", "text": "\u0001\u0002\u0016\u0001\u000f\u0014BOOT STARTING\r\nx\ufffdkP\u0000"}
+{"time": 1792147095.389533, "direction": "tx", "hex": "06010217010207420a5fd9379500", "text": "\u0006\u0001\u0002\u0017\u0001\u0002\u0007B\n_\ufffd7\ufffd\u0000"}
+{"time": 1792147095.435404, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147095.435539, "direction": "rx", "hex": "010217010f14424f4f54205354415254494e470d0a2062898700", "text": "\u0001\u0002\u0017\u0001\u000f\u0014BOOT STARTING\r\n b\ufffd\ufffd\u0000"}
+{"time": 1792147095.490634, "direction": "tx", "hex": "06010218010207420a8a6b616400", "text": "\u0006\u0001\u0002\u0018\u0001\u0002\u0007B\n\ufffdkad\u0000"}
+{"time": 1792147095.536522, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147095.536604, "direction": "rx", "hex": "010218010f14424f4f54205354415254494e470d0aeef416c400", "text": "\u0001\u0002\u0018\u0001\u000f\u0014BOOT STARTING\r\n\ufffd\ufffd\u0016\ufffd\u0000"}
+{"time": 1792147095.591681, "direction": "tx", "hex": "06010219010207420a2fb83daf00", "text": "\u0006\u0001\u0002\u0019\u0001\u0002\u0007B\n/\ufffd=\ufffd\u0000"}
+{"time": 1792147095.637506, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147095.637583, "direction": "rx", "hex": "010219010f14424f4f54205354415254494e470d0ab674f41300", "text": "\u0001\u0002\u0019\u0001\u000f\u0014BOOT STARTING\r\n\ufffdt\ufffd\u0013\u0000"}
+{"time": 1792147095.693127, "direction": "tx", "hex": "0601021a010207420a81caa92900", "text": "\u0006\u0001\u0002\u001a\u0001\u0002\u0007B\n\ufffd\u02a9)\u0000"}
+{"time": 1792147095.738545, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147095.7386398, "direction": "rx", "hex": "01021a010f14424f4f54205354415254494e470d0a1ff2a2b000", "text": "\u0001\u0002\u001a\u0001\u000f\u0014BOOT STARTING\r\n\u001f\ufffd\u0000"}
+{"time": 1792147095.79375, "direction": "tx", "hex": "0601021b010207420a2419f5e200", "text": "\u0006\u0001\u0002\u001b\u0001\u0002\u0007B\n$\u0019\ufffd\ufffd\u0000"}
+{"time": 1792147095.839438, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147095.839533, "direction": "rx", "hex": "01021b010f14424f4f54205354415254494e470d0a4772406700", "text": "\u0001\u0002\u001b\u0001\u000f\u0014BOOT STARTING\r\nGr@g\u0000"}
+{"time": 1792147095.8947132, "direction": "tx", "hex": "0601021c010207420a9c29f0ff00", "text": "\u0006\u0001\u0002\u001c\u0001\u0002\u0007B\n\ufffd)\ufffd\ufffd\u0000"}
+{"time": 1792147095.9443321, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147095.945334, "direction": "rx", "hex": "01021c010f14424f4f54205354415254494e470d0a0cf97e2d00", "text": "\u0001\u0002\u001c\u0001\u000f\u0014BOOT STARTING\r\n\f\ufffd~-\u0000"}
+{"time": 1792147096.0036852, "direction": "tx", "hex": "0601021d010207420a39faac3400", "text": "\u0006\u0001\u0002\u001d\u0001\u0002\u0007B\n9\ufffd\ufffd4\u0000"}
+{"time": 1792147096.0422301, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147096.042488, "direction": "rx", "hex": "01021d010f14424f4f54205354415254494e470d0a54799cfa00", "text": "\u0001\u0002\u001d\u0001\u000f\u0014BOOT STARTING\r\nTy\ufffd\ufffd\u0000"}
+{"time": 1792147096.097722, "direction": "tx", "hex": "0601021e010207420a978838b200", "text": "\u0006\u0001\u0002\u001e\u0001\u0002\u0007B\n\ufffd\ufffd8\ufffd\u0000"}
+{"time": 1792147096.142559, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147096.143125, "direction": "rx", "hex": "01021e010f14424f4f54205354415254494e470d0afdffca5900", "text": "\u0001\u0002\u001e\u0001\u000f\u0014BOOT STARTING\r\n\ufffd\ufffd\ufffdY\u0000"}
+{"time": 1792147096.197653, "direction": "tx", "hex": "0601021f010207420a325b647900", "text": "\u0006\u0001\u0002\u001f\u0001\u0002\u0007B\n2[dy\u0000"}
+{"time": 1792147096.243767, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147096.2439911, "direction": "rx", "hex": "01021f010f14424f4f54205354415254494e470d0aa57f288e00", "text": "\u0001\u0002\u001f\u0001\u000f\u0014BOOT STARTING\r\n\ufffd\u007f(\ufffd\u0000"}
+{"time": 1792147096.297676, "direction": "tx", "hex": "06010220010207420a4aee488c00", "text": "\u0006\u0001\u0002 \u0001\u0002\u0007B\nJ\ufffdH\ufffd\u0000"}
+{"time": 1792147096.3443441, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147096.344605, "direction": "rx", "hex": "010220010f14424f4f54205354415254494e470d0a75a471f800", "text": "\u0001\u0002 \u0001\u000f\u0014BOOT STARTING\r\nu\ufffdq\ufffd\u0000"}
+{"time": 1792147096.400534, "direction": "tx", "hex": "06010221010207420aef3d144700", "text": "\u0006\u0001\u0002!\u0001\u0002\u0007B\n\ufffd=\u0014G\u0000"}
+{"time": 1792147096.4155352, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147096.41577, "direction": "rx", "hex": "010221010f14424f4f54205354415254494e470d0a2d24932f00", "text": "\u0001\u0002!\u0001\u000f\u0014BOOT STARTING\r\n-$\ufffd/\u0000"}
+{"time": 1792147096.470977, "direction": "tx", "hex": "06010222010207420a414f80c100", "text": "\u0006\u0001\u0002\"\u0001\u0002\u0007B\nAO\ufffd\ufffd\u0000"}
+{"time": 1792147096.473569, "direction": "rx", "hex": "03010301021d2256494f52454144592052414d20696d6167652076657269666965640d0a4c8c7c7e00", "text": "\u0003\u0001\u0003\u0001\u0002\u001d\"VIOREADY RAM image verified\r\nL\ufffd|~\u0000"}
+{"time": 1792147096.478614, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147096.479088, "direction": "rx", "hex": "010222010f14424f4f54205354415254494e470d0a84a2c58c00", "text": "\u0001\u0002\"\u0001\u000f\u0014BOOT STARTING\r\n\ufffd\ufffd\u014c\u0000"}
+{"time": 1792147096.534425, "direction": "tx", "hex": "06010223010207420ae49cdc0a00", "text": "\u0006\u0001\u0002#\u0001\u0002\u0007B\n\ufffd\ufffd\n\u0000"}
+{"time": 1792147096.537007, "direction": "rx", "hex": "03010301020f144845414c544820666c616720300d0a90ea1e8600", "text": "\u0003\u0001\u0003\u0001\u0002\u000f\u0014HEALTH flag 0\r\n\ufffd\ufffd\u001e\ufffd\u0000"}
+{"time": 1792147096.541939, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147096.542136, "direction": "rx", "hex": "010223010f14424f4f54205354415254494e470d0adc22275b00", "text": "\u0001\u0002#\u0001\u000f\u0014BOOT STARTING\r\n\ufffd\"'[\u0000"}
+{"time": 1792147096.5970209, "direction": "tx", "hex": "06010224010207420a5cacd91700", "text": "\u0006\u0001\u0002$\u0001\u0002\u0007B\n\\\ufffd\ufffd\u0017\u0000"}
+{"time": 1792147096.604386, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147096.604587, "direction": "rx", "hex": "010224010f14424f4f54205354415254494e470d0a97a9191100", "text": "\u0001\u0002$\u0001\u000f\u0014BOOT STARTING\r\n\ufffd\ufffd\u0019\u0011\u0000"}
+{"time": 1792147096.659277, "direction": "tx", "hex": "06010225010207420af97f85dc00", "text": "\u0006\u0001\u0002%\u0001\u0002\u0007B\n\ufffd\u007f\ufffd\ufffd\u0000"}
+{"time": 1792147096.667028, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147096.667271, "direction": "rx", "hex": "010225010f14424f4f54205354415254494e470d0acf29fbc600", "text": "\u0001\u0002%\u0001\u000f\u0014BOOT STARTING\r\n\ufffd)\ufffd\ufffd\u0000"}
+{"time": 1792147096.722253, "direction": "tx", "hex": "06010226010207420a570d115a00", "text": "\u0006\u0001\u0002&\u0001\u0002\u0007B\nW\r\u0011Z\u0000"}
+{"time": 1792147096.729501, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147096.7295492, "direction": "rx", "hex": "010226010f14424f4f54205354415254494e470d0a66afad6500", "text": "\u0001\u0002&\u0001\u000f\u0014BOOT STARTING\r\nf\ufffd\ufffde\u0000"}
+{"time": 1792147096.784631, "direction": "tx", "hex": "06010227010207420af2de4d9100", "text": "\u0006\u0001\u0002'\u0001\u0002\u0007B\n\ufffd\ufffdM\ufffd\u0000"}
+{"time": 1792147096.791424, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147096.791494, "direction": "rx", "hex": "010227010f14424f4f54205354415254494e470d0a3e2f4fb200", "text": "\u0001\u0002'\u0001\u000f\u0014BOOT STARTING\r\n>/O\ufffd\u0000"}
+{"time": 1792147096.846587, "direction": "tx", "hex": "06010228010207420a276c1b6000", "text": "\u0006\u0001\u0002(\u0001\u0002\u0007B\n'l\u001b`\u0000"}
+{"time": 1792147096.853411, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147096.8534899, "direction": "rx", "hex": "010228010f14424f4f54205354415254494e470d0af0b9d0f100", "text": "\u0001\u0002(\u0001\u000f\u0014BOOT STARTING\r\n\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792147096.90882, "direction": "tx", "hex": "06010229010207420a82bf47ab00", "text": "\u0006\u0001\u0002)\u0001\u0002\u0007B\n\ufffd\ufffdG\ufffd\u0000"}
+{"time": 1792147096.916966, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147096.917203, "direction": "rx", "hex": "010229010f14424f4f54205354415254494e470d0aa839322600", "text": "\u0001\u0002)\u0001\u000f\u0014BOOT STARTING\r\n\ufffd92&\u0000"}
+{"time": 1792147096.9719281, "direction": "tx", "hex": "0601022a010207420a2ccdd32d00", "text": "\u0006\u0001\u0002*\u0001\u0002\u0007B\n,\ufffd\ufffd-\u0000"}
+{"time": 1792147096.979567, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147096.979829, "direction": "rx", "hex": "01022a010f14424f4f54205354415254494e470d0a01bf648500", "text": "\u0001\u0002*\u0001\u000f\u0014BOOT STARTING\r\n\u0001\ufffdd\ufffd\u0000"}
+{"time": 1792147097.0348532, "direction": "tx", "hex": "0601022b010207420a891e8fe600", "text": "\u0006\u0001\u0002+\u0001\u0002\u0007B\n\ufffd\u001e\ufffd\ufffd\u0000"}
+{"time": 1792147097.0425868, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147097.042829, "direction": "rx", "hex": "01022b010f14424f4f54205354415254494e470d0a593f865200", "text": "\u0001\u0002+\u0001\u000f\u0014BOOT STARTING\r\nY?\ufffdR\u0000"}
+{"time": 1792147097.0966852, "direction": "tx", "hex": "0601022c010207420a312e8afb00", "text": "\u0006\u0001\u0002,\u0001\u0002\u0007B\n1.\ufffd\ufffd\u0000"}
+{"time": 1792147097.104434, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147097.1046169, "direction": "rx", "hex": "01022c010f14424f4f54205354415254494e470d0a12b4b81800", "text": "\u0001\u0002,\u0001\u000f\u0014BOOT STARTING\r\n\u0012\ufffd\ufffd\u0018\u0000"}
+{"time": 1792147097.157522, "direction": "tx", "hex": "0601022d010207420a94fdd63000", "text": "\u0006\u0001\u0002-\u0001\u0002\u0007B\n\ufffd\ufffd\ufffd0\u0000"}
+{"time": 1792147097.165447, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147097.1656802, "direction": "rx", "hex": "01022d010f14424f4f54205354415254494e470d0a4a345acf00", "text": "\u0001\u0002-\u0001\u000f\u0014BOOT STARTING\r\nJ4Z\ufffd\u0000"}
+{"time": 1792147097.2202759, "direction": "tx", "hex": "0601022e010207420a3a8f42b600", "text": "\u0006\u0001\u0002.\u0001\u0002\u0007B\n:\ufffdB\ufffd\u0000"}
+{"time": 1792147097.227478, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147097.227658, "direction": "rx", "hex": "01022e010f14424f4f54205354415254494e470d0ae3b20c6c00", "text": "\u0001\u0002.\u0001\u000f\u0014BOOT STARTING\r\n\ufffd\fl\u0000"}
+{"time": 1792147097.282131, "direction": "tx", "hex": "0601022f010207420a9f5c1e7d00", "text": "\u0006\u0001\u0002/\u0001\u0002\u0007B\n\ufffd\\\u001e}\u0000"}
+{"time": 1792147097.289443, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147097.2896068, "direction": "rx", "hex": "01022f010f14424f4f54205354415254494e470d0abb32eebb00", "text": "\u0001\u0002/\u0001\u000f\u0014BOOT STARTING\r\n\ufffd2\ufffd\u0000"}
+{"time": 1792147097.3459861, "direction": "tx", "hex": "06010230010207420ad1ec9e8f00", "text": "\u0006\u0001\u00020\u0001\u0002\u0007B\n\ufffd\uc78f\u0000"}
+{"time": 1792147097.353446, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147097.353628, "direction": "rx", "hex": "010230010f14424f4f54205354415254494e470d0a7f9f33eb00", "text": "\u0001\u00020\u0001\u000f\u0014BOOT STARTING\r\n\u007f\ufffd3\ufffd\u0000"}
+{"time": 1792147097.405111, "direction": "tx", "hex": "06010231010207420a743fc24400", "text": "\u0006\u0001\u00021\u0001\u0002\u0007B\nt?\ufffdD\u0000"}
+{"time": 1792147097.4125361, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147097.412717, "direction": "rx", "hex": "010231010f14424f4f54205354415254494e470d0a271fd13c00", "text": "\u0001\u00021\u0001\u000f\u0014BOOT STARTING\r\n'\u001f\ufffd<\u0000"}
+{"time": 1792147097.467372, "direction": "tx", "hex": "06010232010207420ada4d56c200", "text": "\u0006\u0001\u00022\u0001\u0002\u0007B\n\ufffdMV\ufffd\u0000"}
+{"time": 1792147097.4743848, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147097.474428, "direction": "rx", "hex": "010232010f14424f4f54205354415254494e470d0a8e99879f00", "text": "\u0001\u00022\u0001\u000f\u0014BOOT STARTING\r\n\ufffd\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792147097.5295072, "direction": "tx", "hex": "06010233010207420a7f9e0a0900", "text": "\u0006\u0001\u00023\u0001\u0002\u0007B\n\u007f\ufffd\n\t\u0000"}
+{"time": 1792147097.536466, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147097.536525, "direction": "rx", "hex": "010233010f14424f4f54205354415254494e470d0ad619654800", "text": "\u0001\u00023\u0001\u000f\u0014BOOT STARTING\r\n\ufffd\u0019eH\u0000"}
+{"time": 1792147097.590809, "direction": "tx", "hex": "06010234010207420ac7ae0f1400", "text": "\u0006\u0001\u00024\u0001\u0002\u0007B\n\u01ee\u000f\u0014\u0000"}
+{"time": 1792147097.598486, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147097.598706, "direction": "rx", "hex": "010234010f14424f4f54205354415254494e470d0a9d925b0200", "text": "\u0001\u00024\u0001\u000f\u0014BOOT STARTING\r\n\ufffd\ufffd[\u0002\u0000"}
+{"time": 1792147097.650899, "direction": "tx", "hex": "06010235010207420a627d53df00", "text": "\u0006\u0001\u00025\u0001\u0002\u0007B\nb}S\ufffd\u0000"}
+{"time": 1792147097.6588001, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147097.658992, "direction": "rx", "hex": "010235010f14424f4f54205354415254494e470d0ac512b9d500", "text": "\u0001\u00025\u0001\u000f\u0014BOOT STARTING\r\n\ufffd\u0012\ufffd\ufffd\u0000"}
+{"time": 1792147097.7112162, "direction": "tx", "hex": "06010236010207420acc0fc75900", "text": "\u0006\u0001\u00026\u0001\u0002\u0007B\n\ufffd\u000f\ufffdY\u0000"}
+{"time": 1792147097.718533, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147097.718643, "direction": "rx", "hex": "010236010f14424f4f54205354415254494e470d0a6c94ef7600", "text": "\u0001\u00026\u0001\u000f\u0014BOOT STARTING\r\nl\ufffd\ufffdv\u0000"}
+{"time": 1792147097.7737238, "direction": "tx", "hex": "06010237010207420a69dc9b9200", "text": "\u0006\u0001\u00027\u0001\u0002\u0007B\ni\u071b\ufffd\u0000"}
+{"time": 1792147097.781426, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147097.78162, "direction": "rx", "hex": "010237010f14424f4f54205354415254494e470d0a34140da100", "text": "\u0001\u00027\u0001\u000f\u0014BOOT STARTING\r\n4\u0014\r\ufffd\u0000"}
+{"time": 1792147097.8368042, "direction": "tx", "hex": "06010238010207420abc6ecd6300", "text": "\u0006\u0001\u00028\u0001\u0002\u0007B\n\ufffdn\ufffdc\u0000"}
+{"time": 1792147097.844449, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147097.844495, "direction": "rx", "hex": "010238010f14424f4f54205354415254494e470d0afa8292e200", "text": "\u0001\u00028\u0001\u000f\u0014BOOT STARTING\r\n\ufffd\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792147097.900222, "direction": "tx", "hex": "06010239010207420a19bd91a800", "text": "\u0006\u0001\u00029\u0001\u0002\u0007B\n\u0019\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792147097.9073842, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147097.9074712, "direction": "rx", "hex": "010239010f14424f4f54205354415254494e470d0aa202703500", "text": "\u0001\u00029\u0001\u000f\u0014BOOT STARTING\r\n\ufffd\u0002p5\u0000"}
+{"time": 1792147097.962618, "direction": "tx", "hex": "0601023a010207420ab7cf052e00", "text": "\u0006\u0001\u0002:\u0001\u0002\u0007B\n\ufffd\ufffd\u0005.\u0000"}
+{"time": 1792147097.9704168, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147097.970618, "direction": "rx", "hex": "01023a010f14424f4f54205354415254494e470d0a0b84269600", "text": "\u0001\u0002:\u0001\u000f\u0014BOOT STARTING\r\n\u000b\ufffd&\ufffd\u0000"}
+{"time": 1792147098.025996, "direction": "tx", "hex": "0601023b010207420a121c59e500", "text": "\u0006\u0001\u0002;\u0001\u0002\u0007B\n\u0012\u001cY\ufffd\u0000"}
+{"time": 1792147098.033949, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147098.034268, "direction": "rx", "hex": "01023b010f14424f4f54205354415254494e470d0a5304c44100", "text": "\u0001\u0002;\u0001\u000f\u0014BOOT STARTING\r\nS\u0004\ufffdA\u0000"}
+{"time": 1792147098.085525, "direction": "tx", "hex": "0601023c010207420aaa2c5cf800", "text": "\u0006\u0001\u0002<\u0001\u0002\u0007B\n\ufffd,\\\ufffd\u0000"}
+{"time": 1792147098.093662, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147098.093923, "direction": "rx", "hex": "01023c010f14424f4f54205354415254494e470d0a188ffa0b00", "text": "\u0001\u0002<\u0001\u000f\u0014BOOT STARTING\r\n\u0018\ufffd\ufffd\u000b\u0000"}
+{"time": 1792147098.148705, "direction": "tx", "hex": "0601023d010205420a0fff023300", "text": "\u0006\u0001\u0002=\u0001\u0002\u0005B\n\u000f\ufffd\u00023\u0000"}
+{"time": 1792147098.156446, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147098.1567092, "direction": "rx", "hex": "01023d010f14424f4f54205354415254494e470d0a400f18dc00", "text": "\u0001\u0002=\u0001\u000f\u0014BOOT STARTING\r\n@\u000f\u0018\ufffd\u0000"}
+{"time": 1792147098.211369, "direction": "tx", "hex": "0601023e010207420aa18d94b500", "text": "\u0006\u0001\u0002>\u0001\u0002\u0007B\n\ufffd\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792147098.218436, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147098.218671, "direction": "rx", "hex": "01023e010f14424f4f54205354415254494e470d0ae9894e7f00", "text": "\u0001\u0002>\u0001\u000f\u0014BOOT STARTING\r\n\ufffdN\u007f\u0000"}
+{"time": 1792147098.27169, "direction": "tx", "hex": "0601023f010207420a045ec87e00", "text": "\u0006\u0001\u0002?\u0001\u0002\u0007B\n\u0004^\ufffd~\u0000"}
+{"time": 1792147098.279696, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147098.2799711, "direction": "rx", "hex": "01023f010f14424f4f54205354415254494e470d0ab109aca800", "text": "\u0001\u0002?\u0001\u000f\u0014BOOT STARTING\r\n\ufffd\t\ufffd\ufffd\u0000"}
+{"time": 1792147098.3340852, "direction": "tx", "hex": "06010240010207420a10e1bc8400", "text": "\u0006\u0001\u0002@\u0001\u0002\u0007B\n\u0010\u1f04\u0000"}
+{"time": 1792147098.3425221, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147098.342713, "direction": "rx", "hex": "010240010f14424f4f54205354415254494e470d0a493efd9300", "text": "\u0001\u0002@\u0001\u000f\u0014BOOT STARTING\r\nI>\ufffd\ufffd\u0000"}
+{"time": 1792147098.3969312, "direction": "tx", "hex": "06010241010207420ab532e04f00", "text": "\u0006\u0001\u0002A\u0001\u0002\u0007B\n\ufffd2\ufffdO\u0000"}
+{"time": 1792147098.404383, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147098.4044611, "direction": "rx", "hex": "010241010f14424f4f54205354415254494e470d0a11be1f4400", "text": "\u0001\u0002A\u0001\u000f\u0014BOOT STARTING\r\n\u0011\ufffd\u001fD\u0000"}
+{"time": 1792147098.4595919, "direction": "tx", "hex": "06010242010207420a1b4074c900", "text": "\u0006\u0001\u0002B\u0001\u0002\u0007B\n\u001b@t\ufffd\u0000"}
+{"time": 1792147098.462101, "direction": "rx", "hex": "03010101021217626f6f7420636f6e6669726d656420410d0af1e2e2410003010301020f144845414c544820666c616720310d0aa780dc8700030101010202070d0a9b8b8df00003010101021e2356494f5320466f727468203234202f2041676f6e204c6967687420320d0a1baa51af000301010102060b76696f733e204ead91e100", "text": "\u0003\u0001\u0001\u0001\u0002\u0012\u0017boot confirmed A\r\n\ufffd\ufffd\ufffdA\u0000\u0003\u0001\u0003\u0001\u0002\u000f\u0014HEALTH flag 1\r\n\ufffd\ufffd\u0707\u0000\u0003\u0001\u0001\u0001\u0002\u0002\u0007\r\n\ufffd\ufffd\ufffd\ufffd\u0000\u0003\u0001\u0001\u0001\u0002\u001e#VIOS Forth 24 / Agon Light 2\r\n\u001b\ufffdQ\ufffd\u0000\u0003\u0001\u0001\u0001\u0002\u0006\u000bvios> N\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792147098.4671612, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147098.4682722, "direction": "rx", "hex": "010242010c11424f4f542052454144590d0acec518ea00", "text": "\u0001\u0002B\u0001\f\u0011BOOT READY\r\n\ufffd\ufffd\u0018\ufffd\u0000"}
+{"time": 1792147098.4684002, "direction": "tx", "hex": "06010243010207490a754adce100", "text": "\u0006\u0001\u0002C\u0001\u0002\u0007I\nuJ\ufffd\ufffd\u0000"}
+{"time": 1792147098.4754188, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147098.475712, "direction": "rx", "hex": "01024301181d494420303030372052455620414120535441542031380d0abe", "text": "\u0001\u0002C\u0001\u0018\u001dID 0007 REV AA STAT 18\r\n\ufffd"}
+{"time": 1792147098.4778318, "direction": "rx", "hex": "6c", "text": "l"}
+{"time": 1792147098.478005, "direction": "rx", "hex": "926300", "text": "\ufffdc\u0000"}
+{"time": 1792147098.4781609, "direction": "tx", "hex": "06010144011b02151ee20cdaa640443338344138423820213030303030303030200ddc320c5400", "text": "\u0006\u0001\u0001D\u0001\u001b\u0002\u0015\u001e\ufffd\f\u06a6@D384A8B8 !00000000 \r\ufffd2\fT\u0000"}
+{"time": 1792147098.487456, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147098.487721, "direction": "rx", "hex": "01014401090d4c494e45204f4b0d0a9d9e2c0100", "text": "\u0001\u0001D\u0001\t\rLINE OK\r\n\ufffd\ufffd,\u0001\u0000"}
+{"time": 1792147098.490405, "direction": "rx", "hex": "03", "text": "\u0003"}
+{"time": 1792147098.4905338, "direction": "rx", "hex": "01010102010640c82c59870003010101020308443338118282d10003010101", "text": "\u0001\u0001\u0001\u0002\u0001\u0006@\ufffd,Y\ufffd\u0000\u0003\u0001\u0001\u0001\u0002\u0003\bD38\u0011\ufffd\ufffd\ufffd\u0000\u0003\u0001\u0001\u0001"}
+{"time": 1792147098.493222, "direction": "rx", "hex": "02", "text": "\u0002"}
+{"time": 1792147098.493396, "direction": "rx", "hex": "0409344138425b41fe01000301010102050a3820213030445c80e600030101", "text": "\u0004\t4A8B[A\ufffd\u0001\u0000\u0003\u0001\u0001\u0001\u0002\u0005\n8 !00D\\\ufffd\ufffd\u0000\u0003\u0001\u0001"}
+{"time": 1792147098.495968, "direction": "rx", "hex": "01", "text": "\u0001"}
+{"time": 1792147098.496115, "direction": "rx", "hex": "02060b30303030303002f8156f0003010101020308200d0a10ab4e17000301", "text": "\u0002\u0006\u000b000000\u0002\ufffd\u0015o\u0000\u0003\u0001\u0001\u0001\u0002\u0003\b \r\n\u0010\ufffdN\u0017\u0000\u0003\u0001"}
+{"time": 1792147098.4987142, "direction": "rx", "hex": "01", "text": "\u0001"}
+{"time": 1792147098.4988039, "direction": "rx", "hex": "010202070d0a9b8b8df00003010101020b104044333834413842380d0a2406", "text": "\u0001\u0002\u0002\u0007\r\n\ufffd\ufffd\ufffd\ufffd\u0000\u0003\u0001\u0001\u0001\u0002\u000b\u0010@D384A8B8\r\n$\u0006"}
+{"time": 1792147098.501604, "direction": "rx", "hex": "02", "text": "\u0002"}
+{"time": 1792147098.501787, "direction": "rx", "hex": "4000030101010204096f6b0d0ada011ef2000301010102060b76696f733e20", "text": "@\u0000\u0003\u0001\u0001\u0001\u0002\u0004\tok\r\n\ufffd\u0001\u001e\ufffd\u0000\u0003\u0001\u0001\u0001\u0002\u0006\u000bvios> "}
+{"time": 1792147098.503922, "direction": "rx", "hex": "4e", "text": "N"}
+{"time": 1792147098.504055, "direction": "rx", "hex": "ad91e100", "text": "\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792147098.506239, "direction": "tx", "hex": "060101450126022029a1fd3f774043333744353043432021434530353237363020424f4f542d5354415455530d6dc3a97500", "text": "\u0006\u0001\u0001E\u0001&\u0002 )\ufffd\ufffd?w@C37D50CC !CE052760 BOOT-STATUS\rm\u00e9u\u0000"}
+{"time": 1792147098.517066, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147098.517239, "direction": "rx", "hex": "01014501090e4c494e45204f4b0d0a1847badd00", "text": "\u0001\u0001E\u0001\t\u000eLINE OK\r\n\u0018G\ufffd\ufffd\u0000"}
+{"time": 1792147098.5212831, "direction": "rx", "hex": "03", "text": "\u0003"}
+{"time": 1792147098.521466, "direction": "rx", "hex": "01010102010640c82c59870003010101020308433337058972440003010101", "text": "\u0001\u0001\u0001\u0002\u0001\u0006@\ufffd,Y\ufffd\u0000\u0003\u0001\u0001\u0001\u0002\u0003\bC37\u0005\ufffdrD\u0000\u0003\u0001\u0001\u0001"}
+{"time": 1792147098.525082, "direction": "rx", "hex": "02", "text": "\u0002"}
+{"time": 1792147098.525316, "direction": "rx", "hex": "040944353043d59be786000301010102050a43202143451c22ff4c00030101", "text": "\u0004\tD50C\u055b\ufffd\u0000\u0003\u0001\u0001\u0001\u0002\u0005\nC !CE\u001c\"\ufffdL\u0000\u0003\u0001\u0001"}
+{"time": 1792147098.526747, "direction": "rx", "hex": "01", "text": "\u0001"}
+{"time": 1792147098.5268888, "direction": "rx", "hex": "02060b303532373630fa0ee95e000301010102070b20424f4f542d53647722", "text": "\u0002\u0006\u000b052760\ufffd\u000e\ufffd^\u0000\u0003\u0001\u0001\u0001\u0002\u0007\u000b BOOT-Sdw\""}
+{"time": 1792147098.5304298, "direction": "rx", "hex": "01", "text": "\u0001"}
+{"time": 1792147098.530576, "direction": "rx", "hex": "000301010102070c54415455530d0aed3b793400", "text": "\u0000\u0003\u0001\u0001\u0001\u0002\u0007\fTATUS\r\n\ufffd;y4\u0000"}
+{"time": 1792147098.836056, "direction": "rx", "hex": "03", "text": "\u0003"}
+{"time": 1792147098.836159, "direction": "rx", "hex": "010101024449626f6f7420636f6e6669726d656420412063616e6469646174", "text": "\u0001\u0001\u0001\u0002DIboot confirmed A candidat"}
+{"time": 1792147098.8386712, "direction": "rx", "hex": "65", "text": "e"}
+{"time": 1792147098.838697, "direction": "rx", "hex": "204e4f4e4520737461746520434c45414e2063757272656e7420412067656e", "text": " NONE state CLEAN current A gen"}
+{"time": 1792147098.841551, "direction": "rx", "hex": "65", "text": "e"}
+{"time": 1792147098.841581, "direction": "rx", "hex": "726174696f6e20370d0aad44b15e00030101010202070d0a9b8b8df0000301", "text": "ration 7\r\n\ufffdD\ufffd^\u0000\u0003\u0001\u0001\u0001\u0002\u0002\u0007\r\n\ufffd\ufffd\ufffd\ufffd\u0000\u0003\u0001"}
+{"time": 1792147098.844404, "direction": "rx", "hex": "01", "text": "\u0001"}
+{"time": 1792147098.844428, "direction": "rx", "hex": "01020b104043333744353043430d0a183b4dd700030101010204096f6b0d0a", "text": "\u0001\u0002\u000b\u0010@C37D50CC\r\n\u0018;M\ufffd\u0000\u0003\u0001\u0001\u0001\u0002\u0004\tok\r\n"}
+{"time": 1792147098.848404, "direction": "rx", "hex": "da", "text": "\ufffd"}
+{"time": 1792147098.848432, "direction": "rx", "hex": "011ef2000301010102060b76696f733e204ead91e100", "text": "\u0001\u001e\ufffd\u0000\u0003\u0001\u0001\u0001\u0002\u0006\u000bvios> N\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792147098.849633, "direction": "tx", "hex": "06010146013902333cd5d9deb54046393034323842322021453232393045373420444543494d414c204c495645312d43202e204c495645312d44202e2043520ddabc8ee300", "text": "\u0006\u0001\u0001F\u00019\u00023<\ufffd\ufffd\u07b5@F90428B2 !E2290E74 DECIMAL LIVE1-C . LIVE1-D . CR\r\u06bc\ufffd\ufffd\u0000"}
+{"time": 1792147098.863146, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147098.86319, "direction": "rx", "hex": "01014601090e4c494e45204f4b0d0ad62b706000", "text": "\u0001\u0001F\u0001\t\u000eLINE OK\r\n\ufffd+p`\u0000"}
+{"time": 1792147098.870601, "direction": "rx", "hex": "03", "text": "\u0003"}
+{"time": 1792147098.870643, "direction": "rx", "hex": "01010102010640c82c59870003010101020308463930c73632260003010101", "text": "\u0001\u0001\u0001\u0002\u0001\u0006@\ufffd,Y\ufffd\u0000\u0003\u0001\u0001\u0001\u0002\u0003\bF90\ufffd62&\u0000\u0003\u0001\u0001\u0001"}
+{"time": 1792147098.873366, "direction": "rx", "hex": "02", "text": "\u0002"}
+{"time": 1792147098.873389, "direction": "rx", "hex": "050a3432384232f6cc9039000301010102060b2021453232394d1acc250003", "text": "\u0005\n428B2\ufffd\u03109\u0000\u0003\u0001\u0001\u0001\u0002\u0006\u000b !E229M\u001a\ufffd%\u0000\u0003"}
+{"time": 1792147098.8763342, "direction": "rx", "hex": "01", "text": "\u0001"}
+{"time": 1792147098.876551, "direction": "rx", "hex": "010102070c30453734204445b2f2761c000301010102080d43494d414c204c", "text": "\u0001\u0001\u0002\u0007\f0E74 DE\ufffd\ufffdv\u001c\u0000\u0003\u0001\u0001\u0001\u0002\b\rCIMAL L"}
+{"time": 1792147098.8792582, "direction": "rx", "hex": "49", "text": "I"}
+{"time": 1792147098.8794692, "direction": "rx", "hex": "77c46298000301010102080d5645312d43202e2035067d7000030101010208", "text": "w\ufffdb\ufffd\u0000\u0003\u0001\u0001\u0001\u0002\b\rVE1-C . 5\u0006}p\u0000\u0003\u0001\u0001\u0001\u0002\b"}
+{"time": 1792147098.881718, "direction": "rx", "hex": "0d", "text": "\r"}
+{"time": 1792147098.8817961, "direction": "rx", "hex": "4c495645312d4420a53ae9b0000301010102060b2e2043520d0a5b8d14a800", "text": "LIVE1-D \ufffd:\ufffd\u0000\u0003\u0001\u0001\u0001\u0002\u0006\u000b. CR\r\n[\ufffd\u0014\ufffd\u0000"}
+{"time": 1792147098.886359, "direction": "rx", "hex": "03", "text": "\u0003"}
+{"time": 1792147098.8865862, "direction": "rx", "hex": "01010102080d3131203132200d0a5c897f6900030101010202070d0a9b8b8d", "text": "\u0001\u0001\u0001\u0002\b\r11 12 \r\n\\\ufffd\u007fi\u0000\u0003\u0001\u0001\u0001\u0002\u0002\u0007\r\n\ufffd\ufffd\ufffd"}
+{"time": 1792147098.8872771, "direction": "rx", "hex": "f0", "text": "\ufffd"}
+{"time": 1792147098.88734, "direction": "rx", "hex": "0003010101020b104046393034323842320d0a8bbd1d820003010101020409", "text": "\u0000\u0003\u0001\u0001\u0001\u0002\u000b\u0010@F90428B2\r\n\ufffd\ufffd\u001d\ufffd\u0000\u0003\u0001\u0001\u0001\u0002\u0004\t"}
+{"time": 1792147098.89153, "direction": "rx", "hex": "6f", "text": "o"}
+{"time": 1792147098.891718, "direction": "rx", "hex": "6b0d0ada011ef2000301010102060b76696f733e204ead91e100", "text": "k\r\n\ufffd\u0001\u001e\ufffd\u0000\u0003\u0001\u0001\u0001\u0002\u0006\u000bvios> N\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792147098.893992, "direction": "tx", "hex": "060101470124021e27f937d54b40364341303943464420214142413446353431205245534f55524345530d27a4a40900", "text": "\u0006\u0001\u0001G\u0001$\u0002\u001e'\ufffd7\ufffdK@6CA09CFD !ABA4F541 RESOURCES\r'\ufffd\ufffd\t\u0000"}
+{"time": 1792147098.90483, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147098.904989, "direction": "rx", "hex": "01014701090e4c494e45204f4b0d0a53f2e6bd00", "text": "\u0001\u0001G\u0001\t\u000eLINE OK\r\nS\ufffd\ufffd\u0000"}
+{"time": 1792147098.910178, "direction": "rx", "hex": "03", "text": "\u0003"}
+{"time": 1792147098.910496, "direction": "rx", "hex": "01010102010640c82c59870003010101020308364341418e11800003010101", "text": "\u0001\u0001\u0001\u0002\u0001\u0006@\ufffd,Y\ufffd\u0000\u0003\u0001\u0001\u0001\u0002\u0003\b6CAA\ufffd\u0011\ufffd\u0000\u0003\u0001\u0001\u0001"}
+{"time": 1792147098.911422, "direction": "rx", "hex": "02", "text": "\u0002"}
+{"time": 1792147098.911447, "direction": "rx", "hex": "050a30394346448b7bbf9e000301010102060b202141424134c2b3fc840003", "text": "\u0005\n09CFD\ufffd{\ufffd\ufffd\u0000\u0003\u0001\u0001\u0001\u0002\u0006\u000b !ABA4\u00b3\ufffd\ufffd\u0000\u0003"}
+{"time": 1792147098.914266, "direction": "rx", "hex": "01", "text": "\u0001"}
+{"time": 1792147098.914473, "direction": "rx", "hex": "010102070c4635343120524557250af4000301010102090e534f5552434553", "text": "\u0001\u0001\u0002\u0007\fF541 REW%\n\ufffd\u0000\u0003\u0001\u0001\u0001\u0002\t\u000eSOURCES"}
+{"time": 1792147098.916883, "direction": "rx", "hex": "0d", "text": "\r"}
+{"time": 1792147098.917071, "direction": "rx", "hex": "0ace48bb8b00", "text": "\n\ufffdH\ufffd\ufffd\u0000"}
+{"time": 1792147098.927657, "direction": "rx", "hex": "03", "text": "\u0003"}
+{"time": 1792147098.9279082, "direction": "rx", "hex": "01010102767b656e67696e652044495245435420776f7264732037372f3132", "text": "\u0001\u0001\u0001\u0002v{engine DIRECT words 77/12"}
+{"time": 1792147098.930341, "direction": "rx", "hex": "38", "text": "8"}
+{"time": 1792147098.930482, "direction": "rx", "hex": "20746f6b656e2d627974657320333132206469726563742d62797465732039", "text": " token-bytes 312 direct-bytes 9"}
+{"time": 1792147098.933967, "direction": "rx", "hex": "34", "text": "4"}
+{"time": 1792147098.934221, "direction": "rx", "hex": "3720646174612d627974657320323420736f757263652d6279746573203238", "text": "7 data-bytes 24 source-bytes 28"}
+{"time": 1792147098.936013, "direction": "rx", "hex": "31", "text": "1"}
+{"time": 1792147098.936367, "direction": "rx", "hex": "20646174612d7065616b20322072657475726e2d7065616b20330d0ae0bd12", "text": " data-peak 2 return-peak 3\r\n\ufffd\u0012"}
+{"time": 1792147098.9386072, "direction": "rx", "hex": "b9", "text": "\ufffd"}
+{"time": 1792147098.9386911, "direction": "rx", "hex": "00030101010202070d0a9b8b8df00003010101020b10403643413039434644", "text": "\u0000\u0003\u0001\u0001\u0001\u0002\u0002\u0007\r\n\ufffd\ufffd\ufffd\ufffd\u0000\u0003\u0001\u0001\u0001\u0002\u000b\u0010@6CA09CFD"}
+{"time": 1792147098.941906, "direction": "rx", "hex": "0d", "text": "\r"}
+{"time": 1792147098.942134, "direction": "rx", "hex": "0aed66b7be00030101010204096f6b0d0ada011ef2000301010102060b7669", "text": "\n\ufffdf\ufffd\ufffd\u0000\u0003\u0001\u0001\u0001\u0002\u0004\tok\r\n\ufffd\u0001\u001e\ufffd\u0000\u0003\u0001\u0001\u0001\u0002\u0006\u000bvi"}
+{"time": 1792147098.944373, "direction": "rx", "hex": "6f", "text": "o"}
+{"time": 1792147098.9446049, "direction": "rx", "hex": "733e204ead91e100", "text": "s> N\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792147098.948128, "direction": "tx", "hex": "060101480123021d26d0999a2840334532373836433120214146413839344646205644502d494e464f0d7cc99fda00", "text": "\u0006\u0001\u0001H\u0001#\u0002\u001d&\u0419\ufffd(@3E2786C1 !AFA894FF VDP-INFO\r|\u025f\ufffd\u0000"}
+{"time": 1792147098.958925, "direction": "rx", "hex": "06", "text": "\u0006"}
+{"time": 1792147098.959129, "direction": "rx", "hex": "01014801090e4c494e45204f4b0d0a6627969a00", "text": "\u0001\u0001H\u0001\t\u000eLINE OK\r\nf'\ufffd\ufffd\u0000"}
+{"time": 1792147098.9623628, "direction": "rx", "hex": "03", "text": "\u0003"}
+{"time": 1792147098.9625359, "direction": "rx", "hex": "01010102010640c82c59870003010101020308334532aacb8c190003010101", "text": "\u0001\u0001\u0001\u0002\u0001\u0006@\ufffd,Y\ufffd\u0000\u0003\u0001\u0001\u0001\u0002\u0003\b3E2\ufffd\u02cc\u0019\u0000\u0003\u0001\u0001\u0001"}
+{"time": 1792147098.965019, "direction": "rx", "hex": "02", "text": "\u0002"}
+{"time": 1792147098.965101, "direction": "rx", "hex": "050a3738364331b31b019b000301010102060b2021414641383557438a0003", "text": "\u0005\n786C1\ufffd\u001b\u0001\ufffd\u0000\u0003\u0001\u0001\u0001\u0002\u0006\u000b !AFA85WC\ufffd\u0000\u0003"}
+{"time": 1792147098.968676, "direction": "rx", "hex": "01", "text": "\u0001"}
+{"time": 1792147098.969296, "direction": "rx", "hex": "010102070c393446462056442888e743000301010102080d502d494e464f0d", "text": "\u0001\u0001\u0002\u0007\f94FF VD(\ufffd\ufffdC\u0000\u0003\u0001\u0001\u0001\u0002\b\rP-INFO\r"}
+{"time": 1792147098.970387, "direction": "rx", "hex": "0a", "text": "\n"}
+{"time": 1792147098.9704099, "direction": "rx", "hex": "994def2600", "text": "\ufffdM\ufffd&\u0000"}
+{"time": 1792147098.9762921, "direction": "rx", "hex": "03", "text": "\u0003"}
+{"time": 1792147098.976605, "direction": "rx", "hex": "010101023d4276647020776964746820363430206865696768742034383020", "text": "\u0001\u0001\u0001\u0002=Bvdp width 640 height 480 "}
+{"time": 1792147098.979004, "direction": "rx", "hex": "63", "text": "c"}
+{"time": 1792147098.979174, "direction": "rx", "hex": "6f6c6f7572732034206d6f6465203120636f6e736f6c652d64726f70706564", "text": "olours 4 mode 1 console-dropped"}
+{"time": 1792147098.981746, "direction": "rx", "hex": "20", "text": " "}
+{"time": 1792147098.981844, "direction": "rx", "hex": "300d0aece1839200030101010202070d0a9b8b8df00003010101020b104033", "text": "0\r\n\ufffd\u10d2\u0000\u0003\u0001\u0001\u0001\u0002\u0002\u0007\r\n\ufffd\ufffd\ufffd\ufffd\u0000\u0003\u0001\u0001\u0001\u0002\u000b\u0010@3"}
+{"time": 1792147098.984619, "direction": "rx", "hex": "45", "text": "E"}
+{"time": 1792147098.9849548, "direction": "rx", "hex": "3237383643310d0a4d9a765300030101010204096f6b0d0ada011ef2000301", "text": "2786C1\r\nM\ufffdvS\u0000\u0003\u0001\u0001\u0001\u0002\u0004\tok\r\n\ufffd\u0001\u001e\ufffd\u0000\u0003\u0001"}
+{"time": 1792147098.987937, "direction": "rx", "hex": "01", "text": "\u0001"}
+{"time": 1792147098.988139, "direction": "rx", "hex": "0102060b76696f733e204ead91e100", "text": "\u0001\u0002\u0006\u000bvios> N\ufffd\ufffd\ufffd\u0000"}
