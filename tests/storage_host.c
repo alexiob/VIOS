@@ -53,5 +53,17 @@ int main(int argc,char **argv) {
  fail_read=1;assert(!storage_read_file("BOOT.TXT",output,sizeof output,&size)&&size==0);fail_read=0;
  assert(storage_init());assert(storage_read_file("BOOT.TXT",output,sizeof output,&size)&&size==14);
  assert(storage_read_file("VIOS/SAVED.FTH",output,sizeof output,&size)&&size==7);
+ /* Streaming slots: chunked writes, two concurrent readers, short final read,
+  * slot misuse rejected, remount invalidates open slots. */
+ {size_t put=0,got=0;unsigned char chunk[100];
+  assert(storage_stream_open(0,"VIOS/STREAM.TXT",1));
+  for(unsigned i=0;i<20;++i){for(unsigned k=0;k<100;++k)chunk[k]=(unsigned char)(i*100u+k);assert(storage_stream_write(0,chunk,100,&put)&&put==100);}
+  assert(!storage_stream_open(0,"BOOT.TXT",0));assert(storage_stream_close(0));assert(!storage_stream_close(0));
+  assert(storage_stream_open(1,"VIOS/STREAM.TXT",0)&&storage_stream_open(2,"BOOT.TXT",0));
+  assert(storage_stream_read(2,output,4,&got)&&got==4&&!memcmp(output,"keep",4));
+  size_t total=0;for(;;){assert(storage_stream_read(1,chunk,77,&got));for(size_t k=0;k<got;++k)assert(chunk[k]==(unsigned char)(total+k));total+=got;if(got<77)break;}
+  assert(total==2000);assert(storage_stream_read(1,chunk,77,&got)&&got==0);
+  assert(!storage_stream_open(STORAGE_STREAMS,"BOOT.TXT",0));assert(!storage_stream_open(3,"VIOS/NONE.TXT",0));
+  assert(storage_init());assert(!storage_stream_read(1,chunk,1,&got));assert(storage_stream_open(1,"BOOT.TXT",0)&&storage_stream_close(1));}
  assert(storage_sync());assert(!fclose(disk));puts("storage real FAT32 roundtrip/failure probes passed");return 0;
 }

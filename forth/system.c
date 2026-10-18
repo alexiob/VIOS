@@ -88,6 +88,7 @@ static int running=-1,scheduling,yield_request;
 static unsigned next_task;
 static uint32_t (*clock_hook)(void);
 static int (*task_gate)(void);
+static void (*task_exit_hook)(unsigned);
 static void out(unsigned char c);
 
 static size_t length(const char *s) { size_t n=0;while(s[n])++n;return n; }
@@ -274,6 +275,7 @@ static int tasks_live(void){for(unsigned i=0;i<FORTH_TASKS_MAX;++i)if(tasks[i].s
 static void task_fail(struct task *t,const char *message,unsigned char state) {
  unsigned i=0;while(message[i]&&i+1<sizeof t->error){t->error[i]=message[i];++i;}t->error[i]=0;t->state=state;
 }
+static void task_exited(unsigned id){if(task_exit_hook)task_exit_hook(id+1);}
 static void cells(fcell *to,const fcell *from,fcell n){for(fcell i=0;i<n;++i)to[i]=from[i];}
 static void run_slice(unsigned id) {
  struct task *t=&tasks[id];
@@ -290,6 +292,7 @@ static void run_slice(unsigned id) {
  else if(result==1)t->state=TS_DONE;
  else if(!result)task_fail(t,error_text[0]?error_text:"task failed",TS_FAILED);
  else if(fvm_depth>FORTH_TASK_DS||fvm_rdepth>FORTH_TASK_RS||fvm_ldepth>FORTH_TASK_LOOPS)task_fail(t,"task stack exceeds saved capacity",TS_FAILED);
+ if(t->state!=TS_READY&&t->state!=TS_SLEEPING)task_exited(id);
  else {
   t->depth=fvm_depth;t->rdepth=fvm_rdepth;t->ldepth=fvm_ldepth;t->ip=fvm_ip;
   cells(t->ds,fvm_ds,fvm_depth);cells(t->rs,fvm_rs,fvm_rdepth);cells(t->loops,fvm_loops,fvm_ldepth*2);
@@ -312,6 +315,15 @@ unsigned forth_tasks_run(void) {
 }
 void forth_register_clock(uint32_t (*hook)(void)){clock_hook=hook;}
 void forth_register_task_gate(int (*gate)(void)){task_gate=gate;}
+void forth_register_task_exit(void (*hook)(unsigned)){task_exit_hook=hook;}
+void forth_emit(unsigned char c){out(c);}
+unsigned forth_current_task(void){return running<0?0u:(unsigned)running+1u;}
+int forth_task_info(unsigned id,struct forth_task_info *o) {
+ if(!o||!id||id>FORTH_TASKS_MAX)return 0;const struct task *t=&tasks[id-1];
+ o->state=t->state;o->xt=t->xt;o->name=t->xt&&t->xt<=count?words[t->xt-1].name:"";o->error=t->error;
+ o->depth=t->depth;o->rdepth=t->rdepth;o->ds_peak=t->ds_peak;o->rs_peak=t->rs_peak;
+ o->slices=t->slices;o->steps=t->steps;o->output_bytes=t->out_count;o->output_dropped=t->out_dropped;return 1;
+}
 static int task_id(fcell id){if(!id||id>FORTH_TASKS_MAX)return fail("invalid task id");return 1;}
 static int native_spawn(void) {
  fcell xt=fvm_pop();if(fvm_error)return fail(vm_message());
@@ -335,7 +347,9 @@ static int native_ms(void) {
 static int native_kill(void) {
  fcell id=fvm_pop();if(fvm_error)return fail(vm_message());if(!task_id(id))return 0;
  struct task *t=&tasks[id-1];if(t->state==TS_READY||t->state==TS_SLEEPING||(int)(id-1)==running)task_fail(t,"killed",TS_KILLED);
- if((int)(id-1)==running)yield_request=1;return 1;
+ else return 1;
+ /* A running task's slice end reports its own exit. */
+ if((int)(id-1)==running)yield_request=1;else task_exited((unsigned)(id-1));return 1;
 }
 static int native_state(void) {
  fcell id=fvm_pop();if(fvm_error)return fail(vm_message());if(!task_id(id))return 0;

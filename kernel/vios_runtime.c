@@ -34,6 +34,7 @@ int vios_load_source(const char *path){
 }
 static int command(const char *word,const char **rest){
  int wb=vios_workbench_command(word,rest);if(wb)return wb;
+ if(vios_same(word,"HANDLES")){vios_handles_report();return 1;}
  if(vios_same(word,"LOAD")||vios_same(word,"INCLUDE")){
   char path[128];if(!vios_arg(rest,path,sizeof path)||!vios_load_source(path))return -1;return 1;
  }
@@ -42,5 +43,5 @@ static int command(const char *word,const char **rest){
 }
 int vios_runtime_init(void){
  include_depth=0;forth_transport_crc(1);
- return vios_services_init()&&vios_workbench_runtime_init()&&forth_register_command(command);
+ return vios_services_init()&&vios_handles_init()&&vios_workbench_runtime_init()&&forth_register_command(command);
 }

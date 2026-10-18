@@ -58,6 +58,11 @@ int storage_remove(const char *p){char full[768];path(full,p);return !remove(ful
 int storage_rename(const char *a,const char *b){char x[768],y[768];path(x,a);path(y,b);return !rename(x,y);}
 int storage_mkdir(const char *p){char full[768];path(full,p);if(!mkdir(full,0700))return 1;struct stat st;return !stat(full,&st)&&S_ISDIR(st.st_mode);}
 int storage_sync(void){return 1;}
+static FILE *streams[STORAGE_STREAMS];
+int storage_stream_open(unsigned s,const char *p,int write){char full[768];if(s>=STORAGE_STREAMS||streams[s]){strcpy(error,"invalid stream slot");return 0;}path(full,p);streams[s]=fopen(full,write?"wb":"rb");if(!streams[s]){strcpy(error,"file not found");return 0;}return 1;}
+int storage_stream_read(unsigned s,void *b,size_t n,size_t *got){*got=fread(b,1,n,streams[s]);return !ferror(streams[s]);}
+int storage_stream_write(unsigned s,const void *b,size_t n,size_t *put){*put=fwrite(b,1,n,streams[s]);return *put==n;}
+int storage_stream_close(unsigned s){if(s>=STORAGE_STREAMS||!streams[s])return 0;int ok=!fclose(streams[s]);streams[s]=NULL;return ok;}
 static unsigned record_previous(void){unsigned char a[32],b[32];size_t an=0,bn=0;int av=storage_read_file("/VIOS/BOOT0.REC",a,32,&an)&&an==32,bv=storage_read_file("/VIOS/BOOT1.REC",b,32,&bn)&&bn==32;assert(av||bv);return !av?b[6]:!bv?a[6]:vios_get32(a+12)>vios_get32(b+12)?a[6]:b[6];}
 static void reset(void){forth_init();assert(vios_runtime_init());}
 static void eval(const char *s){if(!forth_eval(s)){fprintf(stderr,"eval failed: %s: %s\n",s,forth_last_error());abort();}}
@@ -94,5 +99,38 @@ int main(int argc,char **argv){
  const char child[]=": CHILD 37 ;";const char parent[]="INCLUDE /VIOS/CHILD.FTH\n: PARENT CHILD 5 + ;";
  assert(storage_write_file("/VIOS/CHILD.FTH",child,sizeof child-1));assert(storage_write_file("/VIOS/PARENT.FTH",parent,sizeof parent-1));
  eval("LOAD /VIOS/PARENT.FTH PARENT");assert(fvm_pop()==42);
+ /* Handles: files, pipes between tasks, devices, ownership cleanup. */
+ reset();
+ #define VALUE(s) (eval(s),fvm_pop())
+ #define NEG(n) ((fcell)(-(n))&FVM_MASK)
+ eval("S\" ........................................\" DROP CONSTANT BUFA VARIABLE HF VARIABLE PR VARIABLE PW");
+ eval("S\" /VIOS/H.TXT\" 2 OPEN HF !");assert(VALUE("HF @")>=1);
+ assert(VALUE("S\" hello handles\" HF @ WRITE-ALL")==0&&VALUE("HF @ CLOSE")==0);
+ {char full[768];path(full,"/VIOS/H.TXT");FILE *f=fopen(full,"rb");char b[32]={0};assert(f&&fread(b,1,sizeof b,f)==13&&!fclose(f));assert(!memcmp(b,"hello handles",13));}
+ eval("S\" /VIOS/H.TXT\" 1 OPEN HF !");
+ assert(VALUE("BUFA 5 HF @ READ-WAIT")==5&&VALUE("BUFA C@")=='h');
+ assert(VALUE("BUFA 40 HF @ READ")==8&&VALUE("BUFA 40 HF @ READ")==0);
+ assert(VALUE("BUFA 4 HF @ WRITE")==NEG(7));assert(VALUE("HF @ CLOSE")==0&&VALUE("HF @ CLOSE")==NEG(3));
+ assert(VALUE("S\" /VIOS/NOPE.TXT\" 1 OPEN")==NEG(5));
+ /* A producer task fills a pipe; the foreground READ-WAIT runs it via PAUSE. */
+ eval("PIPE PW ! PR ! : PROD S\" abc\" PW @ WRITE-ALL DROP ; ' PROD SPAWN DROP");
+ assert(VALUE("BUFA 10 PR @ READ-WAIT")==3&&VALUE("BUFA 2 + C@")=='c');
+ assert(VALUE("BUFA 10 PR @ READ")==NEG(1));
+ eval("PW @ CLOSE DROP");assert(VALUE("BUFA 10 PR @ READ")==0);
+ eval("PIPE PW ! PR ! PR @ CLOSE DROP");assert(VALUE("S\" x\" PW @ WRITE")==NEG(2));eval("PW @ CLOSE DROP");
+ /* Back-pressure: a 200-byte write into a 128-byte pipe is short, then -1. */
+ eval("PIPE PW ! PR !");assert(VALUE("BUFA 200 PW @ WRITE")==128&&VALUE("BUFA 1 PW @ WRITE")==NEG(1));
+ eval("PR @ CLOSE DROP PW @ CLOSE DROP");
+ /* Handles a task opened are closed when it ends; /dev/cons uses its ring. */
+ char close_cmd[32];fcell lowest=VALUE("S\" /dev/null\" 2 OPEN");
+ snprintf(close_cmd,sizeof close_cmd,"%u CLOSE",(unsigned)lowest);assert(VALUE(close_cmd)==0);
+ eval(": OWN S\" /dev/null\" 2 OPEN DROP ; : CON S\" /dev/cons\" 2 OPEN >R S\" hey\" R@ WRITE DROP R> CLOSE DROP ;");
+ eval("' OWN SPAWN DROP");forth_tasks_run();
+ assert(VALUE("S\" /dev/null\" 2 OPEN")==lowest&&"task-owned handle was released at exit");assert(VALUE(close_cmd)==0);
+ fcell con=VALUE("' CON SPAWN");forth_tasks_run();{struct forth_task_info t;assert(forth_task_info((unsigned)con,&t)&&t.output_bytes==3&&t.state==3);}
+ eval("S\" /dev/tasks\" 1 OPEN HF !");assert(VALUE("BUFA 40 HF @ READ")==40&&VALUE("BUFA C@")=='1');eval("HF @ CLOSE DROP");
+ assert(VALUE("S\" /dev/tasks\" 2 OPEN")==NEG(7)&&VALUE("S\" /dev/zzz\" 1 OPEN")==NEG(5));
+ for(int i=0;i<8;++i)eval("S\" /dev/null\" 1 OPEN DROP");assert(VALUE("S\" /dev/null\" 1 OPEN")==NEG(4));
+ eval("HANDLES");
  puts("Runtime packages and A/B startup checks passed");return 0;
 }

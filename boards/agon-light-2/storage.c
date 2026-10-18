@@ -8,7 +8,8 @@
 #include <stdint.h>
 typedef char storage_type_widths[(sizeof(BYTE)==1&&sizeof(WORD)==2&&sizeof(DWORD)==4&&sizeof(UINT)==4)?1:-1];
 static FATFS volume;
-static FIL file;
+static FIL file,streams[STORAGE_STREAMS];
+static unsigned char stream_open[STORAGE_STREAMS];
 static int mounted;
 static const char *last_error="not mounted";
 static const char *const errors[]={
@@ -31,7 +32,7 @@ static int valid(const char *path) {
  if(!mounted)return fail("not mounted");return 1;
 }
 int storage_init(void) {
- mounted=0;f_mount(0,"",0);
+ mounted=0;f_mount(0,"",0);for(unsigned i=0;i<STORAGE_STREAMS;++i)stream_open[i]=0;
  if(!result(f_mount(&volume,"",1)))return 0;
  if(volume.fs_type!=FS_FAT32){f_mount(0,"",0);return fail("not FAT32");}
  mounted=1;last_error="ok";return 1;
@@ -79,4 +80,23 @@ int storage_sync(void) {
  if(!mounted)return fail("not mounted");
  if(disk_ioctl(0,CTRL_SYNC,0)!=RES_OK){mounted=0;f_mount(0,"",0);return fail(sd_error());}
  last_error="ok";return 1;
+}
+int storage_stream_open(unsigned slot,const char *path,int write) {
+ if(slot>=STORAGE_STREAMS||stream_open[slot])return fail("invalid stream slot");
+ if(!valid(path))return 0;
+ if(!result(f_open(&streams[slot],path,write?FA_WRITE|FA_CREATE_ALWAYS:FA_READ)))return 0;
+ stream_open[slot]=1;return 1;
+}
+int storage_stream_read(unsigned slot,void *buffer,size_t size,size_t *got) {
+ UINT n=0;if(got)*got=0;if(slot>=STORAGE_STREAMS||!stream_open[slot]||!got)return fail("invalid stream slot");
+ if(!result(f_read(&streams[slot],buffer,(UINT)size,&n)))return 0;*got=n;return 1;
+}
+int storage_stream_write(unsigned slot,const void *buffer,size_t size,size_t *put) {
+ UINT n=0;if(put)*put=0;if(slot>=STORAGE_STREAMS||!stream_open[slot]||!put)return fail("invalid stream slot");
+ if(!result(f_write(&streams[slot],buffer,(UINT)size,&n)))return 0;*put=n;
+ return n==(UINT)size?1:fail("disk full: short file write");
+}
+int storage_stream_close(unsigned slot) {
+ if(slot>=STORAGE_STREAMS||!stream_open[slot])return fail("invalid stream slot");
+ stream_open[slot]=0;return result(f_close(&streams[slot]));
 }

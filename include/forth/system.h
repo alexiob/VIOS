@@ -31,6 +31,17 @@ void forth_register_clock(uint32_t (*hook)(void));
  * The resident console listens briefly and pauses flow-controlled input so
  * a slice never runs while host bytes can overrun the UART. Survives init. */
 void forth_register_task_gate(int (*gate)(void));
+/* Task-aware I/O for kernel services: forth_emit uses the console in the
+ * foreground and the running task's output ring in a background slice. */
+void forth_emit(unsigned char c);
+unsigned forth_current_task(void); /* 0 foreground, else 1..FORTH_TASKS_MAX */
+/* Called once when a task leaves ready/sleeping (done, failed or killed). */
+void forth_register_task_exit(void (*hook)(unsigned id));
+struct forth_task_info {
+ const char *name,*error;unsigned state;fcell xt,depth,rdepth,ds_peak,rs_peak;
+ uint32_t slices,steps;unsigned output_bytes,output_dropped;
+};
+int forth_task_info(unsigned id,struct forth_task_info *out);
 int forth_error(const char *message);
 fcell forth_find_xt(const char *name);
 const char *forth_xt_name(fcell xt);

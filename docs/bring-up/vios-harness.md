@@ -2,7 +2,7 @@
 
 The host harness exposes the running Forth system, source modules, boot selection and bounded hardware debug through MCP stdio or loopback NDJSON TCP. JSON, schemas and networking run on the Mac. The Agon executes Forth; the resident ESP32 application multiplexes console/control/status over USB serial while retaining its VDP. Integrated hardware acceptance is recorded in the [resident ledger](vios-resident-progress.md).
 
-The current interface has 56 tools, including 19 `wb_*` tools for shared live
+The current interface has 57 tools, including 19 `wb_*` tools for shared live
 browsing, exact source editing, inspection, stage/activate/save and display
 snapshots. See the [workbench runbook](vios-workbench.md). Full screen reads use
 one bounded native snapshot command and reject inconsistent surrounding state;
@@ -81,6 +81,7 @@ There are 29 tools. Schemas returned by `tools/list` are authoritative for argum
 | `complete`, `help`, `module_graph` | Live-dictionary completion (CLI Tab, `:complete`), word/command help (`:help NAME`), dependency edges/dependents/activation order (`:graph`) |
 | `develop` | One reported stage → activate → optional save cycle; named dependencies are pinned to live CRCs; stops at the first failure without retrying |
 | `resync` | Recovers a lost response frame at a quiet idle prompt without reboot; never replays the request (outcome unknown); CLI `:resync` |
+| `handles` | Open handles (SD file streams, pipes, `/dev/null`, `/dev/cons`, `/dev/tasks`) with owner, direction, bytes and the last I/O error; see the [handle spec](../superpowers/specs/2026-10-18-vios-handles.md) |
 | `tasks`, `task_output` | Background task slots (state, word, slices, steps, depths, peaks, output, error) and draining a task output ring; see the [task spec](../superpowers/specs/2026-10-18-vios-tasks.md) |
 | `snapshot` | Read-only structured state record (modules, exact sources, draft, stacks, BASE, engine, boot slot) with a live/dirty/staged/persisted summary; restorable by `tools/vios_fast_display_state.py`, fails closed on a torn read; CLI `:snapshot [FILE]` |
 | `boot_status`, `boot_trial`, `boot_confirm`, `boot_revert` | A/B source-bundle trial and selection |

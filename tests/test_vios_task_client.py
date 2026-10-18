@@ -48,3 +48,13 @@ class TaskClientTest(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class HandleParseTest(unittest.TestCase):
+    def test_parse(self):
+        from vios_task_client import parse_handles
+        rows, error = parse_handles('HANDLES\r\nhandle 1 kind pipe read owner 0 bytes 3 buffered 0 path pipe\r\n'
+                                    'handle 3 kind null write owner 2 bytes 0 path /dev/null\r\nio-error pipe empty\r\n')
+        self.assertEqual([(r['id'], r['kind'], r['owner'], r['buffered']) for r in rows], [(1, 'pipe', 0, 0), (3, 'null', 2, None)])
+        self.assertEqual(error, 'pipe empty')
+        self.assertIn('handles', TOOL_MAP)

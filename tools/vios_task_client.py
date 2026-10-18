@@ -28,7 +28,31 @@ def parse_tasks(output):
     return rows
 
 
+HANDLE = re.compile(r'handle (\d+) kind (\w+) (read|write) owner (\d+) bytes (\d+)(?: buffered (\d+))? path (\S+)')
+
+
+def parse_handles(output):
+    rows, error = [], None
+    for line in output.replace('\r', '').splitlines():
+        line = line.strip()
+        if line.startswith('handle '):
+            m = HANDLE.fullmatch(line)
+            if not m:
+                raise IOError('Malformed handle line: ' + line)
+            rows.append({'id': int(m[1]), 'kind': m[2], 'direction': m[3], 'owner': int(m[4]), 'bytes': int(m[5]),
+                         'buffered': None if m[6] is None else int(m[6]), 'path': m[7]})
+        elif line.startswith('io-error '):
+            error = None if line == 'io-error -' else line[9:]
+    return rows, error
+
+
 class TaskClient:
+    def handles(self):
+        result = self._module_commands(['HANDLES'])
+        if result.get('ok'):
+            result['handles'], result['last_error'] = parse_handles(result.get('output', ''))
+        return result
+
     def tasks(self):
         result = self._module_commands(['TASKS'])
         if result.get('ok'):

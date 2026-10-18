@@ -5,6 +5,9 @@
 #include "forth/modules.h"
 int vios_runtime_init(void);
 int vios_services_init(void);
+/* Handles, /dev endpoints and pipes (kernel/vios_handles.c). */
+int vios_handles_init(void);
+void vios_handles_report(void);
 int vios_load_source(const char *path);
 int vios_module_command(const char *word,const char **rest);
 int vios_boot_command(const char *word,const char **rest);
