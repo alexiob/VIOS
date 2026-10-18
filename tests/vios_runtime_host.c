@@ -157,6 +157,10 @@ int main(int argc,char **argv){
  eval("' BIG ' CNT PIPELINE 2DROP");for(int i=0;i<2000&&forth_tasks_run();++i){}
  assert((eval("GOT @"),fvm_pop())==1000&&"backpressure delivered every byte");
  {struct forth_task_info a;for(unsigned id=1;id<=2;++id){assert(forth_task_info(id,&a)&&a.output_dropped==0);}}
+ /* Native TYPE resumes the rest of a long string after backpressure. */
+ eval("CREATE LONGB 300 ALLOT LONGB 300 90 FILL : LONGT LONGB 300 TYPE ;");
+ eval("' LONGT ' CNT PIPELINE 2DROP");for(int i=0;i<2000&&forth_tasks_run();++i){}
+ assert((eval("GOT @"),fvm_pop())==300&&"TYPE delivered the whole string through the pipe");
  eval(": QUIT1 ; ' BIG ' QUIT1 PIPELINE 2DROP");for(int i=0;i<200&&forth_tasks_run();++i){}
  {struct forth_task_info a;unsigned failed=0;for(unsigned id=1;id<=FORTH_TASKS_MAX;++id)if(forth_task_info(id,&a)&&a.state==4&&!strcmp(a.error,"broken pipe"))++failed;assert(failed==1);}
  console_used=0;console_capture[0]=0;eval("HANDLES");assert(!strstr(console_capture,"handle ")&&"pipeline ends are closed by their tasks");

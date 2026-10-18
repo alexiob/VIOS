@@ -445,6 +445,22 @@ static int native_move(void){
  else for(fcell i=u;i--;){fvm_write8((d+i)&FVM_MASK,fvm_read8((s+i)&FVM_MASK));if(fvm_error)return fail(vm_message());}
  return 1;
 }
+/* TYPE ( addr u -- ): one trap per string instead of one EMIT per byte. A
+ * redirected task stops early when its ring nears full; the rest of the
+ * string is retried after the slice (the native leaves addr+k u-k pushed and
+ * rewinds to re-execute TYPE). */
+static int native_type(void){
+ fcell u=fvm_pop(),a=fvm_pop();if(fvm_error)return fail(vm_message());
+ for(fcell i=0;i<u;++i){
+  unsigned char c=fvm_read8((a+i)&FVM_MASK);if(fvm_error)return fail(vm_message());out(c);
+  if(running>=0&&yield_request&&i+1<u){
+   if(!fvm_push((a+i+1)&FVM_MASK)||!fvm_push(u-i-1))return fail(vm_message());
+   /* Re-run this native: NATIVE op plus its 3-byte id operand. */
+   fvm_ip-=selected==FORTH_DIRECT?6:4;return 1;
+  }
+ }
+ return 1;
+}
 static int native_udot(void){fcell n=fvm_pop();if(fvm_error)return fail(vm_message());unsigned_number(n);out(' ');return 1;}
 /* Loop helpers on the VM loop stack (pure VM state; frames are limit,index). */
 static int native_j(void){if(fvm_ldepth<2){fvm_error=FE_LOOP_UNDER;return fail(vm_message());}return fvm_push(fvm_loops[(fvm_ldepth-2)*2+1])?1:fail(vm_message());}
@@ -855,7 +871,7 @@ void forth_init(void) {
  forth_register_native("J",native_j,FORTH_NATIVE_PURE);forth_register_native("UNLOOP",native_unloop,FORTH_NATIVE_PURE);
  forth_register_native("(+LOOP)",native_plus_loop,FORTH_NATIVE_PURE);
  forth_register_native("FILL",native_fill,FORTH_NATIVE_PURE);forth_register_native("MOVE",native_move,FORTH_NATIVE_PURE);
- forth_register_native("U.",native_udot,FORTH_NATIVE_TASK);
+ forth_register_native("U.",native_udot,FORTH_NATIVE_TASK);forth_register_native("TYPE",native_type,FORTH_NATIVE_TASK);
  forth_register_native("SPAWN",native_spawn,FORTH_NATIVE_TASK);forth_register_native("SPAWN-CON",native_spawn_console,FORTH_NATIVE_TASK);forth_register_native("PAUSE",native_pause,FORTH_NATIVE_TASK);
  forth_register_native("MS",native_ms,FORTH_NATIVE_TASK);forth_register_native("TASK-KILL",native_kill,FORTH_NATIVE_TASK);
  forth_register_native("TASK-STATE",native_state,FORTH_NATIVE_TASK);
