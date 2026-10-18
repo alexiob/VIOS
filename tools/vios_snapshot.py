@@ -95,7 +95,7 @@ class SnapshotClient:
     def _manifest(self, stack):
         # Firmware without BOOT-MANIFEST answers 'unknown word', and any Forth
         # error clears the data stack; only ask when there is nothing to lose.
-        if stack['data_stack']['depth_text'] != '0':
+        if stack['data_stack']['depth_text'].strip() != '0':
             return {'ok': False, 'error': 'skipped: data stack not empty'}
         try:
             result = self.boot_manifest()
