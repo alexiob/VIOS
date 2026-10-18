@@ -15,6 +15,7 @@ HELP = '''Enter printable ASCII Forth (up to 235 bytes per line).
 :status       Show resources
 :words        List words
 :wb ACTION    Workbench open, close, status, view or redraw
+:snapshot [FILE]  Summarize live/dirty/staged/persisted state; FILE saves full JSON
 :await        Await pending execution without sending source
 :input HEX    Send 1..16 explicit KEY bytes, then use :await
 :abort        Cancel an idle unfinished definition
@@ -191,6 +192,35 @@ class Console:
                 self.uncertain = True
                 self._warning()
 
+    def _snapshot(self, path):
+        try:
+            data = self.client.tool('snapshot')
+        except (RPCError, ToolError) as error:
+            print(str(error), file=self.errors)
+            return
+        summary = data.get('summary')
+        if data.get('ok') is not True or not isinstance(summary, dict):
+            raise ProtocolError('Harness returned an invalid snapshot')
+        draft, boot = summary['draft'], summary['boot']
+        print(f"engine {summary['engine']} base {summary['base']} ds {summary['data_stack_depth']} "
+              f"boot {boot['slot']} confirmed {boot['confirmed']} {boot['state']}", file=self.output)
+        for m in summary['modules']:
+            flags = [('live' if m['live'] else 'retained'), *(['rollback'] if m['rollback_available'] else []),
+                     *([] if m['dependencies_satisfied'] else ['deps-unsatisfied:'+','.join(m['unsatisfied_dependencies'])]),
+                     *(['draft:'+m['draft']] if m['draft'] else []),
+                     'persisted:'+{True:'yes', False:'no', None:'unknown'}[m['persisted']]]
+            print(f"module {m['name']} {m['version']} {m['crc32']:08X} "+' '.join(flags), file=self.output)
+        print(f"draft {draft['module'] or '-'} {draft['state']} rev {draft['revision']} bytes {draft['bytes']}", file=self.output)
+        if path:
+            try:
+                with open(path, 'x', encoding='ascii') as handle:
+                    json.dump(data, handle, indent=2, ensure_ascii=True)
+                    handle.write('\n')
+            except OSError as error:
+                print(f'Snapshot not written: {error}', file=self.errors)
+            else:
+                print(f'Snapshot written to {path}', file=self.output)
+
     def _idle(self, allow_compile=False):
         if self.pending or self.uncertain:
             self._warning()
@@ -236,6 +266,9 @@ class Console:
             elif token in (':status', ':words', ':abort', ':reboot') and not argument:
                 if self._idle(allow_compile=token == ':abort'):
                     self._tool({':status':'resources', ':words':'words', ':abort':'abort', ':reboot':'reboot'}[token])
+            elif token == ':snapshot':
+                if self._idle():
+                    self._snapshot(argument)
             elif token == ':wb':
                 if argument not in ('open','close','status','view','redraw'):
                     print('Use :wb open, close, status, view or redraw.',file=self.errors)

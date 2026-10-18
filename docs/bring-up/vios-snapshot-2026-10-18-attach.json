@@ -1,0 +1,252 @@
+{
+  "format": "vios-snapshot/1",
+  "captured_unix": 1792355646.524,
+  "status": {
+    "output": "WB-STATUS\r\nWB-STATUS revision 1 catalog 153 open 0 draft 0 dirty 0 staged 0 active 0 saved 0 length 0 cursor 0 selection 0 browser 0 focus 0 words 80 words_max 512 module - version - test - error -\r\n\r\nok\r\nvios> ",
+    "ok": true,
+    "compiling": false,
+    "pending": false,
+    "workbench": {
+      "revision": 1,
+      "catalog": 153,
+      "open": false,
+      "draft": false,
+      "dirty": false,
+      "staged": false,
+      "active": false,
+      "saved": false,
+      "length": 0,
+      "cursor": 0,
+      "selection": 0,
+      "browser": 0,
+      "focus": 0,
+      "words": 80,
+      "words_max": 512,
+      "module": "",
+      "version": "",
+      "test": "",
+      "error": ""
+    }
+  },
+  "source": {
+    "output": "WB-STATUS\r\nWB-STATUS revision 1 catalog 153 open 0 draft 0 dirty 0 staged 0 active 0 saved 0 length 0 cursor 0 selection 0 browser 0 focus 0 words 80 words_max 512 module - version - test - error -\r\n\r\nok\r\nvios> ",
+    "ok": true,
+    "compiling": false,
+    "pending": false,
+    "workbench": {
+      "revision": 1,
+      "catalog": 153,
+      "open": false,
+      "draft": false,
+      "dirty": false,
+      "staged": false,
+      "active": false,
+      "saved": false,
+      "length": 0,
+      "cursor": 0,
+      "selection": 0,
+      "browser": 0,
+      "focus": 0,
+      "words": 80,
+      "words_max": 512,
+      "module": "",
+      "version": "",
+      "test": "",
+      "error": ""
+    }
+  },
+  "stack": {
+    "output": ".S\r\n<0> \r\n\r\nok\r\nvios> ",
+    "ok": true,
+    "compiling": false,
+    "pending": false,
+    "data_stack": {
+      "depth_text": "0",
+      "values_text": []
+    }
+  },
+  "resources": {
+    "output": "RESOURCES\r\nengine DIRECT words 80/512 token-bytes 327 direct-bytes 986 data-bytes 27 source-bytes 281 data-peak 2 return-peak 0\r\n\r\nok\r\nvios> ",
+    "ok": true,
+    "compiling": false,
+    "pending": false,
+    "resources": {
+      "engine": "DIRECT",
+      "words": "80/512",
+      "token-bytes": 327,
+      "direct-bytes": 986,
+      "data-bytes": 27,
+      "source-bytes": 281,
+      "data-peak": 2,
+      "return-peak": 0
+    }
+  },
+  "modules": {
+    "output": "MODULES\r\nmodule LIVE1I version 11 crc32 4203863728 bytes 33 deps 0 active 1 previous 0\r\nmodule LIVE1P version 11 crc32 2732385733 bytes 60 deps 1 active 1 previous 0\r\ndependency LIVE1P module LIVE1I crc32 4203863728\r\nmodule LIVE1D version 11 crc32 1721124452 bytes 47 deps 2 active 1 previous 0\r\ndependency LIVE1D module LIVE1I crc32 4203863728\r\ndependency LIVE1D module LIVE1P crc32 2732385733\r\n\r\nok\r\nvios> ",
+    "ok": true,
+    "compiling": false,
+    "pending": false,
+    "modules": [
+      {
+        "name": "LIVE1I",
+        "version": "11",
+        "crc32": 4203863728,
+        "bytes": 33,
+        "dependency_count": 0,
+        "active": true,
+        "previous": false,
+        "dependencies": []
+      },
+      {
+        "name": "LIVE1P",
+        "version": "11",
+        "crc32": 2732385733,
+        "bytes": 60,
+        "dependency_count": 1,
+        "active": true,
+        "previous": false,
+        "dependencies": [
+          {
+            "name": "LIVE1I",
+            "crc32": 4203863728
+          }
+        ]
+      },
+      {
+        "name": "LIVE1D",
+        "version": "11",
+        "crc32": 1721124452,
+        "bytes": 47,
+        "dependency_count": 2,
+        "active": true,
+        "previous": false,
+        "dependencies": [
+          {
+            "name": "LIVE1I",
+            "crc32": 4203863728
+          },
+          {
+            "name": "LIVE1P",
+            "crc32": 2732385733
+          }
+        ]
+      }
+    ]
+  },
+  "boot": {
+    "output": "BOOT-STATUS\r\nboot confirmed A candidate NONE state CLEAN current A generation 7\r\n\r\nok\r\nvios> ",
+    "ok": true,
+    "compiling": false,
+    "pending": false,
+    "boot": {
+      "confirmed": "A",
+      "candidate": "NONE",
+      "state": "CLEAN",
+      "current": "A",
+      "generation": 7
+    }
+  },
+  "base": {
+    "output": "BASE @ DUP DECIMAL . BASE !\r\n10 \r\nok\r\nvios> ",
+    "ok": true,
+    "compiling": false,
+    "pending": false,
+    "base": 10
+  },
+  "module_sources": {
+    "LIVE1I": {
+      "output": "MODULE-SOURCE LIVE1I\r\nsource-hex 4445464552204C495645312D53203A204C495645312D43204C495645312D53203B\r\n\r\nok\r\nvios> ",
+      "ok": true,
+      "compiling": false,
+      "pending": false,
+      "name": "LIVE1I",
+      "previous": false,
+      "source": "DEFER LIVE1-S : LIVE1-C LIVE1-S ;",
+      "bytes": 33,
+      "crc32": 4203863728,
+      "crc32_hex": "FA91DEB0",
+      "source_sha256": "8631d990e2099647b2433c44d5e2066033fd31657831e2749ba658d139edeb5e"
+    },
+    "LIVE1P": {
+      "output": "MODULE-SOURCE LIVE1P\r\nsource-hex 3A204C495645312D56203131203B203A204C495645312D54204C495645312D56203131203D203B2027204C495645312D56204953204C495645312D53\r\n\r\nok\r\nvios> ",
+      "ok": true,
+      "compiling": false,
+      "pending": false,
+      "name": "LIVE1P",
+      "previous": false,
+      "source": ": LIVE1-V 11 ; : LIVE1-T LIVE1-V 11 = ; ' LIVE1-V IS LIVE1-S",
+      "bytes": 60,
+      "crc32": 2732385733,
+      "crc32_hex": "A2DCE5C5",
+      "source_sha256": "9a9d4500a08d0d370f6ba693c4b82c166c5fc51b6d647bb0ad345313bf591758"
+    },
+    "LIVE1D": {
+      "output": "MODULE-SOURCE LIVE1D\r\nsource-hex 3A204C495645312D44204C495645312D4320312B203B203A204C495645312D55204C495645312D44203132203D203B\r\n\r\nok\r\nvios> ",
+      "ok": true,
+      "compiling": false,
+      "pending": false,
+      "name": "LIVE1D",
+      "previous": false,
+      "source": ": LIVE1-D LIVE1-C 1+ ; : LIVE1-U LIVE1-D 12 = ;",
+      "bytes": 47,
+      "crc32": 1721124452,
+      "crc32_hex": "66964664",
+      "source_sha256": "8c63ee9502bab4b8cfaf7d70cf27188186bac981fddff1dfaddc44a034250cd2"
+    }
+  },
+  "previous_sources": {},
+  "summary": {
+    "modules": [
+      {
+        "name": "LIVE1I",
+        "version": "11",
+        "crc32": 4203863728,
+        "live": true,
+        "rollback_available": false,
+        "dependencies_satisfied": true,
+        "unsatisfied_dependencies": [],
+        "draft": null,
+        "persisted": null
+      },
+      {
+        "name": "LIVE1P",
+        "version": "11",
+        "crc32": 2732385733,
+        "live": true,
+        "rollback_available": false,
+        "dependencies_satisfied": true,
+        "unsatisfied_dependencies": [],
+        "draft": null,
+        "persisted": null
+      },
+      {
+        "name": "LIVE1D",
+        "version": "11",
+        "crc32": 1721124452,
+        "live": true,
+        "rollback_available": false,
+        "dependencies_satisfied": true,
+        "unsatisfied_dependencies": [],
+        "draft": null,
+        "persisted": null
+      }
+    ],
+    "draft": {
+      "module": null,
+      "state": "none",
+      "revision": 1,
+      "bytes": 0
+    },
+    "boot": {
+      "slot": "A",
+      "confirmed": "A",
+      "state": "CLEAN",
+      "trial_pending": false
+    },
+    "engine": "DIRECT",
+    "base": 10,
+    "data_stack_depth": "0",
+    "pending_module_stage": null
+  },
+  "ok": true
+}

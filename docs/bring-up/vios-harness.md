@@ -2,7 +2,7 @@
 
 The host harness exposes the running Forth system, source modules, boot selection and bounded hardware debug through MCP stdio or loopback NDJSON TCP. JSON, schemas and networking run on the Mac. The Agon executes Forth; the resident ESP32 application multiplexes console/control/status over USB serial while retaining its VDP. Integrated hardware acceptance is recorded in the [resident ledger](vios-resident-progress.md).
 
-The current interface has 48 tools, including 19 `wb_*` tools for shared live
+The current interface has 49 tools, including 19 `wb_*` tools for shared live
 browsing, exact source editing, inspection, stage/activate/save and display
 snapshots. See the [workbench runbook](vios-workbench.md). Full screen reads use
 one bounded native snapshot command and reject inconsistent surrounding state;
@@ -78,6 +78,7 @@ There are 29 tools. Schemas returned by `tools/list` are authoritative for argum
 | `words`, `inspect_word`, `stacks`, `resources`, `benchmark` | Dictionary/source metadata, stacks, capacities and checked benchmarks |
 | `module_stage`, `module_activate`, `module_discard`, `module_rollback` | Transactional source replacement |
 | `modules`, `module_source`, `module_save`, `module_load`, `load` | Exact source/hash inspection and native SD persistence |
+| `snapshot` | Read-only structured state record (modules, exact sources, draft, stacks, BASE, engine, boot slot) with a live/dirty/staged/persisted summary; restorable by `tools/vios_fast_display_state.py`, fails closed on a torn read; CLI `:snapshot [FILE]` |
 | `boot_status`, `boot_trial`, `boot_confirm`, `boot_revert` | A/B source-bundle trial and selection |
 | `debug_registers`, `memory_read`, `memory_write`, `resume` | Bounded ZDI inspection/write/readback and state-preserving resume |
 

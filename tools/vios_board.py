@@ -14,14 +14,16 @@ import zlib
 try:
     from .vios_module_client import ModuleClient
     from .vios_workbench_client import WorkbenchClient
+    from .vios_snapshot import SnapshotClient
 except ImportError:
     from vios_module_client import ModuleClient
     from vios_workbench_client import WorkbenchClient
+    from vios_snapshot import SnapshotClient
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
-class ViosBoard(WorkbenchClient,ModuleClient):
+class ViosBoard(SnapshotClient,WorkbenchClient,ModuleClient):
     def __init__(self, port='/dev/cu.usbserial-22430', image=None,
                  log=None, probe_image=None,
                  session=None, loader=None, deployer=None, asker=None, reader=None,
