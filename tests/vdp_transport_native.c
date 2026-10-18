@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <stddef.h>
 #include <stdio.h>
+#include <string.h>
 #include "drivers/vdp_transport.h"
 int main(void) {
  struct vdp_transport p;vdp_transport_init(&p);
@@ -67,6 +68,28 @@ int main(void) {
  const unsigned char w[]={0x81,4,'W',0,0,1,0x81,4,'\r',0,0,1};for(size_t j=0;j<sizeof w;++j)vdp_transport_feed(&p,w[j]);
  for(unsigned i=0;i<509;++i)assert(vdp_transport_getc(&p)>0);
  assert(vdp_transport_getc(&p)=='\r'&&vdp_transport_getc(&p)=='W'&&vdp_transport_getc(&p)=='\r'&&vdp_transport_getc(&p)==-1);
+ /* Line editing: insert at cursor, Left/Home/End, Delete, Backspace, history. */
+ {
+  vdp_transport_init(&p);vdp_transport_line_mode(&p,1);
+  #define KEY(a,vk) do{const unsigned char k_[]={0x81,4,(unsigned char)(a),0,(unsigned char)(vk),1};for(size_t j_=0;j_<sizeof k_;++j_)vdp_transport_feed(&p,k_[j_]);}while(0)
+  KEY('a',0);KEY('c',0);KEY(0,PLATFORM_KEY_LEFT);KEY('b',0);            /* abc, cursor 2 */
+  assert(p.local_used==3&&!memcmp(p.local,"abc",3)&&p.local_cursor==2);
+  KEY(0,PLATFORM_KEY_HOME);KEY(0,PLATFORM_KEY_DELETE);                   /* bc, cursor 0 */
+  KEY(0,PLATFORM_KEY_END);KEY(8,PLATFORM_KEY_BACKSPACE);KEY('x',0);       /* bx */
+  assert(p.local_used==2&&!memcmp(p.local,"bx",2)&&p.local_cursor==2);
+  KEY(0,PLATFORM_KEY_LEFT);KEY(0,PLATFORM_KEY_LEFT);KEY(0,PLATFORM_KEY_LEFT);KEY(8,PLATFORM_KEY_BACKSPACE);
+  assert(p.local_cursor==0&&p.local_used==2&&"cursor clamps; backspace at 0 is a no-op");
+  KEY(13,PLATFORM_KEY_RETURN);assert(vdp_transport_getc(&p)=='b'&&vdp_transport_getc(&p)=='x'&&vdp_transport_getc(&p)=='\r');
+  assert(p.local_erase==1&&p.local_used==0);
+  KEY('q',0);KEY(13,PLATFORM_KEY_RETURN);while(vdp_transport_getc(&p)>=0){}
+  KEY(0,PLATFORM_KEY_UP);assert(p.local_used==1&&p.local[0]=='q'&&p.local_cursor==1);
+  KEY(0,PLATFORM_KEY_UP);assert(p.local_used==2&&!memcmp(p.local,"bx",2));
+  KEY(0,PLATFORM_KEY_UP);assert(p.local_used==2&&"oldest entry holds");
+  KEY(0,PLATFORM_KEY_DOWN);KEY(0,PLATFORM_KEY_DOWN);assert(p.local_used==0&&"down past newest is an empty line");
+  KEY(0,PLATFORM_KEY_UP);KEY(13,PLATFORM_KEY_RETURN);while(vdp_transport_getc(&p)>=0){}
+  assert(p.history_count==2&&"re-entering the newest line does not duplicate it");
+  #undef KEY
+ }
  vdp_transport_line_mode(&p,0);
  const unsigned char raw[]={0x81,4,'k',0,0,1};for(size_t j=0;j<sizeof raw;++j)vdp_transport_feed(&p,raw[j]);
  assert(vdp_transport_getc(&p)=='k'&&vdp_transport_getc(&p)==-1);

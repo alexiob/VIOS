@@ -12,6 +12,8 @@ static unsigned char output[128];
 static unsigned output_used;
 static unsigned char incoming[32];
 static void poll(void);
+/* Console output tap for the VGA console view: RAM only, never VDP I/O. */
+static void (*console_tap)(unsigned char);
 static void send_bytes(const unsigned char *data,size_t length) {
  if(!length)return;
  /* Stop incoming traffic before native TX work, including an idle RX window.
@@ -39,17 +41,30 @@ void platform_console_flush(void) {
  output_used=0;
 }
 void platform_console_putc(unsigned char c) {
+ if(console_tap)console_tap(c);
  output[output_used++]=c;
  if(output_used==sizeof output||c=='\n')platform_console_flush();
 }
-static void erase(void){platform_console_putc(8);platform_console_putc(' ');platform_console_putc(8);}
-/* Show the cooked local line as it is typed. Runs outside poll(); a handed-
- * over line is erased before the REPL echoes its first byte, so it is shown
- * once. Host bytes may interleave with this echo; only display is affected. */
+/* Show the cooked local line as it is edited, using only printable bytes,
+ * spaces and BS so any terminal (USB or the VGA console view) renders it.
+ * Runs outside poll(). Only the changed tail is redrawn. A handed-over line
+ * is erased before the REPL echoes its first byte, so it is shown once.
+ * Host bytes may interleave with this echo; only display is affected. */
+static unsigned char shown[sizeof rx.local],shown_length,shown_cursor;
+static void back(unsigned n){while(n--)platform_console_putc(8);}
 static void echo_local(void) {
- for(;rx.local_erase;--rx.local_erase)erase();
- for(;rx.local_echoed>rx.local_used;--rx.local_echoed)erase();
- while(rx.local_echoed<rx.local_used)platform_console_putc(rx.local[rx.local_echoed++]);
+ if(rx.local_erase){
+  rx.local_erase=0;back(shown_cursor);for(unsigned i=0;i<shown_length;++i)platform_console_putc(' ');back(shown_length);
+  shown_length=shown_cursor=0;
+ }
+ unsigned length=rx.local_used,cursor=rx.local_cursor,i=0;
+ while(i<length&&i<shown_length&&shown[i]==rx.local[i])++i;
+ if(i==length&&length==shown_length&&cursor==shown_cursor)return;
+ if(shown_cursor>i)back(shown_cursor-i);else for(unsigned k=shown_cursor;k<i;++k)platform_console_putc(shown[k]);
+ for(unsigned k=i;k<length;++k)platform_console_putc(rx.local[k]);
+ unsigned end=length;for(;end<shown_length;++end)platform_console_putc(' ');
+ back(end-cursor);
+ for(unsigned k=0;k<length;++k)shown[k]=rx.local[k];shown_length=(unsigned char)length;shown_cursor=(unsigned char)cursor;
 }
 int platform_console_getc(void) {
  ez80_uart0_rx_pause();
@@ -69,6 +84,8 @@ int platform_keyboard_event(struct platform_key_event *out) {
  return 0;
 }
 unsigned platform_keyboard_dropped(void) {return rx.key_dropped;}
+int platform_keyboard_hotkey(void) {ez80_uart0_rx_pause();poll();int k=rx.hotkey;rx.hotkey=0;return k;}
+void platform_console_tap(void (*tap)(unsigned char)) {console_tap=tap;}
 void platform_vdp_send(const void *data,size_t length) {
  platform_console_flush();send_bytes(data,length);
 }

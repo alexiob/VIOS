@@ -2,6 +2,7 @@
 #define VIOS_VDP_TRANSPORT_H
 #include <stddef.h>
 #include "platform/input.h"
+#define VDP_HISTORY 4
 struct vdp_reply { unsigned char type,length,valid,data[32]; };
 struct vdp_transport {
  unsigned char state,type,length,index,scratch[32];
@@ -11,9 +12,13 @@ struct vdp_transport {
  unsigned char key_head,key_count,key_route;unsigned key_dropped;
  /* Cooked mode keeps physical keystrokes out of partial host lines. */
  unsigned char line_mode,host_open,local_pending,local_used,local[235];unsigned local_dropped;
- /* Echo bookkeeping for the platform: bytes of local shown, and a pending
-  * erase of the shown text once the line is handed to the REPL. */
- unsigned char local_echoed,local_erase;
+ /* Line editing: cursor within local; local_erase asks the platform echo to
+  * clear the shown line once it is handed to the REPL. Up/Down recall the
+  * last VDP_HISTORY lines (newest first). */
+ unsigned char local_cursor,local_erase;
+ unsigned char history[4][235],history_length[4],history_count,history_next,history_pos;
+ /* F1 pressed while keys are not routed to the UI: a view-switch request. */
+ unsigned char hotkey;
 };
 void vdp_transport_init(struct vdp_transport *p);
 void vdp_transport_keyboard_route(struct vdp_transport *p,int enabled);

@@ -15,6 +15,7 @@ void platform_keyboard_route(int enabled){keyboard_route=enabled;input_paused=1;
 int platform_keyboard_event(struct platform_key_event *out){input_paused=1;if(!have_key)return 0;*out=queued_key;have_key=0;return 1;}
 void platform_input_resume(void){input_paused=0;}
 unsigned platform_keyboard_dropped(void){return 0;}
+static int hotkey;int platform_keyboard_hotkey(void){int k=hotkey;hotkey=0;return k;}
 static char root[512],error[96];
 static unsigned ready;
 static unsigned fail_confirmation,tear_package;

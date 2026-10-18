@@ -86,6 +86,19 @@ int main(int argc,char **argv) {
   assert(!strcmp(seen,"ac")||!strcmp(seen,"ab"));assert(strchr(shown,'c'));
   puts("resident cooked line echoes once");return 0;
  }
+ if(!strcmp(argv[1],"edit-echo")){
+  /* Mid-line insert and delete redraw only the tail; a terminal rendering of
+   * the echo always equals the edited line with the cursor in place. */
+  timer_step=10;const unsigned char keys[]={0x81,4,'a',0,0,1,0x81,4,'b',0,0,1,0x81,4,'c',0,0,1,
+   0x81,4,0,0,154,1,0x81,4,0,0,154,1,0x81,4,'X',0,0,1,0x81,4,0,0,130,1};
+  memcpy(incoming,keys,sizeof keys);wire_length=sizeof keys;next_wire=0;platform_console_init();platform_console_line_mode(1);
+  for(unsigned i=0;i<400;++i)(void)platform_console_getc();
+  platform_console_flush();
+  char screen[32];memset(screen,' ',sizeof screen);unsigned col=0;
+  for(unsigned i=0;i+3<writes;){unsigned len=transmitted[i+3];for(unsigned k=0;k<len;++k){unsigned char c=transmitted[i+4+k];if(c==8){assert(col);--col;}else screen[col++]=(char)c;}i+=4+len;}
+  assert(!memcmp(screen,"aXc ",4)&&col==2);
+  puts("resident echo follows mid-line edits");return 0;
+ }
  if(!strcmp(argv[1],"gate")){
   /* Quiet line: tasks admitted with RX paused. A host byte inside the ~1 ms
    * window defers tasks and is received, never left to overrun the FIFO. */

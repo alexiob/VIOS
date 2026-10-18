@@ -12,7 +12,7 @@ enum platform_virtual_key {
  PLATFORM_KEY_PAGEDOWN=148,PLATFORM_KEY_KP_PAGEDOWN=149,
  PLATFORM_KEY_UP=150,PLATFORM_KEY_KP_UP=151,PLATFORM_KEY_DOWN=152,PLATFORM_KEY_KP_DOWN=153,
  PLATFORM_KEY_LEFT=154,PLATFORM_KEY_KP_LEFT=155,PLATFORM_KEY_RIGHT=156,PLATFORM_KEY_KP_RIGHT=157,
- PLATFORM_KEY_F5=163,PLATFORM_KEY_F6=164,PLATFORM_KEY_F7=165,PLATFORM_KEY_F8=166,PLATFORM_KEY_F10=168
+ PLATFORM_KEY_F1=159,PLATFORM_KEY_F5=163,PLATFORM_KEY_F6=164,PLATFORM_KEY_F7=165,PLATFORM_KEY_F8=166,PLATFORM_KEY_F10=168
 };
 enum platform_key_modifier {
  PLATFORM_MOD_CTRL=1,PLATFORM_MOD_SHIFT=2,PLATFORM_MOD_LALT=4,PLATFORM_MOD_RALT=8,
@@ -26,4 +26,6 @@ void platform_input_resume(void);
 void platform_keyboard_route(int enabled);
 int platform_keyboard_event(struct platform_key_event *out);
 unsigned platform_keyboard_dropped(void);
+/* 1 once per F1 press received while keys are not routed to the UI. */
+int platform_keyboard_hotkey(void);
 #endif
