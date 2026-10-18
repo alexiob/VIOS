@@ -14,9 +14,10 @@ script work.
 | Left/Right, Home/End | move in the line | move in the source |
 | Backspace / Delete | delete before / under the cursor | same |
 | Up/Down | recall the last 4 lines | move / select |
-| Esc | clear the line | close the editor (back to console) |
+| Esc | clear the line | — |
 | Tab, Ctrl+Space | — | switch focus, wide layout |
-| F5–F8, F10 | — | stage, activate, save, … (see the workbench runbook) |
+| F10 | — | close the editor (back to the console) |
+| F5–F8 | — | stage, activate, save, … (see the workbench runbook) |
 
 Typing is local until Enter; the line then runs whole, so it never mixes
 with host commands. Output produced while the editor is shown is kept and
