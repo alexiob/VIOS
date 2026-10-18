@@ -6,9 +6,35 @@ For continued development, start with the [Claude handoff](CLAUDE_HANDOFF.md):
 current implementation, hardware/recovery workflow, known limits and the roadmap
 toward the full system.
 
-The resident system integrates the full VDP, concurrent framed USB control, native SD/FAT32, replaceable Forth service bindings, transactional source modules and A/B source startup. The [physical-board acceptance](docs/bring-up/vios-resident-accepted-run3.json) passed 137 checkpoints, including real module save/reload and v1 → v2 → v1 startup. [Recovery acceptance](docs/bring-up/vios-resident-recovery-run1.json) passed pending-input, infinite graphics-loop and automatic watchdog-reset cases. The [resident runbook](docs/bring-up/vios-resident-system.md) records limits and recovery details.
+## October 18–19 additions
 
-The native engine measurements show direct threading taking **11–14% less time than token threading** across five measured workloads. The current workbench CPU image is 111,301 bytes, with 255,060 bytes of BSS and a separate 4 KiB stack. The dictionary capacity is 512 configurable entries. See the [workbench/VM measurements](docs/benchmarks/workbench-2026-10-16.md), [incremental composition measurements](docs/benchmarks/incremental-2026-10-16.md) and [fast-display measurements](docs/benchmarks/fast-display-2026-10-16.md). These measurements describe this implementation and these workloads.
+All verified on the physical board unless noted; evidence in `docs/bring-up/*-2026-10-1[89]*`.
+
+- **Local console on VGA.** Boot opens a VGA REPL console (home view); **F1**
+  toggles it with the workbench editor. The local line editor supports
+  Left/Right/Home/End, Backspace, Delete, Esc and Up/Down history; a cursor
+  blinks; output produced while the editor is shown is kept. Physical keys
+  are isolated from host command frames. See the [console spec](docs/superpowers/specs/2026-10-19-vios-console.md).
+- **Background tasks.** `SPAWN`, `SPAWN-CON`, `PAUSE`, `MS`, `TASK-KILL`,
+  `TASK-STATE`, `TASKS`, `TASK-OUT`, `TASK-SLICE`: four time-sliced Forth
+  tasks preempted at instruction boundaries without native-engine changes
+  ([task spec](docs/superpowers/specs/2026-10-18-vios-tasks.md)). A word named
+  `AUTORUN` starts as a console task at boot.
+- **Handles, devices and pipes.** `OPEN`/`CLOSE`/`READ`/`WRITE`/`PIPE`,
+  `READ-WAIT`/`WRITE-ALL`, SD file streams, `/dev/null`, `/dev/cons`,
+  `/dev/tasks`, per-task cleanup, `HANDLES`
+  ([handle spec](docs/superpowers/specs/2026-10-18-vios-handles.md)).
+- **Inspection.** `LAST-ERROR` keeps the failing word, offset, caller frames
+  and stack captured before unwind; `TRACE word n` single-steps on any engine.
+- **Core words.** A Forth prelude adds `> 0< ROT NIP TUCK ABS MAX MIN TYPE
+  SPACES WITHIN …`; the compiler adds `." CHAR [CHAR] CREATE ALLOT HERE , C,`.
+- **Host tools.** `snapshot`, `resync`, `complete`, `help`, `module_graph`,
+  `develop`, `tasks`, `handles`, `last_error`, `trace`; CLI `:snapshot`,
+  `:resync`, `:help`, `:complete` (and Tab), `:graph`, `:why`, `:trace`.
+
+, concurrent framed USB control, native SD/FAT32, replaceable Forth service bindings, transactional source modules and A/B source startup. The [physical-board acceptance](docs/bring-up/vios-resident-accepted-run3.json) passed 137 checkpoints, including real module save/reload and v1 → v2 → v1 startup. [Recovery acceptance](docs/bring-up/vios-resident-recovery-run1.json) passed pending-input, infinite graphics-loop and automatic watchdog-reset cases. The [resident runbook](docs/bring-up/vios-resident-system.md) records limits and recovery details.
+
+The native engine measurements show direct threading taking **11–14% less time than token threading** across five measured workloads. The October 16 workbench CPU image was 111,301 bytes with 255,060 bytes of BSS; the October 19 image is about 136 KB with BSS ending at `0xA1668` (about 55 KB below the 4 KiB stack). The dictionary capacity is 512 configurable entries. See the [workbench/VM measurements](docs/benchmarks/workbench-2026-10-16.md), [incremental composition measurements](docs/benchmarks/incremental-2026-10-16.md) and [fast-display measurements](docs/benchmarks/fast-display-2026-10-16.md). These measurements describe this implementation and these workloads.
 
 Build with the provisioned AgonDev and PlatformIO toolchains:
 

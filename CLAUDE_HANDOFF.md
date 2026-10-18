@@ -85,6 +85,10 @@ card, publishing services, or rewiring pins without discussion.
 | Recovery | Independent ESP USB/ZDI task; CPU register/memory inspection; explicit forced reboot during pending input or a stuck VDP; boot watchdog and bounded failed-boot handling. |
 | Workbench | Module/word browser, exact-source draft editor, live inspector, guarded editing/staging/activation/save, one undo snapshot, semantic keyboard events and headless equivalents. |
 | Rendering | Retained panes/source index, sparse glyph/style changes, native UART writer, compressed commands, ESP buffered viewport scrolls, full-width source mode and framebuffer-fenced diagnostics. |
+| Console (Oct 19) | Boot-time VGA REPL console (home view, F1 toggles editor), RAM-tapped output with circular shadow, hidden harness envelopes, cooked local line editor with history and blinking cursor, physical keys isolated from host frames. |
+| Tasks (Oct 18) | Four background Forth tasks swapped at trap boundaries, preempted by budget exhaustion (probe-verified exact resume), `PAUSE`/`MS`, per-task output rings or console attachment, UART-safe admission gate, measured 1024-instruction slice, `AUTORUN` boot task. |
+| Handles (Oct 18) | Non-blocking `OPEN/CLOSE/READ/WRITE/PIPE`, Forth `READ-WAIT/WRITE-ALL`, SD streams, `/dev/null|cons|tasks`, per-task ownership cleanup. |
+| Inspection (Oct 18–19) | `LAST-ERROR` pre-unwind capture (word+offset, frames, stack), `TRACE` single-stepping on all engines, `snapshot`, `help`, `complete`, `module_graph`, `develop`, `resync`. |
 
 **This is an OS foundation, not the full intended OS.** The compiler/outer
 interpreter, compositor and substantial policy currently live in C. It is not
@@ -516,3 +520,53 @@ native specializations where they preserve performance.
 > milestone before coding. Preserve live user work and frozen releases. Ask me
 > for any needed physical board/SD/keyboard action, then carry the agreed
 > implementation through testing and actual Agon measurements.
+
+## 13. Progress 2026-10-18/19 (Claude session)
+
+Board on `/dev/cu.usbserial-224130` (suffix changed from `-22430`). Every
+flashed app0 and its manifest/ELF is in `backups/app0-2026-10-18/`; the
+original Oct 16 installed image was read back first (byte-identical to
+`artifacts/vios-fast-display-2026-10-16/firmware-accepted.bin`). Only app0 at
+`0x10000` was written; SD slots, eZ80 flash, bootloader and partitions are
+untouched. The Oct 16 RAM work (WBM1P and its 1969-byte draft) is restored
+from `docs/bring-up/vios-fast-display-preserved.json` with
+`tools/vios_fast_display_state.py` after each flash; it is RAM-only.
+
+Stage status against section 10:
+
+- **0** Baseline re-run; app0 backed up; keyboard confirmed by the user in
+  the workbench (arrows, typing, Tab, Ctrl+Space). Long soak, cold-start and
+  power-cut qualification still not done.
+- **1** Done for this slice: snapshot, resync, complete/help (CLI Tab),
+  module graph, develop cycle, local VGA console sharing the REPL.
+- **2** Done (slice 1): tasks, gate, slice sweep, acceptance. Not done:
+  per-task compiler/BASE context, locks, task-safe module transactions.
+- **3** Done (slice 1): handles, pipes, /dev endpoints, cleanup. Not done:
+  shell pipeline syntax, per-task stdin/stdout redirection, namespaces/mounts.
+- **4** Done (slices 1-2): pre-unwind capture, TRACE. Not done: typed
+  descriptors, source maps, restart options, graphics inspectors.
+- **5** Started: Forth prelude, compiler data/string words, AUTORUN.
+  On-device AUTORUN boot needs a boot-slot module (user approval for SD),
+  metacompiler/self-hosted rebuild not started.
+- **6, 7** Not started (host TCP owner remains the only network path).
+
+Hardware lessons worth keeping:
+
+- Never run bounded C work (task slices, console interpretation) while the
+  REPL has re-asserted RTS: the 16-byte UART FIFO overruns and host frames
+  are lost. Pause RX first (`platform_console_quiet` gate, drain after the
+  keyboard poll).
+- VDP 1.04 `CHAR@` matches the *current* text colours; set `3 COLOUR 128
+  COLOUR` before diagnostic readback (the console cursor leaves them inverse).
+- Recovery without reboot works: ZDI `memory_write` of task/console state,
+  completing a partial line with `console_input 0d`, then `resync`. Symbol
+  addresses must come from the exact flashed ELF (kept in backups); the
+  compiler may narrow static ints to one byte.
+- `tools/vios_keyboard_probe.py`, `vios_console_accept.py`,
+  `vios_tasks_accept.py`, `vios_handles_accept.py`, `vios_core_words_accept.py`,
+  `vios_slice_sweep.py` are the on-board acceptance drivers.
+
+Pending user decisions: merge `refs/heads/claude/frosty-faraday-fa0037`
+(BOOT-MANIFEST, real `persisted` in snapshots, +928 B); allow a test module
+in an SD boot slot to demonstrate AUTORUN after reboot; physical checks of
+the console cursor, editing keys and history.
