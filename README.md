@@ -6,6 +6,8 @@ For continued development, start with the [Claude handoff](CLAUDE_HANDOFF.md):
 current implementation, hardware/recovery workflow, known limits and the roadmap
 toward the full system.
 
+New here? Read the [user guide](docs/USER-GUIDE.md).
+
 ## October 18–19 additions
 
 All verified on the physical board unless noted; evidence in `docs/bring-up/*-2026-10-1[89]*`.
