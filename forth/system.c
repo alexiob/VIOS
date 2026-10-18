@@ -26,6 +26,10 @@ static unsigned short buckets[HASH_BUCKETS];
 static unsigned char token_code[TOKEN_BYTES],direct_code[DIRECT_BYTES],data_space[DATA_BYTES];
 static char source_space[SOURCE_BYTES];
 static struct control controls[CONTROL_MAX];
+/* LEAVE and ?DO record forward branches resolved by their loop's end. */
+#define LEAVES_MAX 16
+static struct control leaves[LEAVES_MAX];
+static unsigned leave_used;
 static size_t token_used,direct_used,data_used,source_used,control_used;
 static size_t mark_token,mark_direct,mark_data,mark_source;
 /* Source maps: before each token of a colon definition the compiler records
@@ -129,7 +133,7 @@ static void decimal_number(fcell n) {
 }
 static void rollback(void) {
  if(current>=0) {token_used=mark_token;direct_used=mark_direct;data_used=mark_data;source_used=mark_source;map_used=mark_map;}
- current=-1;control_used=0;
+ current=-1;control_used=0;leave_used=0;
 }
 /* Stage 4: the foreground's last runtime failure, captured before fail()
  * unwinds the stacks. Frames hold xts; names resolve at report time. */
@@ -430,6 +434,17 @@ static int spawn(int console) {
  return fail("no free task slot");
 }
 static int native_spawn(void){return spawn(0);}
+/* Loop helpers on the VM loop stack (pure VM state; frames are limit,index). */
+static int native_j(void){if(fvm_ldepth<2){fvm_error=FE_LOOP_UNDER;return fail(vm_message());}return fvm_push(fvm_loops[(fvm_ldepth-2)*2+1])?1:fail(vm_message());}
+static int native_unloop(void){if(!fvm_ldepth){fvm_error=FE_LOOP_UNDER;return fail(vm_message());}--fvm_ldepth;return 1;}
+static int native_plus_loop(void){
+ /* ( n -- exit? ) exits when the index crosses the limit-1/limit boundary. */
+ fcell n=fvm_pop();if(fvm_error)return fail(vm_message());if(!fvm_ldepth){fvm_error=FE_LOOP_UNDER;return fail(vm_message());}
+ fcell *f=&fvm_loops[(fvm_ldepth-1)*2];fcell d0=(f[1]-f[0])&FVM_MASK,next=(f[1]+n)&FVM_MASK,d1=(next-f[0])&FVM_MASK;
+ int neg0=(d0&0x800000UL)!=0,neg1=(d1&0x800000UL)!=0,exit=(n&0x800000UL)?(!neg0&&neg1):(neg0&&!neg1);
+ if(exit)--fvm_ldepth;else f[1]=next;
+ return fvm_push(exit?FVM_MASK:0)?1:fail(vm_message());
+}
 static int native_spawn_console(void){return spawn(1);}
 static int native_pause(void) {if(running>=0)yield_request=1;else forth_tasks_run();return 1;}
 static int native_ms(void) {
@@ -568,9 +583,31 @@ static void patch(struct control c) {
  put_cell(token_code+c.token,address(token_code+token_used));
  put_cell(direct_code+c.direct,address(direct_code+direct_used));
 }
+static unsigned loop_depth(void){unsigned n=0;for(unsigned i=0;i<control_used;++i)if(controls[i].kind==CS_DO)++n;return n;}
+static int leave_push(unsigned depth){
+ if(leave_used==LEAVES_MAX)return fail("too many LEAVE/?DO exits");
+ leaves[leave_used].kind=(unsigned char)depth;leaves[leave_used].token=token_used;leaves[leave_used].direct=direct_used;++leave_used;
+ return operand(0,0);
+}
+static void leaves_resolve(unsigned depth){
+ unsigned kept=0;for(unsigned i=0;i<leave_used;++i){if(leaves[i].kind==depth)patch(leaves[i]);else leaves[kept++]=leaves[i];}leave_used=kept;
+}
+static int compile_named(const char *name){int n=find(name);return n<0?fail("loop helper missing"):compile_word(n);}
 static int control_word(const char *s) {
  struct control c;
  if(current<0)return fail("compile-only word");
+ if(equal(s,"LEAVE")) {
+  unsigned depth=loop_depth();if(!depth)return fail("LEAVE needs DO");
+  return compile_named("UNLOOP")&&op(F_BRANCH)&&leave_push(depth);
+ }
+ if(equal(s,"?DO")) {
+  /* 2DUP = IF 2DROP skip-loop THEN DO ... : the skip is resolved at LOOP. */
+  if(!compile_named("2DUP")||!op(F_EQ)||!op(F_ZBRANCH))return 0;
+  size_t t=token_used,d=direct_used;if(!operand(0,0))return 0;
+  if(!compile_named("2DROP")||!op(F_BRANCH)||!leave_push(loop_depth()+1))return 0;
+  struct control enter={CS_IF,t,d};patch(enter);
+  if(!op(F_DO))return 0;return control_push(CS_DO,token_used,direct_used);
+ }
  if(equal(s,"IF")||equal(s,"WHILE")) {
   if(equal(s,"WHILE")&&(!control_used||controls[control_used-1].kind!=CS_BEGIN))return fail("WHILE needs BEGIN");
   if(!op(F_ZBRANCH))return 0;
@@ -592,7 +629,13 @@ static int control_word(const char *s) {
   struct control begin=controls[--control_used];
   if(!op(F_BRANCH)||!operand(address(token_code+begin.token),address(direct_code+begin.direct)))return 0;patch(c);return 1;
  }
- if(equal(s,"LOOP")) {if(c.kind!=CS_DO)return fail("LOOP needs DO");return op(F_LOOP)&&operand(address(token_code+c.token),address(direct_code+c.direct));}
+ if(equal(s,"LOOP")||equal(s,"+LOOP")) {
+  if(c.kind!=CS_DO)return fail("LOOP needs DO");
+  unsigned depth=loop_depth()+1;
+  int ok=equal(s,"LOOP")?op(F_LOOP)&&operand(address(token_code+c.token),address(direct_code+c.direct))
+   :compile_named("(+LOOP)")&&op(F_ZBRANCH)&&operand(address(token_code+c.token),address(direct_code+c.direct));
+  if(ok)leaves_resolve(depth);return ok;
+ }
  if(c.kind!=CS_BEGIN)return fail("loop needs BEGIN");
  return op(equal(s,"UNTIL")?F_ZBRANCH:F_BRANCH)&&operand(address(token_code+c.token),address(direct_code+c.direct));
 }
@@ -706,7 +749,7 @@ int forth_eval(const char *source) {
    if(current>=0)return fail("defining word inside definition");
    if(!need_token(&p,name)||!defining(s,name))return 0;continue;
   }
-  if(equal(s,"IF")||equal(s,"ELSE")||equal(s,"THEN")||equal(s,"BEGIN")||equal(s,"UNTIL")||equal(s,"AGAIN")||equal(s,"WHILE")||equal(s,"REPEAT")||equal(s,"DO")||equal(s,"LOOP")) {
+  if(equal(s,"IF")||equal(s,"ELSE")||equal(s,"THEN")||equal(s,"BEGIN")||equal(s,"UNTIL")||equal(s,"AGAIN")||equal(s,"WHILE")||equal(s,"REPEAT")||equal(s,"DO")||equal(s,"LOOP")||equal(s,"+LOOP")||equal(s,"?DO")||equal(s,"LEAVE")) {
    if(!control_word(s))return 0;continue;
   }
   if(equal(s,"RECURSE")) {if(current<0)return fail("RECURSE outside definition");if(!compile_word(current))return 0;continue;}
@@ -797,6 +840,8 @@ void forth_init(void) {
  defining("VARIABLE","BASE");base_address=words[count-1].aux;fvm_write_cell(base_address,10);
  for(unsigned i=0;i<FORTH_TASKS_MAX;++i){tasks[i].state=TS_FREE;tasks[i].console=tasks[i].in_handle=tasks[i].out_handle=tasks[i].finishing=0;tasks[i].xt=0;tasks[i].slices=tasks[i].steps=0;tasks[i].out_count=0;tasks[i].out_dropped=0;tasks[i].error[0]=0;tasks[i].depth=tasks[i].rdepth=0;tasks[i].ds_peak=tasks[i].rs_peak=0;}
  running=-1;scheduling=yield_request=0;next_task=0;
+ forth_register_native("J",native_j,FORTH_NATIVE_PURE);forth_register_native("UNLOOP",native_unloop,FORTH_NATIVE_PURE);
+ forth_register_native("(+LOOP)",native_plus_loop,FORTH_NATIVE_PURE);
  forth_register_native("SPAWN",native_spawn,FORTH_NATIVE_TASK);forth_register_native("SPAWN-CON",native_spawn_console,FORTH_NATIVE_TASK);forth_register_native("PAUSE",native_pause,FORTH_NATIVE_TASK);
  forth_register_native("MS",native_ms,FORTH_NATIVE_TASK);forth_register_native("TASK-KILL",native_kill,FORTH_NATIVE_TASK);
  forth_register_native("TASK-STATE",native_state,FORTH_NATIVE_TASK);
@@ -899,7 +944,7 @@ static void checkpoint_restore(const struct checkpoint *s,int dictionary,int dat
   for(unsigned i=0;i<HASH_BUCKETS;++i)buckets[i]=s->buckets[i];
  }
  if(data)for(unsigned i=0;i<DATA_BYTES;++i)data_space[i]=s->data_bytes[i];
- current=-1;control_used=0;fvm_rdepth=fvm_ldepth=0;
+ current=-1;control_used=0;leave_used=0;fvm_rdepth=fvm_ldepth=0;
  fvm_depth=s->depth;fvm_ip=s->ip;fvm_error=s->error;fvm_budget=s->budget;
  fvm_ds_peak=s->ds_peak;fvm_rs_peak=s->rs_peak;selected=s->engine;
  for(unsigned i=0;i<FVM_DS;++i)fvm_ds[i]=s->stack[i];

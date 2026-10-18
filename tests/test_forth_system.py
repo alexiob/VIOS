@@ -23,19 +23,19 @@ class ForthSystemTests(unittest.TestCase):
   self.assertNotIn('ERR',out);self.assertIn('@A1B2C3D4',out);self.assertIn('@ABCD1234',out);self.assertIn('2B ',out)
  def test_metadata_radix_is_fixed_decimal(self):
   out=self.run_forth('HEX SEE DUP RESOURCES\n')
-  self.assertIn('words 53/512',out);self.assertIn('word DUP xt 1 kind 0',out)
+  self.assertIn('words 56/512',out);self.assertIn('word DUP xt 1 kind 0',out)
  def test_dictionary_supports_more_than_128_live_words(self):
   source=''.join(': CAP%d %d ;\n'%(n,n) for n in range(350))
   out=self.run_forth(source+'CAP349 . RESOURCES\n')
   self.assertNotIn('ERR',out);self.assertIn('349 ',out)
-  self.assertIn('words 403/512',out)
+  self.assertIn('words 406/512',out)
  def test_port_dictionary_budget_is_compile_time_configurable(self):
   binary=ROOT/'build/tests/forth-system-small'
   sources=['tests/forth_system_host.c','forth/system.c','forth/modules.c','forth/vm_reference.c','forth/vm_memory.c']
   subprocess.run(['cc','-std=c99','-pedantic','-Wall','-Wextra','-Werror',
    '-fsanitize=address,undefined','-DVIOS_FORTH_WORDS_MAX=64','-DVIOS_FORTH_HASH_BUCKETS=16',
    '-Iinclude',*[str(ROOT/p) for p in sources],'-o',str(binary)],check=True)
-  source=''.join(': P%d %d ;\n'%(n,n) for n in range(20))+'P10 . RESOURCES\n2 3 + .\n'
+  source=''.join(': P%d %d ;\n'%(n,n) for n in range(20))+'P7 . RESOURCES\n2 3 + .\n'
   out=subprocess.run([str(binary)],input=source,text=True,capture_output=True,check=True,timeout=10).stdout
   self.assertIn('dictionary full',out);self.assertIn('words 64/64',out)
   self.assertTrue(out.rstrip().endswith('5'))
@@ -100,3 +100,12 @@ class ErrorCaptureTests(unittest.TestCase):
   self.assertIn('ERR: unknown word: NOSUCH',out)
   srcs=[l.split(' src ')[1].split()[0] for l in out.splitlines() if l.startswith('step ')]
   self.assertEqual(srcs,['4','5','+',';'])
+ def test_extended_loops_j_leave_plus_loop_and_qdo(self):
+  binary=ROOT/'build/tests/forth-system'
+  src=(': A 3 0 DO 2 0 DO J 10 * I + . LOOP LOOP ;\nA CR\n: B 10 0 DO I . 2 +LOOP ;\nB CR\n: C 0 10 DO I . -3 +LOOP ;\nC CR\n'
+       ': D 10 0 DO I DUP . 4 = IF LEAVE THEN LOOP ;\nD CR\n: E 5 5 ?DO I . LOOP 42 . ;\nE CR\n: F 3 0 ?DO I . LOOP ;\nF CR\n'
+       ': G 5 0 DO 3 0 DO J I + 5 = IF LEAVE THEN LOOP LOOP 99 . ;\nG CR\n.S\n: BAD LEAVE ;\n: BAD2 1 +LOOP ;\n')
+  out=subprocess.run([str(binary)],input=src,text=True,capture_output=True,check=True,timeout=10).stdout.replace('\r','')
+  lines=out.splitlines()
+  self.assertEqual(lines[:8],['0 1 10 11 20 21 ','0 2 4 6 8 ','10 7 4 1 ','0 1 2 3 4 ','42 ','0 1 2 ','99 ','<0> '])
+  self.assertIn('ERR: LEAVE needs DO',out);self.assertIn('ERR: unbalanced control flow',out)
