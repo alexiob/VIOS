@@ -35,7 +35,7 @@ static fcell base_address;
 static char error_text[96];
 static unsigned char transport_crc;
 static const char *vm_message(void);
-#define NATIVES_MAX 32
+#define NATIVES_MAX 48
 static struct {int (*callback)(void);unsigned flags;} natives[NATIVES_MAX];
 static unsigned native_count,origin_id;
 static int (*outer_hook)(const char *,const char **);
@@ -75,7 +75,7 @@ struct task {
  fcell xt,depth,rdepth,ldepth,ip,ds_peak,rs_peak;
  uint32_t wake,slices,steps;
  unsigned short out_head,out_count;unsigned out_dropped;
- unsigned char state,out[FORTH_TASK_OUT];
+ unsigned char state,console,out[FORTH_TASK_OUT];
  char error[48];
 };
 static struct task tasks[FORTH_TASKS_MAX];
@@ -303,7 +303,7 @@ static int execute_index(unsigned n) {
  fvm_ip=entry_ip(n);++executing;int result=dispatch();--executing;return result;
 }
 static void out(unsigned char c) {
- if(running<0){platform_console_putc(c);return;}
+ if(running<0||tasks[running].console){platform_console_putc(c);return;}
  struct task *t=&tasks[running];
  if(t->out_count==FORTH_TASK_OUT){++t->out_dropped;return;}
  t->out[(t->out_head+t->out_count)%FORTH_TASK_OUT]=c;++t->out_count;
@@ -363,7 +363,9 @@ int forth_task_info(unsigned id,struct forth_task_info *o) {
  o->slices=t->slices;o->steps=t->steps;o->output_bytes=t->out_count;o->output_dropped=t->out_dropped;return 1;
 }
 static int task_id(fcell id){if(!id||id>FORTH_TASKS_MAX)return fail("invalid task id");return 1;}
-static int native_spawn(void) {
+/* console=1 sends the task's EMIT/./CR output to the shared console (and the
+ * VGA view) instead of its ring: for applications such as AUTORUN. */
+static int spawn(int console) {
  fcell xt=fvm_pop();if(fvm_error)return fail(vm_message());
  if(observer_active||transaction_active)return fail("SPAWN unavailable here");
  if(!xt||xt>count)return fail("invalid execution token");
@@ -371,11 +373,13 @@ static int native_spawn(void) {
   struct task *t=&tasks[i];
   if(t->state==TS_READY||t->state==TS_SLEEPING||(int)i==running)continue;
   t->xt=xt;t->depth=t->rdepth=t->ldepth=0;t->ip=entry_ip((unsigned)(xt-1));t->ds_peak=t->rs_peak=0;
-  t->wake=t->slices=t->steps=0;t->out_head=t->out_count=0;t->out_dropped=0;t->error[0]=0;t->state=TS_READY;
+  t->wake=t->slices=t->steps=0;t->out_head=t->out_count=0;t->out_dropped=0;t->error[0]=0;t->console=(unsigned char)console;t->state=TS_READY;
   return fvm_push((fcell)(i+1))?1:fail(vm_message());
  }
  return fail("no free task slot");
 }
+static int native_spawn(void){return spawn(0);}
+static int native_spawn_console(void){return spawn(1);}
 static int native_pause(void) {if(running>=0)yield_request=1;else forth_tasks_run();return 1;}
 static int native_ms(void) {
  fcell ms=fvm_pop();if(fvm_error)return fail(vm_message());uint32_t deadline=now_ms()+ms;
@@ -725,9 +729,9 @@ void forth_init(void) {
   op(primitives[i].op);op(F_EXIT);publish();
  }
  defining("VARIABLE","BASE");base_address=words[count-1].aux;fvm_write_cell(base_address,10);
- for(unsigned i=0;i<FORTH_TASKS_MAX;++i){tasks[i].state=TS_FREE;tasks[i].xt=0;tasks[i].slices=tasks[i].steps=0;tasks[i].out_count=0;tasks[i].out_dropped=0;tasks[i].error[0]=0;tasks[i].depth=tasks[i].rdepth=0;tasks[i].ds_peak=tasks[i].rs_peak=0;}
+ for(unsigned i=0;i<FORTH_TASKS_MAX;++i){tasks[i].state=TS_FREE;tasks[i].console=0;tasks[i].xt=0;tasks[i].slices=tasks[i].steps=0;tasks[i].out_count=0;tasks[i].out_dropped=0;tasks[i].error[0]=0;tasks[i].depth=tasks[i].rdepth=0;tasks[i].ds_peak=tasks[i].rs_peak=0;}
  running=-1;scheduling=yield_request=0;next_task=0;
- forth_register_native("SPAWN",native_spawn,FORTH_NATIVE_TASK);forth_register_native("PAUSE",native_pause,FORTH_NATIVE_TASK);
+ forth_register_native("SPAWN",native_spawn,FORTH_NATIVE_TASK);forth_register_native("SPAWN-CON",native_spawn_console,FORTH_NATIVE_TASK);forth_register_native("PAUSE",native_pause,FORTH_NATIVE_TASK);
  forth_register_native("MS",native_ms,FORTH_NATIVE_TASK);forth_register_native("TASK-KILL",native_kill,FORTH_NATIVE_TASK);
  forth_register_native("TASK-STATE",native_state,FORTH_NATIVE_TASK);
  forth_eval(": 1+ 1 + ; : 1- 1 - ; : NEGATE 0 SWAP - ; : 2DUP OVER OVER ; : 2DROP DROP DROP ; : CELLS 3 * ; : CELL+ 3 + ; : TRUE -1 ; : FALSE 0 ; : HEX 16 BASE ! ; : DECIMAL 10 BASE ! ;");

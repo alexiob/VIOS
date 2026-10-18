@@ -5,6 +5,7 @@
 #include "forth/modules.h"
 int vios_runtime_init(void);
 int vios_services_init(void);
+int vios_autorun(void); /* spawn AUTORUN as a console task; returns its id or 0 */
 int vios_prelude_init(void); /* core library words in Forth (kernel/vios_prelude.c) */
 /* Handles, /dev endpoints and pipes (kernel/vios_handles.c). */
 int vios_handles_init(void);

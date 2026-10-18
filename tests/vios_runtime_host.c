@@ -121,6 +121,9 @@ int main(int argc,char **argv){
   assert(!forth_eval(": BAD2 CHAR x ;")&&strstr(forth_last_error(),"[CHAR]"));
   fflush(stdout);eval("GREET PAD3 S\" ok\" TYPE CR");
  }
+ /* AUTORUN convention: absent -> nothing; present -> console task. */
+ reset();assert(vios_autorun()==0);
+ eval("VARIABLE RAN : AUTORUN 1 RAN ! ;");{int id=vios_autorun();assert(id==1);forth_tasks_run();assert((eval("RAN @"),fvm_pop())==1);}
  /* Handles: files, pipes between tasks, devices, ownership cleanup. */
  reset();
  #define VALUE(s) (eval(s),fvm_pop())

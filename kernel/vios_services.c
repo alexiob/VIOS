@@ -11,7 +11,7 @@ static int path_from(fcell address,fcell length,char *out){
  for(fcell i=0;i<length;++i){unsigned char c=fvm_read8(address+i);if(fvm_error||c<33||c>126)return forth_error("invalid path");out[i]=(char)c;}
  out[length]=0;return 1;
 }
-static int console_write(void){fcell n=fvm_pop(),a=fvm_pop();if(fvm_error)return 0;while(n--){unsigned char c=fvm_read8(a++);if(fvm_error)return 0;platform_console_putc(c);}return 1;}
+static int console_write(void){fcell n=fvm_pop(),a=fvm_pop();if(fvm_error)return 0;while(n--){unsigned char c=fvm_read8(a++);if(fvm_error)return 0;forth_emit(c);}return 1;}
 static int ticks(void){return fvm_push(platform_timer_read());}
 /* Task clock from the down-counting 288 kHz timer, without a VDP round trip.
  * Sampled at scheduling points; a gap above one ~227 ms wrap loses time. */
@@ -77,6 +77,9 @@ int vios_services_init(void){
  {"CONSOLE-WRITE",console_write},{"TIMER@",ticks},{"MILLIS",milliseconds},{"MILLIS2",milliseconds2},
  {"SD-MOUNT",mount_card},{"FS-ERROR",file_error},{"FILE-READ",file_read},{"FILE-WRITE",file_write},{"FILE-REMOVE",file_remove},
  {"VDU",vdu},{"VTYPE",vtype},{"VDP-INFO",info},{"MODE",mode},{"CLS",clear_screen},{"COLOUR",colour},{"PLOT",plot},{"CHAR@",screen_char},{"PIXEL@",screen_pixel},{"BEEP",beep},{"REBOOT",reboot}};
- for(unsigned i=0;i<sizeof services/sizeof services[0];++i)if(!forth_register_native(services[i].name,services[i].fn,0))return 0;
+ /* Device services run to completion without re-entering the VM, so tasks
+  * may call them; REBOOT stays a foreground decision. */
+ for(unsigned i=0;i<sizeof services/sizeof services[0];++i)
+  if(!forth_register_native(services[i].name,services[i].fn,vios_same(services[i].name,"REBOOT")?0:FORTH_NATIVE_TASK))return 0;
  return forth_eval("DEFER CONSOLE-EMIT ' EMIT IS CONSOLE-EMIT DEFER CONSOLE-KEY ' KEY IS CONSOLE-KEY DEFER CLOCK-MS ' MILLIS IS CLOCK-MS DEFER FS-READ ' FILE-READ IS FS-READ DEFER FS-WRITE ' FILE-WRITE IS FS-WRITE DEFER DISPLAY-WRITE ' VTYPE IS DISPLAY-WRITE");
 }

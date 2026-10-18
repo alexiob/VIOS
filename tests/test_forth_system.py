@@ -23,19 +23,19 @@ class ForthSystemTests(unittest.TestCase):
   self.assertNotIn('ERR',out);self.assertIn('@A1B2C3D4',out);self.assertIn('@ABCD1234',out);self.assertIn('2B ',out)
  def test_metadata_radix_is_fixed_decimal(self):
   out=self.run_forth('HEX SEE DUP RESOURCES\n')
-  self.assertIn('words 50/512',out);self.assertIn('word DUP xt 1 kind 0',out)
+  self.assertIn('words 51/512',out);self.assertIn('word DUP xt 1 kind 0',out)
  def test_dictionary_supports_more_than_128_live_words(self):
   source=''.join(': CAP%d %d ;\n'%(n,n) for n in range(350))
   out=self.run_forth(source+'CAP349 . RESOURCES\n')
   self.assertNotIn('ERR',out);self.assertIn('349 ',out)
-  self.assertIn('words 400/512',out)
+  self.assertIn('words 401/512',out)
  def test_port_dictionary_budget_is_compile_time_configurable(self):
   binary=ROOT/'build/tests/forth-system-small'
   sources=['tests/forth_system_host.c','forth/system.c','forth/modules.c','forth/vm_reference.c','forth/vm_memory.c']
   subprocess.run(['cc','-std=c99','-pedantic','-Wall','-Wextra','-Werror',
    '-fsanitize=address,undefined','-DVIOS_FORTH_WORDS_MAX=64','-DVIOS_FORTH_HASH_BUCKETS=16',
    '-Iinclude',*[str(ROOT/p) for p in sources],'-o',str(binary)],check=True)
-  source=''.join(': P%d %d ;\n'%(n,n) for n in range(20))+'P13 . RESOURCES\n2 3 + .\n'
+  source=''.join(': P%d %d ;\n'%(n,n) for n in range(20))+'P12 . RESOURCES\n2 3 + .\n'
   out=subprocess.run([str(binary)],input=source,text=True,capture_output=True,check=True,timeout=10).stdout
   self.assertIn('dictionary full',out);self.assertIn('words 64/64',out)
   self.assertTrue(out.rstrip().endswith('5'))

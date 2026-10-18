@@ -41,6 +41,14 @@ static int command(const char *word,const char **rest){
  int result=vios_module_command(word,rest);if(result)return result;
  return vios_boot_command(word,rest);
 }
+/* Boot convention: a word named AUTORUN (normally from a boot-slot module)
+ * starts as a console-attached background task, so the REPL stays usable
+ * and TASK-KILL can stop a misbehaving application. */
+int vios_autorun(void){
+ if(!forth_find_xt("AUTORUN"))return 0;
+ if(!forth_eval("' AUTORUN SPAWN-CON")){vios_out("autorun failed: ");vios_out(forth_last_error());vios_out("\r\n");return 0;}
+ fcell id=fvm_pop();vios_out("autorun task ");vios_uint((uint32_t)id);vios_out("\r\n");return (int)id;
+}
 int vios_runtime_init(void){
  include_depth=0;forth_transport_crc(1);
  return vios_prelude_init()&&vios_services_init()&&vios_handles_init()&&vios_workbench_runtime_init()&&forth_register_command(command);

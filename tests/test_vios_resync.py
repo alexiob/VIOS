@@ -49,5 +49,18 @@ class ResyncTest(unittest.TestCase):
         self.assertIn('resync', TOOL_MAP)
 
 
+
+class EchoTest(unittest.TestCase):
+    def test_stray_output_before_echo_keeps_text_and_strips_envelope(self):
+        session = Session()
+        board = ViosBoard(session=session)
+        board.deployed = True
+        board.receive_buffer.extend(b'from-task\r\n')
+        result = board.evaluate('1 2 +')
+        self.assertTrue(result['ok'])
+        self.assertTrue(result['output'].startswith('from-task\r\n1 2 +\r\n'), result['output'])
+        self.assertNotIn('@', result['output'].split('\r\n')[1])
+
+
 if __name__ == '__main__':
     unittest.main()

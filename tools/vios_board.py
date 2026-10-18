@@ -125,8 +125,11 @@ class ViosBoard(TraceClient,ErrorClient,TaskClient,DevToolsClient,SnapshotClient
             if match:
                 before = bytes(self.receive_buffer[:match.start()])
                 echo = ((self.pending_envelope or ('@' + nonce + ' ' + self.pending_source)) + '\r\n').encode()
-                if before.startswith(echo):
-                    before = self.pending_source.encode() + b'\r\n' + before[len(echo):]
+                # Console-attached tasks or the local keyboard can print before
+                # the echo; keep that text but still replace the framed echo.
+                at = before.find(echo)
+                if at >= 0:
+                    before = before[:at] + self.pending_source.encode() + b'\r\n' + before[at + len(echo):]
                 self.compiling = match[2] == b'compile'
                 result = {'output': (before + b'\r\n' + match[1] + b'\r\n' + match[2] + b'> ').decode('ascii','replace'),
                           'ok': match[1] == b'ok', 'compiling': self.compiling, 'pending': False}
