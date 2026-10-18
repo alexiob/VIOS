@@ -17,7 +17,7 @@ def _hex_text(value):
 def parse_tasks(output):
     rows = []
     for line in output.replace('\r', '').splitlines():
-        if line.startswith('task ') and not line.startswith('task-out'):
+        if line.startswith('task ') and not line.startswith(('task-out', 'task-slice')):
             m = LINE.fullmatch(line.strip())
             if not m or m[2] not in STATES:
                 raise IOError('Malformed task line: ' + line)
@@ -99,4 +99,31 @@ class ErrorClient:
         result = self._module_commands(['LAST-ERROR'])
         if result.get('ok'):
             result['last_error'] = parse_last_error(result.get('output', ''))
+        return result
+
+
+STEP = re.compile(r'step (\d+) word (\S+)\+(\d+) depth (\d+) rdepth (\d+)(?: top (-?\d+))?')
+
+
+def parse_trace(output):
+    steps, outcome = [], None
+    for line in output.replace('\r', '').splitlines():
+        line = line.strip()
+        m = STEP.fullmatch(line)
+        if m:
+            steps.append({'step': int(m[1]), 'word': m[2], 'offset': int(m[3]), 'depth': int(m[4]),
+                          'rdepth': int(m[5]), 'top': None if m[6] is None else int(m[6])})
+        elif line.startswith('trace '):
+            outcome = line.split()[1]
+    return steps, outcome
+
+
+class TraceClient:
+    def trace(self, name, steps=200):
+        if not isinstance(name, str) or not re.fullmatch(r'[!-~]{1,31}', name):
+            raise ValueError('name must be one printable token')
+        if type(steps) is not int or not 1 <= steps <= 100000:
+            raise ValueError('steps must be 1..100000')
+        result = self._module_commands([f'TRACE {name} {steps}'])
+        result['steps'], result['outcome'] = parse_trace(result.get('output', ''))
         return result

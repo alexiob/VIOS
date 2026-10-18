@@ -82,3 +82,14 @@ class LastErrorTest(unittest.TestCase):
         self.assertIn('error #1: arithmetic error in INNER+', text.getvalue())
         self.assertIn('called from OUTER+', text.getvalue())
         self.assertIn('last_error', TOOL_MAP)
+
+
+class TraceParseTest(unittest.TestCase):
+    def test_parse_real_trace(self):
+        from vios_task_client import parse_trace
+        binary = ROOT / 'build/tests/forth-system'
+        out = subprocess.run([str(binary)], input=': SQ 3 DUP * ;\nTRACE SQ 10\n', text=True, capture_output=True, check=True, timeout=10).stdout
+        steps, outcome = parse_trace(out)
+        self.assertEqual(outcome, 'returned')
+        self.assertEqual([s['word'] for s in steps][:2], ['SQ', 'SQ'])
+        self.assertIn('trace', TOOL_MAP)

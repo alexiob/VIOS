@@ -62,6 +62,9 @@ def summarize(record):
             'base': record['base']['base'],
             'data_stack_depth': record['stack']['data_stack']['depth_text'],
             'pending_module_stage': None,
+            'open_handles': None if record.get('handles') is None else len(record['handles']),
+            'last_error': None if not record.get('last_error') else
+                          {k: record['last_error'][k] for k in ('serial', 'message', 'word', 'stale')},
             'live_tasks': None if record.get('tasks') is None else
                           [t['id'] for t in record['tasks'] if t['state'] in ('ready', 'sleeping')]}
 
@@ -96,6 +99,12 @@ class SnapshotClient:
             if hasattr(self, 'tasks'):
                 listed = self.tasks()
                 record['tasks'] = listed['tasks'] if listed.get('ok') else None
+            if hasattr(self, 'handles'):
+                listed = self.handles()
+                record['handles'] = listed['handles'] if listed.get('ok') else None
+            if hasattr(self, 'last_error'):
+                listed = self.last_error()
+                record['last_error'] = listed.get('last_error') if listed.get('ok') else None
             for m in record['modules']['modules']:
                 if m['active']:
                     record['module_sources'][m['name']] = need(self.module_source(m['name']), 'MODULE-SOURCE')

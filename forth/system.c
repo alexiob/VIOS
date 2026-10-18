@@ -85,6 +85,10 @@ static struct {
  char error_text[96];
 } foreground;
 static int running=-1,scheduling,yield_request;
+static fcell task_slice=FORTH_TASK_SLICE; /* instructions per background slice */
+/* TRACE: foreground single-stepping via one-instruction budgets. */
+static uint32_t trace_left,trace_steps;static int tracing;
+static void trace_step(void);
 static unsigned next_task;
 static uint32_t (*clock_hook)(void);
 static int (*task_gate)(void);
@@ -132,7 +136,9 @@ static fcell code_xt(fcell ip,fcell *offset){
 }
 static void capture(const char *s){
  fcell saved=fvm_error;++crash.serial;copy(crash.message,s);crash.engine=selected;crash.catalog=catalog_revision;
- crash.ip=fvm_ip;crash.xt=code_xt(fvm_ip?fvm_ip-1:0,&crash.offset);crash.base=fvm_read_cell(base_address);
+ /* A budget fault stops before fetching, so IP names the next instruction;
+  * other faults happen after the fetch that advanced IP. */
+ crash.ip=fvm_ip;crash.xt=code_xt(saved==FE_BUDGET||!fvm_ip?fvm_ip:fvm_ip-1,&crash.offset);crash.base=fvm_read_cell(base_address);
  crash.ds_depth=fvm_depth;crash.rdepth=fvm_rdepth;crash.ldepth=fvm_ldepth;
  for(fcell i=0;i<CRASH_DS;++i)crash.ds[i]=i<fvm_depth&&fvm_depth<=FVM_DS?fvm_ds[fvm_depth-1-i]:0;
  crash.frames=0;
@@ -264,6 +270,10 @@ static int dispatch(void) {
   if(transaction_active)transaction_budget=fvm_budget;
   if(observer_active)observer_budget=fvm_budget;
   if(running>=0&&fvm_error==FE_BUDGET){fvm_error=0;return 2;}
+  if(tracing&&running<0&&fvm_error==FE_BUDGET){
+   if(!trace_left)return fail("trace step limit reached");
+   fvm_error=0;trace_step();fvm_budget=1;continue;
+  }
   if(fvm_error)return fail(vm_message());
   if(!result)return 1;
   unsigned code=result-0x80u;
@@ -312,10 +322,10 @@ static void run_slice(unsigned id) {
  cells(foreground.ds,fvm_ds,fvm_depth);cells(foreground.rs,fvm_rs,fvm_rdepth);cells(foreground.loops,fvm_loops,fvm_ldepth*2);
  copy(foreground.error_text,error_text);
  cells(fvm_ds,t->ds,t->depth);cells(fvm_rs,t->rs,t->rdepth);cells(fvm_loops,t->loops,t->ldepth*2);
- fvm_depth=t->depth;fvm_rdepth=t->rdepth;fvm_ldepth=t->ldepth;fvm_ip=t->ip;fvm_error=0;fvm_budget=FORTH_TASK_SLICE;
+ fvm_depth=t->depth;fvm_rdepth=t->rdepth;fvm_ldepth=t->ldepth;fvm_ip=t->ip;fvm_error=0;fvm_budget=task_slice;
  fvm_ds_peak=t->ds_peak;fvm_rs_peak=t->rs_peak;error_text[0]=0;
  running=(int)id;yield_request=0;int result=dispatch();running=-1;
- t->steps+=FORTH_TASK_SLICE-fvm_budget;++t->slices;t->ds_peak=fvm_ds_peak;t->rs_peak=fvm_rs_peak;
+ t->steps+=task_slice-fvm_budget;++t->slices;t->ds_peak=fvm_ds_peak;t->rs_peak=fvm_rs_peak;
  if(t->state==TS_KILLED){}
  else if(result==1)t->state=TS_DONE;
  else if(!result)task_fail(t,error_text[0]?error_text:"task failed",TS_FAILED);
@@ -384,6 +394,21 @@ static int native_state(void) {
  return fvm_push(tasks[id-1].state)?1:fail(vm_message());
 }
 static void hex_text(const char *p){static const char d[]="0123456789ABCDEF";if(!*p){print("-");return;}while(*p){unsigned char c=(unsigned char)*p++;platform_console_putc((unsigned char)d[c>>4]);platform_console_putc((unsigned char)d[c&15]);}}
+static void trace_step(void) {
+ fcell offset;fcell xt=code_xt(fvm_ip,&offset);--trace_left;++trace_steps;
+ print("step ");decimal_number(trace_steps);print(" word ");print(xt&&xt<=count?words[xt-1].name:"?");print("+");decimal_number(offset);
+ print(" depth ");decimal_number(fvm_depth);print(" rdepth ");decimal_number(fvm_rdepth);
+ if(fvm_depth&&fvm_depth<=FVM_DS){print(" top ");number(fvm_ds[fvm_depth-1]);}print("\r\n");
+}
+/* Run one word with a budget of one instruction per dispatch, reporting the
+ * next instruction's word/offset and stacks before each. Uses the exact
+ * budget-exhaustion resume the task scheduler relies on (all engines). */
+static int trace_word(unsigned n,uint32_t limit) {
+ tracing=1;trace_left=limit;trace_steps=0;
+ fvm_error=0;fvm_rdepth=fvm_ldepth=0;fvm_budget=1;fvm_ip=entry_ip(n);trace_step();
+ ++executing;int ok=dispatch();--executing;tracing=0;
+ print("trace ");print(ok?"returned":"failed");print(" steps ");decimal_number(trace_steps);print("\r\n");return ok;
+}
 static void crash_report(void) {
  print("last-error serial ");decimal_number(crash.serial);if(!crash.serial){print("\r\n");return;}
  print(" engine ");print(crash.engine==FORTH_DIRECT?"DIRECT":crash.engine==FORTH_TOKEN?"TOKEN":"C");
@@ -553,7 +578,7 @@ int forth_eval(const char *source) {
  const char *p=source;char s[NAME_MAX+1],name[NAME_MAX+1];int got;
  error_text[0]=0;fvm_error=0;
  while((got=next_token(&p,s))>0) {
-  if(transaction_active&&(equal(s,"LAST-ERROR")||equal(s,"TASKS")||equal(s,"TASK-OUT")||equal(s,"ABORT")||equal(s,"ENGINE")||equal(s,"BENCH")||equal(s,"SYNC")||equal(s,"WORDS")||equal(s,".S")||equal(s,"SEE")||equal(s,"RESOURCES")))return fail("interactive tool disabled during module transaction");
+  if(transaction_active&&(equal(s,"TRACE")||equal(s,"LAST-ERROR")||equal(s,"TASKS")||equal(s,"TASK-OUT")||equal(s,"ABORT")||equal(s,"ENGINE")||equal(s,"BENCH")||equal(s,"SYNC")||equal(s,"WORDS")||equal(s,".S")||equal(s,"SEE")||equal(s,"RESOURCES")))return fail("interactive tool disabled during module transaction");
   if(current<0&&!transaction_active&&outer_hook) {
    int handled=outer_hook(s,&p);if(handled<0)return 0;if(handled)continue;
   }
@@ -637,9 +662,18 @@ int forth_eval(const char *source) {
    forth_benchmark();continue;
   }
 #endif
-  if(equal(s,"TASKS")||equal(s,"TASK-OUT")||equal(s,"LAST-ERROR")) {
+  if(equal(s,"TRACE")) {
    if(current>=0)return fail("interactive tool inside definition");
-   if(equal(s,"TASKS")){task_report();continue;}
+   char count_text[NAME_MAX+1];fcell limit;
+   if(!need_token(&p,name)||!need_token(&p,count_text))return 0;
+   int n=find(name);if(n<0)return unknown(name);
+   if(parse_number(count_text,&limit)<=0||!limit||limit>100000)return fail("TRACE name n needs 1..100000 steps");
+   if(!trace_word((unsigned)n,limit))return 0;continue;
+  }
+  if(equal(s,"TASKS")||equal(s,"TASK-OUT")||equal(s,"LAST-ERROR")||equal(s,"TASK-SLICE")) {
+   if(current>=0)return fail("interactive tool inside definition");
+   if(equal(s,"TASKS")){print("task-slice ");decimal_number(task_slice);print("\r\n");task_report();continue;}
+   if(equal(s,"TASK-SLICE")){fcell n;if(!need_token(&p,name))return 0;if(parse_number(name,&n)<=0||n<64||n>65535)return fail("TASK-SLICE needs 64..65535");task_slice=n;continue;}
    if(equal(s,"LAST-ERROR")){crash_report();continue;}
    if(!need_token(&p,name))return 0;fcell id;if(parse_number(name,&id)<=0)return fail("task id required");
    if(!task_output(id))return 0;continue;

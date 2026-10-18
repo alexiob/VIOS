@@ -117,6 +117,9 @@ TOOLS.extend([
           'depends_on':{'type':'array','maxItems':4,'items':IDENTIFIER_SCHEMA},'save':{'type':'boolean'}},['name','version','source']),
     tool('module_graph','Module dependency edges with CRC satisfaction, reverse dependents and activation order.'),
     tool('tasks','List the four background task slots: state, word, slices, executed steps, depths, peaks, output bytes/drops and error.'),
+    tool('trace','Single-step one word (budget of one instruction per dispatch, any engine) and return each step: '
+         'word, offset, depths and top of stack. Side effects of the word happen as usual.',
+         {'name':{'type':'string','minLength':1,'maxLength':31,'pattern':r'^[!-~]+$'},'steps':{'type':'integer','minimum':1,'maximum':100000}},['name']),
     tool('last_error','The last foreground runtime failure captured before unwind: message, failing word and offset, '
          'caller frames, top data-stack cells, depths, engine and BASE (stale=true if the dictionary changed since).'),
     tool('handles','List open handles (SD files, pipes, /dev/null|cons|tasks) with owner, direction, byte counts and the last I/O error.'),

@@ -81,7 +81,7 @@ card, publishing services, or rewiring pins without discussion.
 | Forth | Resident interpreter/compiler, native 24-bit DIRECT and TOKEN engines, C reference, bounded stacks, definition/source inspection, deferred bindings and resource counters. |
 | Live modules | Stage/test/activate checked source with managed-data transaction overlay, pinned dependency CRCs, two retained generations, constrained rollback and exact source retrieval. |
 | Storage | Native SD SPI/block path, FatFs/FAT32, checked module packages, source loading, verified saves and source-based A/B startup. |
-| Host integration | One resident USB owner; human CLI and 57 MCP tools share serialized access over loopback NDJSON or MCP stdio. Binary COBS/CRC frames multiplex console/control/events over serial. |
+| Host integration | One resident USB owner; human CLI and 59 MCP tools share serialized access over loopback NDJSON or MCP stdio. Binary COBS/CRC frames multiplex console/control/events over serial. |
 | Recovery | Independent ESP USB/ZDI task; CPU register/memory inspection; explicit forced reboot during pending input or a stuck VDP; boot watchdog and bounded failed-boot handling. |
 | Workbench | Module/word browser, exact-source draft editor, live inspector, guarded editing/staging/activation/save, one undo snapshot, semantic keyboard events and headless equivalents. |
 | Rendering | Retained panes/source index, sparse glyph/style changes, native UART writer, compressed commands, ESP buffered viewport scrolls, full-width source mode and framebuffer-fenced diagnostics. |

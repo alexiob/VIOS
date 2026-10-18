@@ -15,6 +15,7 @@ HELP = '''Enter printable ASCII Forth (up to 235 bytes per line).
 :complete PFX List completions (Tab also completes at the prompt)
 :graph        Module dependencies, dependents and activation order
 :why          Explain the last runtime error: word, callers and stack before unwind
+:trace W [N]  Single-step word W for up to N (default 200) instructions
 :status       Show resources
 :words        List words
 :wb ACTION    Workbench open, close, status, view or redraw
@@ -300,6 +301,12 @@ class Console:
             elif token == ':complete':
                 if self._idle():
                     self._devtool('complete', {'prefix':argument})
+            elif token == ':trace' and argument:
+                parts = argument.split()
+                if len(parts) > 2 or (len(parts) == 2 and not parts[1].isdigit()):
+                    print('Use :trace WORD [STEPS]', file=self.errors)
+                elif self._idle():
+                    self._tool('evaluate', {'source': 'TRACE ' + parts[0] + ' ' + (parts[1] if len(parts) == 2 else '200'), 'timeout': self.timeout})
             elif token == ':why' and not argument:
                 if self._idle():
                     self._why()

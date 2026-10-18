@@ -20,7 +20,7 @@ single-task execution or changing the native engines' dispatch code.
 - **Time slicing by budget exhaustion.** Both native engines and the C
   reference test the budget before fetching an instruction and publish IP and
   depths on that fault; IP is not advanced. A background slice runs with a
-  budget of `TASK_SLICE` (2048) instructions; `FE_BUDGET` there is cleared and
+  budget of `TASK-SLICE` instructions (default 1024, runtime-settable 64..65535); `FE_BUDGET` there is cleared and
   treated as preemption at an instruction boundary. This departs from purely
   cooperative yield points deliberately: it needs no engine change and a
   runaway task cannot starve the system. A native verification probe checks
@@ -97,3 +97,21 @@ CPU image 112059 -> 117731 bytes; BSS +4.6 KiB (end `0x9C2B2`, ~77 KiB gap).
   a busy and a sleeping task; busy task ~11.8k loop iterations/s; a
   `10 MS` sleeper wakes ~26/s because one busy slice takes ~25 ms; no console
   drops over the run.
+
+## Slice sweep, 2026-10-19
+
+[Sweep record](../../bring-up/vios-task-slice-sweep-2026-10-19.json), one
+busy and one `10 MS` task, REPL `1 2 + .` round trips (host USB included):
+
+| slice | REPL median/max ms | busy loops/s | 10 ms sleeper wakes/s |
+| ---: | ---: | ---: | ---: |
+| 128 | 78.0 / 81.1 | 4721 | 82.5 |
+| 256 | 79.5 / 81.4 | 6089 | 55.4 |
+| 512 | 80.0 / 81.0 | 7653 | 52.5 |
+| 1024 | 80.1 / 80.5 | 8784 | 43.7 |
+| 2048 | 81.2 / 95.1 | 9615 | 22.6 |
+| 4096 | 111.1 / 112.8 | 10234 | 12.6 |
+
+Default is now 1024: no REPL latency cost, twice the wake rate of 2048 and
+86% of the 4096 throughput. Small slices lose throughput mostly to the
+~1 ms UART-listen gate per round, not to context switching.

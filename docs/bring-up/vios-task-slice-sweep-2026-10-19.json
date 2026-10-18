@@ -1,0 +1,46 @@
+{
+  "rows": [
+    {
+      "slice": 128,
+      "latency_median_ms": 78.0,
+      "latency_max_ms": 81.1,
+      "busy_per_s": 4721,
+      "sleeper_wakes_per_s": 82.5
+    },
+    {
+      "slice": 256,
+      "latency_median_ms": 79.5,
+      "latency_max_ms": 81.4,
+      "busy_per_s": 6089,
+      "sleeper_wakes_per_s": 55.4
+    },
+    {
+      "slice": 512,
+      "latency_median_ms": 80.0,
+      "latency_max_ms": 81.0,
+      "busy_per_s": 7653,
+      "sleeper_wakes_per_s": 52.5
+    },
+    {
+      "slice": 1024,
+      "latency_median_ms": 80.1,
+      "latency_max_ms": 80.5,
+      "busy_per_s": 8784,
+      "sleeper_wakes_per_s": 43.7
+    },
+    {
+      "slice": 2048,
+      "latency_median_ms": 81.2,
+      "latency_max_ms": 95.1,
+      "busy_per_s": 9615,
+      "sleeper_wakes_per_s": 22.6
+    },
+    {
+      "slice": 4096,
+      "latency_median_ms": 111.1,
+      "latency_max_ms": 112.8,
+      "busy_per_s": 10234,
+      "sleeper_wakes_per_s": 12.6
+    }
+  ]
+}

@@ -30,8 +30,8 @@ int main(void){
  assert(fvm_depth==2&&fvm_ds[0]==7&&fvm_ds[1]==8);
  fcell a=value("A @"),b=value("B @");
  assert(b==10&&"cooperative task yields once per PAUSE");
- assert(a>2000&&"looping task is preempted by budget, not starved or stuck");
- eval("TASKS");assert(has("task 1 state ready")&&has("task 2 state ready")&&has("slices 10 steps 20480"));
+ assert(a>1000&&"looping task is preempted by budget, not starved or stuck");
+ eval("TASKS");assert(has("task 1 state ready")&&has("task 2 state ready")&&has("slices 10 steps 10240"));
  /* ENGINE switches change IP encodings and are refused while tasks live. */
  fails("ENGINE C","refused while background tasks");
  eval("1 TASK-KILL 2 TASK-KILL");assert(value("1 TASK-STATE")==5);
@@ -69,6 +69,10 @@ int main(void){
  for(unsigned i=1;i<=FORTH_TASKS_MAX;++i)assert(value("' FOREVER SPAWN")==i);
  fails("' FOREVER SPAWN","no free task slot");
  eval("1 TASK-KILL 2 TASK-KILL 3 TASK-KILL 4 TASK-KILL");fails("0 TASK-STATE","invalid task id");
+ /* The slice length is a runtime policy. */
+ eval("TASK-SLICE 256");eval("0 A !");assert(value("' CA SPAWN")>=1);forth_tasks_run();
+ eval("TASKS");assert(has("task-slice 256")&&has("steps 256 "));fails("TASK-SLICE 10","64..65535");
+ eval("TASK-SLICE 1024");for(unsigned i=1;i<=FORTH_TASKS_MAX;++i){char k[24];snprintf(k,sizeof k,"%u TASK-KILL",i);eval(k);}
  /* forth_init clears every slot. */
  assert(value("' FOREVER SPAWN")==1);forth_init();assert(forth_tasks_run()==0);
  puts("background tasks: preemption, yield, sleep, isolation, output rings and guards passed");return 0;

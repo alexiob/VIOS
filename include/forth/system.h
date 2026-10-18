@@ -10,7 +10,7 @@ enum forth_engine { FORTH_REFERENCE,FORTH_TOKEN,FORTH_DIRECT };
 #define FORTH_TASK_RS 64
 #define FORTH_TASK_LOOPS 16
 #define FORTH_TASK_OUT 128
-#define FORTH_TASK_SLICE 2048
+#define FORTH_TASK_SLICE 1024 /* Agon sweep 2026-10-19: no REPL latency cost */
 /* PURE callbacks are trusted: deterministic/nonblocking, no external writes;
  * all VM-data reads/writes must use fvm_* accessors for transaction overlays. */
 int forth_register_native(const char *name,int (*callback)(void),unsigned flags);
