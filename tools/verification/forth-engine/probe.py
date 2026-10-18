@@ -186,3 +186,23 @@ for kind in ['token','direct']:
  assert c.run()==0 and c.stack()==[0x123456,7]
  check(kind,['native',1],error=2,initial=list(range(256)))
 print(f'PASS: {count} total probes, including native service operand/trap/resume')
+
+# Background tasks preempt by budget exhaustion: the fault leaves IP at the
+# unexecuted instruction and depths current, so clearing error and granting a
+# new budget resumes exactly. Slices of every size must reproduce the result.
+program=['call','work','exit','work:','lit',3,'lit',0,'do','body:','i','lit',10,'mul','tor','rfrom','loop','body','lit',7,'exit']
+for kind in ['token','direct']:
+ for slice_size in [1,2,3,5,8]:
+  c=CPU(kind);assemble(c,program);c.globalset('budget',slice_size);slices=0
+  while True:
+   result=c.run();slices+=1
+   if result==0x80+ops.index('mul'):
+    b,a=c.stack()[-1],c.stack()[-2];c.globalset('depth',c.globalget('depth')-2);c.push_ds=None
+    d=c.globalget('depth');c.wr(c.syms['_fvm_ds']+d*3,(a*b)&MASK);c.globalset('depth',d+1)
+   elif result==255 and c.globalget('error')==9:
+    c.globalset('error',0);c.globalset('budget',slice_size)
+   else:break
+   c.pc=c.syms[f'_fvm_{kind}_run'];c.push(0)
+  assert result==0 and c.stack()==[0,10,20,7] and c.globalget('rdepth')==0 and c.globalget('ldepth')==0,(kind,slice_size,result,c.stack())
+  assert slices>3,(kind,slice_size,slices);count+=1
+print(f'PASS: {count} total probes, including budget-exhaustion preemption and exact resume')

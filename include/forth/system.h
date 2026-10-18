@@ -3,6 +3,14 @@
 #include "forth/vm.h"
 enum forth_engine { FORTH_REFERENCE,FORTH_TOKEN,FORTH_DIRECT };
 #define FORTH_NATIVE_PURE 1u
+/* TASK callbacks may run inside a background task slice (no VM re-entry). */
+#define FORTH_NATIVE_TASK 2u
+#define FORTH_TASKS_MAX 4
+#define FORTH_TASK_DS 64
+#define FORTH_TASK_RS 64
+#define FORTH_TASK_LOOPS 16
+#define FORTH_TASK_OUT 128
+#define FORTH_TASK_SLICE 2048
 /* PURE callbacks are trusted: deterministic/nonblocking, no external writes;
  * all VM-data reads/writes must use fvm_* accessors for transaction overlays. */
 int forth_register_native(const char *name,int (*callback)(void),unsigned flags);
@@ -13,6 +21,16 @@ void forth_register_idle(void (*hook)(int changed));
 /* Platform input policy, not VM state: survives forth_init(). The REPL calls
  * hook(1) while awaiting a command line and hook(0) while it executes one. */
 void forth_register_line_mode(void (*hook)(int awaiting_line));
+/* One round-robin pass over ready/woken background tasks, one budgeted slice
+ * each; no-op while compiling, in a transaction/observer or inside a task.
+ * Called at REPL idle, foreground KEY waits, PAUSE and MS. Returns slices. */
+unsigned forth_tasks_run(void);
+/* Millisecond clock for MS; survives forth_init() like the line-mode hook. */
+void forth_register_clock(uint32_t (*hook)(void));
+/* Platform admission check before each background round; 0 skips the round.
+ * The resident console listens briefly and pauses flow-controlled input so
+ * a slice never runs while host bytes can overrun the UART. Survives init. */
+void forth_register_task_gate(int (*gate)(void));
 int forth_error(const char *message);
 fcell forth_find_xt(const char *name);
 const char *forth_xt_name(fcell xt);

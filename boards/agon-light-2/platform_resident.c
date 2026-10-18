@@ -82,6 +82,17 @@ uint32_t platform_millis(void) {
 }
 unsigned platform_console_dropped(void) {return rx.dropped+rx.local_dropped+ez80_uart0_rx_overruns;}
 void platform_console_line_mode(int awaiting_line) {vdp_transport_line_mode(&rx,awaiting_line);}
+/* Background-task admission: listen ~1 ms with RTS asserted; any received
+ * byte or key event defers tasks to the console. Otherwise pause RX so the
+ * peer holds new input for the whole slice (the FIFO is not drained then). */
+int platform_console_quiet(void) {
+ unsigned short start=platform_timer_read();
+ /* Each drain pauses RX again, so reopen the window on every iteration. */
+ while((unsigned short)(start-platform_timer_read())<PLATFORM_TIMER_HZ/1000u){
+  ez80_uart0_rx_resume();poll();if(rx.head!=rx.tail||rx.key_count){ez80_uart0_rx_pause();return 0;}
+ }
+ ez80_uart0_rx_pause();poll();return rx.head==rx.tail&&!rx.key_count;
+}
 void platform_boot_ready(void) {static const unsigned char command[]={23,0,0xE2,1};platform_vdp_send(command,sizeof command);}
 void platform_boot_trial(void) {static const unsigned char command[]={23,0,0xE2,0};platform_vdp_send(command,sizeof command);}
 const char *platform_identity(void) {return "VIOS / Agon Light 2 / native24 / VDP+USB multiplex / SD SPI";}

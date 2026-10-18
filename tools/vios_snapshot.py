@@ -61,7 +61,9 @@ def summarize(record):
             'engine': record['resources']['resources'].get('engine'),
             'base': record['base']['base'],
             'data_stack_depth': record['stack']['data_stack']['depth_text'],
-            'pending_module_stage': None}
+            'pending_module_stage': None,
+            'live_tasks': None if record.get('tasks') is None else
+                          [t['id'] for t in record['tasks'] if t['state'] in ('ready', 'sleeping')]}
 
 
 class SnapshotClient:
@@ -90,6 +92,10 @@ class SnapshotClient:
                       'stack': need(self.stacks(), '.S'), 'resources': need(self.resources(), 'RESOURCES'),
                       'modules': need(self.modules(), 'MODULES'), 'boot': need(self.boot_status(), 'BOOT-STATUS'),
                       'base': self._base(), 'module_sources': {}, 'previous_sources': {}}
+            # Firmware before Stage 2 has no TASKS command; report that as absent.
+            if hasattr(self, 'tasks'):
+                listed = self.tasks()
+                record['tasks'] = listed['tasks'] if listed.get('ok') else None
             for m in record['modules']['modules']:
                 if m['active']:
                     record['module_sources'][m['name']] = need(self.module_source(m['name']), 'MODULE-SOURCE')

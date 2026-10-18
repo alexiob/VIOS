@@ -63,9 +63,21 @@ unsigned ez80_uart0_tx_burst(const unsigned char *buffer,unsigned length) {
  }
  return n;
 }
-unsigned short platform_timer_read(void) {++timer_reads;return (unsigned short)(0-timer_reads*1000);}
+static unsigned timer_step=1000;
+unsigned short platform_timer_read(void) {++timer_reads;return (unsigned short)(0-timer_reads*timer_step);}
 int main(int argc,char **argv) {
  assert(argc==2);stall_cts=!strcmp(argv[1],"cts");stall_tx=!strcmp(argv[1],"tx");
+ if(!strcmp(argv[1],"gate")){
+  /* Quiet line: tasks admitted with RX paused. A host byte inside the ~1 ms
+   * window defers tasks and is received, never left to overrun the FIFO. */
+  timer_step=10;wire_length=0;platform_console_init();
+  assert(platform_console_quiet()==1&&!rts);
+  const unsigned char line[]={0xFE,3,'A','B','\r'};memcpy(incoming,line,sizeof line);wire_length=sizeof line;next_wire=0;
+  assert(platform_console_quiet()==0&&!rts);
+  unsigned got=0;for(unsigned i=0;i<200&&got<3;++i){int c=platform_console_getc();if(c>=0)assert(c==(int)line[2+got++]);}
+  assert(got==3&&overruns==0);
+  puts("resident task gate admits only quiet input");return 0;
+ }
  if(!strcmp(argv[1],"vdp-burst")){
   wire_length=0;platform_console_init();platform_input_resume();
   unsigned char data[256];for(unsigned i=0;i<sizeof data;++i)data[i]=(unsigned char)i;

@@ -1,0 +1,131 @@
+{
+  "port": "/dev/cu.usbserial-224130",
+  "offset": 65536,
+  "length": 1310720,
+  "sha256": "27cf336d82fa41d6f8ccbce9e101694f0ee57cf1da09e8527dcb5072b9ef9ed2",
+  "installed_prefix_matches_oct16_accepted": true,
+  "accepted_sha256": "cd1aa1a75f674e6fa00e6815b4c46f573d7a42f97f70377021043ab1ebee06d2",
+  "chunks": [
+    {
+      "address": 65536,
+      "length": 65536,
+      "attempts": 1,
+      "sha256": "8349b74def91596628059575890876d64b95576eef4f1f63a52f85596f53d8b4"
+    },
+    {
+      "address": 131072,
+      "length": 65536,
+      "attempts": 1,
+      "sha256": "312f6cfe7b3fea086f30d08fa9c576a0490ec96dc5e5c93d4e22bc68a79758b8"
+    },
+    {
+      "address": 196608,
+      "length": 65536,
+      "attempts": 1,
+      "sha256": "88db130643d3d4a654539e76ca8f8f8a7351d18e61f83f5b594e54e9a58ecde2"
+    },
+    {
+      "address": 262144,
+      "length": 65536,
+      "attempts": 1,
+      "sha256": "2f4eab661d884dfc50dd104e07b30a00b53c86466191d22b5760392ec13a3e54"
+    },
+    {
+      "address": 327680,
+      "length": 65536,
+      "attempts": 1,
+      "sha256": "7d63c09926f1a73d0713b144caf31475aa831eb85c66f5aeb02515cca675b5d5"
+    },
+    {
+      "address": 393216,
+      "length": 65536,
+      "attempts": 1,
+      "sha256": "d04aab3eba4061facb660aa698bff3485d0830029df5b63f9da75fc73e10702a"
+    },
+    {
+      "address": 458752,
+      "length": 65536,
+      "attempts": 1,
+      "sha256": "3cfb31a9d854f24778df57037d26e1be274f948b3215443468ee2627e4dc14f7"
+    },
+    {
+      "address": 524288,
+      "length": 65536,
+      "attempts": 1,
+      "sha256": "bfc6c2a97c96d52870dc797495e9e5163bd6bbe1b91f1fc71fe2a7a8ae603d1e"
+    },
+    {
+      "address": 589824,
+      "length": 65536,
+      "attempts": 1,
+      "sha256": "3359b31ec310e49e452d27a1e04c5a1dc5a4889f94b44deed5f4e438a6b59f8a"
+    },
+    {
+      "address": 655360,
+      "length": 65536,
+      "attempts": 1,
+      "sha256": "de8cba6720a2e518385c04510223d444ece9b2a42ab68e328330ec0eb4f4743e"
+    },
+    {
+      "address": 720896,
+      "length": 65536,
+      "attempts": 1,
+      "sha256": "cfc1a7fcdd214b5120c32cd359dfb6ff288b146e519b220ff9e20adc9f2d8cc0"
+    },
+    {
+      "address": 786432,
+      "length": 65536,
+      "attempts": 1,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063"
+    },
+    {
+      "address": 851968,
+      "length": 65536,
+      "attempts": 1,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063"
+    },
+    {
+      "address": 917504,
+      "length": 65536,
+      "attempts": 1,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063"
+    },
+    {
+      "address": 983040,
+      "length": 65536,
+      "attempts": 1,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063"
+    },
+    {
+      "address": 1048576,
+      "length": 65536,
+      "attempts": 1,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063"
+    },
+    {
+      "address": 1114112,
+      "length": 65536,
+      "attempts": 1,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063"
+    },
+    {
+      "address": 1179648,
+      "length": 65536,
+      "attempts": 1,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063"
+    },
+    {
+      "address": 1245184,
+      "length": 65536,
+      "attempts": 1,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063"
+    },
+    {
+      "address": 1310720,
+      "length": 65536,
+      "attempts": 1,
+      "sha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063"
+    }
+  ],
+  "verification": "esptool read-flash per 64 KiB chunk (MD5-checked by esptool), retried on short reads; SHA-256 per chunk"
+}

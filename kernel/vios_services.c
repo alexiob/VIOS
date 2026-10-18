@@ -13,6 +13,13 @@ static int path_from(fcell address,fcell length,char *out){
 }
 static int console_write(void){fcell n=fvm_pop(),a=fvm_pop();if(fvm_error)return 0;while(n--){unsigned char c=fvm_read8(a++);if(fvm_error)return 0;platform_console_putc(c);}return 1;}
 static int ticks(void){return fvm_push(platform_timer_read());}
+/* Task clock from the down-counting 288 kHz timer, without a VDP round trip.
+ * Sampled at scheduling points; a gap above one ~227 ms wrap loses time. */
+static uint32_t clock_ms;static unsigned clock_ticks;static unsigned short clock_last;static int clock_started;
+static uint32_t task_clock(void){
+ unsigned short now=platform_timer_read();if(!clock_started){clock_started=1;clock_last=now;}
+ clock_ticks+=(unsigned short)(clock_last-now);clock_last=now;clock_ms+=clock_ticks/288u;clock_ticks%=288u;return clock_ms;
+}
 static int milliseconds(void){uint32_t n=platform_millis();if(n==UINT32_MAX)return forth_error("VDP clock timeout");return fvm_push((fcell)n&FVM_MASK);}
 static int milliseconds2(void){uint32_t n=platform_millis();if(n==UINT32_MAX)return forth_error("VDP clock timeout");return fvm_push((fcell)n&FVM_MASK)&&fvm_push((fcell)(n>>24));}
 static int mount_card(void){return fvm_push(storage_init()?0:1);}
@@ -65,6 +72,7 @@ static int beep(void){
 }
 static int reboot(void){platform_console_flush();platform_restart();return 1;}
 int vios_services_init(void){
+ forth_register_clock(task_clock);
  static const struct {const char *name;int (*fn)(void);} services[]={
  {"CONSOLE-WRITE",console_write},{"TIMER@",ticks},{"MILLIS",milliseconds},{"MILLIS2",milliseconds2},
  {"SD-MOUNT",mount_card},{"FS-ERROR",file_error},{"FILE-READ",file_read},{"FILE-WRITE",file_write},{"FILE-REMOVE",file_remove},

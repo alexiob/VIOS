@@ -116,6 +116,9 @@ TOOLS.extend([
           'test_word':{'type':'string','maxLength':31,'pattern':r'^[!-~]*$'},
           'depends_on':{'type':'array','maxItems':4,'items':IDENTIFIER_SCHEMA},'save':{'type':'boolean'}},['name','version','source']),
     tool('module_graph','Module dependency edges with CRC satisfaction, reverse dependents and activation order.'),
+    tool('tasks','List the four background task slots: state, word, slices, executed steps, depths, peaks, output bytes/drops and error.'),
+    tool('task_output','Drain one background task output ring (EMIT/./CR never reach the shared console).',
+         {'id':{'type':'integer','minimum':1,'maximum':4}},['id']),
     tool('snapshot','Read-only structured live-state record: modules, exact sources, draft, stacks, BASE, engine and boot slot, '
          'with a live/dirty/staged/persisted summary. Restorable by tools/vios_fast_display_state.py. Fails closed on a torn read.',
          {'previous_sources':{'type':'boolean'}}),

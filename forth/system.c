@@ -66,6 +66,29 @@ static size_t activation_token,activation_direct,activation_data,activation_sour
 static unsigned activation_count;
 static unsigned transaction_words;
 static size_t transaction_token,transaction_direct,transaction_data;
+/* Background tasks (docs/superpowers/specs/2026-10-18-vios-tasks.md). The
+ * foreground keeps the VM globals; a task's context is swapped in only for a
+ * budget-bounded slice and the foreground context is restored afterwards. */
+enum { TS_FREE,TS_READY,TS_SLEEPING,TS_DONE,TS_FAILED,TS_KILLED };
+struct task {
+ fcell ds[FORTH_TASK_DS],rs[FORTH_TASK_RS],loops[FORTH_TASK_LOOPS*2];
+ fcell xt,depth,rdepth,ldepth,ip,ds_peak,rs_peak;
+ uint32_t wake,slices,steps;
+ unsigned short out_head,out_count;unsigned out_dropped;
+ unsigned char state,out[FORTH_TASK_OUT];
+ char error[48];
+};
+static struct task tasks[FORTH_TASKS_MAX];
+static struct {
+ fcell ds[FVM_DS],rs[FVM_RS],loops[FVM_LOOPS*2];
+ fcell depth,rdepth,ldepth,ip,error,budget,ds_peak,rs_peak;
+ char error_text[96];
+} foreground;
+static int running=-1,scheduling,yield_request;
+static unsigned next_task;
+static uint32_t (*clock_hook)(void);
+static int (*task_gate)(void);
+static void out(unsigned char c);
 
 static size_t length(const char *s) { size_t n=0;while(s[n])++n;return n; }
 static int equal(const char *a,const char *b) { while(*a&&*a==*b){++a;++b;}return *a==*b; }
@@ -76,11 +99,11 @@ static void unsigned_number(fcell n) {
  char buf[24];unsigned i=0;fcell radix=fvm_read_cell(base_address);
  if(radix<2||radix>36)radix=10;
  do {unsigned d=(unsigned)(n%radix);buf[i++]=(char)(d<10?'0'+d:'A'+d-10);n/=radix;}while(n);
- while(i)platform_console_putc((unsigned char)buf[--i]);
+ while(i)out((unsigned char)buf[--i]);
 }
 static void number(fcell n) {
- if(n&0x800000UL) {platform_console_putc('-');n=((~n)+1)&FVM_MASK;}
- unsigned_number(n);platform_console_putc(' ');
+ if(n&0x800000UL) {out('-');n=((~n)+1)&FVM_MASK;}
+ unsigned_number(n);out(' ');
 }
 static void decimal_number(fcell n) {
  char b[16];unsigned i=0;do {b[i++]=(char)('0'+n%10);n/=10;}while(n);
@@ -197,10 +220,9 @@ static int call_xt(fcell xt) {
  fvm_ip=selected==FORTH_DIRECT?words[xt-1].direct+4:words[xt-1].token;
  return 1;
 }
-static int execute_index(unsigned n) {
- fvm_error=0;fvm_rdepth=fvm_ldepth=0;
- fvm_budget=observer_active?observer_budget:transaction_active?transaction_budget:1000000UL;
- fvm_ip=selected==FORTH_DIRECT?words[n].direct+4:words[n].token;
+static fcell entry_ip(unsigned n){return selected==FORTH_DIRECT?words[n].direct+4:words[n].token;}
+/* 1: returned, 0: failed (error_text set), 2: background slice ended. */
+static int dispatch(void) {
  for(;;) {
   unsigned char result;
 #ifdef __ez80__
@@ -212,25 +234,130 @@ static int execute_index(unsigned n) {
 #endif
   if(transaction_active)transaction_budget=fvm_budget;
   if(observer_active)observer_budget=fvm_budget;
+  if(running>=0&&fvm_error==FE_BUDGET){fvm_error=0;return 2;}
   if(fvm_error)return fail(vm_message());
   if(!result)return 1;
   unsigned code=result-0x80u;
   if(observer_active&&code==F_KEY)return fail("KEY disabled during observer");
   if(transaction_active&&(code==F_EMIT||code==F_DOT||code==F_CR||code==F_KEY))return fail("I/O disabled during module transaction");
-  if(code==F_EMIT) {fcell c=fvm_pop();if(!fvm_error)platform_console_putc((unsigned char)c);}
+  if(running>=0&&code==F_KEY)return fail("KEY unavailable in background task");
+  if(code==F_EMIT) {fcell c=fvm_pop();if(!fvm_error)out((unsigned char)c);}
   else if(code==F_DOT) {fcell nvalue=fvm_pop();if(!fvm_error)number(nvalue);}
-  else if(code==F_CR)print("\r\n");
-  else if(code==F_KEY) {int c;do {c=platform_console_getc();}while(c<0);fvm_push((fcell)c);}
+  else if(code==F_CR){out('\r');out('\n');}
+  else if(code==F_KEY) {int c;while((c=platform_console_getc())<0)forth_tasks_run();fvm_push((fcell)c);}
   else if(code==F_EXECUTE||code==F_DEFER) {fcell xt=fvm_pop();if(!fvm_error&&!call_xt(xt))return 0;}
   else if(code==F_NATIVE) {
    fcell id=fvm_pop();if(fvm_error)return fail(vm_message());
    if(id>=native_count)return fail("invalid native service");
    if(transaction_active&&!(natives[id].flags&FORTH_NATIVE_PURE))return fail("native I/O disabled during module transaction");
+   if(running>=0&&!(natives[id].flags&(FORTH_NATIVE_PURE|FORTH_NATIVE_TASK)))return fail("native service unavailable in background task");
    if(!natives[id].callback())return error_text[0]?0:fail("native service failed");
+   if(running>=0&&yield_request){yield_request=0;if(fvm_error)return fail(vm_message());return 2;}
   }
   else if(!fvm_complex(code))return fail(vm_message());
   if(fvm_error)return fail(vm_message());
  }
+}
+static int execute_index(unsigned n) {
+ fvm_error=0;fvm_rdepth=fvm_ldepth=0;
+ fvm_budget=observer_active?observer_budget:transaction_active?transaction_budget:1000000UL;
+ fvm_ip=entry_ip(n);return dispatch();
+}
+static void out(unsigned char c) {
+ if(running<0){platform_console_putc(c);return;}
+ struct task *t=&tasks[running];
+ if(t->out_count==FORTH_TASK_OUT){++t->out_dropped;return;}
+ t->out[(t->out_head+t->out_count)%FORTH_TASK_OUT]=c;++t->out_count;
+}
+static uint32_t now_ms(void){return clock_hook?clock_hook():0;}
+static int tasks_live(void){for(unsigned i=0;i<FORTH_TASKS_MAX;++i)if(tasks[i].state==TS_READY||tasks[i].state==TS_SLEEPING)return 1;return 0;}
+static void task_fail(struct task *t,const char *message,unsigned char state) {
+ unsigned i=0;while(message[i]&&i+1<sizeof t->error){t->error[i]=message[i];++i;}t->error[i]=0;t->state=state;
+}
+static void cells(fcell *to,const fcell *from,fcell n){for(fcell i=0;i<n;++i)to[i]=from[i];}
+static void run_slice(unsigned id) {
+ struct task *t=&tasks[id];
+ foreground.depth=fvm_depth;foreground.rdepth=fvm_rdepth;foreground.ldepth=fvm_ldepth;foreground.ip=fvm_ip;
+ foreground.error=fvm_error;foreground.budget=fvm_budget;foreground.ds_peak=fvm_ds_peak;foreground.rs_peak=fvm_rs_peak;
+ cells(foreground.ds,fvm_ds,fvm_depth);cells(foreground.rs,fvm_rs,fvm_rdepth);cells(foreground.loops,fvm_loops,fvm_ldepth*2);
+ copy(foreground.error_text,error_text);
+ cells(fvm_ds,t->ds,t->depth);cells(fvm_rs,t->rs,t->rdepth);cells(fvm_loops,t->loops,t->ldepth*2);
+ fvm_depth=t->depth;fvm_rdepth=t->rdepth;fvm_ldepth=t->ldepth;fvm_ip=t->ip;fvm_error=0;fvm_budget=FORTH_TASK_SLICE;
+ fvm_ds_peak=t->ds_peak;fvm_rs_peak=t->rs_peak;error_text[0]=0;
+ running=(int)id;yield_request=0;int result=dispatch();running=-1;
+ t->steps+=FORTH_TASK_SLICE-fvm_budget;++t->slices;t->ds_peak=fvm_ds_peak;t->rs_peak=fvm_rs_peak;
+ if(t->state==TS_KILLED){}
+ else if(result==1)t->state=TS_DONE;
+ else if(!result)task_fail(t,error_text[0]?error_text:"task failed",TS_FAILED);
+ else if(fvm_depth>FORTH_TASK_DS||fvm_rdepth>FORTH_TASK_RS||fvm_ldepth>FORTH_TASK_LOOPS)task_fail(t,"task stack exceeds saved capacity",TS_FAILED);
+ else {
+  t->depth=fvm_depth;t->rdepth=fvm_rdepth;t->ldepth=fvm_ldepth;t->ip=fvm_ip;
+  cells(t->ds,fvm_ds,fvm_depth);cells(t->rs,fvm_rs,fvm_rdepth);cells(t->loops,fvm_loops,fvm_ldepth*2);
+ }
+ cells(fvm_ds,foreground.ds,foreground.depth);cells(fvm_rs,foreground.rs,foreground.rdepth);cells(fvm_loops,foreground.loops,foreground.ldepth*2);
+ fvm_depth=foreground.depth;fvm_rdepth=foreground.rdepth;fvm_ldepth=foreground.ldepth;fvm_ip=foreground.ip;
+ fvm_error=foreground.error;fvm_budget=foreground.budget;fvm_ds_peak=foreground.ds_peak;fvm_rs_peak=foreground.rs_peak;
+ copy(error_text,foreground.error_text);
+}
+unsigned forth_tasks_run(void) {
+ if(scheduling||running>=0||current>=0||transaction_active||observer_active||!tasks_live())return 0;
+ if(task_gate&&!task_gate())return 0;
+ scheduling=1;unsigned ran=0;uint32_t now=now_ms();
+ for(unsigned k=0;k<FORTH_TASKS_MAX;++k) {
+  unsigned id=(next_task+k)%FORTH_TASKS_MAX;struct task *t=&tasks[id];
+  if(t->state==TS_SLEEPING&&(int32_t)(now-t->wake)>=0)t->state=TS_READY;
+  if(t->state==TS_READY){run_slice(id);++ran;}
+ }
+ next_task=(next_task+1)%FORTH_TASKS_MAX;scheduling=0;return ran;
+}
+void forth_register_clock(uint32_t (*hook)(void)){clock_hook=hook;}
+void forth_register_task_gate(int (*gate)(void)){task_gate=gate;}
+static int task_id(fcell id){if(!id||id>FORTH_TASKS_MAX)return fail("invalid task id");return 1;}
+static int native_spawn(void) {
+ fcell xt=fvm_pop();if(fvm_error)return fail(vm_message());
+ if(observer_active||transaction_active)return fail("SPAWN unavailable here");
+ if(!xt||xt>count)return fail("invalid execution token");
+ for(unsigned i=0;i<FORTH_TASKS_MAX;++i) {
+  struct task *t=&tasks[i];
+  if(t->state==TS_READY||t->state==TS_SLEEPING||(int)i==running)continue;
+  t->xt=xt;t->depth=t->rdepth=t->ldepth=0;t->ip=entry_ip((unsigned)(xt-1));t->ds_peak=t->rs_peak=0;
+  t->wake=t->slices=t->steps=0;t->out_head=t->out_count=0;t->out_dropped=0;t->error[0]=0;t->state=TS_READY;
+  return fvm_push((fcell)(i+1))?1:fail(vm_message());
+ }
+ return fail("no free task slot");
+}
+static int native_pause(void) {if(running>=0)yield_request=1;else forth_tasks_run();return 1;}
+static int native_ms(void) {
+ fcell ms=fvm_pop();if(fvm_error)return fail(vm_message());uint32_t deadline=now_ms()+ms;
+ if(running>=0){tasks[running].wake=deadline;tasks[running].state=TS_SLEEPING;yield_request=1;return 1;}
+ while((int32_t)(now_ms()-deadline)<0)forth_tasks_run();return 1;
+}
+static int native_kill(void) {
+ fcell id=fvm_pop();if(fvm_error)return fail(vm_message());if(!task_id(id))return 0;
+ struct task *t=&tasks[id-1];if(t->state==TS_READY||t->state==TS_SLEEPING||(int)(id-1)==running)task_fail(t,"killed",TS_KILLED);
+ if((int)(id-1)==running)yield_request=1;return 1;
+}
+static int native_state(void) {
+ fcell id=fvm_pop();if(fvm_error)return fail(vm_message());if(!task_id(id))return 0;
+ return fvm_push(tasks[id-1].state)?1:fail(vm_message());
+}
+static void hex_text(const char *p){static const char d[]="0123456789ABCDEF";if(!*p){print("-");return;}while(*p){unsigned char c=(unsigned char)*p++;platform_console_putc((unsigned char)d[c>>4]);platform_console_putc((unsigned char)d[c&15]);}}
+static void task_report(void) {
+ static const char *const names[]={"free","ready","sleeping","done","failed","killed"};
+ for(unsigned i=0;i<FORTH_TASKS_MAX;++i) {
+  const struct task *t=&tasks[i];
+  print("task ");decimal_number(i+1);print(" state ");print(names[t->state]);print(" xt ");decimal_number(t->xt);
+  print(" name ");hex_text(t->xt&&t->xt<=count?words[t->xt-1].name:"");print(" slices ");decimal_number(t->slices);
+  print(" steps ");decimal_number(t->steps);print(" depth ");decimal_number(t->depth);print(" rdepth ");decimal_number(t->rdepth);
+  print(" ds-peak ");decimal_number(t->ds_peak);print(" rs-peak ");decimal_number(t->rs_peak);
+  print(" out ");decimal_number(t->out_count);print(" dropped ");decimal_number(t->out_dropped);print(" error ");hex_text(t->error);print("\r\n");
+ }
+}
+static int task_output(fcell id) {
+ if(!task_id(id))return 0;struct task *t=&tasks[id-1];static const char d[]="0123456789ABCDEF";
+ print("task-out ");decimal_number(id);print(" hex ");if(!t->out_count)print("-");
+ while(t->out_count){unsigned char c=t->out[t->out_head];t->out_head=(unsigned short)((t->out_head+1)%FORTH_TASK_OUT);--t->out_count;platform_console_putc((unsigned char)d[c>>4]);platform_console_putc((unsigned char)d[c&15]);}
+ print(" dropped ");decimal_number(t->out_dropped);print("\r\n");return 1;
 }
 int forth_execute(const char *name) {
  if(!name||length(name)>NAME_MAX)return fail("invalid word name");
@@ -363,7 +490,7 @@ int forth_eval(const char *source) {
  const char *p=source;char s[NAME_MAX+1],name[NAME_MAX+1];int got;
  error_text[0]=0;fvm_error=0;
  while((got=next_token(&p,s))>0) {
-  if(transaction_active&&(equal(s,"ABORT")||equal(s,"ENGINE")||equal(s,"BENCH")||equal(s,"SYNC")||equal(s,"WORDS")||equal(s,".S")||equal(s,"SEE")||equal(s,"RESOURCES")))return fail("interactive tool disabled during module transaction");
+  if(transaction_active&&(equal(s,"TASKS")||equal(s,"TASK-OUT")||equal(s,"ABORT")||equal(s,"ENGINE")||equal(s,"BENCH")||equal(s,"SYNC")||equal(s,"WORDS")||equal(s,".S")||equal(s,"SEE")||equal(s,"RESOURCES")))return fail("interactive tool disabled during module transaction");
   if(current<0&&!transaction_active&&outer_hook) {
    int handled=outer_hook(s,&p);if(handled<0)return 0;if(handled)continue;
   }
@@ -414,6 +541,12 @@ int forth_eval(const char *source) {
    forth_benchmark();continue;
   }
 #endif
+  if(equal(s,"TASKS")||equal(s,"TASK-OUT")) {
+   if(current>=0)return fail("interactive tool inside definition");
+   if(equal(s,"TASKS")){task_report();continue;}
+   if(!need_token(&p,name))return 0;fcell id;if(parse_number(name,&id)<=0)return fail("task id required");
+   if(!task_output(id))return 0;continue;
+  }
   if(equal(s,"WORDS")||equal(s,".S")||equal(s,"SEE")||equal(s,"RESOURCES")||equal(s,"ENGINE")) {
    if(current>=0)return fail("interactive tool inside definition");
    if(equal(s,"WORDS")){for(unsigned i=0;i<count;++i){print(" ");print(words[i].name);}print(" \r\n");}
@@ -422,6 +555,7 @@ int forth_eval(const char *source) {
    else if(equal(s,"RESOURCES"))forth_report();
    else {
     if(!need_token(&p,name))return 0;
+    if(tasks_live())return fail("ENGINE refused while background tasks are live");
     if(equal(name,"C"))selected=FORTH_REFERENCE;
 #ifdef __ez80__
     else if(equal(name,"TOKEN"))selected=FORTH_TOKEN;
@@ -460,6 +594,11 @@ void forth_init(void) {
   op(primitives[i].op);op(F_EXIT);publish();
  }
  defining("VARIABLE","BASE");base_address=words[count-1].aux;fvm_write_cell(base_address,10);
+ for(unsigned i=0;i<FORTH_TASKS_MAX;++i){tasks[i].state=TS_FREE;tasks[i].xt=0;tasks[i].slices=tasks[i].steps=0;tasks[i].out_count=0;tasks[i].out_dropped=0;tasks[i].error[0]=0;tasks[i].depth=tasks[i].rdepth=0;tasks[i].ds_peak=tasks[i].rs_peak=0;}
+ running=-1;scheduling=yield_request=0;next_task=0;
+ forth_register_native("SPAWN",native_spawn,FORTH_NATIVE_TASK);forth_register_native("PAUSE",native_pause,FORTH_NATIVE_TASK);
+ forth_register_native("MS",native_ms,FORTH_NATIVE_TASK);forth_register_native("TASK-KILL",native_kill,FORTH_NATIVE_TASK);
+ forth_register_native("TASK-STATE",native_state,FORTH_NATIVE_TASK);
  forth_eval(": 1+ 1 + ; : 1- 1 - ; : NEGATE 0 SWAP - ; : 2DUP OVER OVER ; : 2DROP DROP DROP ; : CELLS 3 * ; : CELL+ 3 + ; : TRUE -1 ; : FALSE 0 ; : HEX 16 BASE ! ; : DECIMAL 10 BASE ! ;");
 }
 void forth_set_engine(enum forth_engine engine) {selected=engine;}
@@ -614,6 +753,7 @@ void forth_transaction_forget_rollback(void){have_activation=0;}
 void forth_transaction_sizes(unsigned *w,size_t *t,size_t *d,size_t *a){*w=transaction_words;*t=transaction_token;*d=transaction_direct;*a=transaction_data;}
 int forth_transaction_rollback(void) {
  if(!have_activation)return forth_transaction_error("no activation checkpoint");
+ if(tasks_live())return forth_transaction_error("rollback refused while background tasks are live");
  if(transaction_active||current>=0||fvm_rdepth||fvm_ldepth)return forth_transaction_error("rollback requires idle VM");
  if(count!=activation_count||token_used!=activation_token||direct_used!=activation_direct||data_used!=activation_data||source_used!=activation_source)return forth_transaction_error("rollback blocked by later dictionary definitions");
  checkpoint_restore(&activation_before,1,1);have_activation=0;catalog_changed();return 1;
@@ -624,7 +764,7 @@ void forth_repl(void) {
  if(line_mode_hook)line_mode_hook(1);
  for(;;) {
   int c=platform_console_getc();
-  if(c<0){if(!used&&current<0&&idle_hook){idle_hook(changed);changed=0;}continue;}
+  if(c<0){if(!used&&current<0){if(idle_hook){idle_hook(changed);changed=0;}forth_tasks_run();}continue;}
   if(c=='\n'&&cr){cr=0;continue;}cr=0;
   if(c=='\r'||c=='\n') {
    cr=c=='\r';print("\r\n");line[used]=0;

@@ -1,0 +1,11 @@
+{
+  "probe": "11 31 + .",
+  "seconds": 180.0,
+  "probes": 2073,
+  "probe_failures": [],
+  "resyncs": 0,
+  "keyboard_lines": [],
+  "status": "passed",
+  "dropped_before": 0,
+  "dropped_after": 0
+}
