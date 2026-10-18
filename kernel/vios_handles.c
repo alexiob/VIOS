@@ -119,6 +119,25 @@ static int pipe_native(void){
  claim(r,H_PIPE,1,(unsigned char)p,"pipe");claim(w,H_PIPE,2,(unsigned char)p,"pipe");
  return push((fcell)(r+1))&&push((fcell)(w+1));
 }
+/* Byte I/O for redirected task stdin/stdout. */
+static int io_write(unsigned h,unsigned char c){
+ int i=handle(h);if(i<0||handles[i].mode!=2)return -1;
+ if(handles[i].kind==H_NULL){++handles[i].moved;return 1;}
+ if(handles[i].kind==H_CONS){forth_emit(c);++handles[i].moved;return 1;}
+ if(handles[i].kind==H_PIPE){unsigned p=handles[i].slot;if(!pipes[p].readers)return -1;if(pipes[p].count==PIPE_BYTES)return 0;
+  pipes[p].data[(pipes[p].head+pipes[p].count)%PIPE_BYTES]=c;++pipes[p].count;++handles[i].moved;return 1;}
+ if(handles[i].kind==H_FILE){size_t put=0;if(!storage_stream_write(handles[i].slot,&c,1,&put)||put!=1)return -1;++handles[i].moved;return 1;}
+ return -1;
+}
+static int io_read(unsigned h,unsigned char *c){
+ int i=handle(h);if(i<0||handles[i].mode!=1)return -1;
+ if(handles[i].kind==H_PIPE){unsigned p=handles[i].slot;if(!pipes[p].count)return pipes[p].writers?0:-1;
+  *c=pipes[p].data[pipes[p].head];pipes[p].head=(unsigned short)((pipes[p].head+1)%PIPE_BYTES);--pipes[p].count;++handles[i].moved;return 1;}
+ if(handles[i].kind==H_SNAPSHOT){if(snapshot_offset>=snapshot_length)return -1;*c=(unsigned char)snapshot[snapshot_offset++];++handles[i].moved;return 1;}
+ if(handles[i].kind==H_FILE){size_t got=0;if(!storage_stream_read(handles[i].slot,c,1,&got))return -1;if(!got)return -1;++handles[i].moved;return 1;}
+ return -1; /* null: EOF */
+}
+static int io_give(unsigned h,unsigned task){int i=handle(h);if(i<0)return 0;handles[i].owner=(unsigned char)task;return 1;}
 static void task_exit(unsigned id){for(int i=0;i<HANDLES;++i)if(handles[i].kind!=H_FREE&&handles[i].owner==id)release(i);}
 void vios_handles_report(void){
  static const char *const kinds[]={"free","file","pipe","null","cons","snapshot"};
@@ -132,11 +151,15 @@ void vios_handles_report(void){
 int vios_handles_init(void){
  for(int i=0;i<HANDLES;++i){if(handles[i].kind==H_FILE)storage_stream_close(handles[i].slot);handles[i].kind=H_FREE;}
  for(unsigned p=0;p<PIPES;++p)pipes[p].used=0;snapshot_owner=-1;last_error[0]=0;
- forth_register_task_exit(task_exit);
+ forth_register_task_exit(task_exit);forth_register_task_io(io_write,io_read,io_give);
  static const struct {const char *name;int (*fn)(void);} natives[]={{"OPEN",open_native},{"CLOSE",close_native},{"READ",read_native},{"WRITE",write_native},{"PIPE",pipe_native}};
  for(unsigned k=0;k<sizeof natives/sizeof natives[0];++k)if(!forth_register_native(natives[k].name,natives[k].fn,FORTH_NATIVE_TASK))return 0;
  /* Blocking is replaceable Forth policy over the non-blocking primitives. */
  return forth_eval(": READ-WAIT >R BEGIN 2DUP R@ READ DUP -1 = WHILE DROP PAUSE REPEAT R> DROP >R 2DROP R> ; "
   ": WRITE-ALL >R BEGIN DUP WHILE 2DUP R@ WRITE DUP -1 = IF DROP PAUSE ELSE DUP 0 < IF R> DROP >R 2DROP R> EXIT THEN "
-  "DUP >R - SWAP R> + SWAP THEN REPEAT R> DROP 2DROP 0 ;");
+  "DUP >R - SWAP R> + SWAP THEN REPEAT R> DROP 2DROP 0 ; "
+  /* ( xt1 xt2 -- id1 id2 ) xt1's output feeds xt2's KEY; xt2 prints to the
+   * console. Each end is owned by its task, so EOF follows the producer. */
+  "VARIABLE PL-R VARIABLE PL-W "
+  ": PIPELINE PIPE PL-W ! PL-R ! SPAWN-CON DUP PL-R @ TASK-INPUT SWAP SPAWN DUP PL-W @ TASK-OUTPUT SWAP ;");
 }

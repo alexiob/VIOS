@@ -62,3 +62,22 @@ drops. Code size: CPU image 117731 -> 124716 bytes (+7 KB, mostly per-byte
 VM memory access in `OPEN`/transfer; a bulk accessor is a later
 optimization); BSS +1.5 KiB, end `0x9E48D`. The base dictionary still lacks
 `>`; Forth code uses `0 SWAP <` until Stage 5 widens the core word set.
+
+## Pipelines (slice 2, 2026-10-19)
+
+`id h TASK-INPUT` / `id h TASK-OUTPUT` attach a handle as a task's stdin or
+stdout and give it ownership. Redirected `EMIT`/`.`/`CR` fill the task's ring,
+which drains into the handle between slices; reaching 112 of 128 bytes ends
+the slice, and the scheduler skips a task whose output cannot drain
+(backpressure, no blocking inside the VM). A background `KEY` with stdin
+reads one byte; an empty pipe rewinds IP by one instruction (1 byte TOKEN/C,
+3 bytes DIRECT) and yields, so the KEY simply retries; EOF gives -1. A task
+that returns drains its ring before it is marked done; a closed reader turns
+writes into `broken pipe`. `' a ' b PIPELINE ( -- id1 id2 )` wires a's
+output into b's input with b printing to the console.
+
+[Agon acceptance](../../bring-up/vios-pipeline-acceptance-2026-10-19.json):
+upper-casing pipeline output on the console, 5000 bytes exact through one
+128-byte pipe with no drops (662 B/s with the host polling `tasks` every
+0.25 s; draining only between slices is the current limit), broken pipe
+reported, no leaked handles, no console drops.

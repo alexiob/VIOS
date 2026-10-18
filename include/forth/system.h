@@ -37,6 +37,9 @@ void forth_emit(unsigned char c);
 unsigned forth_current_task(void); /* 0 foreground, else 1..FORTH_TASKS_MAX */
 /* Called once when a task leaves ready/sleeping (done, failed or killed). */
 void forth_register_task_exit(void (*hook)(unsigned id));
+/* Handle I/O for redirected task stdin/stdout (write: 1 ok/0 full/-1 broken;
+ * read: 1 byte/0 empty/-1 EOF; give: transfer ownership to a task id). */
+void forth_register_task_io(int (*write)(unsigned handle,unsigned char c),int (*read)(unsigned handle,unsigned char *c),int (*give)(unsigned handle,unsigned task));
 struct forth_task_info {
  const char *name,*error;unsigned state;fcell xt,depth,rdepth,ds_peak,rs_peak;
  uint32_t slices,steps;unsigned output_bytes,output_dropped;

@@ -20,7 +20,8 @@ static char root[512],error[96];
 static unsigned ready;
 static unsigned fail_confirmation,tear_package;
 static void path(char *out,const char *p){assert(p[0]=='/'&&!strstr(p,".."));assert(strlen(root)+strlen(p)<768);strcpy(out,root);strcat(out,p);}
-void platform_console_putc(unsigned char c){putchar(c);}
+static char console_capture[4096];static size_t console_used;
+void platform_console_putc(unsigned char c){putchar(c);if(console_used+1<sizeof console_capture){console_capture[console_used++]=(char)c;console_capture[console_used]=0;}}
 int platform_console_getc(void){return -1;}
 void platform_console_init(void){}
 void platform_console_flush(void){}
@@ -124,6 +125,20 @@ int main(int argc,char **argv){
  /* AUTORUN convention: absent -> nothing; present -> console task. */
  reset();assert(vios_autorun()==0);
  eval("VARIABLE RAN : AUTORUN 1 RAN ! ;");{int id=vios_autorun();assert(id==1);forth_tasks_run();assert((eval("RAN @"),fvm_pop())==1);}
+ /* Pipelines: producer stdout feeds consumer KEY; EOF follows the producer. */
+ reset();
+ eval(": SAY S\" hello pipes\" TYPE CR ; : UPPER BEGIN KEY DUP -1 <> WHILE DUP 97 123 WITHIN IF 32 - THEN EMIT REPEAT DROP ;");
+ console_used=0;console_capture[0]=0;eval("' SAY ' UPPER PIPELINE 2DROP");
+ for(int i=0;i<200&&forth_tasks_run();++i){}
+ assert(strstr(console_capture,"HELLO PIPES")&&"pipeline output reached the console");
+ {struct forth_task_info a,b;assert(forth_task_info(1,&a)&&forth_task_info(2,&b));assert(a.state==3&&b.state==3);}
+ eval("VARIABLE GOT : BIG 1000 0 DO 65 EMIT LOOP ; : CNT 0 GOT ! BEGIN KEY -1 <> WHILE 1 GOT +! REPEAT ;");
+ eval("' BIG ' CNT PIPELINE 2DROP");for(int i=0;i<2000&&forth_tasks_run();++i){}
+ assert((eval("GOT @"),fvm_pop())==1000&&"backpressure delivered every byte");
+ {struct forth_task_info a;for(unsigned id=1;id<=2;++id){assert(forth_task_info(id,&a)&&a.output_dropped==0);}}
+ eval(": QUIT1 ; ' BIG ' QUIT1 PIPELINE 2DROP");for(int i=0;i<200&&forth_tasks_run();++i){}
+ {struct forth_task_info a;unsigned failed=0;for(unsigned id=1;id<=FORTH_TASKS_MAX;++id)if(forth_task_info(id,&a)&&a.state==4&&!strcmp(a.error,"broken pipe"))++failed;assert(failed==1);}
+ console_used=0;console_capture[0]=0;eval("HANDLES");assert(!strstr(console_capture,"handle ")&&"pipeline ends are closed by their tasks");
  /* Handles: files, pipes between tasks, devices, ownership cleanup. */
  reset();
  #define VALUE(s) (eval(s),fvm_pop())

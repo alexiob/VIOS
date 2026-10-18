@@ -75,7 +75,7 @@ struct task {
  fcell xt,depth,rdepth,ldepth,ip,ds_peak,rs_peak;
  uint32_t wake,slices,steps;
  unsigned short out_head,out_count;unsigned out_dropped;
- unsigned char state,console,out[FORTH_TASK_OUT];
+ unsigned char state,console,in_handle,out_handle,finishing,out[FORTH_TASK_OUT];
  char error[48];
 };
 static struct task tasks[FORTH_TASKS_MAX];
@@ -93,6 +93,12 @@ static unsigned next_task;
 static uint32_t (*clock_hook)(void);
 static int (*task_gate)(void);
 static void (*task_exit_hook)(unsigned);
+/* Task stdin/stdout redirection onto kernel handles (kernel/vios_handles.c):
+ * write returns 1 accepted, 0 full, -1 broken; read 1 byte, 0 empty, -1 EOF. */
+static int (*io_write)(unsigned handle,unsigned char c);
+static int (*io_read)(unsigned handle,unsigned char *c);
+static int (*io_give)(unsigned handle,unsigned task);
+#define OUT_HIGH (FORTH_TASK_OUT-16)
 static void out(unsigned char c);
 
 static size_t length(const char *s) { size_t n=0;while(s[n])++n;return n; }
@@ -279,7 +285,13 @@ static int dispatch(void) {
   unsigned code=result-0x80u;
   if(observer_active&&code==F_KEY)return fail("KEY disabled during observer");
   if(transaction_active&&(code==F_EMIT||code==F_DOT||code==F_CR||code==F_KEY))return fail("I/O disabled during module transaction");
-  if(running>=0&&code==F_KEY)return fail("KEY unavailable in background task");
+  if(running>=0&&code==F_KEY) {
+   struct task *t=&tasks[running];unsigned char c=0;
+   if(!t->in_handle||!io_read)return fail("KEY unavailable in background task");
+   int got=io_read(t->in_handle,&c);
+   if(!got){fvm_ip-=selected==FORTH_DIRECT?3:1;return 2;} /* empty: retry this KEY next slice */
+   if(!fvm_push(got<0?FVM_MASK:(fcell)c))return fail(vm_message());continue;
+  }
   if(code==F_EMIT) {fcell c=fvm_pop();if(!fvm_error)out((unsigned char)c);}
   else if(code==F_DOT) {fcell nvalue=fvm_pop();if(!fvm_error)number(nvalue);}
   else if(code==F_CR){out('\r');out('\n');}
@@ -295,6 +307,7 @@ static int dispatch(void) {
   }
   else if(!fvm_complex(code))return fail(vm_message());
   if(fvm_error)return fail(vm_message());
+  if(running>=0&&yield_request){yield_request=0;return 2;}
  }
 }
 static int execute_index(unsigned n) {
@@ -307,7 +320,12 @@ static void out(unsigned char c) {
  struct task *t=&tasks[running];
  if(t->out_count==FORTH_TASK_OUT){++t->out_dropped;return;}
  t->out[(t->out_head+t->out_count)%FORTH_TASK_OUT]=c;++t->out_count;
+ /* Redirected output drains between slices; end the slice before the
+  * ring can overflow (a . prints at most a few bytes past this mark). */
+ if(t->out_handle&&t->out_count>=OUT_HIGH)yield_request=1;
 }
+static void task_flush(unsigned id);
+static int task_id(fcell id);
 static uint32_t now_ms(void){return clock_hook?clock_hook():0;}
 static int tasks_live(void){for(unsigned i=0;i<FORTH_TASKS_MAX;++i)if(tasks[i].state==TS_READY||tasks[i].state==TS_SLEEPING)return 1;return 0;}
 static void task_fail(struct task *t,const char *message,unsigned char state) {
@@ -327,11 +345,12 @@ static void run_slice(unsigned id) {
  running=(int)id;yield_request=0;int result=dispatch();running=-1;
  t->steps+=task_slice-fvm_budget;++t->slices;t->ds_peak=fvm_ds_peak;t->rs_peak=fvm_rs_peak;
  if(t->state==TS_KILLED){}
+ else if(result==1&&t->out_handle&&t->out_count)t->finishing=1; /* drain, then done */
  else if(result==1)t->state=TS_DONE;
  else if(!result)task_fail(t,error_text[0]?error_text:"task failed",TS_FAILED);
  else if(fvm_depth>FORTH_TASK_DS||fvm_rdepth>FORTH_TASK_RS||fvm_ldepth>FORTH_TASK_LOOPS)task_fail(t,"task stack exceeds saved capacity",TS_FAILED);
  if(t->state!=TS_READY&&t->state!=TS_SLEEPING)task_exited(id);
- else {
+ else if(!t->finishing){
   t->depth=fvm_depth;t->rdepth=fvm_rdepth;t->ldepth=fvm_ldepth;t->ip=fvm_ip;
   cells(t->ds,fvm_ds,fvm_depth);cells(t->rs,fvm_rs,fvm_rdepth);cells(t->loops,fvm_loops,fvm_ldepth*2);
  }
@@ -347,13 +366,37 @@ unsigned forth_tasks_run(void) {
  for(unsigned k=0;k<FORTH_TASKS_MAX;++k) {
   unsigned id=(next_task+k)%FORTH_TASKS_MAX;struct task *t=&tasks[id];
   if(t->state==TS_SLEEPING&&(int32_t)(now-t->wake)>=0)t->state=TS_READY;
-  if(t->state==TS_READY){run_slice(id);++ran;}
+  if(t->state!=TS_READY)continue;
+  task_flush(id);
+  if(t->state!=TS_READY)continue;
+  if(t->finishing){if(!t->out_count){t->finishing=0;t->state=TS_DONE;task_exited(id);}continue;}
+  if(t->out_handle&&t->out_count>=OUT_HIGH)continue; /* consumer is behind: backpressure */
+  run_slice(id);++ran;task_flush(id);
  }
  next_task=(next_task+1)%FORTH_TASKS_MAX;scheduling=0;return ran;
 }
 void forth_register_clock(uint32_t (*hook)(void)){clock_hook=hook;}
 void forth_register_task_gate(int (*gate)(void)){task_gate=gate;}
 void forth_register_task_exit(void (*hook)(unsigned)){task_exit_hook=hook;}
+void forth_register_task_io(int (*w)(unsigned,unsigned char),int (*r)(unsigned,unsigned char *),int (*g)(unsigned,unsigned)){io_write=w;io_read=r;io_give=g;}
+static void task_flush(unsigned id) {
+ struct task *t=&tasks[id];if(!t->out_handle||!io_write)return;
+ while(t->out_count){
+  int r=io_write(t->out_handle,t->out[t->out_head]);
+  if(!r)return;
+  if(r<0){t->out_count=0;t->finishing=0;task_fail(t,"broken pipe",TS_FAILED);task_exited(id);return;}
+  t->out_head=(unsigned short)((t->out_head+1)%FORTH_TASK_OUT);--t->out_count;
+ }
+}
+/* ( id h -- ) attach a handle as a task's stdin/stdout; the task owns it. */
+static int redirect(int output) {
+ fcell h=fvm_pop(),id=fvm_pop();if(fvm_error)return fail(vm_message());if(!task_id(id))return 0;
+ struct task *t=&tasks[id-1];if(t->state!=TS_READY&&t->state!=TS_SLEEPING)return fail("task is not live");
+ if(!h||h>255||!io_give||!io_give((unsigned)h,(unsigned)id))return fail("invalid handle for redirection");
+ if(output)t->out_handle=(unsigned char)h;else t->in_handle=(unsigned char)h;return 1;
+}
+static int native_task_input(void){return redirect(0);}
+static int native_task_output(void){return redirect(1);}
 void forth_emit(unsigned char c){out(c);}
 unsigned forth_current_task(void){return running<0?0u:(unsigned)running+1u;}
 int forth_task_info(unsigned id,struct forth_task_info *o) {
@@ -373,7 +416,8 @@ static int spawn(int console) {
   struct task *t=&tasks[i];
   if(t->state==TS_READY||t->state==TS_SLEEPING||(int)i==running)continue;
   t->xt=xt;t->depth=t->rdepth=t->ldepth=0;t->ip=entry_ip((unsigned)(xt-1));t->ds_peak=t->rs_peak=0;
-  t->wake=t->slices=t->steps=0;t->out_head=t->out_count=0;t->out_dropped=0;t->error[0]=0;t->console=(unsigned char)console;t->state=TS_READY;
+  t->wake=t->slices=t->steps=0;t->out_head=t->out_count=0;t->out_dropped=0;t->error[0]=0;t->console=(unsigned char)console;
+  t->in_handle=t->out_handle=t->finishing=0;t->state=TS_READY;
   return fvm_push((fcell)(i+1))?1:fail(vm_message());
  }
  return fail("no free task slot");
@@ -729,11 +773,12 @@ void forth_init(void) {
   op(primitives[i].op);op(F_EXIT);publish();
  }
  defining("VARIABLE","BASE");base_address=words[count-1].aux;fvm_write_cell(base_address,10);
- for(unsigned i=0;i<FORTH_TASKS_MAX;++i){tasks[i].state=TS_FREE;tasks[i].console=0;tasks[i].xt=0;tasks[i].slices=tasks[i].steps=0;tasks[i].out_count=0;tasks[i].out_dropped=0;tasks[i].error[0]=0;tasks[i].depth=tasks[i].rdepth=0;tasks[i].ds_peak=tasks[i].rs_peak=0;}
+ for(unsigned i=0;i<FORTH_TASKS_MAX;++i){tasks[i].state=TS_FREE;tasks[i].console=tasks[i].in_handle=tasks[i].out_handle=tasks[i].finishing=0;tasks[i].xt=0;tasks[i].slices=tasks[i].steps=0;tasks[i].out_count=0;tasks[i].out_dropped=0;tasks[i].error[0]=0;tasks[i].depth=tasks[i].rdepth=0;tasks[i].ds_peak=tasks[i].rs_peak=0;}
  running=-1;scheduling=yield_request=0;next_task=0;
  forth_register_native("SPAWN",native_spawn,FORTH_NATIVE_TASK);forth_register_native("SPAWN-CON",native_spawn_console,FORTH_NATIVE_TASK);forth_register_native("PAUSE",native_pause,FORTH_NATIVE_TASK);
  forth_register_native("MS",native_ms,FORTH_NATIVE_TASK);forth_register_native("TASK-KILL",native_kill,FORTH_NATIVE_TASK);
  forth_register_native("TASK-STATE",native_state,FORTH_NATIVE_TASK);
+ forth_register_native("TASK-INPUT",native_task_input,FORTH_NATIVE_TASK);forth_register_native("TASK-OUTPUT",native_task_output,FORTH_NATIVE_TASK);
  forth_eval(": 1+ 1 + ; : 1- 1 - ; : NEGATE 0 SWAP - ; : 2DUP OVER OVER ; : 2DROP DROP DROP ; : CELLS 3 * ; : CELL+ 3 + ; : TRUE -1 ; : FALSE 0 ; : HEX 16 BASE ! ; : DECIMAL 10 BASE ! ;");
 }
 void forth_set_engine(enum forth_engine engine) {selected=engine;}

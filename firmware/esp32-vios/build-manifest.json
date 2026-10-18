@@ -1,14 +1,14 @@
 {
   "firmware": "firmware/esp32-vios/.pio/build/esp32-vios/firmware.bin",
-  "size": 694288,
-  "sha256": "80d3cbf096468278e9d6cc2c7facb6eed5cdcb11e835fa73cc2d878f4eb26316",
+  "size": 696832,
+  "sha256": "2cff2cc6cc7a8eefec8819f036271828e29c09dca316d7f8385fc65a06276125",
   "app0_offset": 65536,
   "app0_limit": 1310720,
   "embedded_vios": {
     "path": "build/vios-resident.bin",
-    "size": 136018,
-    "sha256": "8053cb5b476eaa4529566c71e2a46637a0ad2038bb7bea670422fb69bc647983",
-    "crc32": "2af08390",
+    "size": 138570,
+    "sha256": "41cb344d57890857da26c80bfabbdb60d997aa0395caf431a0c54471da028616",
+    "crc32": "88bb1536",
     "internal_baud": 1152000
   },
   "internal_baud": 1152000,
@@ -47,7 +47,7 @@
     "firmware/esp32-vios/include/vios_bridge.h": "d791286ca7aea5621c08e128f667756fe2eebc35bc627ce53e238f007268dcd4",
     "firmware/esp32-vios/include/vios_stage0.h": "7b8bcec3900bf9a813855858d56e35b30149631b9291271f6cea353f629c0fd8",
     "firmware/esp32-vios/include/vios_zdi.h": "1ed6c3fe788c9ae23d0cea5629430a1159eb7db1177cadacc692ffb929cd2fee",
-    "firmware/esp32-vios/include/vios_image.h": "53188c0a073128a838f448672fe90d2e14c429a72ad58bf3c8adb181e05609fc",
+    "firmware/esp32-vios/include/vios_image.h": "6d5253042c65a70a16eee7051fb44b53c37d661df697ab73e84624b30de5ebce",
     "firmware/esp32-vios/include/vios_bridge_api.h": "b476702797cc47423e6e30552ff230d24057e60360c77c7685fdb44d1f6e9767",
     "firmware/esp32-vios/vendor/agon-vdp/video/vdu_buffered.h": "3688b5a08f60612ec054b4bdc1744e6ca9f6b467519999e2fd772f1ec2c76662",
     "firmware/esp32-vios/vendor/agon-vdp/video/vdu_stream_processor.h": "19781d29f6a051a5b1ac86937f137f6283c9292e01158bf6f538c48f23ce4a0b",
