@@ -16,7 +16,9 @@ except ImportError:
 CASES = [('3 2 >', -1), ('2 3 >', 0), ('-1 0<', -1), ('5 0>', -1), ('4 4 <>', 0), ('1 2 3 ROT', 1),
          ('1 2 3 -ROT DROP DROP', 3), ('1 2 NIP', 2), ('-7 ABS', 7), ('3 9 MAX', 9), ('-5 2 MIN', -5),
          ('1 2 3 4 2SWAP DROP', 1), ('1 2 3 4 2OVER + + + + +', 13), ('21 2*', 42), ('5 0 10 WITHIN', -1),
-         ('10 0 10 WITHIN', 0), ('CHAR a', 97), ('ACC-T @ ACC-T CELL+ @ +', 16), ('S" xyz" DROP COUNT NIP', 120)]
+         ('10 0 10 WITHIN', 0), ('CHAR a', 97), ('ACC-T @ ACC-T CELL+ @ +', 16), ('S" xyz" DROP COUNT NIP', 120),
+         ('ACC-L1', 63), ('ACC-L2', 42), ('ACC-L3', 4), ('ACC-L4', 0), ('17 5 /MOD DROP', 2), ('6 7 3 */', 14),
+         ('ACC-M', 65)]
 
 
 def main():
@@ -35,6 +37,12 @@ def main():
                 return out['output']
             ev('CREATE ACC-T 7 , 9 ,')
             ev(': ACC-G ." core-" [CHAR] ! EMIT ;')
+            # Loop words: nested J sum, +LOOP up/down, LEAVE, ?DO skip; MOVE/FILL.
+            ev(': ACC-L1 0 3 0 DO 2 0 DO J 10 * I + + LOOP LOOP ;')
+            ev(': ACC-L2 0 10 0 DO I + 2 +LOOP 0 10 DO I + -3 +LOOP ;')
+            ev(': ACC-L3 0 10 0 DO I 4 = IF LEAVE THEN 1+ LOOP ;')
+            ev(': ACC-L4 0 5 5 ?DO 1+ LOOP ;')
+            ev('CREATE ACC-B 8 ALLOT : ACC-M ACC-B 8 65 FILL ACC-B ACC-B 1+ 3 MOVE ACC-B 3 + C@ ;')
             for engine in ('DIRECT', 'TOKEN', 'C'):
                 ev('ENGINE ' + engine)
                 results = {}

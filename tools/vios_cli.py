@@ -15,6 +15,9 @@ HELP = '''Enter printable ASCII Forth (up to 235 bytes per line).
 :complete PFX List completions (Tab also completes at the prompt)
 :graph        Module dependencies, dependents and activation order
 :events       Show console text you did not request (Agon keyboard lines, console tasks)
+:ls [/PATH]   List an SD directory
+:put LOCAL /PATH   Upload a local text file to SD (8.3 name)
+:get /PATH [LOCAL] Show an SD file, or save it to a new local file
 :describe K [ID]  Typed descriptor: word NAME, module NAME, task N, handle N, error
 :why          Explain the last runtime error: word, callers and stack before unwind
 :trace W [N]  Single-step word W for up to N (default 200) instructions
@@ -314,6 +317,36 @@ class Console:
             elif token == ':why' and not argument:
                 if self._idle():
                     self._why()
+            elif token == ':ls':
+                if self._idle():
+                    data = self._devtool('sd_list', {'path': argument or '/'})
+                    for e in (data or {}).get('entries', []):
+                        print(f"{e['name']}{'/' if e['directory'] else ''}  {e['size']}", file=self.output)
+            elif token == ':put' and len(argument.split()) == 2:
+                local, remote = argument.split()
+                try:
+                    text = open(local, encoding='ascii').read()
+                except (OSError, UnicodeError) as error:
+                    print(f'Cannot read {local}: {error}', file=self.errors)
+                else:
+                    if self._idle():
+                        data = self._devtool('sd_put', {'path': remote, 'text': text})
+                        if data and data.get('ok'):
+                            print(f"Wrote {data['bytes']} bytes to {data['path']} sha256 {data['sha256'][:16]}", file=self.output)
+            elif token == ':get' and 1 <= len(argument.split()) <= 2:
+                parts = argument.split()
+                if self._idle():
+                    data = self._devtool('sd_get', {'path': parts[0]})
+                    if data and data.get('ok'):
+                        if len(parts) == 2:
+                            try:
+                                with open(parts[1], 'x', encoding='ascii', errors='replace') as handle:
+                                    handle.write(data['text'])
+                                print(f"Saved {data['bytes']} bytes to {parts[1]}", file=self.output)
+                            except OSError as error:
+                                print(f'Not saved: {error}', file=self.errors)
+                        else:
+                            print(data['text'], file=self.output)
             elif token == ':events' and not argument:
                 if self._idle():
                     data = self._devtool('events')

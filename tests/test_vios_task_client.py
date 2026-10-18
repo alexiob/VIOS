@@ -151,3 +151,34 @@ class FileServiceTest(unittest.TestCase):
                 b.sd_put(bad, text='x')
         for name in ('sd_list', 'sd_put', 'sd_get'):
             self.assertIn(name, TOOL_MAP)
+
+
+class CliFileTest(unittest.TestCase):
+    def test_ls_put_get(self):
+        import io
+        import tempfile
+        import vios_cli
+        from vios_task_client import FileServiceClient
+
+        class Board(FileServiceClient, FakeSd):
+            pass
+        board = Board()
+
+        class Client:
+            def tool(self, name, arguments=None):
+                return getattr(board, name)(**(arguments or {}))
+        out, err = io.StringIO(), io.StringIO()
+        console = vios_cli.Console(Client(), out, err)
+        console.connected = True
+        with tempfile.TemporaryDirectory() as d:
+            src = Path(d) / 'app.fth'
+            src.write_text(': APP 1 ;\n')
+            console.line(f':put {src} /VIOS/APP.FTH')
+            console.line(':ls /VIOS')
+            console.line(':get /VIOS/APP.FTH')
+            console.line(f':get /VIOS/APP.FTH {src}')
+        text = out.getvalue()
+        self.assertIn('Wrote 10 bytes to /VIOS/APP.FTH', text)
+        self.assertIn('APP.FTH  10', text)
+        self.assertIn(': APP 1 ;', text)
+        self.assertIn('Not saved', err.getvalue())
