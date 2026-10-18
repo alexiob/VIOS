@@ -100,3 +100,10 @@ int storage_stream_close(unsigned slot) {
  if(slot>=STORAGE_STREAMS||!stream_open[slot])return fail("invalid stream slot");
  stream_open[slot]=0;return result(f_close(&streams[slot]));
 }
+int storage_list(const char *path,void (*each)(const char *,unsigned long,int,void *),void *ctx) {
+ DIR dir;FILINFO info;if(!valid(path))return 0;
+ if(!result(f_opendir(&dir,path)))return 0;
+ for(;;){FRESULT r=f_readdir(&dir,&info);if(r!=FR_OK){f_closedir(&dir);return result(r);}if(!info.fname[0])break;
+  each(info.fname,(unsigned long)info.fsize,(info.fattrib&AM_DIR)!=0,ctx);}
+ return result(f_closedir(&dir));
+}

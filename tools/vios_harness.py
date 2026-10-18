@@ -59,6 +59,10 @@ TOOLS = [
          {'timeout': {'type':'number','exclusiveMinimum':0,'maximum':300}}),
     tool('console_input','Send 1..16 explicit bytes to a pending evaluation, for example a Forth KEY.',
          {'hex': {'type':'string','pattern':r'^(?:[0-9a-fA-F]{2}){1,16}$'}}, ['hex']),
+    tool('sd_list','List an SD directory (8.3 names, sizes, directory flags).',{'path':PATH_SCHEMA}),
+    tool('sd_put','Upload text or hex bytes to an SD file through a handle (create/replace; not power-fail atomic).',
+         {'path':PATH_SCHEMA,'text':{'type':'string','maxLength':65536,'pattern':r'^[\t\r\n\x20-\x7e]*$'},'hex':{'type':'string','pattern':r'^(?:[0-9a-fA-F]{2})*$'}},['path']),
+    tool('sd_get','Download an SD file (up to 64 KiB) as text and hex with its SHA-256.',{'path':PATH_SCHEMA},['path']),
     tool('events','Return and clear console text the host did not request: lines typed on the Agon keyboard with their results, and console-task output.'),
     tool('resync','Recover a lost response frame at a quiet idle prompt (for example after physical keyboard bytes merged into a request) '
          'without rebooting. Never replays the request; its outcome is returned as unknown.',

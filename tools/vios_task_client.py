@@ -1,4 +1,5 @@
 """Background task inspection over the resident TASKS/TASK-OUT commands."""
+import hashlib
 import re
 
 STATES = ('free', 'ready', 'sleeping', 'done', 'failed', 'killed')
@@ -128,3 +129,74 @@ class TraceClient:
         result = self._module_commands([f'TRACE {name} {steps}'])
         result['steps'], result['outcome'] = parse_trace(result.get('output', ''))
         return result
+
+
+ENTRY = re.compile(r'entry (\S+) size (\d+) dir ([01])')
+SD_NAME = re.compile(r'^/?(?:[A-Za-z0-9_~$!#%&@^\-]{1,8}(?:\.[A-Za-z0-9_~$!#%&@^\-]{1,3})?/)*[A-Za-z0-9_~$!#%&@^\-]{1,8}(?:\.[A-Za-z0-9_~$!#%&@^\-]{1,3})?$')
+
+
+class FileServiceClient:
+    """SD file service through handles: list, upload and download 8.3 files."""
+
+    def _path(self, path):
+        if not isinstance(path, str) or len(path) > 100 or not SD_NAME.fullmatch(path):
+            raise ValueError('path must be an absolute 8.3 FAT path such as /VIOS/APP.FTH')
+        return path if path.startswith('/') else '/' + path
+
+    def _handle(self, path, mode):
+        out = self._module_commands([f'S" {path}" {mode} OPEN .'])
+        if not out.get('ok'):
+            raise IOError(out.get('output', '')[-200:])
+        value = int(out['output'].replace('\r', '').split('\n')[1].split()[0])
+        if value < 0:
+            raise IOError(f'OPEN {path} failed with {value}')
+        return value
+
+    def sd_list(self, path='/'):
+        path = '/' if path == '/' else self._path(path)
+        result = self._module_commands([f'DIR {path}'])
+        if result.get('ok'):
+            result['entries'] = [{'name': m[1], 'size': int(m[2]), 'directory': m[3] == '1'}
+                                 for m in (ENTRY.fullmatch(l.strip()) for l in result['output'].replace('\r', '').split('\n')) if m]
+        return result
+
+    def sd_put(self, path, text=None, hex=None):
+        path = self._path(path)
+        if (text is None) == (hex is None):
+            raise ValueError('give exactly one of text or hex')
+        data = text.encode('ascii') if text is not None else bytes.fromhex(hex)
+        if len(data) > 65536:
+            raise ValueError('at most 64 KiB per upload')
+        with self.lock:
+            h = self._handle(path, 2)
+            written = 0
+            try:
+                for offset in range(0, len(data), 100):
+                    chunk = data[offset:offset + 100]
+                    out = self._module_commands([f'HANDLE-PUT {h} {chunk.hex().upper()}'])
+                    m = re.search(r'put (\d+)', out.get('output', ''))
+                    if not out.get('ok') or not m or int(m[1]) != len(chunk):
+                        raise IOError('short write: ' + out.get('output', '')[-120:])
+                    written += len(chunk)
+            finally:
+                self._module_commands([f'{h} CLOSE DROP'])
+            return {'ok': True, 'path': path, 'bytes': written, 'sha256': hashlib.sha256(data).hexdigest()}
+
+    def sd_get(self, path, limit=65536):
+        path = self._path(path)
+        with self.lock:
+            h = self._handle(path, 1)
+            data = bytearray()
+            try:
+                while len(data) < limit:
+                    out = self._module_commands([f'HANDLE-GET {h} 64'])
+                    m = re.search(r'get ([0-9A-F]*|-)\r?\n', out.get('output', ''))
+                    if not out.get('ok') or not m:
+                        raise IOError('read failed: ' + out.get('output', '')[-120:])
+                    if m[1] in ('-', ''):
+                        break
+                    data.extend(bytes.fromhex(m[1]))
+            finally:
+                self._module_commands([f'{h} CLOSE DROP'])
+            return {'ok': True, 'path': path, 'bytes': len(data), 'sha256': hashlib.sha256(bytes(data)).hexdigest(),
+                    'text': bytes(data).decode('ascii', 'replace'), 'hex': bytes(data).hex()}

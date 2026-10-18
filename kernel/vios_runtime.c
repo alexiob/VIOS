@@ -35,6 +35,7 @@ int vios_load_source(const char *path){
 static int command(const char *word,const char **rest){
  int wb=vios_workbench_command(word,rest);if(wb)return wb;
  if(vios_same(word,"HANDLES")){vios_handles_report();return 1;}
+ {int h=vios_handles_command(word,rest);if(h)return h;}
  if(vios_same(word,"LOAD")||vios_same(word,"INCLUDE")){
   char path[128];if(!vios_arg(rest,path,sizeof path)||!vios_load_source(path))return -1;return 1;
  }

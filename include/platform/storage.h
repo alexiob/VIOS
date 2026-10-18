@@ -19,6 +19,8 @@ const char *storage_error(void);
 /* Streaming slots for handles: independent of the whole-file calls above.
  * open(write=1) creates/truncates; reads/writes may be short; a failed call
  * leaves the slot open until close. Writes are synced on close only. */
+/* Directory listing: calls each(name, size, is_dir, ctx) per entry. */
+int storage_list(const char *path, void (*each)(const char *name, unsigned long size, int directory, void *ctx), void *ctx);
 #define STORAGE_STREAMS 4
 int storage_stream_open(unsigned slot, const char *path, int write);
 int storage_stream_read(unsigned slot, void *buffer, size_t size, size_t *got);

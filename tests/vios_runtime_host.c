@@ -60,6 +60,13 @@ int storage_remove(const char *p){char full[768];path(full,p);return !remove(ful
 int storage_rename(const char *a,const char *b){char x[768],y[768];path(x,a);path(y,b);return !rename(x,y);}
 int storage_mkdir(const char *p){char full[768];path(full,p);if(!mkdir(full,0700))return 1;struct stat st;return !stat(full,&st)&&S_ISDIR(st.st_mode);}
 int storage_sync(void){return 1;}
+#include <dirent.h>
+int storage_list(const char *p,void (*each)(const char *,unsigned long,int,void *),void *ctx){
+ char full[768];path(full,p);DIR *d=opendir(full);if(!d){strcpy(error,"path not found");return 0;}
+ struct dirent *e;while((e=readdir(d))){if(e->d_name[0]=='.')continue;char item[1024];snprintf(item,sizeof item,"%s/%s",full,e->d_name);
+  struct stat st;if(stat(item,&st))continue;each(e->d_name,(unsigned long)st.st_size,S_ISDIR(st.st_mode),ctx);}
+ closedir(d);return 1;
+}
 static FILE *streams[STORAGE_STREAMS];
 int storage_stream_open(unsigned s,const char *p,int write){char full[768];if(s>=STORAGE_STREAMS||streams[s]){strcpy(error,"invalid stream slot");return 0;}path(full,p);streams[s]=fopen(full,write?"wb":"rb");if(!streams[s]){strcpy(error,"file not found");return 0;}return 1;}
 int storage_stream_read(unsigned s,void *b,size_t n,size_t *got){*got=fread(b,1,n,streams[s]);return !ferror(streams[s]);}
@@ -150,6 +157,14 @@ int main(int argc,char **argv){
  eval(": QUIT1 ; ' BIG ' QUIT1 PIPELINE 2DROP");for(int i=0;i<200&&forth_tasks_run();++i){}
  {struct forth_task_info a;unsigned failed=0;for(unsigned id=1;id<=FORTH_TASKS_MAX;++id)if(forth_task_info(id,&a)&&a.state==4&&!strcmp(a.error,"broken pipe"))++failed;assert(failed==1);}
  console_used=0;console_capture[0]=0;eval("HANDLES");assert(!strstr(console_capture,"handle ")&&"pipeline ends are closed by their tasks");
+ /* Host file service: DIR, HANDLE-PUT, HANDLE-GET through handles. */
+ {char cmd[96];eval("VARIABLE SVH");eval("S\" /VIOS/SVC.TXT\" 2 OPEN SVH !");fcell h=(eval("SVH @"),fvm_pop());
+  snprintf(cmd,sizeof cmd,"HANDLE-PUT %u 68656C6C6F",(unsigned)h);console_used=0;eval(cmd);assert(strstr(console_capture,"put 5"));
+  eval("SVH @ CLOSE DROP");eval("S\" /VIOS/SVC.TXT\" 1 OPEN SVH !");h=(eval("SVH @"),fvm_pop());
+  snprintf(cmd,sizeof cmd,"HANDLE-GET %u 64",(unsigned)h);console_used=0;eval(cmd);assert(strstr(console_capture,"get 68656C6C6F"));
+  console_used=0;eval(cmd);assert(strstr(console_capture,"get -"));eval("SVH @ CLOSE DROP");
+  console_used=0;eval("DIR /VIOS");assert(strstr(console_capture,"entry SVC.TXT size 5 dir 0"));
+  assert(!forth_eval("HANDLE-GET 99 4")&&strstr(forth_last_error(),"bad handle"));}
  /* Handles: files, pipes between tasks, devices, ownership cleanup. */
  reset();
  #define VALUE(s) (eval(s),fvm_pop())

@@ -34,6 +34,8 @@ COMMANDS = {
     'TASK-SLICE': 'TASK-SLICE n: instructions per background slice (64..65535; default 1024).',
     'TRACE': 'TRACE name n: single-step a word for up to n instructions, printing word+offset and stacks.',
     'LAST-ERROR': 'Show the last runtime failure: word, offset, caller frames and stacks before unwind.',
+    'DIR': 'DIR path: list an SD directory.', 'HANDLE-PUT': 'HANDLE-PUT h HEX: write bytes to a handle.',
+    'HANDLE-GET': 'HANDLE-GET h n: read up to 64 bytes from a handle as hex.',
     'HANDLES': 'List open handles (files, pipes, /dev endpoints) and the last I/O error.',
     'WB-OPEN': 'Open the text workbench.',
     'WB-CONSOLE': 'Show the REPL console on VGA (home view; F1 toggles with the editor).',

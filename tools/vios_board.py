@@ -17,18 +17,18 @@ try:
     from .vios_workbench_client import WorkbenchClient
     from .vios_snapshot import SnapshotClient
     from .vios_devtools import DevToolsClient
-    from .vios_task_client import TaskClient, ErrorClient, TraceClient
+    from .vios_task_client import TaskClient, ErrorClient, TraceClient, FileServiceClient
 except ImportError:
     from vios_module_client import ModuleClient
     from vios_workbench_client import WorkbenchClient
     from vios_snapshot import SnapshotClient
     from vios_devtools import DevToolsClient
-    from vios_task_client import TaskClient, ErrorClient, TraceClient
+    from vios_task_client import TaskClient, ErrorClient, TraceClient, FileServiceClient
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
-class ViosBoard(TraceClient,ErrorClient,TaskClient,DevToolsClient,SnapshotClient,WorkbenchClient,ModuleClient):
+class ViosBoard(FileServiceClient,TraceClient,ErrorClient,TaskClient,DevToolsClient,SnapshotClient,WorkbenchClient,ModuleClient):
     def __init__(self, port='/dev/cu.usbserial-22430', image=None,
                  log=None, probe_image=None,
                  session=None, loader=None, deployer=None, asker=None, reader=None,

@@ -139,6 +139,36 @@ static int io_read(unsigned h,unsigned char *c){
 }
 static int io_give(unsigned h,unsigned task){int i=handle(h);if(i<0)return 0;handles[i].owner=(unsigned char)task;return 1;}
 static void task_exit(unsigned id){for(int i=0;i<HANDLES;++i)if(handles[i].kind!=H_FREE&&handles[i].owner==id)release(i);}
+static void list_entry(const char *name,unsigned long size,int directory,void *ctx){
+ (void)ctx;vios_out("entry ");vios_out(name);vios_out(" size ");vios_uint((uint32_t)size);vios_out(directory?" dir 1\r\n":" dir 0\r\n");
+}
+static int bad(const char *message){forth_error(message);return -1;}
+static int hex_digit(char c){return c>='0'&&c<='9'?c-'0':c>='A'&&c<='F'?c-'A'+10:c>='a'&&c<='f'?c-'a'+10:-1;}
+/* Host file service, one line per call:
+ *   DIR path            -> "entry NAME size N dir 0|1" lines
+ *   HANDLE-PUT h HEX    -> "put N" bytes written (pipes may be short)
+ *   HANDLE-GET h n      -> "get HEX|-" (n<=64; - means EOF) */
+int vios_handles_command(const char *word,const char **rest){
+ char a[128],b[236];
+ if(vios_same(word,"DIR")){if(!vios_arg(rest,a,sizeof a))return -1;return storage_list(a,list_entry,0)?1:bad(storage_error());}
+ if(vios_same(word,"HANDLE-PUT")||vios_same(word,"HANDLE-GET")){
+  if(!vios_arg(rest,a,16)||!vios_arg(rest,b,sizeof b))return -1;
+  unsigned h=0;for(const char *p=a;*p;++p){if(*p<'0'||*p>'9')return bad("handle number required");h=h*10+(unsigned)(*p-'0');}
+  int i=handle(h);if(i<0)return bad("bad handle");
+  if(vios_same(word,"HANDLE-PUT")){
+   unsigned n=0;unsigned char c=0;size_t len=vios_length(b);if(len&1)return bad("hex must have even length");
+   for(size_t k=0;k<len;k+=2){int x=hex_digit(b[k]),y=hex_digit(b[k+1]);if(x<0||y<0)return bad("invalid hex");c=(unsigned char)(x*16+y);
+    int r=io_write(h,c);if(r<0)return bad("handle write failed");if(!r)break;++n;}
+   vios_out("put ");vios_uint(n);vios_out("\r\n");return 1;
+  }
+  unsigned want=0;for(const char *p=b;*p;++p){if(*p<'0'||*p>'9')return bad("byte count required");want=want*10+(unsigned)(*p-'0');}
+  if(!want||want>64)return bad("HANDLE-GET reads 1..64 bytes");
+  vios_out("get ");unsigned n=0;unsigned char c;int r=0;
+  while(n<want&&(r=io_read(h,&c))>0){vios_hex(c,2);++n;}
+  if(!n)vios_out(r<0?"-":"");vios_out("\r\n");return 1;
+ }
+ return 0;
+}
 void vios_handles_report(void){
  static const char *const kinds[]={"free","file","pipe","null","cons","snapshot"};
  for(int i=0;i<HANDLES;++i){if(handles[i].kind==H_FREE)continue;

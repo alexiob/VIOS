@@ -10,6 +10,7 @@ int vios_prelude_init(void); /* core library words in Forth (kernel/vios_prelude
 /* Handles, /dev endpoints and pipes (kernel/vios_handles.c). */
 int vios_handles_init(void);
 void vios_handles_report(void);
+int vios_handles_command(const char *word,const char **rest); /* DIR, HANDLE-PUT, HANDLE-GET */
 int vios_load_source(const char *path);
 int vios_module_command(const char *word,const char **rest);
 int vios_boot_command(const char *word,const char **rest);

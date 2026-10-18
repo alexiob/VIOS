@@ -1,5 +1,6 @@
 """Parse resident TASKS/TASK-OUT output exactly as forth/system.c prints it."""
 from pathlib import Path
+import re
 import subprocess
 import sys
 import unittest
@@ -95,3 +96,58 @@ class TraceParseTest(unittest.TestCase):
         self.assertEqual(outcome, 'returned')
         self.assertEqual([s['word'] for s in steps][:2], ['SQ', 'SQ'])
         self.assertIn('trace', TOOL_MAP)
+
+
+class FakeSd(TaskClient):
+    """Emulates DIR/OPEN/HANDLE-PUT/HANDLE-GET/CLOSE replies like the firmware."""
+    import threading as _t
+    lock = _t.RLock()
+
+    def __init__(self):
+        self.files, self.open, self.commands = {}, {}, []
+
+    def _module_commands(self, commands):
+        c = commands[0]
+        self.commands.append(c)
+        if c.startswith('DIR '):
+            return {'ok': True, 'output': c + '\r\n' + ''.join(f'entry {n.split("/")[-1]} size {len(d)} dir 0\r\n' for n, d in self.files.items()) + 'ok\r\n'}
+        m = re.match(r'S" (\S+)" ([12]) OPEN \.', c)
+        if m:
+            h = len(self.open) + 1
+            self.open[h] = [m[1], 0]
+            if m[2] == '2':
+                self.files[m[1]] = b''
+            return {'ok': True, 'output': f'{c}\r\n{h} \r\nok\r\n'}
+        m = re.match(r'HANDLE-PUT (\d+) ([0-9A-F]+)', c)
+        if m:
+            path = self.open[int(m[1])][0]
+            self.files[path] += bytes.fromhex(m[2])
+            return {'ok': True, 'output': f'{c}\r\nput {len(m[2]) // 2}\r\nok\r\n'}
+        m = re.match(r'HANDLE-GET (\d+) (\d+)', c)
+        if m:
+            state = self.open[int(m[1])]
+            data = self.files[state[0]][state[1]:state[1] + int(m[2])]
+            state[1] += len(data)
+            return {'ok': True, 'output': f'{c}\r\nget {data.hex().upper() if data else "-"}\r\nok\r\n'}
+        return {'ok': True, 'output': c + '\r\nok\r\n'}
+
+
+class FileServiceTest(unittest.TestCase):
+    def test_roundtrip_chunks_and_paths(self):
+        from vios_task_client import FileServiceClient
+
+        class Board(FileServiceClient, FakeSd):
+            pass
+        b = Board()
+        text = 'X' * 250 + '\n: APP 1 ;\n'
+        put = b.sd_put('/VIOS/APP.FTH', text=text)
+        self.assertEqual(put['bytes'], len(text))
+        self.assertEqual(sum(1 for c in b.commands if c.startswith('HANDLE-PUT')), 3)
+        got = b.sd_get('/VIOS/APP.FTH')
+        self.assertEqual((got['text'], got['sha256']), (text, put['sha256']))
+        self.assertEqual(b.sd_list('/VIOS')['entries'], [{'name': 'APP.FTH', 'size': len(text), 'directory': False}])
+        for bad in ('/VIOS/TOOLONGNAME.FTH', '/VIOS/A B.TXT', 'nope/../x'):
+            with self.assertRaises(ValueError):
+                b.sd_put(bad, text='x')
+        for name in ('sd_list', 'sd_put', 'sd_get'):
+            self.assertIn(name, TOOL_MAP)
