@@ -541,14 +541,24 @@ Stage status against section 10:
   module graph, develop cycle, local VGA console sharing the REPL.
 - **2** Done (slice 1): tasks, gate, slice sweep, acceptance. Not done:
   per-task compiler/BASE context, locks, task-safe module transactions.
-- **3** Done (slice 1): handles, pipes, /dev endpoints, cleanup. Not done:
-  shell pipeline syntax, per-task stdin/stdout redirection, namespaces/mounts.
-- **4** Done (slices 1-2): pre-unwind capture, TRACE. Not done: typed
-  descriptors, source maps, restart options, graphics inspectors.
-- **5** Started: Forth prelude, compiler data/string words, AUTORUN.
+- **3** Done (slices 1-2): handles, pipes, /dev endpoints, cleanup, per-task
+  stdin/stdout redirection with backpressure, `PIPELINE`, host SD file
+  service (`DIR`, `HANDLE-PUT/GET`, `sd_list/put/get`, CLI `:ls :put :get`).
+  Not done: shell syntax beyond `PIPELINE`, namespaces/mounts.
+- **4** Done (slices 1-3): pre-unwind capture, TRACE, compile-time source
+  maps (640 entries), host `describe` typed descriptors, `events`. Not done:
+  restart options, graphics inspectors.
+- **5** Started: Forth prelude, compiler data/string words, `J LEAVE +LOOP
+  ?DO UNLOOP FILL MOVE U. DUMP`, native `TYPE`, AUTORUN (reboot path
+  host-tested through real boot code; `apps/hello-autorun.fth`).
   On-device AUTORUN boot needs a boot-slot module (user approval for SD),
   metacompiler/self-hosted rebuild not started.
 - **6, 7** Not started (host TCP owner remains the only network path).
+
+RAM budget (Oct 19): CPU image ~144 KB, BSS end `0xA5E48`, ~37 KB below
+the stack. New resident features need explicit budgets; candidates to
+reclaim are the 5 KiB source-map pool and the 4.6 KiB console shadow.
+See `docs/USER-GUIDE.md` and `docs/bring-up/vios-session-2026-10-19.md`.
 
 Hardware lessons worth keeping:
 
