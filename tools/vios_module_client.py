@@ -170,6 +170,42 @@ class ModuleClient:
             result['boot']=dict(zip(('confirmed','candidate','state','current'),match.groups()[:4]),generation=int(match[5]))
         return result
 
+    def boot_manifest(self):
+        """Parse BOOT-MANIFEST: what the confirmed/candidate slot would load at power-on.
+
+        Each role is {'slot','status','error','crc32','modules'}; status 'ok', 'none'
+        (no slot selected) or 'error' (bundle unusable, reason in 'error'). Module
+        version is None when its package is not a verified copy of that source.
+        """
+        result=self._module_commands(['BOOT-MANIFEST'])
+        if not result.get('ok'):return result
+        roles={};counts={}
+        for line in result.get('output','').replace('\r','').splitlines():
+            line=line.strip()
+            match=re.fullmatch(r'manifest (A|B|NONE) (confirmed|candidate) (?:(none)|error (.{1,95})|modules (\d+) crc32 (\d+))',line)
+            if match:
+                slot,role,none,error,count,crc=match.groups()
+                if role in roles or (slot=='NONE')!=(none is not None):raise IOError('Malformed boot manifest header')
+                roles[role]={'slot':slot,'status':'none' if none else 'error' if error else 'ok','error':error,
+                             'crc32':_crc(int(crc)) if crc else None,'modules':[]}
+                if count is not None:
+                    if int(count)>8:raise IOError('Malformed boot manifest count')
+                    counts[role]=int(count)
+                continue
+            match=re.fullmatch(r'manifest-module (A|B) (\S+) version (\S+) crc32 (\d+) package (ok|bad|unreadable)',line)
+            if match:
+                slot,name,version,crc,package=match.groups()
+                owners=[r for r in roles.values() if r['slot']==slot and r['status']=='ok']
+                if not owners or (version=='-')!=(package!='ok'):raise IOError('Malformed boot manifest module line')
+                owners[-1]['modules'].append({'name':_token(name),'version':None if version=='-' else _token(version),
+                                              'crc32':_crc(int(crc)),'package':package})
+            elif line.startswith('manifest'):
+                raise IOError('Malformed boot manifest line')
+        if set(roles)!={'confirmed','candidate'} or any(len(roles[r]['modules'])!=n for r,n in counts.items()):
+            raise IOError('Missing or incomplete boot manifest')
+        result['manifest']=roles
+        return result
+
     def boot_trial(self):
         return self._module_commands(['BOOT-TRIAL'])
 

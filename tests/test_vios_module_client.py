@@ -66,6 +66,34 @@ class ModuleClientTests(unittest.TestCase):
         self.assertEqual(board.calls[-1],'MODULE-SOURCE APP PREVIOUS')
         self.assertEqual(result['source_sha256'],hashlib.sha256(result['source'].encode()).hexdigest())
         result=board.boot_status();self.assertEqual(result['boot'],{'confirmed':'A','candidate':'B','state':'PENDING','current':'A','generation':17})
+    def test_boot_manifest_parses_firmware_lines(self):
+        # Lines exactly as kernel/vios_boot.c emits them (see tests/vios_runtime_host.c).
+        board=self.backend()
+        board.responses=[{'ok':True,'output':'BOOT-MANIFEST\r\nmanifest A confirmed modules 2 crc32 3804406723\r\n'
+                          'manifest-module A demo version 1 crc32 4112551253 package ok\r\n'
+                          'manifest-module A extra version - crc32 2834822831 package unreadable\r\n'
+                          'manifest B candidate error invalid/incompatible boot bundle\r\nok\r\nvios> '}]
+        manifest=board.boot_manifest()['manifest'];self.assertEqual(board.calls,['BOOT-MANIFEST'])
+        self.assertEqual(manifest['confirmed'],{'slot':'A','status':'ok','error':None,'crc32':3804406723,'modules':[
+            {'name':'demo','version':'1','crc32':4112551253,'package':'ok'},
+            {'name':'extra','version':None,'crc32':2834822831,'package':'unreadable'}]})
+        self.assertEqual(manifest['candidate'],{'slot':'B','status':'error','error':'invalid/incompatible boot bundle','crc32':None,'modules':[]})
+        board.responses=[{'ok':True,'output':'manifest NONE confirmed none\r\nmanifest NONE candidate none\r\n'}]
+        self.assertEqual(board.boot_manifest()['manifest']['candidate']['status'],'none')
+        board.responses=[{'ok':False,'output':'error: unknown word: BOOT-MANIFEST\r\n'}]
+        self.assertNotIn('manifest',board.boot_manifest())
+        header='manifest A confirmed modules 1 crc32 1\r\nmanifest NONE candidate none\r\n'
+        for output in ['manifest A confirmed modules 0 crc32 1\r\n',                       # candidate missing
+                       header,                                                               # count mismatch
+                       header+'manifest-module B x version 1 crc32 1 package ok\r\n',      # no such slot
+                       header+'manifest-module A x version - crc32 1 package ok\r\n',      # ok needs a version
+                       header+'manifest-module A x version 1 crc32 1 package bad\r\n',     # bad has no version
+                       'manifest A confirmed none\r\nmanifest NONE candidate none\r\n',  # slot letter with none
+                       'manifest A confirmed modules 9 crc32 1\r\nmanifest NONE candidate none\r\n',
+                       header+'manifest-module A x version 1 crc32 1 package ok\r\nmanifest A confirmed none\r\n',
+                       'manifest A confirmed weird\r\n']:
+            board.responses=[{'ok':True,'output':output}]
+            with self.assertRaises((IOError,ValueError),msg=output):board.boot_manifest()
     def test_mutations_are_explicit_and_paths_cannot_inject_commands(self):
         board=self.backend()
         for method,args,command in [('module_activate',('APP',),'MODULE-ACTIVATE APP'),('module_discard',(),'MODULE-DISCARD'),
@@ -122,7 +150,7 @@ class ModuleClientTests(unittest.TestCase):
         init=rpc.handle({'jsonrpc':'2.0','id':1,'method':'initialize','params':{'protocolVersion':'2025-11-25','capabilities':{},'clientInfo':{}}})
         self.assertIn('result',init)
         listed=rpc.handle({'jsonrpc':'2.0','id':2,'method':'tools/list'})['result']['tools'];names={t['name'] for t in listed}
-        self.assertTrue({'module_stage','module_source','module_save','boot_trial','boot_status','connect'}<=names)
+        self.assertTrue({'module_stage','module_source','module_save','boot_trial','boot_status','boot_manifest','connect'}<=names)
         for arguments in [{'name':'APP','version':'1','source':': X ;','dependencies':[{'name':'CORE','crc32':True}]},
                           {'name':'APP','version':'1','source':': X ;','dependencies':[{'name':'CORE','crc32':1,'extra':1}]},
                           {'name':'APP','previous':'false'}]:

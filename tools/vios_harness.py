@@ -49,6 +49,8 @@ TOOLS = [
     tool('module_load','Load a saved module package and stage/activate it.',{'path':PATH_SCHEMA},['path']),
     tool('load','Evaluate a raw Forth source file from SD.',{'path':PATH_SCHEMA},['path']),
     tool('boot_status','Inspect confirmed/candidate/current boot slots and trial state.'),
+    tool('boot_manifest','Read-only: module name, version, source CRC32 and package health recorded in the confirmed and candidate '
+         'boot bundles on SD, i.e. what a power cycle would load.'),
     tool('boot_trial','Write an inactive boot bundle containing all active modules and mark it pending; does not reboot.'),
     tool('boot_confirm','Confirm the currently running trial after validation.'),
     tool('boot_revert','Select the confirmed/previous boot slot; does not reboot.'),

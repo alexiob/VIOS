@@ -78,8 +78,9 @@ There are 29 tools. Schemas returned by `tools/list` are authoritative for argum
 | `words`, `inspect_word`, `stacks`, `resources`, `benchmark` | Dictionary/source metadata, stacks, capacities and checked benchmarks |
 | `module_stage`, `module_activate`, `module_discard`, `module_rollback` | Transactional source replacement |
 | `modules`, `module_source`, `module_save`, `module_load`, `load` | Exact source/hash inspection and native SD persistence |
-| `snapshot` | Read-only structured state record (modules, exact sources, draft, stacks, BASE, engine, boot slot) with a live/dirty/staged/persisted summary; restorable by `tools/vios_fast_display_state.py`, fails closed on a torn read; CLI `:snapshot [FILE]` |
+| `snapshot` | Read-only structured state record (modules, exact sources, draft, stacks, BASE, engine, boot slot) with a live/dirty/staged/persisted summary (`persisted` = exact name+CRC32 in the confirmed boot bundle, null when unknown; `in_candidate` likewise); restorable by `tools/vios_fast_display_state.py`, fails closed on a torn read; CLI `:snapshot [FILE]` |
 | `boot_status`, `boot_trial`, `boot_confirm`, `boot_revert` | A/B source-bundle trial and selection |
+| `boot_manifest` | Read-only `BOOT-MANIFEST`: name, version, source CRC32 and package health (`ok`/`bad`/`unreadable`) in the confirmed and candidate bundles, i.e. what a power cycle loads. Snapshot only issues it with an empty data stack, since older firmware rejects the unknown word and a Forth error clears the stack |
 | `debug_registers`, `memory_read`, `memory_write`, `resume` | Bounded ZDI inspection/write/readback and state-preserving resume |
 
 Notifications never invoke board tools. Results include a JSON-encoded text content item and `isError`. Language/runtime failures are tool errors; malformed RPC or arguments return JSON-RPC errors. Frames are limited to 1 MiB. Module metadata/dependencies are validated before transmission.

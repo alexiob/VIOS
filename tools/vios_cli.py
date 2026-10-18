@@ -208,9 +208,12 @@ class Console:
             flags = [('live' if m['live'] else 'retained'), *(['rollback'] if m['rollback_available'] else []),
                      *([] if m['dependencies_satisfied'] else ['deps-unsatisfied:'+','.join(m['unsatisfied_dependencies'])]),
                      *(['draft:'+m['draft']] if m['draft'] else []),
-                     'persisted:'+{True:'yes', False:'no', None:'unknown'}[m['persisted']]]
+                     'persisted:'+{True:'yes', False:'no', None:'unknown'}[m['persisted']],
+                     *(['candidate'] if m.get('in_candidate') else [])]
             print(f"module {m['name']} {m['version']} {m['crc32']:08X} "+' '.join(flags), file=self.output)
         print(f"draft {draft['module'] or '-'} {draft['state']} rev {draft['revision']} bytes {draft['bytes']}", file=self.output)
+        if boot.get('manifest_error'):
+            print(f"manifest {boot['manifest_error']}", file=self.output)
         if path:
             try:
                 with open(path, 'x', encoding='ascii') as handle:

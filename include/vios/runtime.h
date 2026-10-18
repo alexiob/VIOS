@@ -16,6 +16,8 @@ int vios_boot_trial(void);
 int vios_boot_confirm(void);
 int vios_boot_revert(void);
 void vios_boot_status(void);
+void vios_boot_manifest(void);
+int vios_module_package_version(const char *path,uint32_t crc,char *version);
 void vios_out(const char *text);
 void vios_uint(uint32_t value);
 void vios_hex(uint32_t value,unsigned digits);
