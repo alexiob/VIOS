@@ -62,6 +62,7 @@ COMPILER = {':': 'Begin a colon definition.', ';': 'End a definition.', "'": "' 
             'IS': "' word IS name: rebind a DEFER (callers follow it).",
             '?DO': 'limit start ?DO ... LOOP: skips the body when start = limit.', 'LEAVE': 'Exit the innermost DO loop now.',
             '+LOOP': 'n +LOOP: step by n; exits when crossing the limit boundary.',
+            'FILL': 'addr u c FILL: set u bytes.', 'MOVE': 'src dst u MOVE: copy, overlap-safe.', 'U.': 'Print unsigned.',
             '."': '." text" prints text (S" text" TYPE).', 'S"': 'S" text" pushes addr u of a data-space string.',
             'CHAR': 'CHAR x pushes the code of x (interpretation only).', '[CHAR]': '[CHAR] x compiles the code of x.',
             'CREATE': 'CREATE name: word returning the next data address (interpretation only).',

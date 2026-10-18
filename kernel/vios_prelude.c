@@ -11,5 +11,6 @@ static const char prelude[]=
  ": +! DUP @ ROT + SWAP ! ; : 2* 1 LSHIFT ; : BL 32 ; : SPACE BL EMIT ; "
  ": SPACES BEGIN DUP 0> WHILE SPACE 1- REPEAT DROP ; "
  ": TYPE BEGIN DUP WHILE OVER C@ EMIT 1- SWAP 1+ SWAP REPEAT 2DROP ; "
- ": COUNT DUP 1+ SWAP C@ ; : WITHIN OVER - >R - R> U< ; ";
+ ": COUNT DUP 1+ SWAP C@ ; : WITHIN OVER - >R - R> U< ; "
+ ": ? @ . ; : ERASE 0 FILL ; : /MOD 2DUP MOD -ROT / ; : */ >R * R> / ; : BOUNDS OVER + SWAP ; ";
 int vios_prelude_init(void){return forth_eval(prelude);}
