@@ -70,6 +70,7 @@ class LastErrorTest(unittest.TestCase):
                              capture_output=True, check=True, timeout=10).stdout
         e = parse_last_error(out)
         self.assertEqual((e['word'], e['message'], [f['word'] for f in e['frames']]), ('INNER', 'arithmetic error', ['OUTER']))
+        self.assertEqual((e['source_token'], e['frames'][0]['source_token']), ('/', 'INNER'))
         self.assertIsNone(parse_last_error('last-error serial 0\r\n'))
 
         class Client:
@@ -80,6 +81,7 @@ class LastErrorTest(unittest.TestCase):
         console.connected = True
         console.line(':why')
         self.assertIn('error #1: arithmetic error in INNER+', text.getvalue())
+        self.assertIn('at `/`', text.getvalue())
         self.assertIn('called from OUTER+', text.getvalue())
         self.assertIn('last_error', TOOL_MAP)
 

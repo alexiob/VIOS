@@ -230,10 +230,12 @@ class Console:
         if not e:
             print('No runtime error recorded since boot.', file=self.output)
             return
-        print(f"error #{e['serial']}: {e['message']} in {e['word'] or '?'}+{e['offset']} ({e['engine']}, base {e['base']})"
+        at = f" at `{e['source_token']}`" if e.get('source_token') else ''
+        print(f"error #{e['serial']}: {e['message']} in {e['word'] or '?'}+{e['offset']}{at} ({e['engine']}, base {e['base']})"
               + (' [dictionary changed since]' if e['stale'] else ''), file=self.output)
         for f in e['frames']:
-            print(f"  called from {f['word'] or '?'}+{f['offset']}", file=self.output)
+            at = f" at `{f['source_token']}`" if f.get('source_token') else ''
+            print(f"  called from {f['word'] or '?'}+{f['offset']}{at}", file=self.output)
         print(f"  data stack (top first, {e['ds_depth']} deep): " + ' '.join(map(str, e['ds_top_first'])), file=self.output)
 
     def completer(self, text, state):

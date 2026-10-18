@@ -87,10 +87,16 @@ class ErrorCaptureTests(unittest.TestCase):
   binary=ROOT/'build/tests/forth-system'
   out=subprocess.run([str(binary)],input=': SQ DUP * ;\n: T 3 SQ 1+ ;\nTRACE T 50\n.S\nTRACE T 2\nLAST-ERROR\n: LOOPY BEGIN AGAIN ;\nLOOPY\nLAST-ERROR\nTRACE NOPE 3\n',text=True,capture_output=True,check=True,timeout=10).stdout.replace('\r','')
   steps=[l for l in out.splitlines() if l.startswith('step ')]
-  self.assertEqual(steps[2],'step 3 word SQ+0 depth 1 rdepth 1 top 3 ')
+  self.assertEqual(steps[2],'step 3 word SQ+0 src DUP depth 1 rdepth 1 top 3 ')
   self.assertIn('trace returned steps 10',out);self.assertIn('<1> 10',out)
   self.assertIn('trace failed steps 2',out);self.assertIn('ERR: trace step limit reached',out)
   records=[l for l in out.splitlines() if l.startswith('last-error serial')]
   self.assertIn('word '+b'SQ'.hex().upper()+' offset 0',records[0])
   self.assertIn('word '+b'LOOPY'.hex().upper()+' offset 0',records[1])
   self.assertIn('ERR: unknown word: NOPE',out)
+ def test_source_map_rolls_back_with_failed_definitions(self):
+  binary=ROOT/'build/tests/forth-system'
+  out=subprocess.run([str(binary)],input=': BAD 1 2 NOSUCH ;\n: GOOD 4 5 + ;\nTRACE GOOD 10\n',text=True,capture_output=True,check=True,timeout=10).stdout.replace('\r','')
+  self.assertIn('ERR: unknown word: NOSUCH',out)
+  srcs=[l.split(' src ')[1].split()[0] for l in out.splitlines() if l.startswith('step ')]
+  self.assertEqual(srcs,['4','5','+',';'])

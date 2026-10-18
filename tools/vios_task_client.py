@@ -72,9 +72,9 @@ class TaskClient:
         return result
 
 
-ERROR = re.compile(r'last-error serial (\d+) engine (\w+) stale ([01]) base (\d+) message (\S+) ip (\d+) word (\S+) offset (\d+) '
+ERROR = re.compile(r'last-error serial (\d+) engine (\w+) stale ([01]) base (\d+) message (\S+) ip (\d+) word (\S+) offset (\d+)(?: src (\S+))? '
                    r'ds-depth (\d+) rdepth (\d+) ldepth (\d+) ds((?: \d+)*)')
-FRAME = re.compile(r'frame (\d+) word (\S+) offset (\d+)')
+FRAME = re.compile(r'frame (\d+) word (\S+) offset (\d+)(?: src (\S+))?')
 
 
 def parse_last_error(output):
@@ -87,11 +87,12 @@ def parse_last_error(output):
     m = ERROR.fullmatch(head)
     if not m:
         raise IOError('Malformed LAST-ERROR record')
-    frames = [{'index': int(f[1]), 'word': _hex_text(f[2]), 'offset': int(f[3])}
+    src = lambda v: None if v in (None, '-', '?') else v
+    frames = [{'index': int(f[1]), 'word': _hex_text(f[2]), 'offset': int(f[3]), 'source_token': src(f[4])}
               for f in (FRAME.fullmatch(l) for l in lines if l.startswith('frame ')) if f]
     return {'serial': int(m[1]), 'engine': m[2], 'stale': m[3] == '1', 'base': int(m[4]), 'message': _hex_text(m[5]),
-            'ip': int(m[6]), 'word': _hex_text(m[7]), 'offset': int(m[8]), 'ds_depth': int(m[9]), 'rdepth': int(m[10]),
-            'ldepth': int(m[11]), 'ds_top_first': [int(x) for x in m[12].split()], 'frames': frames}
+            'ip': int(m[6]), 'word': _hex_text(m[7]), 'offset': int(m[8]), 'source_token': src(m[9]), 'ds_depth': int(m[10]),
+            'rdepth': int(m[11]), 'ldepth': int(m[12]), 'ds_top_first': [int(x) for x in m[13].split()], 'frames': frames}
 
 
 class ErrorClient:
@@ -102,7 +103,7 @@ class ErrorClient:
         return result
 
 
-STEP = re.compile(r'step (\d+) word (\S+)\+(\d+) depth (\d+) rdepth (\d+)(?: top (-?\d+))?')
+STEP = re.compile(r'step (\d+) word (\S+)\+(\d+)(?: src (\S+))? depth (\d+) rdepth (\d+)(?: top (-?\d+))?')
 
 
 def parse_trace(output):
@@ -111,8 +112,8 @@ def parse_trace(output):
         line = line.strip()
         m = STEP.fullmatch(line)
         if m:
-            steps.append({'step': int(m[1]), 'word': m[2], 'offset': int(m[3]), 'depth': int(m[4]),
-                          'rdepth': int(m[5]), 'top': None if m[6] is None else int(m[6])})
+            steps.append({'step': int(m[1]), 'word': m[2], 'offset': int(m[3]), 'source_token': m[4] if m[4] not in (None, '-') else None,
+                          'depth': int(m[5]), 'rdepth': int(m[6]), 'top': None if m[7] is None else int(m[7])})
         elif line.startswith('trace '):
             outcome = line.split()[1]
     return steps, outcome

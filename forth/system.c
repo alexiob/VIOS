@@ -28,6 +28,13 @@ static char source_space[SOURCE_BYTES];
 static struct control controls[CONTROL_MAX];
 static size_t token_used,direct_used,data_used,source_used,control_used;
 static size_t mark_token,mark_direct,mark_data,mark_source;
+/* Source maps: before each token of a colon definition the compiler records
+ * (word, token offset, direct offset, source offset). The code from one
+ * entry's offset up to the next entry's belongs to that source token.
+ * When the pool is full, later code is simply unmapped. */
+#define SOURCE_MAP_MAX 640
+static struct {unsigned short word,token,direct,source;} source_map[SOURCE_MAP_MAX];
+static unsigned map_used,mark_map;
 static unsigned count;
 static int current;
 static enum forth_engine selected;
@@ -54,7 +61,7 @@ static struct {
 } observer_before;
 static void catalog_changed(void) {if(!++catalog_revision)++catalog_revision;}
 struct checkpoint {
- size_t token,direct,data,source;unsigned count;
+ size_t token,direct,data,source;unsigned count,map;
  unsigned short buckets[HASH_BUCKETS];
  unsigned char data_bytes[DATA_BYTES];
  fcell stack[FVM_DS],depth,ip,error,budget,ds_peak,rs_peak,base;
@@ -121,7 +128,7 @@ static void decimal_number(fcell n) {
  while(i)platform_console_putc((unsigned char)b[--i]);
 }
 static void rollback(void) {
- if(current>=0) {token_used=mark_token;direct_used=mark_direct;data_used=mark_data;source_used=mark_source;}
+ if(current>=0) {token_used=mark_token;direct_used=mark_direct;data_used=mark_data;source_used=mark_source;map_used=mark_map;}
  current=-1;control_used=0;
 }
 /* Stage 4: the foreground's last runtime failure, captured before fail()
@@ -201,7 +208,7 @@ static int begin_word(const char *name,unsigned kind) {
  if(current>=0)return fail("nested definition");
  if(count==WORDS_MAX)return fail("dictionary full");
  if(!*name||length(name)>NAME_MAX)return fail("invalid name");
- mark_token=token_used;mark_direct=direct_used;mark_data=data_used;mark_source=source_used;
+ mark_token=token_used;mark_direct=direct_used;mark_data=data_used;mark_source=source_used;mark_map=map_used;
  current=(int)count;words[count].kind=(unsigned char)kind;copy(words[count].name,name);
  words[count].origin=(unsigned short)origin_id;
  words[count].aux=0;words[count].source=(unsigned short)source_used;words[count].length=0;
@@ -442,9 +449,19 @@ static int native_state(void) {
  return fvm_push(tasks[id-1].state)?1:fail(vm_message());
 }
 static void hex_text(const char *p){static const char d[]="0123456789ABCDEF";if(!*p){print("-");return;}while(*p){unsigned char c=(unsigned char)*p++;platform_console_putc((unsigned char)d[c>>4]);platform_console_putc((unsigned char)d[c&15]);}}
+/* Print the source token compiled at code offset of xt (current engine). */
+static void print_source_token(fcell xt,fcell offset,enum forth_engine engine){
+ if(!xt||xt>count){print("?");return;}
+ unsigned w=(unsigned)(xt-1);int best=-1;
+ for(unsigned i=0;i<map_used;++i)if(source_map[i].word==w){unsigned at=engine==FORTH_DIRECT?source_map[i].direct:source_map[i].token;if(at<=offset)best=(int)i;}
+ if(best<0){print("-");return;}
+ const char *p=source_space+words[w].source+source_map[best].source,*end=source_space+words[w].source+words[w].length;
+ while(p<end&&*p!=' ')platform_console_putc((unsigned char)*p++);
+}
 static void trace_step(void) {
  fcell offset;fcell xt=code_xt(fvm_ip,&offset);--trace_left;++trace_steps;
  print("step ");decimal_number(trace_steps);print(" word ");print(xt&&xt<=count?words[xt-1].name:"?");print("+");decimal_number(offset);
+ print(" src ");print_source_token(xt,offset,selected);
  print(" depth ");decimal_number(fvm_depth);print(" rdepth ");decimal_number(fvm_rdepth);
  if(fvm_depth&&fvm_depth<=FVM_DS){print(" top ");number(fvm_ds[fvm_depth-1]);}print("\r\n");
 }
@@ -463,11 +480,12 @@ static void crash_report(void) {
  print(" stale ");decimal_number(crash.catalog!=catalog_revision);print(" base ");decimal_number(crash.base);
  print(" message ");hex_text(crash.message);print(" ip ");decimal_number(crash.ip);
  print(" word ");hex_text(crash.xt&&crash.xt<=count?words[crash.xt-1].name:"");print(" offset ");decimal_number(crash.offset);
+ print(" src ");print_source_token(crash.catalog!=catalog_revision?0:crash.xt,crash.offset,crash.engine);
  print(" ds-depth ");decimal_number(crash.ds_depth);print(" rdepth ");decimal_number(crash.rdepth);print(" ldepth ");decimal_number(crash.ldepth);
  print(" ds");for(fcell i=0;i<CRASH_DS&&i<crash.ds_depth;++i){print(" ");decimal_number(crash.ds[i]);}print("\r\n");
  for(unsigned i=0;i<crash.frames;++i){
   print("frame ");decimal_number(i);print(" word ");hex_text(crash.frame_xt[i]&&crash.frame_xt[i]<=count?words[crash.frame_xt[i]-1].name:"");
-  print(" offset ");decimal_number(crash.frame_offset[i]);print("\r\n");
+  print(" offset ");decimal_number(crash.frame_offset[i]);print(" src ");print_source_token(crash.catalog!=catalog_revision?0:crash.frame_xt[i],crash.frame_offset[i],crash.engine);print("\r\n");
  }
 }
 static void task_report(void) {
@@ -640,6 +658,10 @@ int forth_eval(const char *source) {
    if(!need_token(&p,name)||!begin_word(name,WK_COLON))return 0;
    if(!source_add(":")||!source_add(name))return 0;continue;
   }
+  if(current>=0&&map_used<SOURCE_MAP_MAX){
+   source_map[map_used].word=(unsigned short)current;source_map[map_used].token=(unsigned short)(token_used-mark_token);
+   source_map[map_used].direct=(unsigned short)(direct_used-mark_direct);source_map[map_used].source=(unsigned short)(source_used-words[current].source);++map_used;
+  }
   if(current>=0&&!source_add(s))return 0;
   if(equal(s,"S\"")){if(!string_literal(&p))return 0;continue;}
   if(equal(s,".\"")) {
@@ -759,7 +781,7 @@ void forth_init(void) {
  {"AND",F_AND},{"OR",F_OR},{"XOR",F_XOR},{"INVERT",F_INVERT},{"=",F_EQ},{"<",F_LT},{"U<",F_ULT},{"0=",F_ZEROEQ},
  {"@",F_FETCH},{"!",F_STORE},{"C@",F_CFETCH},{"C!",F_CSTORE},{"EMIT",F_EMIT},{".",F_DOT},{"CR",F_CR},{"KEY",F_KEY},
  {">R",F_TOR},{"R>",F_RFROM},{"R@",F_RFETCH},{"I",F_I},{"EXECUTE",F_EXECUTE},{"LSHIFT",F_LSHIFT},{"RSHIFT",F_RSHIFT},{"DEPTH",F_DEPTH}};
- token_used=direct_used=data_used=source_used=control_used=0;count=0;current=-1;
+ token_used=direct_used=data_used=source_used=control_used=0;count=0;current=-1;map_used=mark_map=0;
  native_count=origin_id=0;outer_hook=NULL;idle_hook=NULL;transaction_active=have_activation=0;
  observer_active=0;catalog_changed();
  forth_modules_reset();transport_crc=0;
@@ -863,7 +885,7 @@ int forth_observe(const char *name,fcell budget,char *error,size_t capacity) {
 }
 
 static void checkpoint_take(struct checkpoint *s) {
- s->token=token_used;s->direct=direct_used;s->data=data_used;s->source=source_used;s->count=count;
+ s->token=token_used;s->direct=direct_used;s->data=data_used;s->source=source_used;s->count=count;s->map=map_used;
  for(unsigned i=0;i<HASH_BUCKETS;++i)s->buckets[i]=buckets[i];
  for(unsigned i=0;i<DATA_BYTES;++i)s->data_bytes[i]=data_space[i];
  s->depth=fvm_depth;s->ip=fvm_ip;s->error=fvm_error;s->budget=fvm_budget;
@@ -873,7 +895,7 @@ static void checkpoint_take(struct checkpoint *s) {
 }
 static void checkpoint_restore(const struct checkpoint *s,int dictionary,int data) {
  if(dictionary) {
-  token_used=s->token;direct_used=s->direct;data_used=s->data;source_used=s->source;count=s->count;
+  token_used=s->token;direct_used=s->direct;data_used=s->data;source_used=s->source;count=s->count;map_used=s->map;
   for(unsigned i=0;i<HASH_BUCKETS;++i)buckets[i]=s->buckets[i];
  }
  if(data)for(unsigned i=0;i<DATA_BYTES;++i)data_space[i]=s->data_bytes[i];
