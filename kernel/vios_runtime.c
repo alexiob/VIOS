@@ -43,5 +43,5 @@ static int command(const char *word,const char **rest){
 }
 int vios_runtime_init(void){
  include_depth=0;forth_transport_crc(1);
- return vios_services_init()&&vios_handles_init()&&vios_workbench_runtime_init()&&forth_register_command(command);
+ return vios_prelude_init()&&vios_services_init()&&vios_handles_init()&&vios_workbench_runtime_init()&&forth_register_command(command);
 }

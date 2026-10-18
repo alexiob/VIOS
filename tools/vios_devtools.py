@@ -52,7 +52,13 @@ COMPILER = {':': 'Begin a colon definition.', ';': 'End a definition.', "'": "' 
             'WHILE': 'See BEGIN.', 'REPEAT': 'See BEGIN.', 'DO': 'limit start DO ... LOOP', 'LOOP': 'See DO.',
             'EXIT': 'Return from the current definition.', 'RECURSE': 'Call the current definition.',
             'CONSTANT': 'n CONSTANT name', 'VARIABLE': 'VARIABLE name', 'DEFER': 'DEFER name: replaceable binding.',
-            'IS': "' word IS name: rebind a DEFER (callers follow it)."}
+            'IS': "' word IS name: rebind a DEFER (callers follow it).",
+            '."': '." text" prints text (S" text" TYPE).', 'S"': 'S" text" pushes addr u of a data-space string.',
+            'CHAR': 'CHAR x pushes the code of x (interpretation only).', '[CHAR]': '[CHAR] x compiles the code of x.',
+            'CREATE': 'CREATE name: word returning the next data address (interpretation only).',
+            'ALLOT': 'n ALLOT reserves n zeroed data bytes (interpretation only).',
+            'HERE': 'HERE pushes the next free data address (interpretation only).',
+            ',': 'n , appends a cell to data space.', 'C,': 'c C, appends a byte to data space.'}
 KINDS = {0: 'primitive', 1: 'colon', 2: 'constant', 3: 'variable', 4: 'defer', 5: 'native'}
 NAME = re.compile(r'[!-~]{1,31}')
 

@@ -520,6 +520,14 @@ static int defining(const char *kind,const char *name) {
  if(!op(F_EXIT))return 0;
  return publish();
 }
+/* CREATE: a variable-like word naming the next data address, allocating
+ * nothing; ALLOT/,/C, then reserve its body. */
+static int create_word(const char *name) {
+ if(!begin_word(name,WK_VARIABLE))return 0;
+ words[count].aux=address(data_space+data_used);
+ if(!literal(words[count].aux)||!op(F_EXIT))return 0;
+ return publish();
+}
 static void show_stack(void) {
  print("<");unsigned_number(fvm_depth);print("> ");
  for(fcell i=0;i<fvm_depth;++i)number(fvm_ds[i]);print("\r\n");
@@ -561,6 +569,39 @@ int forth_eval(const char *source) {
   }
   if(current>=0&&!source_add(s))return 0;
   if(equal(s,"S\"")){if(!string_literal(&p))return 0;continue;}
+  if(equal(s,".\"")) {
+   /* ." text" = S" text" TYPE; TYPE is library Forth (kernel prelude). */
+   int type=find("TYPE");if(type<0)return fail(".\" requires TYPE");
+   if(!string_literal(&p))return 0;
+   if(current>=0){if(!compile_word(type))return 0;}else if(!execute_index((unsigned)type))return 0;continue;
+  }
+  if(equal(s,"CHAR")||equal(s,"[CHAR]")) {
+   if(equal(s,"CHAR")&&current>=0)return fail("use [CHAR] in definitions");
+   /* Read the next token raw: the tokenizer case-folds names. */
+   while(*p==' '||*p=='\t'||*p=='\r'||*p=='\n')++p;
+   if(!*p)return fail("missing name");
+   unsigned char ch=(unsigned char)*p;unsigned n=0;
+   while(*p&&*p!=' '&&*p!='\t'&&*p!='\r'&&*p!='\n'){if(n<NAME_MAX)name[n++]=*p;++p;}name[n]=0;
+   if(current>=0&&!source_add(name))return 0;
+   if(current>=0){if(!literal(ch))return 0;}else if(!fvm_push(ch))return fail(vm_message());
+   continue;
+  }
+  if(equal(s,"CREATE")||equal(s,"ALLOT")||equal(s,"HERE")||equal(s,",")||equal(s,"C,")) {
+   /* Data-space words act at interpretation time only: VIOS definitions
+    * cannot grow managed data at run time (transactions and overlays
+    * account for data_used per definition). */
+   if(current>=0)return fail("data-space word inside definition");
+   if(equal(s,"CREATE")){if(!need_token(&p,name)||!create_word(name))return 0;continue;}
+   if(equal(s,"HERE")){if(!fvm_push(address(data_space+data_used)))return fail(vm_message());continue;}
+   fcell n=fvm_pop();if(fvm_error)return fail(vm_message());
+   size_t need=equal(s,"ALLOT")?(size_t)n:equal(s,",")?3u:1u;
+   if(equal(s,"ALLOT")&&(n&0x800000UL))return fail("negative ALLOT");
+   if(need>DATA_BYTES-data_used)return fail("data space full");
+   fcell a=address(data_space+data_used);
+   if(equal(s,",")){fvm_write_cell(a,n);}else if(equal(s,"C,")){fvm_write8(a,(unsigned char)n);}else for(size_t i=0;i<need;++i)fvm_write8(a+(fcell)i,0);
+   if(fvm_error)return fail(vm_message());
+   data_used+=need;continue;
+  }
   if(equal(s,";")) {
    if(current<0)return fail("unexpected semicolon");
    if(control_used)return fail("unbalanced control flow");

@@ -100,6 +100,27 @@ int main(int argc,char **argv){
  const char child[]=": CHILD 37 ;";const char parent[]="INCLUDE /VIOS/CHILD.FTH\n: PARENT CHILD 5 + ;";
  assert(storage_write_file("/VIOS/CHILD.FTH",child,sizeof child-1));assert(storage_write_file("/VIOS/PARENT.FTH",parent,sizeof parent-1));
  eval("LOAD /VIOS/PARENT.FTH PARENT");assert(fvm_pop()==42);
+ /* Core library (Forth prelude) and compiler data/string words. */
+ reset();
+ {
+  struct {const char *src;fcell expect;} cases[]={
+   {"3 2 >",(fcell)-1&FVM_MASK},{"2 3 >",0},{"-1 0<",(fcell)-1&FVM_MASK},{"5 0>",(fcell)-1&FVM_MASK},{"4 4 <>",0},
+   {"1 2 3 ROT",1},{"1 2 3 -ROT DROP DROP",3},{"1 2 NIP",2},{"1 2 TUCK DROP DROP",2},{"0 ?DUP DEPTH",1},
+   {"-7 ABS",7},{"3 9 MAX",9},{"3 9 MIN",3},{"-5 2 MIN",(fcell)-5&FVM_MASK},
+   {"1 2 3 4 2SWAP DROP",1},{"1 2 3 4 2OVER + + + + +",13},{"21 2*",42},{"5 0 10 WITHIN",(fcell)-1&FVM_MASK},{"10 0 10 WITHIN",0},
+   {"CHAR a",'a'},{"CHAR Z",'Z'},
+  };
+  for(unsigned i=0;i<sizeof cases/sizeof cases[0];++i){eval(cases[i].src);fcell v=fvm_pop();if(v!=cases[i].expect){fprintf(stderr,"%s -> %lu\n",cases[i].src,(unsigned long)v);abort();}fvm_reset();}
+  eval("CREATE TABLE 7 , 9 , 65 C, HERE TABLE -");assert(fvm_pop()==7);
+  eval("TABLE @ TABLE CELL+ @ + TABLE 6 + C@ +");assert(fvm_pop()==7+9+65);
+  eval("CREATE BUF 10 ALLOT BUF 10 + HERE =");assert(fvm_pop()==((fcell)-1&FVM_MASK));
+  eval("VARIABLE TOTAL 5 TOTAL ! 3 TOTAL +! TOTAL @");assert(fvm_pop()==8);
+  eval(": GREET .\" hi\" [CHAR] ! EMIT ; : PAD3 3 SPACES ; S\" xyz\" DROP COUNT");assert(fvm_pop()=='x');fvm_reset();
+  assert(!forth_eval(": BAD HERE ;")&&strstr(forth_last_error(),"data-space word inside definition"));
+  assert(!forth_eval("-1 ALLOT")&&strstr(forth_last_error(),"negative ALLOT"));
+  assert(!forth_eval(": BAD2 CHAR x ;")&&strstr(forth_last_error(),"[CHAR]"));
+  fflush(stdout);eval("GREET PAD3 S\" ok\" TYPE CR");
+ }
  /* Handles: files, pipes between tasks, devices, ownership cleanup. */
  reset();
  #define VALUE(s) (eval(s),fvm_pop())
