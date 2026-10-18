@@ -102,6 +102,9 @@ TOOLS.extend([
          {'code':{'type':'integer','minimum':0,'maximum':267},'modifiers':{'type':'integer','minimum':0,'maximum':255}},['code']),
     tool('wb_redraw','Invalidate and recompose the desired text screen.'),
     tool('wb_flush','Drain changed spans in bounded batches and return flush counters.'),
+    tool('snapshot','Read-only structured live-state record: modules, exact sources, draft, stacks, BASE, engine and boot slot, '
+         'with a live/dirty/staged/persisted summary. Restorable by tools/vios_fast_display_state.py. Fails closed on a torn read.',
+         {'previous_sources':{'type':'boolean'}}),
     tool('wb_render_stats','Read cumulative renderer counts and target 288 kHz ticks.',{'reset':{'type':'boolean'}}),
 ])
 TOOL_MAP = {item['name']:item for item in TOOLS}

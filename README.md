@@ -2,6 +2,10 @@
 
 VIOS is an Agon-first, malleable Forth operating-system foundation. It runs on the physical Agon Light 2 with native 24-bit cells, eZ80 assembly direct/token engines and a standard-C semantic reference. The default is **DIRECT**. The compiler emits both native representations and retains definition source for inspection and live development.
 
+For continued development, start with the [Claude handoff](CLAUDE_HANDOFF.md):
+current implementation, hardware/recovery workflow, known limits and the roadmap
+toward the full system.
+
 The resident system integrates the full VDP, concurrent framed USB control, native SD/FAT32, replaceable Forth service bindings, transactional source modules and A/B source startup. The [physical-board acceptance](docs/bring-up/vios-resident-accepted-run3.json) passed 137 checkpoints, including real module save/reload and v1 → v2 → v1 startup. [Recovery acceptance](docs/bring-up/vios-resident-recovery-run1.json) passed pending-input, infinite graphics-loop and automatic watchdog-reset cases. The [resident runbook](docs/bring-up/vios-resident-system.md) records limits and recovery details.
 
 The native engine measurements show direct threading taking **11–14% less time than token threading** across five measured workloads. The current workbench CPU image is 111,301 bytes, with 255,060 bytes of BSS and a separate 4 KiB stack. The dictionary capacity is 512 configurable entries. See the [workbench/VM measurements](docs/benchmarks/workbench-2026-10-16.md), [incremental composition measurements](docs/benchmarks/incremental-2026-10-16.md) and [fast-display measurements](docs/benchmarks/fast-display-2026-10-16.md). These measurements describe this implementation and these workloads.
@@ -24,7 +28,7 @@ For the installed resident firmware, start one persistent host harness:
 .venv/bin/python tools/vios_harness.py --backend resident --tcp 127.0.0.1:8765
 ```
 
-Call its `connect` tool to attach without uploading an image. For MCP stdio, omit `--tcp`; the [harness runbook](docs/bring-up/vios-harness.md) includes client configuration for 48 tools, including 19 workbench tools. MCP/JSON/TCP run on the host, and a compact binary protocol runs over USB serial. The CH340 does not provide a native USB network interface.
+Call its `connect` tool to attach without uploading an image. For MCP stdio, omit `--tcp`; the [harness runbook](docs/bring-up/vios-harness.md) includes client configuration for 49 tools, including 19 workbench tools. MCP/JSON/TCP run on the host, and a compact binary protocol runs over USB serial. The CH340 does not provide a native USB network interface.
 
 A human CLI attaches to the existing TCP harness:
 
