@@ -1,0 +1,641 @@
+{
+  "status": "passed",
+  "events": [
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "DECIMAL WB-ZOOM 0",
+        "timeout": 30
+      },
+      "result": {
+        "output": "DECIMAL WB-ZOOM 0\r\nWB-STATUS revision 1 catalog 179 open 0 draft 0 dirty 0 staged 0 active 0 saved 0 length 0 cursor 0 selection 0 browser 0 focus 0 words 94 words_max 512 module - version - test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    },
+    {
+      "tool": "stacks",
+      "arguments": {},
+      "result": {
+        "output": ".S\r\n<0> \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "data_stack": {
+          "depth_text": "0",
+          "values_text": []
+        }
+      }
+    },
+    {
+      "tool": "modules",
+      "arguments": {},
+      "result": {
+        "output": "MODULES\r\nmodule LIVE1I version 11 crc32 4203863728 bytes 33 deps 0 active 1 previous 0\r\nmodule LIVE1P version 11 crc32 2732385733 bytes 60 deps 1 active 1 previous 0\r\ndependency LIVE1P module LIVE1I crc32 4203863728\r\nmodule LIVE1D version 11 crc32 1721124452 bytes 47 deps 2 active 1 previous 0\r\ndependency LIVE1D module LIVE1I crc32 4203863728\r\ndependency LIVE1D module LIVE1P crc32 2732385733\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "modules": [
+          {
+            "name": "LIVE1I",
+            "version": "11",
+            "crc32": 4203863728,
+            "bytes": 33,
+            "dependency_count": 0,
+            "active": true,
+            "previous": false,
+            "dependencies": []
+          },
+          {
+            "name": "LIVE1P",
+            "version": "11",
+            "crc32": 2732385733,
+            "bytes": 60,
+            "dependency_count": 1,
+            "active": true,
+            "previous": false,
+            "dependencies": [
+              {
+                "name": "LIVE1I",
+                "crc32": 4203863728
+              }
+            ]
+          },
+          {
+            "name": "LIVE1D",
+            "version": "11",
+            "crc32": 1721124452,
+            "bytes": 47,
+            "dependency_count": 2,
+            "active": true,
+            "previous": false,
+            "dependencies": [
+              {
+                "name": "LIVE1I",
+                "crc32": 4203863728
+              },
+              {
+                "name": "LIVE1P",
+                "crc32": 2732385733
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "tool": "module_source",
+      "arguments": {
+        "name": "LIVE1I"
+      },
+      "result": {
+        "output": "MODULE-SOURCE LIVE1I\r\nsource-hex 4445464552204C495645312D53203A204C495645312D43204C495645312D53203B\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "name": "LIVE1I",
+        "previous": false,
+        "source": "DEFER LIVE1-S : LIVE1-C LIVE1-S ;",
+        "bytes": 33,
+        "crc32": 4203863728,
+        "crc32_hex": "FA91DEB0",
+        "source_sha256": "8631d990e2099647b2433c44d5e2066033fd31657831e2749ba658d139edeb5e"
+      }
+    },
+    {
+      "tool": "module_source",
+      "arguments": {
+        "name": "LIVE1P"
+      },
+      "result": {
+        "output": "MODULE-SOURCE LIVE1P\r\nsource-hex 3A204C495645312D56203131203B203A204C495645312D54204C495645312D56203131203D203B2027204C495645312D56204953204C495645312D53\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "name": "LIVE1P",
+        "previous": false,
+        "source": ": LIVE1-V 11 ; : LIVE1-T LIVE1-V 11 = ; ' LIVE1-V IS LIVE1-S",
+        "bytes": 60,
+        "crc32": 2732385733,
+        "crc32_hex": "A2DCE5C5",
+        "source_sha256": "9a9d4500a08d0d370f6ba693c4b82c166c5fc51b6d647bb0ad345313bf591758"
+      }
+    },
+    {
+      "tool": "module_source",
+      "arguments": {
+        "name": "LIVE1D"
+      },
+      "result": {
+        "output": "MODULE-SOURCE LIVE1D\r\nsource-hex 3A204C495645312D44204C495645312D4320312B203B203A204C495645312D55204C495645312D44203132203D203B\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "name": "LIVE1D",
+        "previous": false,
+        "source": ": LIVE1-D LIVE1-C 1+ ; : LIVE1-U LIVE1-D 12 = ;",
+        "bytes": 47,
+        "crc32": 1721124452,
+        "crc32_hex": "66964664",
+        "source_sha256": "8c63ee9502bab4b8cfaf7d70cf27188186bac981fddff1dfaddc44a034250cd2"
+      }
+    },
+    {
+      "tool": "module_stage",
+      "arguments": {
+        "name": "WBM1P",
+        "version": "1.0",
+        "source": ": WBM1P-VALUE 18 ;\n\\ WBM1P source row 00 retained exactly\n\\ WBM1P source row 01 retained exactly\n\\ WBM1P source row 02 retained exactly\n\\ WBM1P source row 03 retained exactly\n\\ WBM1P source row 04 retained exactly\n\\ WBM1P source row 05 retained exactly\n\\ WBM1P source row 06 retained exactly\n\\ WBM1P source row 07 retained exactly\n\\ WBM1P source row 08 retained exactly\n\\ WBM1P source row 09 retained exactly\n\\ WBM1P source row 10 retained exactly\n\\ WBM1P source row 11 retained exactly\n\\ WBM1P source row 12 retained exactly\n\\ WBM1P source row 13 retained exactly\n\\ WBM1P source row 14 retained exactly\n\\ WBM1P source row 15 retained exactly\n\\ WBM1P source row 16 retained exactly\n\\ WBM1P source row 17 retained exactly\n\\ WBM1P source row 18 retained exactly\n\\ WBM1P source row 19 retained exactly\n\\ WBM1P source row 20 retained exactly\n\\ WBM1P source row 21 retained exactly\n\\ WBM1P source row 22 retained exactly\n\\ WBM1P source row 23 retained exactly\n\\ WBM1P source row 24 retained exactly\n\\ WBM1P source row 25 retained exactly\n\\ WBM1P source row 26 retained exactly\n\\ WBM1P source row 27 retained exactly\n\\ WBM1P source row 28 retained exactly\n\\ WBM1P source row 29 retained exactly\n\\ WBM1P source row 30 retained exactly\n\\ WBM1P source row 31 retained exactly\n\\ WBM1P source row 32 retained exactly\n\\ WBM1P source row 33 retained exactly\n\\ WBM1P source row 34 retained exactly\n\\ WBM1P source row 35 retained exactly\n\\ WBM1P source row 36 retained exactly\n\\ WBM1P source row 37 retained exactly\n\\ WBM1P source row 38 retained exactly\n\\ WBM1P source row 39 retained exactly\n\\ WBM1P source row 40 retained exactly\n\\ WBM1P source row 41 retained exactly\n\\ WBM1P source row 42 retained exactly\n\\ WBM1P source row 43 retained exactly\n\\ WBM1P source row 44 retained exactly\n\\ WBM1P source row 45 retained exactly\n\\ WBM1P source row 46 retained exactly\n\\ WBM1P source row 47 retained exactly\n\\ WBM1P source row 48 retained exactly\n\\ WBM1P source row 49 retained exactly\n",
+        "dependencies": []
+      },
+      "result": {
+        "output": "MODULE-BEGIN WBM1P 1.0 -\r\n\r\nok\r\nvios> MODULE-DATA 3A2057424D31502D56414C5545203138203B0A5C2057424D315020736F7572636520726F772030302072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772030312072657461696E65642065786163746C790A5C2057424D315020736F75726365\r\n\r\nok\r\nvios> MODULE-DATA 20726F772030322072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772030332072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772030342072657461696E65642065786163746C790A5C2057424D315020\r\n\r\nok\r\nvios> MODULE-DATA 736F7572636520726F772030352072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772030362072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772030372072657461696E65642065786163746C790A5C20\r\n\r\nok\r\nvios> MODULE-DATA 57424D315020736F7572636520726F772030382072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772030392072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772031302072657461696E65642065786163\r\n\r\nok\r\nvios> MODULE-DATA 746C790A5C2057424D315020736F7572636520726F772031312072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772031322072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772031332072657461696E65\r\n\r\nok\r\nvios> MODULE-DATA 642065786163746C790A5C2057424D315020736F7572636520726F772031342072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772031352072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772031362072\r\n\r\nok\r\nvios> MODULE-DATA 657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772031372072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772031382072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F\r\n\r\nok\r\nvios> MODULE-DATA 772031392072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772032302072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772032312072657461696E65642065786163746C790A5C2057424D315020736F75\r\n\r\nok\r\nvios> MODULE-DATA 72636520726F772032322072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772032332072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772032342072657461696E65642065786163746C790A5C2057424D\r\n\r\nok\r\nvios> MODULE-DATA 315020736F7572636520726F772032352072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772032362072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772032372072657461696E65642065786163746C79\r\n\r\nok\r\nvios> MODULE-DATA 0A5C2057424D315020736F7572636520726F772032382072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772032392072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772033302072657461696E65642065\r\n\r\nok\r\nvios> MODULE-DATA 786163746C790A5C2057424D315020736F7572636520726F772033312072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772033322072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772033332072657461\r\n\r\nok\r\nvios> MODULE-DATA 696E65642065786163746C790A5C2057424D315020736F7572636520726F772033342072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772033352072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772033\r\n\r\nok\r\nvios> MODULE-DATA 362072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772033372072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772033382072657461696E65642065786163746C790A5C2057424D315020736F75726365\r\n\r\nok\r\nvios> MODULE-DATA 20726F772033392072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772034302072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772034312072657461696E65642065786163746C790A5C2057424D315020\r\n\r\nok\r\nvios> MODULE-DATA 736F7572636520726F772034322072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772034332072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772034342072657461696E65642065786163746C790A5C20\r\n\r\nok\r\nvios> MODULE-DATA 57424D315020736F7572636520726F772034352072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772034362072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772034372072657461696E65642065786163\r\n\r\nok\r\nvios> MODULE-DATA 746C790A5C2057424D315020736F7572636520726F772034382072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772034392072657461696E65642065786163746C790A\r\n\r\nok\r\nvios> MODULE-STAGE\r\nstaged WBM1P crc32 3627393478\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "name": "WBM1P",
+        "version": "1.0",
+        "dependencies": [],
+        "bytes": 1969,
+        "crc32": 3627393478,
+        "crc32_hex": "D835A1C6",
+        "source_sha256": "3e9f894e2ed2e81c86c003c88cf04417b9ab309a0a21b4af2346085bd58399f9"
+      }
+    },
+    {
+      "tool": "module_activate",
+      "arguments": {
+        "name": "WBM1P"
+      },
+      "result": {
+        "output": "MODULE-ACTIVATE WBM1P\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    },
+    {
+      "tool": "module_source",
+      "arguments": {
+        "name": "WBM1P"
+      },
+      "result": {
+        "output": "MODULE-SOURCE WBM1P\r\nsource-hex 3A2057424D31502D56414C5545203138203B0A5C2057424D315020736F7572636520726F772030302072657461696E65642065786163746C790A5C2057424D31\r\nsource-hex 5020736F7572636520726F772030312072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772030322072657461696E656420\r\nsource-hex 65786163746C790A5C2057424D315020736F7572636520726F772030332072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F\r\nsource-hex 772030342072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772030352072657461696E65642065786163746C790A5C2057\r\nsource-hex 424D315020736F7572636520726F772030362072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772030372072657461696E\r\nsource-hex 65642065786163746C790A5C2057424D315020736F7572636520726F772030382072657461696E65642065786163746C790A5C2057424D315020736F75726365\r\nsource-hex 20726F772030392072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772031302072657461696E65642065786163746C790A\r\nsource-hex 5C2057424D315020736F7572636520726F772031312072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F7720313220726574\r\nsource-hex 61696E65642065786163746C790A5C2057424D315020736F7572636520726F772031332072657461696E65642065786163746C790A5C2057424D315020736F75\r\nsource-hex 72636520726F772031342072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772031352072657461696E6564206578616374\r\nsource-hex 6C790A5C2057424D315020736F7572636520726F772031362072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F7720313720\r\nsource-hex 72657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772031382072657461696E65642065786163746C790A5C2057424D315020\r\nsource-hex 736F7572636520726F772031392072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772032302072657461696E6564206578\r\nsource-hex 6163746C790A5C2057424D315020736F7572636520726F772032312072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F7720\r\nsource-hex 32322072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772032332072657461696E65642065786163746C790A5C2057424D\r\nsource-hex 315020736F7572636520726F772032342072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772032352072657461696E6564\r\nsource-hex 2065786163746C790A5C2057424D315020736F7572636520726F772032362072657461696E65642065786163746C790A5C2057424D315020736F757263652072\r\nsource-hex 6F772032372072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772032382072657461696E65642065786163746C790A5C20\r\nsource-hex 57424D315020736F7572636520726F772032392072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F77203330207265746169\r\nsource-hex 6E65642065786163746C790A5C2057424D315020736F7572636520726F772033312072657461696E65642065786163746C790A5C2057424D315020736F757263\r\nsource-hex 6520726F772033322072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772033332072657461696E65642065786163746C79\r\nsource-hex 0A5C2057424D315020736F7572636520726F772033342072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F77203335207265\r\nsource-hex 7461696E65642065786163746C790A5C2057424D315020736F7572636520726F772033362072657461696E65642065786163746C790A5C2057424D315020736F\r\nsource-hex 7572636520726F772033372072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772033382072657461696E65642065786163\r\nsource-hex 746C790A5C2057424D315020736F7572636520726F772033392072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F77203430\r\nsource-hex 2072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772034312072657461696E65642065786163746C790A5C2057424D3150\r\nsource-hex 20736F7572636520726F772034322072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772034332072657461696E65642065\r\nsource-hex 786163746C790A5C2057424D315020736F7572636520726F772034342072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F77\r\nsource-hex 2034352072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772034362072657461696E65642065786163746C790A5C205742\r\nsource-hex 4D315020736F7572636520726F772034372072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772034382072657461696E65\r\nsource-hex 642065786163746C790A5C2057424D315020736F7572636520726F772034392072657461696E65642065786163746C790A\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "name": "WBM1P",
+        "previous": false,
+        "source": ": WBM1P-VALUE 18 ;\n\\ WBM1P source row 00 retained exactly\n\\ WBM1P source row 01 retained exactly\n\\ WBM1P source row 02 retained exactly\n\\ WBM1P source row 03 retained exactly\n\\ WBM1P source row 04 retained exactly\n\\ WBM1P source row 05 retained exactly\n\\ WBM1P source row 06 retained exactly\n\\ WBM1P source row 07 retained exactly\n\\ WBM1P source row 08 retained exactly\n\\ WBM1P source row 09 retained exactly\n\\ WBM1P source row 10 retained exactly\n\\ WBM1P source row 11 retained exactly\n\\ WBM1P source row 12 retained exactly\n\\ WBM1P source row 13 retained exactly\n\\ WBM1P source row 14 retained exactly\n\\ WBM1P source row 15 retained exactly\n\\ WBM1P source row 16 retained exactly\n\\ WBM1P source row 17 retained exactly\n\\ WBM1P source row 18 retained exactly\n\\ WBM1P source row 19 retained exactly\n\\ WBM1P source row 20 retained exactly\n\\ WBM1P source row 21 retained exactly\n\\ WBM1P source row 22 retained exactly\n\\ WBM1P source row 23 retained exactly\n\\ WBM1P source row 24 retained exactly\n\\ WBM1P source row 25 retained exactly\n\\ WBM1P source row 26 retained exactly\n\\ WBM1P source row 27 retained exactly\n\\ WBM1P source row 28 retained exactly\n\\ WBM1P source row 29 retained exactly\n\\ WBM1P source row 30 retained exactly\n\\ WBM1P source row 31 retained exactly\n\\ WBM1P source row 32 retained exactly\n\\ WBM1P source row 33 retained exactly\n\\ WBM1P source row 34 retained exactly\n\\ WBM1P source row 35 retained exactly\n\\ WBM1P source row 36 retained exactly\n\\ WBM1P source row 37 retained exactly\n\\ WBM1P source row 38 retained exactly\n\\ WBM1P source row 39 retained exactly\n\\ WBM1P source row 40 retained exactly\n\\ WBM1P source row 41 retained exactly\n\\ WBM1P source row 42 retained exactly\n\\ WBM1P source row 43 retained exactly\n\\ WBM1P source row 44 retained exactly\n\\ WBM1P source row 45 retained exactly\n\\ WBM1P source row 46 retained exactly\n\\ WBM1P source row 47 retained exactly\n\\ WBM1P source row 48 retained exactly\n\\ WBM1P source row 49 retained exactly\n",
+        "bytes": 1969,
+        "crc32": 3627393478,
+        "crc32_hex": "D835A1C6",
+        "source_sha256": "3e9f894e2ed2e81c86c003c88cf04417b9ab309a0a21b4af2346085bd58399f9"
+      }
+    },
+    {
+      "tool": "wb_edit",
+      "arguments": {
+        "module": "WBM1P",
+        "discard": true
+      },
+      "result": {
+        "output": "WB-EDIT WBM1P 1\r\nWB-STATUS revision 2 catalog 180 open 0 draft 1 dirty 0 staged 0 active 1 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 95 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 2,
+          "catalog": 180,
+          "open": false,
+          "draft": true,
+          "dirty": false,
+          "staged": false,
+          "active": true,
+          "saved": false,
+          "length": 1969,
+          "cursor": 0,
+          "selection": 0,
+          "browser": 0,
+          "focus": 0,
+          "words": 95,
+          "words_max": 512,
+          "module": "WBM1P",
+          "version": "1.0",
+          "test": "",
+          "error": ""
+        }
+      }
+    },
+    {
+      "tool": "wb_source",
+      "arguments": {},
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 2 catalog 180 open 0 draft 1 dirty 0 staged 0 active 1 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 95 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> WB-SOURCE 0 80\r\nWB-SOURCE revision 2 offset 0 total 1969 hex 3A2057424D31502D56414C5545203138203B0A5C2057424D315020736F7572636520726F772030302072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F7720303120\r\n\r\nok\r\nvios> WB-SOURCE 80 80\r\nWB-SOURCE revision 2 offset 80 total 1969 hex 72657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772030322072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F77203033207265\r\n\r\nok\r\nvios> WB-SOURCE 160 80\r\nWB-SOURCE revision 2 offset 160 total 1969 hex 7461696E65642065786163746C790A5C2057424D315020736F7572636520726F772030342072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772030352072657461\r\n\r\nok\r\nvios> WB-SOURCE 240 80\r\nWB-SOURCE revision 2 offset 240 total 1969 hex 696E65642065786163746C790A5C2057424D315020736F7572636520726F772030362072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772030372072657461696E\r\n\r\nok\r\nvios> WB-SOURCE 320 80\r\nWB-SOURCE revision 2 offset 320 total 1969 hex 65642065786163746C790A5C2057424D315020736F7572636520726F772030382072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772030392072657461696E6564\r\n\r\nok\r\nvios> WB-SOURCE 400 80\r\nWB-SOURCE revision 2 offset 400 total 1969 hex 2065786163746C790A5C2057424D315020736F7572636520726F772031302072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772031312072657461696E65642065\r\n\r\nok\r\nvios> WB-SOURCE 480 80\r\nWB-SOURCE revision 2 offset 480 total 1969 hex 786163746C790A5C2057424D315020736F7572636520726F772031322072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772031332072657461696E656420657861\r\n\r\nok\r\nvios> WB-SOURCE 560 80\r\nWB-SOURCE revision 2 offset 560 total 1969 hex 63746C790A5C2057424D315020736F7572636520726F772031342072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772031352072657461696E6564206578616374\r\n\r\nok\r\nvios> WB-SOURCE 640 80\r\nWB-SOURCE revision 2 offset 640 total 1969 hex 6C790A5C2057424D315020736F7572636520726F772031362072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772031372072657461696E65642065786163746C79\r\n\r\nok\r\nvios> WB-SOURCE 720 80\r\nWB-SOURCE revision 2 offset 720 total 1969 hex 0A5C2057424D315020736F7572636520726F772031382072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772031392072657461696E65642065786163746C790A5C\r\n\r\nok\r\nvios> WB-SOURCE 800 80\r\nWB-SOURCE revision 2 offset 800 total 1969 hex 2057424D315020736F7572636520726F772032302072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772032312072657461696E65642065786163746C790A5C2057\r\n\r\nok\r\nvios> WB-SOURCE 880 80\r\nWB-SOURCE revision 2 offset 880 total 1969 hex 424D315020736F7572636520726F772032322072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772032332072657461696E65642065786163746C790A5C2057424D\r\n\r\nok\r\nvios> WB-SOURCE 960 80\r\nWB-SOURCE revision 2 offset 960 total 1969 hex 315020736F7572636520726F772032342072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772032352072657461696E65642065786163746C790A5C2057424D3150\r\n\r\nok\r\nvios> WB-SOURCE 1040 80\r\nWB-SOURCE revision 2 offset 1040 total 1969 hex 20736F7572636520726F772032362072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772032372072657461696E65642065786163746C790A5C2057424D31502073\r\n\r\nok\r\nvios> WB-SOURCE 1120 80\r\nWB-SOURCE revision 2 offset 1120 total 1969 hex 6F7572636520726F772032382072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772032392072657461696E65642065786163746C790A5C2057424D315020736F75\r\n\r\nok\r\nvios> WB-SOURCE 1200 80\r\nWB-SOURCE revision 2 offset 1200 total 1969 hex 72636520726F772033302072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772033312072657461696E65642065786163746C790A5C2057424D315020736F757263\r\n\r\nok\r\nvios> WB-SOURCE 1280 80\r\nWB-SOURCE revision 2 offset 1280 total 1969 hex 6520726F772033322072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772033332072657461696E65642065786163746C790A5C2057424D315020736F7572636520\r\n\r\nok\r\nvios> WB-SOURCE 1360 80\r\nWB-SOURCE revision 2 offset 1360 total 1969 hex 726F772033342072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772033352072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F\r\n\r\nok\r\nvios> WB-SOURCE 1440 80\r\nWB-SOURCE revision 2 offset 1440 total 1969 hex 772033362072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772033372072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F7720\r\n\r\nok\r\nvios> WB-SOURCE 1520 80\r\nWB-SOURCE revision 2 offset 1520 total 1969 hex 33382072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772033392072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F77203430\r\n\r\nok\r\nvios> WB-SOURCE 1600 80\r\nWB-SOURCE revision 2 offset 1600 total 1969 hex 2072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772034312072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772034322072\r\n\r\nok\r\nvios> WB-SOURCE 1680 80\r\nWB-SOURCE revision 2 offset 1680 total 1969 hex 657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772034332072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F7720343420726574\r\n\r\nok\r\nvios> WB-SOURCE 1760 80\r\nWB-SOURCE revision 2 offset 1760 total 1969 hex 61696E65642065786163746C790A5C2057424D315020736F7572636520726F772034352072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F77203436207265746169\r\n\r\nok\r\nvios> WB-SOURCE 1840 80\r\nWB-SOURCE revision 2 offset 1840 total 1969 hex 6E65642065786163746C790A5C2057424D315020736F7572636520726F772034372072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772034382072657461696E65\r\n\r\nok\r\nvios> WB-SOURCE 1920 49\r\nWB-SOURCE revision 2 offset 1920 total 1969 hex 642065786163746C790A5C2057424D315020736F7572636520726F772034392072657461696E65642065786163746C790A\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 2,
+          "catalog": 180,
+          "open": false,
+          "draft": true,
+          "dirty": false,
+          "staged": false,
+          "active": true,
+          "saved": false,
+          "length": 1969,
+          "cursor": 0,
+          "selection": 0,
+          "browser": 0,
+          "focus": 0,
+          "words": 95,
+          "words_max": 512,
+          "module": "WBM1P",
+          "version": "1.0",
+          "test": "",
+          "error": ""
+        },
+        "source": ": WBM1P-VALUE 18 ;\n\\ WBM1P source row 00 retained exactly\n\\ WBM1P source row 01 retained exactly\n\\ WBM1P source row 02 retained exactly\n\\ WBM1P source row 03 retained exactly\n\\ WBM1P source row 04 retained exactly\n\\ WBM1P source row 05 retained exactly\n\\ WBM1P source row 06 retained exactly\n\\ WBM1P source row 07 retained exactly\n\\ WBM1P source row 08 retained exactly\n\\ WBM1P source row 09 retained exactly\n\\ WBM1P source row 10 retained exactly\n\\ WBM1P source row 11 retained exactly\n\\ WBM1P source row 12 retained exactly\n\\ WBM1P source row 13 retained exactly\n\\ WBM1P source row 14 retained exactly\n\\ WBM1P source row 15 retained exactly\n\\ WBM1P source row 16 retained exactly\n\\ WBM1P source row 17 retained exactly\n\\ WBM1P source row 18 retained exactly\n\\ WBM1P source row 19 retained exactly\n\\ WBM1P source row 20 retained exactly\n\\ WBM1P source row 21 retained exactly\n\\ WBM1P source row 22 retained exactly\n\\ WBM1P source row 23 retained exactly\n\\ WBM1P source row 24 retained exactly\n\\ WBM1P source row 25 retained exactly\n\\ WBM1P source row 26 retained exactly\n\\ WBM1P source row 27 retained exactly\n\\ WBM1P source row 28 retained exactly\n\\ WBM1P source row 29 retained exactly\n\\ WBM1P source row 30 retained exactly\n\\ WBM1P source row 31 retained exactly\n\\ WBM1P source row 32 retained exactly\n\\ WBM1P source row 33 retained exactly\n\\ WBM1P source row 34 retained exactly\n\\ WBM1P source row 35 retained exactly\n\\ WBM1P source row 36 retained exactly\n\\ WBM1P source row 37 retained exactly\n\\ WBM1P source row 38 retained exactly\n\\ WBM1P source row 39 retained exactly\n\\ WBM1P source row 40 retained exactly\n\\ WBM1P source row 41 retained exactly\n\\ WBM1P source row 42 retained exactly\n\\ WBM1P source row 43 retained exactly\n\\ WBM1P source row 44 retained exactly\n\\ WBM1P source row 45 retained exactly\n\\ WBM1P source row 46 retained exactly\n\\ WBM1P source row 47 retained exactly\n\\ WBM1P source row 48 retained exactly\n\\ WBM1P source row 49 retained exactly\n",
+        "revision": 2,
+        "bytes": 1969,
+        "crc32": 3627393478,
+        "crc32_hex": "D835A1C6",
+        "source_sha256": "3e9f894e2ed2e81c86c003c88cf04417b9ab309a0a21b4af2346085bd58399f9"
+      }
+    },
+    {
+      "tool": "wb_patch",
+      "arguments": {
+        "revision": 2,
+        "offset": 0,
+        "remove": 0,
+        "source": ""
+      },
+      "result": {
+        "output": "WB-PATCH 2 0 0 -\r\nWB-STATUS revision 3 catalog 180 open 0 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 95 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 3,
+          "catalog": 180,
+          "open": false,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 1969,
+          "cursor": 0,
+          "selection": 0,
+          "browser": 0,
+          "focus": 0,
+          "words": 95,
+          "words_max": 512,
+          "module": "WBM1P",
+          "version": "1.0",
+          "test": "",
+          "error": ""
+        }
+      }
+    },
+    {
+      "tool": "wb_browse",
+      "arguments": {
+        "browser": "MODULES"
+      },
+      "result": {
+        "output": "WB-BROWSE MODULES\r\nWB-ITEM module 0 name 4C4956453149 version 3131 active 1\r\nWB-ITEM module 1 name 4C4956453150 version 3131 active 1\r\nWB-ITEM module 2 name 4C4956453144 version 3131 active 1\r\nWB-ITEM module 3 name 57424D3150 version 312E30 active 1\r\nWB-STATUS revision 3 catalog 180 open 0 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 95 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 3,
+          "catalog": 180,
+          "open": false,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 1969,
+          "cursor": 0,
+          "selection": 0,
+          "browser": 0,
+          "focus": 0,
+          "words": 95,
+          "words_max": 512,
+          "module": "WBM1P",
+          "version": "1.0",
+          "test": "",
+          "error": ""
+        },
+        "items": [
+          {
+            "index": 0,
+            "kind": "module",
+            "name": "LIVE1I",
+            "version": "11",
+            "active": true
+          },
+          {
+            "index": 1,
+            "kind": "module",
+            "name": "LIVE1P",
+            "version": "11",
+            "active": true
+          },
+          {
+            "index": 2,
+            "kind": "module",
+            "name": "LIVE1D",
+            "version": "11",
+            "active": true
+          },
+          {
+            "index": 3,
+            "kind": "module",
+            "name": "WBM1P",
+            "version": "1.0",
+            "active": true
+          }
+        ]
+      }
+    },
+    {
+      "tool": "wb_select",
+      "arguments": {
+        "kind": "MODULE",
+        "value": "LIVE1I"
+      },
+      "result": {
+        "output": "WB-SELECT MODULE LIVE1I\r\nWB-STATUS revision 3 catalog 180 open 0 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 95 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 3,
+          "catalog": 180,
+          "open": false,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 1969,
+          "cursor": 0,
+          "selection": 0,
+          "browser": 0,
+          "focus": 0,
+          "words": 95,
+          "words_max": 512,
+          "module": "WBM1P",
+          "version": "1.0",
+          "test": "",
+          "error": ""
+        }
+      }
+    },
+    {
+      "tool": "wb_status",
+      "arguments": {},
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 3 catalog 180 open 0 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 95 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 3,
+          "catalog": 180,
+          "open": false,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 1969,
+          "cursor": 0,
+          "selection": 0,
+          "browser": 0,
+          "focus": 0,
+          "words": 95,
+          "words_max": 512,
+          "module": "WBM1P",
+          "version": "1.0",
+          "test": "",
+          "error": ""
+        }
+      }
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "DECIMAL ENGINE DIRECT",
+        "timeout": 30
+      },
+      "result": {
+        "output": "DECIMAL ENGINE DIRECT\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    },
+    {
+      "tool": "wb_open",
+      "arguments": {},
+      "result": {
+        "output": "WB-OPEN\r\nWB-STATUS revision 3 catalog 180 open 1 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 95 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 3,
+          "catalog": 180,
+          "open": true,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 1969,
+          "cursor": 0,
+          "selection": 0,
+          "browser": 0,
+          "focus": 0,
+          "words": 95,
+          "words_max": 512,
+          "module": "WBM1P",
+          "version": "1.0",
+          "test": "",
+          "error": ""
+        }
+      }
+    },
+    {
+      "tool": "evaluate",
+      "arguments": {
+        "source": "WB-FLUSH-FENCED",
+        "timeout": 30
+      },
+      "result": {
+        "output": "WB-FLUSH-FENCED\r\nWB-FLUSH elapsed_ms 169 bytes 1890 spans 87 batches 15 cells 1531 pending 0\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false
+      }
+    },
+    {
+      "tool": "wb_close",
+      "arguments": {},
+      "result": {
+        "output": "WB-CLOSE\r\nWB-STATUS revision 3 catalog 180 open 0 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 95 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 3,
+          "catalog": 180,
+          "open": false,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 1969,
+          "cursor": 0,
+          "selection": 0,
+          "browser": 0,
+          "focus": 0,
+          "words": 95,
+          "words_max": 512,
+          "module": "WBM1P",
+          "version": "1.0",
+          "test": "",
+          "error": ""
+        }
+      }
+    },
+    {
+      "tool": "wb_status",
+      "arguments": {},
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 3 catalog 180 open 0 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 95 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 3,
+          "catalog": 180,
+          "open": false,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 1969,
+          "cursor": 0,
+          "selection": 0,
+          "browser": 0,
+          "focus": 0,
+          "words": 95,
+          "words_max": 512,
+          "module": "WBM1P",
+          "version": "1.0",
+          "test": "",
+          "error": ""
+        }
+      }
+    },
+    {
+      "tool": "wb_source",
+      "arguments": {},
+      "result": {
+        "output": "WB-STATUS\r\nWB-STATUS revision 3 catalog 180 open 0 draft 1 dirty 1 staged 0 active 0 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 95 words_max 512 module 57424D3150 version 312E30 test - error -\r\n\r\nok\r\nvios> WB-SOURCE 0 80\r\nWB-SOURCE revision 3 offset 0 total 1969 hex 3A2057424D31502D56414C5545203138203B0A5C2057424D315020736F7572636520726F772030302072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F7720303120\r\n\r\nok\r\nvios> WB-SOURCE 80 80\r\nWB-SOURCE revision 3 offset 80 total 1969 hex 72657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772030322072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F77203033207265\r\n\r\nok\r\nvios> WB-SOURCE 160 80\r\nWB-SOURCE revision 3 offset 160 total 1969 hex 7461696E65642065786163746C790A5C2057424D315020736F7572636520726F772030342072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772030352072657461\r\n\r\nok\r\nvios> WB-SOURCE 240 80\r\nWB-SOURCE revision 3 offset 240 total 1969 hex 696E65642065786163746C790A5C2057424D315020736F7572636520726F772030362072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772030372072657461696E\r\n\r\nok\r\nvios> WB-SOURCE 320 80\r\nWB-SOURCE revision 3 offset 320 total 1969 hex 65642065786163746C790A5C2057424D315020736F7572636520726F772030382072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772030392072657461696E6564\r\n\r\nok\r\nvios> WB-SOURCE 400 80\r\nWB-SOURCE revision 3 offset 400 total 1969 hex 2065786163746C790A5C2057424D315020736F7572636520726F772031302072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772031312072657461696E65642065\r\n\r\nok\r\nvios> WB-SOURCE 480 80\r\nWB-SOURCE revision 3 offset 480 total 1969 hex 786163746C790A5C2057424D315020736F7572636520726F772031322072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772031332072657461696E656420657861\r\n\r\nok\r\nvios> WB-SOURCE 560 80\r\nWB-SOURCE revision 3 offset 560 total 1969 hex 63746C790A5C2057424D315020736F7572636520726F772031342072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772031352072657461696E6564206578616374\r\n\r\nok\r\nvios> WB-SOURCE 640 80\r\nWB-SOURCE revision 3 offset 640 total 1969 hex 6C790A5C2057424D315020736F7572636520726F772031362072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772031372072657461696E65642065786163746C79\r\n\r\nok\r\nvios> WB-SOURCE 720 80\r\nWB-SOURCE revision 3 offset 720 total 1969 hex 0A5C2057424D315020736F7572636520726F772031382072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772031392072657461696E65642065786163746C790A5C\r\n\r\nok\r\nvios> WB-SOURCE 800 80\r\nWB-SOURCE revision 3 offset 800 total 1969 hex 2057424D315020736F7572636520726F772032302072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772032312072657461696E65642065786163746C790A5C2057\r\n\r\nok\r\nvios> WB-SOURCE 880 80\r\nWB-SOURCE revision 3 offset 880 total 1969 hex 424D315020736F7572636520726F772032322072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772032332072657461696E65642065786163746C790A5C2057424D\r\n\r\nok\r\nvios> WB-SOURCE 960 80\r\nWB-SOURCE revision 3 offset 960 total 1969 hex 315020736F7572636520726F772032342072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772032352072657461696E65642065786163746C790A5C2057424D3150\r\n\r\nok\r\nvios> WB-SOURCE 1040 80\r\nWB-SOURCE revision 3 offset 1040 total 1969 hex 20736F7572636520726F772032362072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772032372072657461696E65642065786163746C790A5C2057424D31502073\r\n\r\nok\r\nvios> WB-SOURCE 1120 80\r\nWB-SOURCE revision 3 offset 1120 total 1969 hex 6F7572636520726F772032382072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772032392072657461696E65642065786163746C790A5C2057424D315020736F75\r\n\r\nok\r\nvios> WB-SOURCE 1200 80\r\nWB-SOURCE revision 3 offset 1200 total 1969 hex 72636520726F772033302072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772033312072657461696E65642065786163746C790A5C2057424D315020736F757263\r\n\r\nok\r\nvios> WB-SOURCE 1280 80\r\nWB-SOURCE revision 3 offset 1280 total 1969 hex 6520726F772033322072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772033332072657461696E65642065786163746C790A5C2057424D315020736F7572636520\r\n\r\nok\r\nvios> WB-SOURCE 1360 80\r\nWB-SOURCE revision 3 offset 1360 total 1969 hex 726F772033342072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772033352072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F\r\n\r\nok\r\nvios> WB-SOURCE 1440 80\r\nWB-SOURCE revision 3 offset 1440 total 1969 hex 772033362072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772033372072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F7720\r\n\r\nok\r\nvios> WB-SOURCE 1520 80\r\nWB-SOURCE revision 3 offset 1520 total 1969 hex 33382072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772033392072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F77203430\r\n\r\nok\r\nvios> WB-SOURCE 1600 80\r\nWB-SOURCE revision 3 offset 1600 total 1969 hex 2072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772034312072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772034322072\r\n\r\nok\r\nvios> WB-SOURCE 1680 80\r\nWB-SOURCE revision 3 offset 1680 total 1969 hex 657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772034332072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F7720343420726574\r\n\r\nok\r\nvios> WB-SOURCE 1760 80\r\nWB-SOURCE revision 3 offset 1760 total 1969 hex 61696E65642065786163746C790A5C2057424D315020736F7572636520726F772034352072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F77203436207265746169\r\n\r\nok\r\nvios> WB-SOURCE 1840 80\r\nWB-SOURCE revision 3 offset 1840 total 1969 hex 6E65642065786163746C790A5C2057424D315020736F7572636520726F772034372072657461696E65642065786163746C790A5C2057424D315020736F7572636520726F772034382072657461696E65\r\n\r\nok\r\nvios> WB-SOURCE 1920 49\r\nWB-SOURCE revision 3 offset 1920 total 1969 hex 642065786163746C790A5C2057424D315020736F7572636520726F772034392072657461696E65642065786163746C790A\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "workbench": {
+          "revision": 3,
+          "catalog": 180,
+          "open": false,
+          "draft": true,
+          "dirty": true,
+          "staged": false,
+          "active": false,
+          "saved": false,
+          "length": 1969,
+          "cursor": 0,
+          "selection": 0,
+          "browser": 0,
+          "focus": 0,
+          "words": 95,
+          "words_max": 512,
+          "module": "WBM1P",
+          "version": "1.0",
+          "test": "",
+          "error": ""
+        },
+        "source": ": WBM1P-VALUE 18 ;\n\\ WBM1P source row 00 retained exactly\n\\ WBM1P source row 01 retained exactly\n\\ WBM1P source row 02 retained exactly\n\\ WBM1P source row 03 retained exactly\n\\ WBM1P source row 04 retained exactly\n\\ WBM1P source row 05 retained exactly\n\\ WBM1P source row 06 retained exactly\n\\ WBM1P source row 07 retained exactly\n\\ WBM1P source row 08 retained exactly\n\\ WBM1P source row 09 retained exactly\n\\ WBM1P source row 10 retained exactly\n\\ WBM1P source row 11 retained exactly\n\\ WBM1P source row 12 retained exactly\n\\ WBM1P source row 13 retained exactly\n\\ WBM1P source row 14 retained exactly\n\\ WBM1P source row 15 retained exactly\n\\ WBM1P source row 16 retained exactly\n\\ WBM1P source row 17 retained exactly\n\\ WBM1P source row 18 retained exactly\n\\ WBM1P source row 19 retained exactly\n\\ WBM1P source row 20 retained exactly\n\\ WBM1P source row 21 retained exactly\n\\ WBM1P source row 22 retained exactly\n\\ WBM1P source row 23 retained exactly\n\\ WBM1P source row 24 retained exactly\n\\ WBM1P source row 25 retained exactly\n\\ WBM1P source row 26 retained exactly\n\\ WBM1P source row 27 retained exactly\n\\ WBM1P source row 28 retained exactly\n\\ WBM1P source row 29 retained exactly\n\\ WBM1P source row 30 retained exactly\n\\ WBM1P source row 31 retained exactly\n\\ WBM1P source row 32 retained exactly\n\\ WBM1P source row 33 retained exactly\n\\ WBM1P source row 34 retained exactly\n\\ WBM1P source row 35 retained exactly\n\\ WBM1P source row 36 retained exactly\n\\ WBM1P source row 37 retained exactly\n\\ WBM1P source row 38 retained exactly\n\\ WBM1P source row 39 retained exactly\n\\ WBM1P source row 40 retained exactly\n\\ WBM1P source row 41 retained exactly\n\\ WBM1P source row 42 retained exactly\n\\ WBM1P source row 43 retained exactly\n\\ WBM1P source row 44 retained exactly\n\\ WBM1P source row 45 retained exactly\n\\ WBM1P source row 46 retained exactly\n\\ WBM1P source row 47 retained exactly\n\\ WBM1P source row 48 retained exactly\n\\ WBM1P source row 49 retained exactly\n",
+        "revision": 3,
+        "bytes": 1969,
+        "crc32": 3627393478,
+        "crc32_hex": "D835A1C6",
+        "source_sha256": "3e9f894e2ed2e81c86c003c88cf04417b9ab309a0a21b4af2346085bd58399f9"
+      }
+    },
+    {
+      "tool": "boot_status",
+      "arguments": {},
+      "result": {
+        "output": "BOOT-STATUS\r\nboot confirmed A candidate NONE state CLEAN current A generation 7\r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "boot": {
+          "confirmed": "A",
+          "candidate": "NONE",
+          "state": "CLEAN",
+          "current": "A",
+          "generation": 7
+        }
+      }
+    },
+    {
+      "tool": "stacks",
+      "arguments": {},
+      "result": {
+        "output": ".S\r\n<0> \r\n\r\nok\r\nvios> ",
+        "ok": true,
+        "compiling": false,
+        "pending": false,
+        "data_stack": {
+          "depth_text": "0",
+          "values_text": []
+        }
+      }
+    }
+  ],
+  "after": {
+    "revision": 3,
+    "catalog": 180,
+    "open": false,
+    "draft": true,
+    "dirty": true,
+    "staged": false,
+    "active": false,
+    "saved": false,
+    "length": 1969,
+    "cursor": 0,
+    "selection": 0,
+    "browser": 0,
+    "focus": 0,
+    "words": 95,
+    "words_max": 512,
+    "module": "WBM1P",
+    "version": "1.0",
+    "test": "",
+    "error": ""
+  }
+}

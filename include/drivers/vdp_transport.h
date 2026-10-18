@@ -11,6 +11,9 @@ struct vdp_transport {
  unsigned char key_head,key_count,key_route;unsigned key_dropped;
  /* Cooked mode keeps physical keystrokes out of partial host lines. */
  unsigned char line_mode,host_open,local_pending,local_used,local[235];unsigned local_dropped;
+ /* Echo bookkeeping for the platform: bytes of local shown, and a pending
+  * erase of the shown text once the line is handed to the REPL. */
+ unsigned char local_echoed,local_erase;
 };
 void vdp_transport_init(struct vdp_transport *p);
 void vdp_transport_keyboard_route(struct vdp_transport *p,int enabled);

@@ -114,7 +114,35 @@ static void rollback(void) {
  if(current>=0) {token_used=mark_token;direct_used=mark_direct;data_used=mark_data;source_used=mark_source;}
  current=-1;control_used=0;
 }
+/* Stage 4: the foreground's last runtime failure, captured before fail()
+ * unwinds the stacks. Frames hold xts; names resolve at report time. */
+#define CRASH_DS 8
+#define CRASH_RS 16
+static struct {
+ uint32_t serial,catalog;fcell ip,xt,offset,base,ds[CRASH_DS],ds_depth,rdepth,ldepth;
+ fcell frame_xt[CRASH_RS],frame_offset[CRASH_RS];unsigned frames;enum forth_engine engine;char message[96];
+} crash;
+static unsigned executing;
+static fcell code_xt(fcell ip,fcell *offset){
+ for(unsigned i=0;i<count;++i){
+  fcell start=selected==FORTH_DIRECT?words[i].direct:words[i].token,length=selected==FORTH_DIRECT?words[i].direct_length:words[i].token_length;
+  if(ip>=start&&ip<start+length){*offset=ip-start;return (fcell)(i+1);}
+ }
+ *offset=ip;return 0;
+}
+static void capture(const char *s){
+ fcell saved=fvm_error;++crash.serial;copy(crash.message,s);crash.engine=selected;crash.catalog=catalog_revision;
+ crash.ip=fvm_ip;crash.xt=code_xt(fvm_ip?fvm_ip-1:0,&crash.offset);crash.base=fvm_read_cell(base_address);
+ crash.ds_depth=fvm_depth;crash.rdepth=fvm_rdepth;crash.ldepth=fvm_ldepth;
+ for(fcell i=0;i<CRASH_DS;++i)crash.ds[i]=i<fvm_depth&&fvm_depth<=FVM_DS?fvm_ds[fvm_depth-1-i]:0;
+ crash.frames=0;
+ for(fcell i=0;i<fvm_rdepth&&fvm_rdepth<=FVM_RS&&crash.frames<CRASH_RS;++i){
+  fcell r=fvm_rs[fvm_rdepth-1-i];crash.frame_xt[crash.frames]=code_xt(r?r-1:0,&crash.frame_offset[crash.frames]);++crash.frames;
+ }
+ fvm_error=saved;
+}
 static int fail(const char *s) {
+ if(executing&&running<0&&!transaction_active&&!observer_active)capture(s);
  copy(error_text,s);rollback();fvm_depth=fvm_rdepth=fvm_ldepth=0;return 0;
 }
 int forth_error(const char *s){return fail(s?s:"native service failed");}
@@ -262,7 +290,7 @@ static int dispatch(void) {
 static int execute_index(unsigned n) {
  fvm_error=0;fvm_rdepth=fvm_ldepth=0;
  fvm_budget=observer_active?observer_budget:transaction_active?transaction_budget:1000000UL;
- fvm_ip=entry_ip(n);return dispatch();
+ fvm_ip=entry_ip(n);++executing;int result=dispatch();--executing;return result;
 }
 static void out(unsigned char c) {
  if(running<0){platform_console_putc(c);return;}
@@ -356,6 +384,19 @@ static int native_state(void) {
  return fvm_push(tasks[id-1].state)?1:fail(vm_message());
 }
 static void hex_text(const char *p){static const char d[]="0123456789ABCDEF";if(!*p){print("-");return;}while(*p){unsigned char c=(unsigned char)*p++;platform_console_putc((unsigned char)d[c>>4]);platform_console_putc((unsigned char)d[c&15]);}}
+static void crash_report(void) {
+ print("last-error serial ");decimal_number(crash.serial);if(!crash.serial){print("\r\n");return;}
+ print(" engine ");print(crash.engine==FORTH_DIRECT?"DIRECT":crash.engine==FORTH_TOKEN?"TOKEN":"C");
+ print(" stale ");decimal_number(crash.catalog!=catalog_revision);print(" base ");decimal_number(crash.base);
+ print(" message ");hex_text(crash.message);print(" ip ");decimal_number(crash.ip);
+ print(" word ");hex_text(crash.xt&&crash.xt<=count?words[crash.xt-1].name:"");print(" offset ");decimal_number(crash.offset);
+ print(" ds-depth ");decimal_number(crash.ds_depth);print(" rdepth ");decimal_number(crash.rdepth);print(" ldepth ");decimal_number(crash.ldepth);
+ print(" ds");for(fcell i=0;i<CRASH_DS&&i<crash.ds_depth;++i){print(" ");decimal_number(crash.ds[i]);}print("\r\n");
+ for(unsigned i=0;i<crash.frames;++i){
+  print("frame ");decimal_number(i);print(" word ");hex_text(crash.frame_xt[i]&&crash.frame_xt[i]<=count?words[crash.frame_xt[i]-1].name:"");
+  print(" offset ");decimal_number(crash.frame_offset[i]);print("\r\n");
+ }
+}
 static void task_report(void) {
  static const char *const names[]={"free","ready","sleeping","done","failed","killed"};
  for(unsigned i=0;i<FORTH_TASKS_MAX;++i) {
@@ -504,7 +545,7 @@ int forth_eval(const char *source) {
  const char *p=source;char s[NAME_MAX+1],name[NAME_MAX+1];int got;
  error_text[0]=0;fvm_error=0;
  while((got=next_token(&p,s))>0) {
-  if(transaction_active&&(equal(s,"TASKS")||equal(s,"TASK-OUT")||equal(s,"ABORT")||equal(s,"ENGINE")||equal(s,"BENCH")||equal(s,"SYNC")||equal(s,"WORDS")||equal(s,".S")||equal(s,"SEE")||equal(s,"RESOURCES")))return fail("interactive tool disabled during module transaction");
+  if(transaction_active&&(equal(s,"LAST-ERROR")||equal(s,"TASKS")||equal(s,"TASK-OUT")||equal(s,"ABORT")||equal(s,"ENGINE")||equal(s,"BENCH")||equal(s,"SYNC")||equal(s,"WORDS")||equal(s,".S")||equal(s,"SEE")||equal(s,"RESOURCES")))return fail("interactive tool disabled during module transaction");
   if(current<0&&!transaction_active&&outer_hook) {
    int handled=outer_hook(s,&p);if(handled<0)return 0;if(handled)continue;
   }
@@ -555,9 +596,10 @@ int forth_eval(const char *source) {
    forth_benchmark();continue;
   }
 #endif
-  if(equal(s,"TASKS")||equal(s,"TASK-OUT")) {
+  if(equal(s,"TASKS")||equal(s,"TASK-OUT")||equal(s,"LAST-ERROR")) {
    if(current>=0)return fail("interactive tool inside definition");
    if(equal(s,"TASKS")){task_report();continue;}
+   if(equal(s,"LAST-ERROR")){crash_report();continue;}
    if(!need_token(&p,name))return 0;fcell id;if(parse_number(name,&id)<=0)return fail("task id required");
    if(!task_output(id))return 0;continue;
   }

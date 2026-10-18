@@ -14,6 +14,7 @@ HELP = '''Enter printable ASCII Forth (up to 235 bytes per line).
 :help [NAME]  Show this help, or explain a word/command
 :complete PFX List completions (Tab also completes at the prompt)
 :graph        Module dependencies, dependents and activation order
+:why          Explain the last runtime error: word, callers and stack before unwind
 :status       Show resources
 :words        List words
 :wb ACTION    Workbench open, close, status, view or redraw
@@ -216,6 +217,22 @@ class Console:
                     print(f"{node} used by {' '.join(users)}", file=self.output)
         return data
 
+    def _why(self):
+        try:
+            data = self.client.tool('last_error')
+        except (RPCError, ToolError) as error:
+            print(str(error), file=self.errors)
+            return
+        e = data.get('last_error')
+        if not e:
+            print('No runtime error recorded since boot.', file=self.output)
+            return
+        print(f"error #{e['serial']}: {e['message']} in {e['word'] or '?'}+{e['offset']} ({e['engine']}, base {e['base']})"
+              + (' [dictionary changed since]' if e['stale'] else ''), file=self.output)
+        for f in e['frames']:
+            print(f"  called from {f['word'] or '?'}+{f['offset']}", file=self.output)
+        print(f"  data stack (top first, {e['ds_depth']} deep): " + ' '.join(map(str, e['ds_top_first'])), file=self.output)
+
     def completer(self, text, state):
         """readline completer; one cached dictionary query per prefix."""
         if state == 0:
@@ -283,6 +300,9 @@ class Console:
             elif token == ':complete':
                 if self._idle():
                     self._devtool('complete', {'prefix':argument})
+            elif token == ':why' and not argument:
+                if self._idle():
+                    self._why()
             elif token == ':graph' and not argument:
                 if self._idle():
                     self._devtool('module_graph')

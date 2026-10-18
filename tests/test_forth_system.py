@@ -73,3 +73,13 @@ class ForthSystemTests(unittest.TestCase):
   out=subprocess.run([str(self.binary),'--repl','--crc'],input=source,text=True,capture_output=True,check=True,timeout=10).stdout.replace('\r','')
   self.assertIn('request CRC mismatch',out);self.assertIn('7 \n@00000003\nok',out)
   self.assertIn('request CRC required',out);self.assertIn('unknown word: BAD',out)
+class ErrorCaptureTests(unittest.TestCase):
+ def test_last_error_keeps_context_lost_by_unwind(self):
+  binary=ROOT/'build/tests/forth-system'
+  out=subprocess.run([str(binary)],input='LAST-ERROR\n: INNER 1 0 / ;\n: MID 7 INNER 2 ;\n: OUTER 5 6 MID ;\nOUTER\nLAST-ERROR\n.S\nUNKNOWNWORD\nLAST-ERROR\n',text=True,capture_output=True,check=True,timeout=10).stdout.replace('\r','')
+  self.assertIn('last-error serial 0\n',out)
+  record=[l for l in out.splitlines() if l.startswith('last-error serial 1')]
+  self.assertEqual(len(record),2,'compile/lookup errors do not replace the runtime record')
+  self.assertIn('word '+b'INNER'.hex().upper()+' ',record[0]);self.assertIn('ds-depth 5 rdepth 2',record[0]);self.assertIn(' ds 0 1 7 6 5',record[0])
+  self.assertIn('frame 0 word '+b'MID'.hex().upper(),out);self.assertIn('frame 1 word '+b'OUTER'.hex().upper(),out)
+  self.assertIn('<0>',out)

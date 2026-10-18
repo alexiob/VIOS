@@ -3,7 +3,7 @@
 void vdp_transport_init(struct vdp_transport *p) {
  p->state=p->head=p->tail=0;p->dropped=0;
  p->key_head=p->key_count=p->key_route=0;p->key_dropped=0;
- p->line_mode=p->host_open=p->local_pending=p->local_used=0;p->local_dropped=0;
+ p->line_mode=p->host_open=p->local_pending=p->local_used=0;p->local_dropped=0;p->local_echoed=p->local_erase=0;
  for(unsigned i=0;i<8;++i)p->replies[i].valid=p->replies[i].type=0;
 }
 void vdp_transport_keyboard_route(struct vdp_transport *p,int enabled) {
@@ -30,7 +30,7 @@ static void flush_local(struct vdp_transport *p) {
  unsigned used=(unsigned)((p->tail-p->head)&511);
  if(511-used<(unsigned)p->local_used+1u)return;
  for(unsigned i=0;i<p->local_used;++i)input(p,p->local[i]);
- input(p,'\r');p->local_used=0;p->local_pending=0;
+ input(p,'\r');p->local_used=0;p->local_pending=0;p->local_erase=p->local_echoed;p->local_echoed=0;
 }
 static void host(struct vdp_transport *p,unsigned char byte) {
  input(p,byte);p->host_open=!(byte=='\r'||byte=='\n'||byte==3);flush_local(p);

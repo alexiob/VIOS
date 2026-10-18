@@ -58,3 +58,27 @@ class HandleParseTest(unittest.TestCase):
         self.assertEqual([(r['id'], r['kind'], r['owner'], r['buffered']) for r in rows], [(1, 'pipe', 0, 0), (3, 'null', 2, None)])
         self.assertEqual(error, 'pipe empty')
         self.assertIn('handles', TOOL_MAP)
+
+
+class LastErrorTest(unittest.TestCase):
+    def test_parse_real_output_and_cli(self):
+        from vios_task_client import parse_last_error
+        import io
+        import vios_cli
+        binary = ROOT / 'build/tests/forth-system'
+        out = subprocess.run([str(binary)], input=': INNER 1 0 / ;\n: OUTER 5 INNER ;\nOUTER\nLAST-ERROR\n', text=True,
+                             capture_output=True, check=True, timeout=10).stdout
+        e = parse_last_error(out)
+        self.assertEqual((e['word'], e['message'], [f['word'] for f in e['frames']]), ('INNER', 'arithmetic error', ['OUTER']))
+        self.assertIsNone(parse_last_error('last-error serial 0\r\n'))
+
+        class Client:
+            def tool(self, name, arguments=None):
+                return {'ok': True, 'last_error': e}
+        text = io.StringIO()
+        console = vios_cli.Console(Client(), text, io.StringIO())
+        console.connected = True
+        console.line(':why')
+        self.assertIn('error #1: arithmetic error in INNER+', text.getvalue())
+        self.assertIn('called from OUTER+', text.getvalue())
+        self.assertIn('last_error', TOOL_MAP)

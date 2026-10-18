@@ -28,6 +28,7 @@ COMMANDS = {
     'VDP-INFO': 'Show display mode and console drop counter.',
     'TASKS': 'List background task slots (SPAWN PAUSE MS TASK-KILL TASK-STATE).',
     'TASK-OUT': 'TASK-OUT id: drain a task output ring as hex.',
+    'LAST-ERROR': 'Show the last runtime failure: word, offset, caller frames and stacks before unwind.',
     'HANDLES': 'List open handles (files, pipes, /dev endpoints) and the last I/O error.',
     'WB-OPEN': 'Open the text workbench.', 'WB-CLOSE': 'Close the workbench, keeping its draft.',
     'WB-STATUS': 'Workbench draft revision and flags.', 'WB-EDIT': 'WB-EDIT module discard: load active module source.',

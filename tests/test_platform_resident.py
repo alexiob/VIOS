@@ -25,6 +25,7 @@ class ResidentPlatformTests(unittest.TestCase):
             self.assertIn('resident ',result.stdout)
     def test_vdp_send_uses_bounded_native_bursts_without_per_byte_rx_work(self):self.run_probe('vdp-burst')
     def test_task_gate_admits_only_quiet_input(self):self.run_probe('gate')
+    def test_cooked_line_echoes_once(self):self.run_probe('echo')
     def test_keyboard_idle_work_pauses_peer_until_explicit_yield(self):self.run_probe('keyboard-work')
     def test_keyboard_event_polling_preserves_console_and_rts(self):self.run_probe('keyboard')
     def test_console_flush_receives_full_duplex_input_without_fifo_loss(self):self.run_probe('normal')

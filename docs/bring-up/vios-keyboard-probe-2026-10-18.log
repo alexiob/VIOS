@@ -1,0 +1,12 @@
+0.3 {"ring_head": 243, "ring_tail": 243, "dropped": 0, "key_count": 0, "key_route": 0, "key_dropped": 0, "line_mode": 1, "host_open": 0, "local_pending": 0, "local_used": 0, "local": "", "local_dropped": 0}
+end {"ring_head": 243, "ring_tail": 243, "dropped": 0, "key_count": 0, "key_route": 0, "key_dropped": 0, "line_mode": 1, "host_open": 0, "local_pending": 0, "local_used": 0, "local": "", "local_dropped": 0}
+0.3 {"ring_head": 243, "ring_tail": 243, "dropped": 0, "key_count": 0, "key_route": 0, "key_dropped": 0, "line_mode": 1, "host_open": 0, "local_pending": 0, "local_used": 0, "local": "", "local_dropped": 0}
+5.8 {"ring_head": 243, "ring_tail": 243, "dropped": 0, "key_count": 0, "key_route": 0, "key_dropped": 0, "line_mode": 1, "host_open": 0, "local_pending": 0, "local_used": 5, "local": "fdrtd", "local_dropped": 0}
+13.1 {"ring_head": 243, "ring_tail": 243, "dropped": 0, "key_count": 0, "key_route": 0, "key_dropped": 0, "line_mode": 1, "host_open": 0, "local_pending": 0, "local_used": 8, "local": "fdrtdabc", "local_dropped": 0}
+18.6 {"ring_head": 252, "ring_tail": 252, "dropped": 0, "key_count": 0, "key_route": 0, "key_dropped": 0, "line_mode": 1, "host_open": 0, "local_pending": 0, "local_used": 0, "local": "", "local_dropped": 0}
+end {"ring_head": 252, "ring_tail": 252, "dropped": 0, "key_count": 0, "key_route": 0, "key_dropped": 0, "line_mode": 1, "host_open": 0, "local_pending": 0, "local_used": 0, "local": "", "local_dropped": 0}
+VDP-INFO
+vdp width 640 height 480 colours 4 mode 1 console-dropped 0
+
+ok
+vios> 

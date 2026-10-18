@@ -42,10 +42,19 @@ void platform_console_putc(unsigned char c) {
  output[output_used++]=c;
  if(output_used==sizeof output||c=='\n')platform_console_flush();
 }
+static void erase(void){platform_console_putc(8);platform_console_putc(' ');platform_console_putc(8);}
+/* Show the cooked local line as it is typed. Runs outside poll(); a handed-
+ * over line is erased before the REPL echoes its first byte, so it is shown
+ * once. Host bytes may interleave with this echo; only display is affected. */
+static void echo_local(void) {
+ for(;rx.local_erase;--rx.local_erase)erase();
+ for(;rx.local_echoed>rx.local_used;--rx.local_echoed)erase();
+ while(rx.local_echoed<rx.local_used)platform_console_putc(rx.local[rx.local_echoed++]);
+}
 int platform_console_getc(void) {
  ez80_uart0_rx_pause();
- int c=vdp_transport_getc(&rx);if(c>=0)return c;
- poll();c=vdp_transport_getc(&rx);if(c>=0)return c;
+ int c=vdp_transport_getc(&rx);if(c>=0){echo_local();return c;}
+ poll();c=vdp_transport_getc(&rx);echo_local();if(c>=0)return c;
  platform_console_flush();ez80_uart0_rx_resume();return -1;
 }
 void platform_input_resume(void) {ez80_uart0_rx_resume();}

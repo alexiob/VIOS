@@ -67,6 +67,25 @@ static unsigned timer_step=1000;
 unsigned short platform_timer_read(void) {++timer_reads;return (unsigned short)(0-timer_reads*timer_step);}
 int main(int argc,char **argv) {
  assert(argc==2);stall_cts=!strcmp(argv[1],"cts");stall_tx=!strcmp(argv[1],"tx");
+ if(!strcmp(argv[1],"echo")){
+  /* Cooked keys echo as typed, Backspace erases, and the handed-over line is
+   * erased before the REPL sees it so its own echo is the only copy. */
+  timer_step=10;const unsigned char keys[]={0x81,4,'a',0,0,1,0x81,4,'b',0,0,1,0x81,4,8,0,132,1,0x81,4,'c',0,0,1,0x81,4,13,0,143,1};
+  memcpy(incoming,keys,sizeof keys);wire_length=sizeof keys;next_wire=0;platform_console_init();platform_console_line_mode(1);
+  char got[8];unsigned n=0;for(unsigned i=0;i<400&&n<3;++i){int c=platform_console_getc();if(c>=0)got[n++]=(char)c;}
+  assert(n==3&&got[0]=='a'&&got[1]=='c'&&got[2]=='\r');
+  platform_console_flush(); /* the REPL's own echo would follow in this buffer */
+  char shown[64];unsigned m=0;
+  for(unsigned i=0;i+3<writes;){assert(transmitted[i]==23&&transmitted[i+1]==0&&transmitted[i+2]==0xE0);unsigned len=transmitted[i+3];for(unsigned k=0;k<len;++k)shown[m++]=(char)transmitted[i+4+k];i+=4+len;}
+  /* Render as a terminal: BS moves left, other bytes overwrite. Echo timing
+   * depends on polling, so check what was visible, not the exact bytes. */
+  char screen[16]={0};unsigned col=0,best=0;char seen[16]={0};
+  for(unsigned i=0;i<m;++i){if(shown[i]==8){if(col)--col;}else{screen[col++]=shown[i];}
+   unsigned len=0;while(len<sizeof screen&&screen[len]&&screen[len]!=' ')++len;if(len>=best){best=len;memcpy(seen,screen,len);seen[len]=0;}}
+  for(unsigned i=0;i<sizeof screen;++i)assert(!screen[i]||screen[i]==' ');
+  assert(!strcmp(seen,"ac")||!strcmp(seen,"ab"));assert(strchr(shown,'c'));
+  puts("resident cooked line echoes once");return 0;
+ }
  if(!strcmp(argv[1],"gate")){
   /* Quiet line: tasks admitted with RX paused. A host byte inside the ~1 ms
    * window defers tasks and is received, never left to overrun the FIFO. */

@@ -70,3 +70,33 @@ class TaskClient:
             data = b'' if m[2] == '-' else bytes.fromhex(m[2])
             result.update(id=id, text=data.decode('ascii', 'replace'), hex=data.hex(), dropped=int(m[3]))
         return result
+
+
+ERROR = re.compile(r'last-error serial (\d+) engine (\w+) stale ([01]) base (\d+) message (\S+) ip (\d+) word (\S+) offset (\d+) '
+                   r'ds-depth (\d+) rdepth (\d+) ldepth (\d+) ds((?: \d+)*)')
+FRAME = re.compile(r'frame (\d+) word (\S+) offset (\d+)')
+
+
+def parse_last_error(output):
+    lines = [l.strip() for l in output.replace('\r', '').splitlines()]
+    head = next((l for l in lines if l.startswith('last-error serial ')), None)
+    if head is None:
+        raise IOError('Missing LAST-ERROR record')
+    if head == 'last-error serial 0':
+        return None
+    m = ERROR.fullmatch(head)
+    if not m:
+        raise IOError('Malformed LAST-ERROR record')
+    frames = [{'index': int(f[1]), 'word': _hex_text(f[2]), 'offset': int(f[3])}
+              for f in (FRAME.fullmatch(l) for l in lines if l.startswith('frame ')) if f]
+    return {'serial': int(m[1]), 'engine': m[2], 'stale': m[3] == '1', 'base': int(m[4]), 'message': _hex_text(m[5]),
+            'ip': int(m[6]), 'word': _hex_text(m[7]), 'offset': int(m[8]), 'ds_depth': int(m[9]), 'rdepth': int(m[10]),
+            'ldepth': int(m[11]), 'ds_top_first': [int(x) for x in m[12].split()], 'frames': frames}
+
+
+class ErrorClient:
+    def last_error(self):
+        result = self._module_commands(['LAST-ERROR'])
+        if result.get('ok'):
+            result['last_error'] = parse_last_error(result.get('output', ''))
+        return result
