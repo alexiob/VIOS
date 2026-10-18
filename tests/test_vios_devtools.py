@@ -180,3 +180,21 @@ class DescribeTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             b.describe('nonsense')
         self.assertIn('describe', TOOL_MAP)
+
+
+class CliEventsDescribeTest(unittest.TestCase):
+    def test_cli(self):
+        board = DescribeFake()
+        board.events = lambda: {'ok': True, 'events': [{'time': 1, 'text': '7 6 * .\r\n42 \r\nok\r\n'}]}
+
+        class Client:
+            def tool(self, name, arguments=None):
+                return getattr(board, name)(**(arguments or {}))
+        out, err = io.StringIO(), io.StringIO()
+        console = vios_cli.Console(Client(), out, err)
+        console.connected = True
+        console.line(':events')
+        console.line(':describe task 1')
+        self.assertIn('7 6 * .\n42', out.getvalue())
+        self.assertIn('"generation": 42', out.getvalue())
+        self.assertEqual(err.getvalue(), '')

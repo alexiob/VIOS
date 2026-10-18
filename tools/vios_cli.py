@@ -14,6 +14,8 @@ HELP = '''Enter printable ASCII Forth (up to 235 bytes per line).
 :help [NAME]  Show this help, or explain a word/command
 :complete PFX List completions (Tab also completes at the prompt)
 :graph        Module dependencies, dependents and activation order
+:events       Show console text you did not request (Agon keyboard lines, console tasks)
+:describe K [ID]  Typed descriptor: word NAME, module NAME, task N, handle N, error
 :why          Explain the last runtime error: word, callers and stack before unwind
 :trace W [N]  Single-step word W for up to N (default 200) instructions
 :status       Show resources
@@ -310,6 +312,20 @@ class Console:
             elif token == ':why' and not argument:
                 if self._idle():
                     self._why()
+            elif token == ':events' and not argument:
+                if self._idle():
+                    data = self._devtool('events')
+                    for event in (data or {}).get('events', []):
+                        print(event['text'].replace('\r', '').rstrip('\n'), file=self.output)
+            elif token == ':describe' and argument:
+                kind, _, ident = argument.partition(' ')
+                arguments = {'kind': kind}
+                if ident:
+                    arguments['identity'] = int(ident) if ident.isdigit() else ident
+                if self._idle():
+                    data = self._devtool('describe', arguments)
+                    if data and data.get('ok'):
+                        print(json.dumps({k: data[k] for k in ('kind', 'identity', 'generation', 'object')}, indent=1), file=self.output)
             elif token == ':graph' and not argument:
                 if self._idle():
                     self._devtool('module_graph')
