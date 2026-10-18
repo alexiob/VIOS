@@ -101,6 +101,17 @@ int main(int argc,char **argv){
  const char child[]=": CHILD 37 ;";const char parent[]="INCLUDE /VIOS/CHILD.FTH\n: PARENT CHILD 5 + ;";
  assert(storage_write_file("/VIOS/CHILD.FTH",child,sizeof child-1));assert(storage_write_file("/VIOS/PARENT.FTH",parent,sizeof parent-1));
  eval("LOAD /VIOS/PARENT.FTH PARENT");assert(fvm_pop()==42);
+ /* Stage 5: reboot into an application from SD. A module defining AUTORUN
+  * goes into a boot trial; after the simulated reboot the confirmed slot is
+  * loaded and AUTORUN starts as a console task without any host. */
+ reset();assert(vios_boot_startup());
+ {const char *app="VARIABLE APPRAN : AUTORUN 7 APPRAN ! .\" app running\" CR ;";
+  assert(forth_module_stage("app","1",NULL,0,app,""));assert(forth_module_activate("app"));
+  assert(vios_boot_trial());reset();assert(vios_boot_startup());
+  int id=vios_autorun();assert(id>=1);for(int i=0;i<20&&forth_tasks_run();++i){}
+  eval("APPRAN @");assert(fvm_pop()==7);
+  /* Remove the app again: revert to the previously confirmed bundle. */
+  assert(vios_boot_revert());reset();assert(vios_boot_startup());assert(vios_autorun()==0);}
  /* Core library (Forth prelude) and compiler data/string words. */
  reset();
  {
