@@ -62,5 +62,20 @@ class EchoTest(unittest.TestCase):
         self.assertNotIn('@', result['output'].split('\r\n')[1])
 
 
+
+class EventsTest(unittest.TestCase):
+    def test_keyboard_text_becomes_an_event_and_idle_drain(self):
+        session = Session()
+        board = ViosBoard(session=session)
+        board.deployed = True
+        board.receive_buffer.extend(b'7 6 * .\r\n42 \r\nok\r\nvios> ')
+        board.evaluate('1 2 +')
+        board.receive_buffer.extend(b'from-task\r\n')
+        events = board.events(quiet=0.01)['events']
+        self.assertEqual([e['text'] for e in events], ['7 6 * .\r\n42 \r\nok\r\nvios> ', 'from-task\r\n'])
+        self.assertEqual(board.events(quiet=0.01)['events'], [])
+        self.assertIn('events', TOOL_MAP)
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -173,6 +173,43 @@ class DevToolsClient:
                     result.update(saved=True, path=saved.get('path'))
             return result
 
+    def describe(self, kind, identity=None):
+        """Typed descriptor for one live object: kind, identity, generation.
+
+        generation is the workbench catalog revision when the object was read;
+        a client comparing it later can tell whether a stored reference may be
+        stale (words and modules change identity across redefinition)."""
+        kinds = ('word', 'module', 'task', 'handle', 'error')
+        if kind not in kinds:
+            raise ValueError('kind must be one of ' + ', '.join(kinds))
+        with self.lock:
+            status = self.wb_status()
+            generation = status['workbench']['catalog'] if status.get('ok') else None
+            if kind == 'word':
+                if not isinstance(identity, str):
+                    raise ValueError('word identity is its name')
+                info = self.help(identity)
+                body = info if info.get('ok') else None
+            elif kind == 'module':
+                inventory = self.modules()
+                body = next((m for m in inventory.get('modules', []) if m['name'] == identity), None)
+                if body is not None:
+                    graph = module_graph(inventory['modules'])
+                    body = dict(body, dependents=graph['dependents'].get(identity, []))
+            elif kind == 'task':
+                if type(identity) is not int:
+                    raise ValueError('task identity is its id 1..4')
+                body = next((t for t in self.tasks().get('tasks', []) if t['id'] == identity), None)
+            elif kind == 'handle':
+                if type(identity) is not int:
+                    raise ValueError('handle identity is its number')
+                body = next((h for h in self.handles().get('handles', []) if h['id'] == identity), None)
+            else:
+                body = self.last_error().get('last_error')
+                identity = None if body is None else body['serial']
+            return {'ok': body is not None, 'kind': kind, 'identity': identity, 'generation': generation,
+                    'object': body, **({} if body is not None else {'error': f'no such {kind}'})}
+
     def module_graph(self):
         result = self.modules()
         if not result.get('ok'):

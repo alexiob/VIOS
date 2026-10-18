@@ -151,3 +151,32 @@ class DevelopTest(unittest.TestCase):
         self.assertEqual(r['failed_step'], 'dependencies')
         self.assertEqual(board.calls, [], 'nothing is sent when a dependency is not live')
         self.assertIn('develop', TOOL_MAP)
+
+
+class DescribeFake(Fake):
+    def wb_status(self):
+        return {'ok': True, 'workbench': {'catalog': 42}}
+
+    def tasks(self):
+        return {'ok': True, 'tasks': [{'id': 1, 'state': 'ready', 'name': 'X'}]}
+
+    def handles(self):
+        return {'ok': True, 'handles': []}
+
+    def last_error(self):
+        return {'ok': True, 'last_error': {'serial': 3, 'word': 'INNER'}}
+
+
+class DescribeTest(unittest.TestCase):
+    def test_kinds(self):
+        b = DescribeFake()
+        w = b.describe('word', 'LIVE1-D')
+        self.assertEqual((w['kind'], w['identity'], w['generation'], w['object']['kind']), ('word', 'LIVE1-D', 42, 'colon'))
+        m = b.describe('module', 'A')
+        self.assertEqual(m['object']['dependents'], ['B', 'C'])
+        self.assertEqual(b.describe('task', 1)['object']['name'], 'X')
+        self.assertFalse(b.describe('handle', 1)['ok'])
+        self.assertEqual(b.describe('error')['identity'], 3)
+        with self.assertRaises(ValueError):
+            b.describe('nonsense')
+        self.assertIn('describe', TOOL_MAP)

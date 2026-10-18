@@ -3,6 +3,7 @@
 Only deploy opens hardware. Importing this module and constructing a board are
 side-effect free. Dependency injection allows protocol testing without a board.
 """
+import collections
 import contextlib
 from pathlib import Path
 import re
@@ -48,6 +49,9 @@ class ViosBoard(TraceClient,ErrorClient,TaskClient,DevToolsClient,SnapshotClient
         self.receive_buffer = bytearray()
         self.transition_unknown = False
         self.fast_console = fast_console
+        # Unsolicited console text (keyboard lines and their results, console
+        # tasks) seen before a command's echo; drained by events().
+        self.event_log = collections.deque(maxlen=200)
 
     def _deps(self):
         if None in (self.loader, self.deployer, self.asker, self.reader):
@@ -129,6 +133,8 @@ class ViosBoard(TraceClient,ErrorClient,TaskClient,DevToolsClient,SnapshotClient
                 # the echo; keep that text but still replace the framed echo.
                 at = before.find(echo)
                 if at >= 0:
+                    if before[:at].strip():
+                        self._event(before[:at])
                     before = before[:at] + self.pending_source.encode() + b'\r\n' + before[at + len(echo):]
                 self.compiling = match[2] == b'compile'
                 result = {'output': (before + b'\r\n' + match[1] + b'\r\n' + match[2] + b'> ').decode('ascii','replace'),
@@ -229,6 +235,26 @@ class ViosBoard(TraceClient,ErrorClient,TaskClient,DevToolsClient,SnapshotClient
             result = self._await(timeout)
             result.update(resynced=True, synchronized=not self.uncertain, abandoned=abandoned)
             return result
+
+    def _event(self, raw):
+        self.event_log.append({'time': round(time.time(), 3), 'text': raw.decode('ascii', 'replace')})
+
+    def events(self, quiet=0.3):
+        """Return and clear unsolicited console text. When idle, also collect
+        what arrived since the last command (no source is ever sent)."""
+        with self.lock:
+            if not (self.pending_nonce or self.uncertain or self.paused or self.transition_unknown) and self.session is not None:
+                deadline = time.monotonic() + quiet
+                while time.monotonic() < deadline:
+                    data = self.session.read()
+                    if data:
+                        self.receive_buffer.extend(data)
+                if self.receive_buffer.strip():
+                    self._event(bytes(self.receive_buffer))
+                self.receive_buffer.clear()
+            items = list(self.event_log)
+            self.event_log.clear()
+            return {'ok': True, 'events': items}
 
     def await_result(self, timeout=15):
         self._timeout(timeout)

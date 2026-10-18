@@ -1,0 +1,35 @@
+{
+  "status": "running",
+  "iterations": 20,
+  "failures": [],
+  "dropped_before": 0,
+  "dropped_now": 0,
+  "summary": {
+    "iterations": 20,
+    "minutes": 1.9,
+    "iteration_ms_median": 5466,
+    "iteration_ms_max": 6794
+  },
+  "latency_ms_tail": [
+    6794,
+    5443,
+    5544,
+    5502,
+    5444,
+    5497,
+    5466,
+    5465,
+    5439,
+    5522,
+    6764,
+    5366,
+    5495,
+    5403,
+    5408,
+    5589,
+    5417,
+    5466,
+    5402,
+    5494
+  ]
+}

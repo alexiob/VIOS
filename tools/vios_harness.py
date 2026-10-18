@@ -59,6 +59,7 @@ TOOLS = [
          {'timeout': {'type':'number','exclusiveMinimum':0,'maximum':300}}),
     tool('console_input','Send 1..16 explicit bytes to a pending evaluation, for example a Forth KEY.',
          {'hex': {'type':'string','pattern':r'^(?:[0-9a-fA-F]{2}){1,16}$'}}, ['hex']),
+    tool('events','Return and clear console text the host did not request: lines typed on the Agon keyboard with their results, and console-task output.'),
     tool('resync','Recover a lost response frame at a quiet idle prompt (for example after physical keyboard bytes merged into a request) '
          'without rebooting. Never replays the request; its outcome is returned as unknown.',
          {'timeout':{'type':'number','exclusiveMinimum':0,'maximum':300}}),
@@ -115,6 +116,9 @@ TOOLS.extend([
           'source':{'type':'string','maxLength':4096,'pattern':r'^[\t\r\n\u0020-\u007E]*$'},
           'test_word':{'type':'string','maxLength':31,'pattern':r'^[!-~]*$'},
           'depends_on':{'type':'array','maxItems':4,'items':IDENTIFIER_SCHEMA},'save':{'type':'boolean'}},['name','version','source']),
+    tool('describe','Typed descriptor (kind, identity, generation=catalog revision) for one live word, module, task, handle or the last error.',
+         {'kind':{'type':'string','pattern':r'^(word|module|task|handle|error)$'},
+          'identity':{'anyOf':[{'type':'string','minLength':1,'maxLength':31,'pattern':r'^[!-~]+$'},{'type':'integer','minimum':1,'maximum':255}]}},['kind']),
     tool('module_graph','Module dependency edges with CRC satisfaction, reverse dependents and activation order.'),
     tool('tasks','List the four background task slots: state, word, slices, executed steps, depths, peaks, output bytes/drops and error.'),
     tool('trace','Single-step one word (budget of one instruction per dispatch, any engine) and return each step: '
