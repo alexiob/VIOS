@@ -40,6 +40,7 @@ static struct {int (*callback)(void);unsigned flags;} natives[NATIVES_MAX];
 static unsigned native_count,origin_id;
 static int (*outer_hook)(const char *,const char **);
 static void (*idle_hook)(int);
+static void (*line_mode_hook)(int);
 static int transaction_active,have_activation;
 static fcell transaction_budget;
 static uint32_t catalog_revision;
@@ -247,6 +248,7 @@ int forth_register_command(int (*hook)(const char *,const char **)) {
  outer_hook=hook;return 1;
 }
 void forth_register_idle(void (*hook)(int)) {idle_hook=hook;}
+void forth_register_line_mode(void (*hook)(int)) {line_mode_hook=hook;}
 int forth_register_native(const char *name,int (*callback)(void),unsigned flags) {
  char key[NAME_MAX+1];unsigned i=0;
  if(transaction_active)return fail("native registration during module transaction");
@@ -619,6 +621,7 @@ int forth_transaction_rollback(void) {
 void forth_repl(void) {
  char line[256];unsigned used=0;int overflow=0,cr=0,changed=1;
  print("\r\nVIOS Forth 24 / Agon Light 2\r\nvios> ");
+ if(line_mode_hook)line_mode_hook(1);
  for(;;) {
   int c=platform_console_getc();
   if(c<0){if(!used&&current<0&&idle_hook){idle_hook(changed);changed=0;}continue;}
@@ -646,7 +649,9 @@ void forth_repl(void) {
     }
    }
    if(overflow) {print("error: input line too long\r\n");rollback();}
-   else if(!request_ok||!(success=forth_eval(request))){print("error: ");print(forth_last_error());print("\r\n");}
+   else if(request_ok&&line_mode_hook)line_mode_hook(0);
+   if(!overflow&&(!request_ok||!(success=forth_eval(request)))){print("error: ");print(forth_last_error());print("\r\n");}
+   if(line_mode_hook)line_mode_hook(1);
    if(tagged){print("\r\n@");print(nonce);print("\r\n");}
    if(success)print("ok\r\n");else if(tagged)print("error\r\n");
    used=0;overflow=0;changed=1;print(current>=0?"compile> ":"vios> ");

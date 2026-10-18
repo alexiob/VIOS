@@ -80,7 +80,8 @@ uint32_t platform_millis(void) {
  if(!platform_vdp_request(command,sizeof command,0xFD,data,sizeof data,&n)||n!=4)return UINT32_MAX;
  return (uint32_t)data[0]|((uint32_t)data[1]<<8)|((uint32_t)data[2]<<16)|((uint32_t)data[3]<<24);
 }
-unsigned platform_console_dropped(void) {return rx.dropped+ez80_uart0_rx_overruns;}
+unsigned platform_console_dropped(void) {return rx.dropped+rx.local_dropped+ez80_uart0_rx_overruns;}
+void platform_console_line_mode(int awaiting_line) {vdp_transport_line_mode(&rx,awaiting_line);}
 void platform_boot_ready(void) {static const unsigned char command[]={23,0,0xE2,1};platform_vdp_send(command,sizeof command);}
 void platform_boot_trial(void) {static const unsigned char command[]={23,0,0xE2,0};platform_vdp_send(command,sizeof command);}
 const char *platform_identity(void) {return "VIOS / Agon Light 2 / native24 / VDP+USB multiplex / SD SPI";}

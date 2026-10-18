@@ -45,5 +45,30 @@ int main(void) {
  for(size_t i=0;i<sizeof keys;++i)vdp_transport_feed(&p,keys[i]);
  assert(vdp_transport_getc(&p)=='X');assert(vdp_transport_getc(&p)=='H');assert(vdp_transport_getc(&p)==-1);
  assert(!vdp_transport_keyboard_event(&p,&event));
+ /* Cooked mode: a physical line waits for the host line boundary, is edited
+  * locally and lands whole; raw mode (application KEY) passes bytes through. */
+ vdp_transport_init(&p);vdp_transport_line_mode(&p,1);
+ const unsigned char host_open[]={0xFE,3,'@','1','2'};
+ for(size_t i=0;i<sizeof host_open;++i)vdp_transport_feed(&p,host_open[i]);
+ const char typed[]="AB\bC\r";
+ for(size_t i=0;typed[i];++i){const unsigned char k[]={0x81,4,(unsigned char)typed[i],0,0,1};for(size_t j=0;j<sizeof k;++j)vdp_transport_feed(&p,k[j]);}
+ const unsigned char x[]={0x81,4,'X',0,0,1};for(size_t j=0;j<sizeof x;++j)vdp_transport_feed(&p,x[j]);
+ assert(p.local_dropped==1&&"keys after an undelivered Enter are counted, not merged");
+ const unsigned char host_end[]={0xFE,2,'3','\r'};
+ for(size_t i=0;i<sizeof host_end;++i)vdp_transport_feed(&p,host_end[i]);
+ const char expect[]="@123\rAC\r";
+ for(size_t i=0;expect[i];++i)assert(vdp_transport_getc(&p)==expect[i]);
+ assert(vdp_transport_getc(&p)==-1);
+ const char cancel[]="ZZ\x1b" "Q\r";
+ for(size_t i=0;cancel[i];++i){const unsigned char k[]={0x81,4,(unsigned char)cancel[i],0,0,1};for(size_t j=0;j<sizeof k;++j)vdp_transport_feed(&p,k[j]);}
+ assert(vdp_transport_getc(&p)=='Q'&&vdp_transport_getc(&p)=='\r'&&vdp_transport_getc(&p)==-1);
+ /* A full ring defers the line until the reader drains it. */
+ for(unsigned i=0;i<2;++i){vdp_transport_feed(&p,0xFE);vdp_transport_feed(&p,255);for(unsigned j=0;j<254;++j)vdp_transport_feed(&p,'h');vdp_transport_feed(&p,'\r');}
+ const unsigned char w[]={0x81,4,'W',0,0,1,0x81,4,'\r',0,0,1};for(size_t j=0;j<sizeof w;++j)vdp_transport_feed(&p,w[j]);
+ for(unsigned i=0;i<509;++i)assert(vdp_transport_getc(&p)>0);
+ assert(vdp_transport_getc(&p)=='\r'&&vdp_transport_getc(&p)=='W'&&vdp_transport_getc(&p)=='\r'&&vdp_transport_getc(&p)==-1);
+ vdp_transport_line_mode(&p,0);
+ const unsigned char raw[]={0x81,4,'k',0,0,1};for(size_t j=0;j<sizeof raw;++j)vdp_transport_feed(&p,raw[j]);
+ assert(vdp_transport_getc(&p)=='k'&&vdp_transport_getc(&p)==-1);
  puts("VDP console, keyboard, metadata and bounded packet parsing passed");return 0;
 }

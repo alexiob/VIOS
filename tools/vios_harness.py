@@ -59,6 +59,9 @@ TOOLS = [
          {'timeout': {'type':'number','exclusiveMinimum':0,'maximum':300}}),
     tool('console_input','Send 1..16 explicit bytes to a pending evaluation, for example a Forth KEY.',
          {'hex': {'type':'string','pattern':r'^(?:[0-9a-fA-F]{2}){1,16}$'}}, ['hex']),
+    tool('resync','Recover a lost response frame at a quiet idle prompt (for example after physical keyboard bytes merged into a request) '
+         'without rebooting. Never replays the request; its outcome is returned as unknown.',
+         {'timeout':{'type':'number','exclusiveMinimum':0,'maximum':300}}),
     tool('words','List the resident dictionary.'),
     tool('inspect_word','Read SEE source and word/address metadata.', {'name':{'type':'string','minLength':1,'maxLength':31}}, ['name']),
     tool('stacks','Inspect the data stack using .S.'),
@@ -102,6 +105,17 @@ TOOLS.extend([
          {'code':{'type':'integer','minimum':0,'maximum':267},'modifiers':{'type':'integer','minimum':0,'maximum':255}},['code']),
     tool('wb_redraw','Invalidate and recompose the desired text screen.'),
     tool('wb_flush','Drain changed spans in bounded batches and return flush counters.'),
+    tool('complete','Complete a word, outer command or compiler word from the live dictionary.',
+         {'prefix':{'type':'string','maxLength':31,'pattern':r'^[!-~]*$'},'limit':{'type':'integer','minimum':1,'maximum':512}}),
+    tool('help','Explain an outer command or compiler word, or show a live word kind, metadata and source.',
+         {'name':{'type':'string','minLength':1,'maxLength':31,'pattern':r'^[!-~]+$'}},['name']),
+    tool('develop','One explicit cycle: pin named live dependencies, stage (validate+test), activate, optionally save; '
+         'reports each step and stops at the first failure without retrying.',
+         {'name':IDENTIFIER_SCHEMA,'version':IDENTIFIER_SCHEMA,
+          'source':{'type':'string','maxLength':4096,'pattern':r'^[\t\r\n\u0020-\u007E]*$'},
+          'test_word':{'type':'string','maxLength':31,'pattern':r'^[!-~]*$'},
+          'depends_on':{'type':'array','maxItems':4,'items':IDENTIFIER_SCHEMA},'save':{'type':'boolean'}},['name','version','source']),
+    tool('module_graph','Module dependency edges with CRC satisfaction, reverse dependents and activation order.'),
     tool('snapshot','Read-only structured live-state record: modules, exact sources, draft, stacks, BASE, engine and boot slot, '
          'with a live/dirty/staged/persisted summary. Restorable by tools/vios_fast_display_state.py. Fails closed on a torn read.',
          {'previous_sources':{'type':'boolean'}}),

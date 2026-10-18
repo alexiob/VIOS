@@ -15,15 +15,17 @@ try:
     from .vios_module_client import ModuleClient
     from .vios_workbench_client import WorkbenchClient
     from .vios_snapshot import SnapshotClient
+    from .vios_devtools import DevToolsClient
 except ImportError:
     from vios_module_client import ModuleClient
     from vios_workbench_client import WorkbenchClient
     from vios_snapshot import SnapshotClient
+    from vios_devtools import DevToolsClient
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
-class ViosBoard(SnapshotClient,WorkbenchClient,ModuleClient):
+class ViosBoard(DevToolsClient,SnapshotClient,WorkbenchClient,ModuleClient):
     def __init__(self, port='/dev/cu.usbserial-22430', image=None,
                  log=None, probe_image=None,
                  session=None, loader=None, deployer=None, asker=None, reader=None,
@@ -182,6 +184,45 @@ class ViosBoard(SnapshotClient,WorkbenchClient,ModuleClient):
                     result['output'] = ''.join(responses)
                     return result
             result['output'] = ''.join(responses)
+            return result
+
+    IDLE_TAIL = re.compile(rb'(?:\r\nok|error: [ -~]*)\r\n(vios|compile)> $')
+
+    def resync(self, quiet=0.5, timeout=10):
+        """Recover a lost envelope frame without rebooting or replaying it.
+
+        Only when the board's newest output is an idle REPL prompt followed by
+        quiet; the abandoned request's outcome is reported as unknown. A
+        running program that prints a prompt-like tail can defeat this guard,
+        so it never sends source, only one empty framed line."""
+        self._timeout(timeout)
+        with self.lock:
+            session = self._session()
+            if self.transition_unknown or self.paused:
+                raise RuntimeError('Debug transition/pause state prevents resync; resume or restart the harness')
+            if not (self.uncertain or self.pending_nonce):
+                return {'ok': True, 'synchronized': True, 'resynced': False, 'compiling': self.compiling}
+            deadline = time.monotonic() + quiet
+            while time.monotonic() < deadline:
+                data = session.read()
+                if data:
+                    self.receive_buffer.extend(data)
+                    deadline = time.monotonic() + quiet
+            match = self.IDLE_TAIL.search(bytes(self.receive_buffer))
+            if not match:
+                raise RuntimeError('Board is not at a quiet idle prompt; use await_result/console_input or reboot')
+            abandoned = {'source': self.pending_source, 'remaining_source': '\n'.join(self.pending_remaining),
+                         'output': self.receive_buffer.decode('ascii', 'replace'), 'outcome': 'unknown'}
+            self.receive_buffer.clear()
+            self.pending_nonce = self.pending_source = self.pending_envelope = None
+            self.pending_remaining = []
+            self.compiling = match[1] == b'compile'
+            nonce = secrets.token_hex(4).upper()
+            self.pending_source = ''
+            self._send_envelope('@' + nonce + ' ')
+            self.pending_nonce = nonce
+            result = self._await(timeout)
+            result.update(resynced=True, synchronized=not self.uncertain, abandoned=abandoned)
             return result
 
     def await_result(self, timeout=15):

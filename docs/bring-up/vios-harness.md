@@ -2,7 +2,7 @@
 
 The host harness exposes the running Forth system, source modules, boot selection and bounded hardware debug through MCP stdio or loopback NDJSON TCP. JSON, schemas and networking run on the Mac. The Agon executes Forth; the resident ESP32 application multiplexes console/control/status over USB serial while retaining its VDP. Integrated hardware acceptance is recorded in the [resident ledger](vios-resident-progress.md).
 
-The current interface has 49 tools, including 19 `wb_*` tools for shared live
+The current interface has 54 tools, including 19 `wb_*` tools for shared live
 browsing, exact source editing, inspection, stage/activate/save and display
 snapshots. See the [workbench runbook](vios-workbench.md). Full screen reads use
 one bounded native snapshot command and reject inconsistent surrounding state;
@@ -78,6 +78,9 @@ There are 29 tools. Schemas returned by `tools/list` are authoritative for argum
 | `words`, `inspect_word`, `stacks`, `resources`, `benchmark` | Dictionary/source metadata, stacks, capacities and checked benchmarks |
 | `module_stage`, `module_activate`, `module_discard`, `module_rollback` | Transactional source replacement |
 | `modules`, `module_source`, `module_save`, `module_load`, `load` | Exact source/hash inspection and native SD persistence |
+| `complete`, `help`, `module_graph` | Live-dictionary completion (CLI Tab, `:complete`), word/command help (`:help NAME`), dependency edges/dependents/activation order (`:graph`) |
+| `develop` | One reported stage → activate → optional save cycle; named dependencies are pinned to live CRCs; stops at the first failure without retrying |
+| `resync` | Recovers a lost response frame at a quiet idle prompt without reboot; never replays the request (outcome unknown); CLI `:resync` |
 | `snapshot` | Read-only structured state record (modules, exact sources, draft, stacks, BASE, engine, boot slot) with a live/dirty/staged/persisted summary; restorable by `tools/vios_fast_display_state.py`, fails closed on a torn read; CLI `:snapshot [FILE]` |
 | `boot_status`, `boot_trial`, `boot_confirm`, `boot_revert` | A/B source-bundle trial and selection |
 | `debug_registers`, `memory_read`, `memory_write`, `resume` | Bounded ZDI inspection/write/readback and state-preserving resume |
@@ -113,3 +116,15 @@ Debug operations pause the CPU and restore its prior running/paused state. `resu
 MCP/JSON/TCP add no target parser or network stack. Target instrumentation, source retention, native services, storage and the resident transport do consume RAM/code; their combined footprint belongs to this resident build, not the earlier 19,921-byte VM. Normal native VM dispatch does not parse protocol messages or perform generic device dispatch.
 
 Run host/native checks with `make test verify-forth-engine`. Actual-board acceptance uses `tools/vios_resident_acceptance.py`; its explicit boot phase requires a clean unconfirmed baseline and changes startup. Evidence is retained alongside failed diagnostic attempts in the [progress ledger](vios-resident-progress.md). Earlier raw-bridge latency and size results remain in the [historical profile](vios-harness-ram-profile.md); do not apply those numbers to the resident transport.
+
+## Physical keyboard and the shared console
+
+Before the October 18 transport change, physical key-down bytes entered the
+same console ring as framed host lines, so typing at the REPL could merge into
+a harness request (observed 2026-10-18: a merged prefix lost the nonce frame).
+Resident firmware now keeps a separate 235-byte local line in cooked mode:
+Backspace edits it, Esc/Ctrl-C clears it, and Enter inserts it whole only at a
+host line boundary. Keys typed before that line is delivered are counted in
+`console-dropped`. The local line is echoed by the REPL when it executes, not
+while typing. While a command executes (for example an application `KEY`),
+keys pass through raw. Workbench routing is unchanged.

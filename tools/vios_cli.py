@@ -11,12 +11,15 @@ PROTOCOL_VERSION = '2025-11-25'
 MAX_FRAME = 1048576
 SOURCE_LIMIT = 235
 HELP = '''Enter printable ASCII Forth (up to 235 bytes per line).
-:help         Show this help
+:help [NAME]  Show this help, or explain a word/command
+:complete PFX List completions (Tab also completes at the prompt)
+:graph        Module dependencies, dependents and activation order
 :status       Show resources
 :words        List words
 :wb ACTION    Workbench open, close, status, view or redraw
 :snapshot [FILE]  Summarize live/dirty/staged/persisted state; FILE saves full JSON
 :await        Await pending execution without sending source
+:resync       Recover a lost response frame at an idle prompt; never replays
 :input HEX    Send 1..16 explicit KEY bytes, then use :await
 :abort        Cancel an idle unfinished definition
 :reboot       Restart resident firmware from a synchronized idle prompt
@@ -192,6 +195,39 @@ class Console:
                 self.uncertain = True
                 self._warning()
 
+    def _devtool(self, name, arguments=None):
+        try:
+            data = self.client.tool(name, arguments)
+        except (RPCError, ToolError) as error:
+            print(str(error), file=self.errors)
+            return None
+        if data.get('ok') is False:
+            print(str(data.get('error', 'failed')), file=self.errors)
+        elif name == 'help':
+            print(f"{data['name']} ({data['kind']}): " + (data.get('help') or data.get('see', '')), file=self.output)
+        elif name == 'complete':
+            print(' '.join(m['name'] for m in data['matches']) + (' ...' if data['truncated'] else ''), file=self.output)
+        elif name == 'module_graph':
+            print('order ' + ' '.join(data['activation_order']), file=self.output)
+            for edge in data['edges']:
+                print(f"{edge['from']} -> {edge['to']} {edge['crc32']:08X}" + ('' if edge['satisfied'] else ' UNSATISFIED'), file=self.output)
+            for node, users in data['dependents'].items():
+                if users:
+                    print(f"{node} used by {' '.join(users)}", file=self.output)
+        return data
+
+    def completer(self, text, state):
+        """readline completer; one cached dictionary query per prefix."""
+        if state == 0:
+            self._completions = []
+            if self.connected and not (self.pending or self.uncertain):
+                try:
+                    data = self.client.tool('complete', {'prefix':text[:31], 'limit':128})
+                    self._completions = [m['name'] for m in data.get('matches', [])]
+                except (RPCError, ToolError, ProtocolError, OSError):
+                    pass
+        return self._completions[state] if state < len(self._completions) else None
+
     def _snapshot(self, path):
         try:
             data = self.client.tool('snapshot')
@@ -241,6 +277,15 @@ class Console:
                 return False
             if token == ':help' and not argument:
                 print(HELP, file=self.output)
+            elif token == ':help':
+                if self._idle():
+                    self._devtool('help', {'name':argument})
+            elif token == ':complete':
+                if self._idle():
+                    self._devtool('complete', {'prefix':argument})
+            elif token == ':graph' and not argument:
+                if self._idle():
+                    self._devtool('module_graph')
             elif token == ':input':
                 if not re.fullmatch(r'(?:[0-9a-fA-F]{2}){1,16}', argument) or b'\x1d' in bytes.fromhex(argument):
                     print('Use :input HEX with 1..16 bytes; hex 1D is reserved.', file=self.errors)
@@ -255,6 +300,8 @@ class Console:
                     self._tool('await_result', {'timeout':self.timeout})
                 else:
                     print('No execution is pending.', file=self.errors)
+            elif token == ':resync' and not argument:
+                self._tool('resync', {'timeout':self.timeout})
             elif token == ':recover' and not argument:
                 print('Recovering through the supervisor; unsaved RAM work is lost.', file=self.output)
                 # The old continuation is abandoned even if the restart ACK is
@@ -285,6 +332,14 @@ class Console:
         return True
 
     def run(self, read=input):
+        if read is input:
+            try:
+                import readline
+                readline.set_completer(self.completer)
+                readline.set_completer_delims(' \t')
+                readline.parse_and_bind('bind ^I rl_complete' if 'libedit' in (readline.__doc__ or '') else 'tab: complete')
+            except ImportError:
+                pass
         try:
             self.client.initialize()
             try:

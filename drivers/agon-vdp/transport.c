@@ -3,6 +3,7 @@
 void vdp_transport_init(struct vdp_transport *p) {
  p->state=p->head=p->tail=0;p->dropped=0;
  p->key_head=p->key_count=p->key_route=0;p->key_dropped=0;
+ p->line_mode=p->host_open=p->local_pending=p->local_used=0;p->local_dropped=0;
  for(unsigned i=0;i<8;++i)p->replies[i].valid=p->replies[i].type=0;
 }
 void vdp_transport_keyboard_route(struct vdp_transport *p,int enabled) {
@@ -24,10 +25,30 @@ static void input(struct vdp_transport *p,unsigned char byte) {
  if(next==p->head){++p->dropped;return;}
  p->input[p->tail]=byte;p->tail=next;
 }
+static void flush_local(struct vdp_transport *p) {
+ if(!p->local_pending||p->host_open||!p->line_mode)return;
+ unsigned used=(unsigned)((p->tail-p->head)&511);
+ if(511-used<(unsigned)p->local_used+1u)return;
+ for(unsigned i=0;i<p->local_used;++i)input(p,p->local[i]);
+ input(p,'\r');p->local_used=0;p->local_pending=0;
+}
+static void host(struct vdp_transport *p,unsigned char byte) {
+ input(p,byte);p->host_open=!(byte=='\r'||byte=='\n'||byte==3);flush_local(p);
+}
+static void local(struct vdp_transport *p,unsigned char c) {
+ if(!p->line_mode){input(p,c);return;}
+ if(p->local_pending){++p->local_dropped;return;}
+ if(c=='\r'||c=='\n'){p->local_pending=1;flush_local(p);}
+ else if(c==8||c==127){if(p->local_used)--p->local_used;}
+ else if(c==3||c==27)p->local_used=0;
+ else if(c>=32&&c<127&&p->local_used<sizeof p->local)p->local[p->local_used++]=c;
+ else if(c>=32&&c<127)++p->local_dropped;
+}
+void vdp_transport_line_mode(struct vdp_transport *p,int enabled) {p->line_mode=(unsigned char)(enabled!=0);flush_local(p);}
 void vdp_transport_feed(struct vdp_transport *p,unsigned char byte) {
  if(!p->state) {if(byte>=0x80){p->type=byte;p->state=1;}return;}
  if(p->state==1) {p->index=0;p->length=byte;p->state=byte?2:0;return;}
- if(p->type==0xFE)input(p,byte);
+ if(p->type==0xFE)host(p,byte);
  else if(p->index<sizeof p->scratch)p->scratch[p->index]=byte;
  if(++p->index!=p->length)return;
  p->state=0;
@@ -35,7 +56,7 @@ void vdp_transport_feed(struct vdp_transport *p,unsigned char byte) {
  if(p->length>sizeof p->scratch){++p->dropped;return;}
  if(p->type==0x81&&p->length>=4) {
   if(p->key_route){if(p->length==4)keyboard(p);}
-  else if(p->scratch[3])input(p,p->scratch[0]);
+  else if(p->scratch[3])local(p,p->scratch[0]);
  }
  unsigned slot=8;
  for(unsigned i=0;i<8;++i)if(p->replies[i].type==p->type){slot=i;break;}
@@ -46,7 +67,7 @@ void vdp_transport_feed(struct vdp_transport *p,unsigned char byte) {
  for(unsigned i=0;i<r->length;++i)r->data[i]=p->scratch[i];
 }
 int vdp_transport_getc(struct vdp_transport *p) {
- if(p->head==p->tail)return -1;
+ if(p->head==p->tail){flush_local(p);if(p->head==p->tail)return -1;}
  int c=p->input[p->head];p->head=(unsigned short)((p->head+1)&511);return c;
 }
 int vdp_transport_packet(struct vdp_transport *p,unsigned char type,void *data,size_t capacity,unsigned *length) {

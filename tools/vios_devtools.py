@@ -1,0 +1,181 @@
+"""Completion, help and module dependency graph built from existing queries.
+
+Host-side only: the resident dictionary (WORDS/SEE) and module inventory are
+authoritative; outer commands and compiler words are documented here because
+they are parsed in C and are not dictionary entries. No target RAM cost.
+"""
+import re
+
+# Outer commands parsed before the dictionary (kernel/*.c, forth/system.c).
+COMMANDS = {
+    'WORDS': 'List dictionary words.', 'SEE': 'SEE name: show source and metadata of a word.',
+    '.S': 'Show the data stack.', 'RESOURCES': 'Show dictionary/code/data usage and peaks.',
+    'ENGINE': 'ENGINE DIRECT|TOKEN|REFERENCE: select the execution engine.', 'BENCH': 'Run VM benchmarks.',
+    'SYNC': 'Flush SD storage.', 'ABORT': 'Clear stacks and any unfinished definition.',
+    'LOAD': 'LOAD path: evaluate a Forth source file from SD.', 'INCLUDE': 'INCLUDE path: same as LOAD, nestable 4 deep.',
+    'MODULES': 'List active modules, CRCs and pinned dependencies.',
+    'MODULE-BEGIN': 'MODULE-BEGIN name version test|-: start a staged module source.',
+    'MODULE-DEP': 'MODULE-DEP name crc32: pin a dependency of the module being built.',
+    'MODULE-DATA': 'MODULE-DATA hex: append source bytes to the module being built.',
+    'MODULE-STAGE': 'Validate and test the built module without activating it.',
+    'MODULE-ACTIVATE': 'MODULE-ACTIVATE name: activate the staged module.',
+    'MODULE-ROLLBACK': 'MODULE-ROLLBACK name: restore the previous generation (latest activation only).',
+    'MODULE-DISCARD': 'Discard the staged module.', 'MODULE-SOURCE': 'MODULE-SOURCE name [PREVIOUS]: exact source as hex.',
+    'MODULE-LOAD': 'MODULE-LOAD path: load, stage and activate a saved package.',
+    'SAVE': 'SAVE name [path]: persist a module package (content-addressed by default).',
+    'BOOT-STATUS': 'Show confirmed/candidate/current source slots.', 'BOOT-TRIAL': 'Write all active modules to the inactive slot as a pending trial.',
+    'BOOT-CONFIRM': 'Confirm the running trial slot.', 'BOOT-REVERT': 'Select the confirmed/previous slot (no reboot).',
+    'VDP-INFO': 'Show display mode and console drop counter.',
+    'WB-OPEN': 'Open the text workbench.', 'WB-CLOSE': 'Close the workbench, keeping its draft.',
+    'WB-STATUS': 'Workbench draft revision and flags.', 'WB-EDIT': 'WB-EDIT module discard: load active module source.',
+    'WB-NEW': 'WB-NEW module version discard: new draft.', 'WB-PATCH': 'WB-PATCH rev offset remove hex: revision-checked edit.',
+    'WB-META': 'WB-META rev version test|-: set draft metadata.', 'WB-UNDO': 'WB-UNDO rev: restore the undo snapshot.',
+    'WB-STAGE': 'WB-STAGE rev: validate and test the draft.', 'WB-ACTIVATE': 'WB-ACTIVATE rev: activate the staged draft.',
+    'WB-SAVE': 'WB-SAVE rev: persist the active draft.', 'WB-SOURCE': 'WB-SOURCE offset count: draft bytes as hex.',
+    'WB-VIEW': 'WB-VIEW row count: desired screen rows.', 'WB-KEY': 'WB-KEY code modifiers: inject a semantic key.',
+    'WB-SELECT': 'WB-SELECT MODULE name | WORD index.', 'WB-BROWSE': 'WB-BROWSE MODULES | WORDS [module].',
+    'WB-REDRAW': 'Mode reset and full repaint.', 'WB-REPAINT': 'Repaint without a mode switch.',
+    'WB-ZOOM': 'WB-ZOOM 0|1: full-width source layout.', 'WB-ZOOM?': 'Show zoom state.',
+    'WB-COMPOSE': 'Time one composition in 288 kHz ticks.', 'WB-FLUSH': 'Drain pending painting.',
+    'WB-FLUSH-FENCED': 'Drain painting and wait for framebuffer completion.', 'WB-RENDER-STATS': 'WB-RENDER-STATS [RESET].',
+}
+COMPILER = {':': 'Begin a colon definition.', ';': 'End a definition.', "'": "' name: execution token.",
+            "[']": 'Compile an execution token.', 'IF': 'flag IF ... [ELSE ...] THEN', 'ELSE': 'See IF.', 'THEN': 'See IF.',
+            'BEGIN': 'BEGIN ... UNTIL | AGAIN | WHILE ... REPEAT', 'UNTIL': 'See BEGIN.', 'AGAIN': 'See BEGIN.',
+            'WHILE': 'See BEGIN.', 'REPEAT': 'See BEGIN.', 'DO': 'limit start DO ... LOOP', 'LOOP': 'See DO.',
+            'EXIT': 'Return from the current definition.', 'RECURSE': 'Call the current definition.',
+            'CONSTANT': 'n CONSTANT name', 'VARIABLE': 'VARIABLE name', 'DEFER': 'DEFER name: replaceable binding.',
+            'IS': "' word IS name: rebind a DEFER (callers follow it)."}
+KINDS = {0: 'primitive', 1: 'colon', 2: 'constant', 3: 'variable', 4: 'defer', 5: 'native'}
+NAME = re.compile(r'[!-~]{1,31}')
+
+
+def module_graph(modules):
+    """Dependency graph, reverse dependencies and activation order from inventory."""
+    by_name = {m['name']: m for m in modules}
+    edges = [{'from': m['name'], 'to': d['name'], 'crc32': d['crc32'],
+              'satisfied': d['name'] in by_name and by_name[d['name']]['crc32'] == d['crc32']}
+             for m in modules for d in m['dependencies']]
+    dependents = {name: sorted(e['from'] for e in edges if e['to'] == name) for name in by_name}
+    order, state = [], {}
+
+    def visit(name, path):
+        if state.get(name) == 'done' or name not in by_name:
+            return
+        if state.get(name) == 'active':
+            raise IOError('Module dependency cycle: ' + ' -> '.join(path + [name]))
+        state[name] = 'active'
+        for d in by_name[name]['dependencies']:
+            visit(d['name'], path + [name])
+        state[name] = 'done'
+        order.append(name)
+    for name in by_name:
+        visit(name, [])
+    return {'nodes': sorted(by_name), 'edges': edges, 'dependents': dependents, 'activation_order': order,
+            'unsatisfied': [e for e in edges if not e['satisfied']]}
+
+
+class DevToolsClient:
+    def complete(self, prefix='', limit=64):
+        if not isinstance(prefix, str) or len(prefix) > 31 or (prefix and not NAME.fullmatch(prefix)):
+            raise ValueError('prefix must be at most 31 printable ASCII bytes without spaces')
+        if type(limit) is not int or not 1 <= limit <= 512:
+            raise ValueError('limit must be 1..512')
+        words = self.words()
+        if not words.get('ok'):
+            return words
+        upper = prefix.upper()
+        seen, matches = set(), []
+        for kind, names in (('word', words['words']), ('command', COMMANDS), ('compiler', COMPILER)):
+            for name in names:
+                if name.upper().startswith(upper) and name not in seen:
+                    seen.add(name)
+                    matches.append({'name': name, 'kind': kind})
+        matches.sort(key=lambda m: (len(m['name']), m['name']))
+        return {'ok': True, 'prefix': prefix, 'matches': matches[:limit], 'truncated': len(matches) > limit,
+                'common_prefix': _common([m['name'] for m in matches]) if matches else prefix}
+
+    def help(self, name):
+        if not isinstance(name, str) or not NAME.fullmatch(name):
+            raise ValueError('name must be one printable ASCII token, at most 31 bytes')
+        key = name.upper()
+        for kind, table in (('command', COMMANDS), ('compiler', COMPILER)):
+            if key in table:
+                return {'ok': True, 'name': key, 'kind': kind, 'help': table[key]}
+        result = self.inspect_word(name)
+        if not result.get('ok') or 'word' not in result:
+            return {'ok': False, 'name': name, 'error': 'unknown word or command', 'output': result.get('output', '')}
+        info = result['word']
+        lines = [line for line in result['output'].replace('\r', '').splitlines()
+                 if line and not line.startswith(('SEE ', 'word ')) and line not in ('ok', 'vios> ')]
+        return {'ok': True, 'name': info.get('name', name), 'kind': KINDS.get(info.get('kind'), 'unknown'),
+                'word': info, 'see': '\n'.join(lines)}
+
+    def develop(self, name, version, source, test_word='', depends_on=None, save=False):
+        """One explicit edit -> test -> activate [-> save] cycle with per-step feedback.
+
+        depends_on names live modules whose current CRCs are pinned. A failed
+        stage is discarded; a failed activation leaves the previous generation
+        live. Nothing is retried; each step's outcome is reported."""
+        if depends_on is None:
+            depends_on = []
+        if not isinstance(depends_on, list) or len(depends_on) > 4 or type(save) is not bool:
+            raise ValueError('depends_on must list at most four module names; save must be a boolean')
+        with self.lock:
+            steps = []
+
+            def step(label, result):
+                steps.append({'step': label, 'ok': bool(result.get('ok')), 'output': result.get('output', '')})
+                return result.get('ok')
+            inventory = self.modules()
+            if not step('inventory', inventory):
+                return {'ok': False, 'failed_step': 'inventory', 'steps': steps}
+            live = {m['name']: m for m in inventory['modules'] if m['active']}
+            missing = [n for n in depends_on if n not in live]
+            if missing:
+                return {'ok': False, 'failed_step': 'dependencies', 'steps': steps,
+                        'error': 'dependency is not a live module: ' + ' '.join(missing)}
+            dependencies = [{'name': n, 'crc32': live[n]['crc32']} for n in depends_on]
+            previous = live.get(name, {}).get('crc32')
+            staged = self.module_stage(name, version, source, test_word, dependencies)
+            if not step('stage', staged):
+                discard = self.module_discard()
+                step('discard', discard)
+                return {'ok': False, 'failed_step': 'stage', 'steps': steps, 'error': _error(staged)}
+            if not step('activate', self.module_activate(name)):
+                return {'ok': False, 'failed_step': 'activate', 'steps': steps, 'error': _error_line(steps[-1]['output'])}
+            result = {'ok': True, 'name': name, 'version': version, 'crc32': staged['crc32'],
+                      'replaced_crc32': previous, 'dependencies': dependencies, 'rollback_available': previous is not None,
+                      'saved': False, 'steps': steps}
+            if save:
+                saved = self.module_save(name)
+                if not step('save', saved):
+                    result.update(ok=False, failed_step='save', error=_error_line(steps[-1]['output']))
+                else:
+                    result.update(saved=True, path=saved.get('path'))
+            return result
+
+    def module_graph(self):
+        result = self.modules()
+        if not result.get('ok'):
+            return result
+        return {'ok': True, **module_graph(result['modules'])}
+
+
+def _error_line(output):
+    for line in output.replace('\r', '').splitlines():
+        if line.startswith('error: '):
+            return line[7:]
+    return 'failed'
+
+
+def _error(result):
+    return result.get('error') or _error_line(result.get('output', ''))
+
+
+def _common(names):
+    first, last = min(names), max(names)
+    n = 0
+    while n < min(len(first), len(last)) and first[n] == last[n]:
+        n += 1
+    return first[:n]

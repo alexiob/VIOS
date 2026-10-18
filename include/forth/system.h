@@ -10,6 +10,9 @@ int forth_register_command(int (*hook)(const char *word,const char **rest));
 /* Called only at an empty, noncompiling REPL input boundary. changed marks
  * the first idle turn after startup, a command, or an interactive abort. */
 void forth_register_idle(void (*hook)(int changed));
+/* Platform input policy, not VM state: survives forth_init(). The REPL calls
+ * hook(1) while awaiting a command line and hook(0) while it executes one. */
+void forth_register_line_mode(void (*hook)(int awaiting_line));
 int forth_error(const char *message);
 fcell forth_find_xt(const char *name);
 const char *forth_xt_name(fcell xt);
