@@ -137,6 +137,8 @@ int main(int argc,char **argv){
   eval("VARIABLE TOTAL 5 TOTAL ! 3 TOTAL +! TOTAL @");assert(fvm_pop()==8);
   eval("CREATE MB 8 ALLOT MB 8 65 FILL MB 2 + MB 3 MOVE MB 4 + C@ MB 3 ERASE MB 2 + C@ +");assert(fvm_pop()==65);
   eval("CREATE OV 1 C, 2 C, 3 C, 4 C, OV OV 1+ 3 MOVE OV 3 + C@ OV 1+ C@ 10 * +");assert(fvm_pop()==3+10*1);
+  eval("CREATE DB 171 C, 5 C, 16 C,");console_used=0;eval("DB 3 DUMP BASE @");assert(fvm_pop()==10&&"DUMP restores BASE");
+  assert(strstr(console_capture,"AB 05 ")&&strstr(console_capture,"10 ")&&"bytes in hex; a new line starts each 16-byte boundary");
   eval(": GREET .\" hi\" [CHAR] ! EMIT ; : PAD3 3 SPACES ; S\" xyz\" DROP COUNT");assert(fvm_pop()=='x');fvm_reset();
   assert(!forth_eval(": BAD HERE ;")&&strstr(forth_last_error(),"data-space word inside definition"));
   assert(!forth_eval("-1 ALLOT")&&strstr(forth_last_error(),"negative ALLOT"));
