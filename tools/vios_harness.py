@@ -85,6 +85,8 @@ TOOLS = [
          {'reset':{'type':'boolean'}}),
     tool('esp_probe','Key-to-glyph latency probe on the ESP: char arms it for one printable character and clears samples; no argument reports n/min/med/p95/max in microseconds.',
          {'char':{'type':'string','minLength':1,'maxLength':1}}),
+    tool('esp_console','Exact text of the VGA console as the ESP renders it (rows 0..57 plus the status row 58), read without disturbing the screen.',
+         {'rows':{'type':'integer','minimum':1,'maximum':59}}),
     tool('esp_inject','Type 1..32 characters at the ESP PS/2 boundary as if on the Agon keyboard (printable, BS, TAB, CR, ESC). Lines typed this way appear in events.',
          {'text':{'type':'string','minLength':1,'maxLength':32}},['text']),
 ]

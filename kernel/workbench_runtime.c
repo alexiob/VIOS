@@ -1,4 +1,5 @@
 /* Serialized ASCII controller and bounded idle adapter; no VM opcode changes. */
+#include "vios/wire.h"
 #include "vios/workbench_runtime.h"
 #include "vios/workbench.h"
 #include "vios/text_screen.h"
@@ -79,126 +80,32 @@ static int save(uint32_t revision){
  if(!forth_observe("WB-SAVE-DEFAULT",4096,message,sizeof message))return error(message);
  return vios_workbench_mark_saved(revision)?1:error(vios_workbench_error());
 }
-/* VGA REPL console view (F1 toggles with the editor). Console output is
- * tapped into a RAM ring and interpreted only at REPL idle, never from the
- * tap, into a shadow of the console text; the shadow is drawn only while the
- * view is visible, so output that arrives while the editor is shown is kept.
- * Harness framing is hidden so host commands read as plain commands: a
- * line-start "@NONCE " and following "!CRC32XX " prefix are dropped, and a
- * bare "@NONCE" frame line is skipped. Rows 0..57 scroll; row 58 is status.
- * A block cursor blinks at the terminal position (500 ms phase; solid while
- * output or typing is arriving). */
-#define CON_ROWS 58
-#define CON_RING 512
-#define CON_BLINK_TICKS 144000u
-static unsigned char con_ring[CON_RING],con_state,con_held;static unsigned short con_head,con_count;
-static unsigned con_dropped,con_shown_dropped,con_col,con_row,con_cursor_x,con_cursor_y;
-static int con_open,con_bol,con_home,con_cursor_on,con_redraw;static char con_hold[10];
-/* Circular rows: scrolling the shadow advances con_top, no copying. */
-static char con_shadow[CON_ROWS][VIOS_TEXT_COLUMNS];static unsigned con_top;
-#define CON_LINE(y) con_shadow[(con_top+(y))%CON_ROWS]
-static uint32_t con_blink;static unsigned short con_tick;
-void vios_console_putc(unsigned char c){
- if(!con_home)return;if(con_count==CON_RING){++con_dropped;return;}
- con_ring[(con_head+con_count)%CON_RING]=c;++con_count;
+/* VGA REPL console view (F1 toggles with the editor), rendered by the ESP
+ * (firmware/esp32-vios/include/vios_console.h). The ESP interprets the console
+ * output it already forwards to USB (VDU 23,0,E0) into its own shadow: it
+ * hides harness framing, scrolls rows 0..57, draws the status row 58, blinks
+ * the cursor, and keeps output that arrives while the editor is shown. The
+ * CPU only says when the view is visible (VDU 23,0,E5: 0 hide, 1 show,
+ * 2 clear), after pending console bytes so the order is preserved. */
+static int con_open,con_home;
+static void con_view(unsigned char op){
+ platform_console_flush();
+ const unsigned char command[]={23,0,VIOS_VDU_CONSOLE_VIEW,op};platform_vdp_send(command,sizeof command);
 }
-static void con_status(void){
- char line[80];static const char text[]=" VIOS console   F1: editor   Up/Down: history   dropped ";unsigned n=0;
- for(;text[n]&&n<79;++n)line[n]=text[n];
- char d[11];unsigned k=0;uint32_t v=con_dropped;do{d[k++]=(char)('0'+v%10);v/=10;}while(v);while(k&&n<79)line[n++]=d[--k];
- while(n<80)line[n++]=' ';vios_text_put(0,CON_ROWS,line,80,0,3);con_shown_dropped=con_dropped;
-}
-static void con_hide_cursor(void){
- if(!con_cursor_on)return;con_cursor_on=0;
- if(con_open)vios_text_put(con_cursor_x,con_cursor_y,&CON_LINE(con_cursor_y)[con_cursor_x],1,3,0);
-}
-static void con_show_cursor(void){
- if(!con_open||con_cursor_on)return;con_cursor_on=1;con_cursor_x=con_col;con_cursor_y=con_row;
- vios_text_put(con_col,con_row,&CON_LINE(con_row)[con_col],1,0,3);
-}
-static void con_newline(void){
- con_col=0;if(con_row+1<CON_ROWS){++con_row;return;}
- for(unsigned x=0;x<VIOS_TEXT_COLUMNS;++x)CON_LINE(0)[x]=' ';con_top=(con_top+1)%CON_ROWS;
- if(!con_open)return;
- /* Hardware scroll needs a clean region: drain painting first. */
- for(unsigned guard=256;vios_text_pending()&&guard;--guard)paint();
- if(!vios_text_scroll(0,0,VIOS_TEXT_COLUMNS,CON_ROWS,1)){
-  for(unsigned y=0;y<CON_ROWS;++y)vios_text_put(0,y,CON_LINE(y),VIOS_TEXT_COLUMNS,3,0);
- }
-}
-static void con_draw(unsigned char c){
- con_bol=c=='\n';
- if(c=='\r'){con_col=0;return;}
- if(c=='\n'){con_newline();return;}
- if(c==8){if(con_col)--con_col;else if(con_row){--con_row;con_col=VIOS_TEXT_COLUMNS-1;}return;}
- if(c<32||c>126)return;
- CON_LINE(con_row)[con_col]=(char)c;
- if(con_open)vios_text_put(con_col,con_row,&CON_LINE(con_row)[con_col],1,3,0);
- if(++con_col==VIOS_TEXT_COLUMNS)con_newline();
-}
-static int con_hex(unsigned char c){return (c>='0'&&c<='9')||(c>='A'&&c<='F');}
-/* Host envelopes start at a line start or right after the REPL prompt. */
-static int con_prompt(void){
- static const char *const prompts[]={"vios> ","compile> "};
- for(unsigned k=0;k<2;++k){unsigned n=0;while(prompts[k][n])++n;
-  if(con_col!=n)continue;unsigned i=0;while(i<n&&CON_LINE(con_row)[i]==prompts[k][i])++i;if(i==n)return 1;}
- return 0;
-}
-static void con_release(void){unsigned n=con_held;con_held=0;con_state=0;for(unsigned i=0;i<n;++i)con_draw((unsigned char)con_hold[i]);}
-static void con_byte(unsigned char c){
- /* 0 text, 1 nonce digits, 2 CRC digits, 3 skip to LF, 4 after nonce. */
- if(con_state==3){if(c=='\n'){con_state=0;con_bol=1;}return;}
- if(con_state==4){con_state=0;if(c=='!'){con_state=2;con_hold[0]='!';con_held=1;return;}}
- if(con_state==1||con_state==2){
-  con_hold[con_held++]=(char)c;
-  if(con_held<=9&&con_hex(c))return;
-  if(con_held==10&&c==' '){con_held=0;con_state=con_state==1?4:0;return;}
-  if(con_held==10&&con_state==1&&c=='\r'){con_held=0;con_state=3;return;}
-  con_release();return;
- }
- if(c=='@'&&(con_bol||con_prompt())){con_state=1;con_hold[0]='@';con_held=1;return;}
- con_draw(c);
-}
-static void con_clear(void){
- for(unsigned y=0;y<CON_ROWS;++y)for(unsigned x=0;x<VIOS_TEXT_COLUMNS;++x)con_shadow[y][x]=' ';
- con_top=0;con_head=con_count=0;con_dropped=0;con_col=con_row=0;con_state=con_held=0;con_bol=1;
-}
-/* Shows the console, redrawing everything it has captured so far. */
+/* Shows the console; the ESP redraws everything it has captured so far. */
 int vios_console_open(void){
- if(!display_reset())return 0;
+ if(con_open)con_view(0); /* Nothing is drawn across the screen reset. */
+ /* Same mode for both views: clear and repaint without a VGA mode change
+  * (display_repaint falls back to a full reset if the mode is not ours). */
+ if(!display_repaint()){con_open=0;return 0;}
  if(vios_workbench_active())vios_workbench_close();
- if(!con_home)con_clear();
- con_open=con_home=1;con_cursor_on=0;con_blink=0;con_tick=platform_timer_read();con_redraw=1;
+ if(!con_home)con_view(2); /* The first view starts empty, like a fresh terminal. */
+ con_open=con_home=1;con_view(1);
  platform_keyboard_route(0);return 1;
 }
-/* On hardware, cells sent right after the mode reset/CLS can be lost while
- * the VDP is still clearing; redraw on the next idle after a VDP fence. */
-static void con_redraw_now(void){
- static const unsigned char query[]={23,0,0x86};unsigned char info[8];unsigned actual=0;
- if(!platform_vdp_request(query,sizeof query,0x86,info,sizeof info,&actual))return; /* retry next idle */
- con_redraw=0;
- for(unsigned y=0;y<CON_ROWS;++y){unsigned used=0;for(unsigned x=0;x<VIOS_TEXT_COLUMNS;++x)if(CON_LINE(y)[x]!=' ')used=x+1;
-  if(used)vios_text_put(0,y,CON_LINE(y),used,3,0);}
- con_status();con_show_cursor();
-}
-static void con_close(void){con_hide_cursor();con_open=0;}
-/* Interpret captured output into the shadow (drawn only when visible). */
-static int con_drain(void){
- int any=con_count!=0;
- /* Hidden: RAM-only interpretation, so drain everything. Visible: a full
-  * ring per pass; painting stays bounded by the per-idle render batch. */
- for(unsigned budget=CON_RING;con_count&&budget;--budget){unsigned char c=con_ring[con_head];con_head=(unsigned short)((con_head+1)%CON_RING);--con_count;con_byte(c);}
- return any;
-}
+static void con_close(void){if(con_open)con_view(0);con_open=0;}
 static void console_idle(void){
- if(platform_keyboard_hotkey()){con_close();if(display_reset()){vios_workbench_open();platform_keyboard_route(1);vios_workbench_compose();}platform_input_resume();return;}
- if(con_redraw){con_redraw_now();platform_input_resume();return;}
- unsigned short now=platform_timer_read();con_blink+=(unsigned short)(con_tick-now);con_tick=now;
- if(con_count){con_hide_cursor();con_drain();con_blink=0;}
- if(con_blink>=2*CON_BLINK_TICKS)con_blink%=2*CON_BLINK_TICKS;
- if(con_blink<CON_BLINK_TICKS){if(con_cursor_on&&(con_cursor_x!=con_col||con_cursor_y!=con_row))con_hide_cursor();con_show_cursor();}
- else con_hide_cursor();
- if(con_shown_dropped!=con_dropped)con_status();
+ if(platform_keyboard_hotkey()){con_close();if(display_repaint()){vios_workbench_open();platform_keyboard_route(1);vios_workbench_compose();}platform_input_resume();return;}
  if(!paint_failed&&vios_text_pending())paint();
  platform_input_resume();
 }
@@ -232,7 +139,6 @@ void vios_workbench_idle(int changed){
  /* The event poll pauses RX; only then interpret console output for the
   * hidden view (bounded RAM work must never run with the peer enabled). */
  struct platform_key_event event;int got=platform_keyboard_event(&event);
- if(con_home)con_drain();
  if(got&&event.down){
   if(event.virtual_key==PLATFORM_KEY_F1){vios_console_open();platform_input_resume();return;}
   unsigned modifiers=event.modifiers&(PLATFORM_MOD_CTRL|PLATFORM_MOD_LALT|PLATFORM_MOD_RALT|PLATFORM_MOD_GUI);key(physical_key(&event),modifiers);changed=1;}
@@ -249,9 +155,9 @@ int vios_workbench_command(const char *word,const char **rest){
  if(word[0]!='W'||word[1]!='B'||word[2]!='-')return 0;
  char a[162],b[32];uint32_t rev=0,x=0,y=0;int ok=1;
  if(vios_same(word,"WB-CONSOLE")){if(!vios_console_open())return -1;vios_out("WB-CONSOLE open 1\r\n");return 1;}
- if(vios_same(word,"WB-CONSOLE-CLEAR")){con_clear();if(con_open&&!vios_console_open())return -1;vios_out("WB-CONSOLE cleared\r\n");return 1;}
- if(vios_same(word,"WB-CONSOLE?")){field("WB-CONSOLE open ",(unsigned)con_open);field(" row ",con_row);field(" pending ",con_count);field(" dropped ",con_dropped);vios_out("\r\n");return 1;}
- if(vios_same(word,"WB-OPEN")){if(!display_reset())return -1;con_close();vios_workbench_open();platform_keyboard_route(1);}
+ if(vios_same(word,"WB-CONSOLE-CLEAR")){con_view(2);vios_out("WB-CONSOLE cleared\r\n");return 1;}
+ if(vios_same(word,"WB-CONSOLE?")){field("WB-CONSOLE open ",(unsigned)con_open);field(" home ",(unsigned)con_home);vios_out(" renderer esp\r\n");return 1;}
+ if(vios_same(word,"WB-OPEN")){con_close();if(!display_repaint())return -1;vios_workbench_open();platform_keyboard_route(1);}
  else if(vios_same(word,"WB-CLOSE"))close();
  else if(vios_same(word,"WB-STATUS")){}
  else if(vios_same(word,"WB-REDRAW")){if(!display_reset())return -1;}

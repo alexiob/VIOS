@@ -121,7 +121,7 @@ class Flash:
             raise RuntimeError(f'esptool {args[0]} failed:\n{result.stdout[-800:]}{result.stderr[-800:]}')
         return result.stdout
 
-    def read(self, offset, size, chunk=0x10000, attempts=3):
+    def read(self, offset, size, chunk=0x10000, attempts=5):
         """Read in chunks; the USB link corrupts long reads. esptool checks
         each read's digest, so a bad chunk fails loudly and only reads retry."""
         data = bytearray()

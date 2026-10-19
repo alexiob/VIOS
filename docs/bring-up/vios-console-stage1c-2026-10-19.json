@@ -1,0 +1,212 @@
+{
+  "status": "passed",
+  "checks": {
+    "command_echo_visible": {
+      "ok": true,
+      "detail": [
+        "WB-CONSOLE cleared",
+        "",
+        "ok",
+        "vios> 6 7 * .",
+        "42",
+        "ok",
+        "vios> S\" console-marker\" CONSOLE-WRITE CR",
+        "console-marker",
+        "",
+        "ok",
+        "vios>",
+        ""
+      ]
+    },
+    "result_visible": {
+      "ok": true,
+      "detail": [
+        "WB-CONSOLE cleared",
+        "",
+        "ok",
+        "vios> 6 7 * .",
+        "42",
+        "ok",
+        "vios> S\" console-marker\" CONSOLE-WRITE CR",
+        "console-marker",
+        "",
+        "ok",
+        "vios>",
+        ""
+      ]
+    },
+    "marker_visible": {
+      "ok": true,
+      "detail": [
+        "WB-CONSOLE cleared",
+        "",
+        "ok",
+        "vios> 6 7 * .",
+        "42",
+        "ok",
+        "vios> S\" console-marker\" CONSOLE-WRITE CR",
+        "console-marker",
+        "",
+        "ok",
+        "vios>",
+        ""
+      ]
+    },
+    "envelopes_hidden": {
+      "ok": true,
+      "detail": [
+        "WB-CONSOLE cleared",
+        "",
+        "ok",
+        "vios> 6 7 * .",
+        "42",
+        "ok",
+        "vios> S\" console-marker\" CONSOLE-WRITE CR",
+        "console-marker",
+        "",
+        "ok",
+        "vios>",
+        ""
+      ]
+    },
+    "pixels_match_text": {
+      "ok": true,
+      "detail": "3 COLOUR 128 COLOUR 0 7 CHAR@ .\r\n99 \r\nok\r\nvios> "
+    },
+    "preserved_across_editor": {
+      "ok": true,
+      "detail": [
+        "WB-CONSOLE cleared",
+        "ok",
+        "vios> WB-OPEN",
+        "WB-STATUS revision 2 catalog 269 open 1 draft 1 dirty 0 staged 0 active 1 saved",
+        "0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 141 words_max 512 mod",
+        "ule 57424D3150 version 312E30 test - error -",
+        "ok",
+        "vios> S\" after-trips\" CONSOLE-WRITE CR",
+        "after-trips",
+        "ok",
+        "vios> WB-STATUS",
+        "WB-STATUS revision 2 catalog 269 open 1 draft 1 dirty 0 staged 0 active 1 saved",
+        "0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 141 words_max 512 mod",
+        "ule 57424D3150 version 312E30 test - error -",
+        "ok",
+        "vios> WB-OPEN",
+        "WB-STATUS revision 2 catalog 269 open 1 draft 1 dirty 0 staged 0 active 1 saved",
+        "0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 141 words_max 512 mod",
+        "ule 57424D3150 version 312E30 test - error -",
+        "ok",
+        "vios> S\" hidden-while-editor\" CONSOLE-WRITE CR",
+        "hidden-while-editor",
+        "ok",
+        "vios> WB-CLOSE",
+        "WB-STATUS revision 2 catalog 269 open 0 draft 1 dirty 0 staged 0 active 1 saved",
+        "0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 141 words_max 512 mod",
+        "ule 57424D3150 version 312E30 test - error -",
+        "ok",
+        "vios> WB-CONSOLE? WB-RENDER-STATS WB-STATUS",
+        "WB-CONSOLE open 1 home 1 renderer esp",
+        "WB-RENDER-STATS cells 22671 spans 1855 batches 234 bytes 29810 elapsed_ticks 769",
+        "534 pending 0",
+        "WB-STATUS revision 2 catalog 269 open 0 draft 1 dirty 0 staged 0 active 1 saved",
+        "0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 141 words_max 512 mod",
+        "ule 57424D3150 version 312E30 test - error -",
+        "ok",
+        "vios>"
+      ]
+    },
+    "no_console_drops": {
+      "ok": true,
+      "detail": [
+        0,
+        0
+      ]
+    }
+  },
+  "dropped_before": 0,
+  "screen_after_commands": [
+    "WB-CONSOLE cleared",
+    "",
+    "ok",
+    "vios> 6 7 * .",
+    "42",
+    "ok",
+    "vios> S\" console-marker\" CONSOLE-WRITE CR",
+    "console-marker",
+    "",
+    "ok",
+    "vios>",
+    ""
+  ],
+  "marker_pixel_readback": [
+    "99 "
+  ],
+  "round_trip_ms": [
+    346,
+    679,
+    582,
+    428,
+    450,
+    467,
+    435,
+    471,
+    446,
+    453,
+    469,
+    447,
+    452,
+    465,
+    451,
+    451,
+    469,
+    465,
+    450,
+    457
+  ],
+  "state_before_read": [
+    "WB-CONSOLE open 1 home 1 renderer esp",
+    "WB-RENDER-STATS cells 22671 spans 1855 batches 234 bytes 29810 elapsed_ticks 769534 pending 0",
+    "WB-STATUS revision 2 catalog 269 open 0 draft 1 dirty 0 staged 0 active 1 saved 0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 141 words_max 512 module 57424D3150 version 312E30 test - error -"
+  ],
+  "screen_after_trip": [
+    "WB-CONSOLE cleared",
+    "ok",
+    "vios> WB-OPEN",
+    "WB-STATUS revision 2 catalog 269 open 1 draft 1 dirty 0 staged 0 active 1 saved",
+    "0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 141 words_max 512 mod",
+    "ule 57424D3150 version 312E30 test - error -",
+    "ok",
+    "vios> S\" after-trips\" CONSOLE-WRITE CR",
+    "after-trips",
+    "ok",
+    "vios> WB-STATUS",
+    "WB-STATUS revision 2 catalog 269 open 1 draft 1 dirty 0 staged 0 active 1 saved",
+    "0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 141 words_max 512 mod",
+    "ule 57424D3150 version 312E30 test - error -",
+    "ok",
+    "vios> WB-OPEN",
+    "WB-STATUS revision 2 catalog 269 open 1 draft 1 dirty 0 staged 0 active 1 saved",
+    "0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 141 words_max 512 mod",
+    "ule 57424D3150 version 312E30 test - error -",
+    "ok",
+    "vios> S\" hidden-while-editor\" CONSOLE-WRITE CR",
+    "hidden-while-editor",
+    "ok",
+    "vios> WB-CLOSE",
+    "WB-STATUS revision 2 catalog 269 open 0 draft 1 dirty 0 staged 0 active 1 saved",
+    "0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 141 words_max 512 mod",
+    "ule 57424D3150 version 312E30 test - error -",
+    "ok",
+    "vios> WB-CONSOLE? WB-RENDER-STATS WB-STATUS",
+    "WB-CONSOLE open 1 home 1 renderer esp",
+    "WB-RENDER-STATS cells 22671 spans 1855 batches 234 bytes 29810 elapsed_ticks 769",
+    "534 pending 0",
+    "WB-STATUS revision 2 catalog 269 open 0 draft 1 dirty 0 staged 0 active 1 saved",
+    "0 length 1969 cursor 0 selection 0 browser 0 focus 0 words 141 words_max 512 mod",
+    "ule 57424D3150 version 312E30 test - error -",
+    "ok",
+    "vios>"
+  ],
+  "console_state": "WB-CONSOLE open 1 home 1 renderer esp",
+  "dropped_after": 0
+}

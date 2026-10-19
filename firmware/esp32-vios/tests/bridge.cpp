@@ -130,6 +130,7 @@ static void vios_zdi_read_memory(uint32_t address,unsigned n,uint8_t *data){
 struct {bool restarted=false;void restart(){restarted=true;}} ESP;
 #define VIOS_ZDI_EDGE_US 1 // Real transport lives in vios_zdi.h, faked above.
 static int64_t esp_timer_get_time(){return (int64_t)now*1000;}
+static unsigned vios_console_row(unsigned y,char *out,unsigned capacity){return (unsigned)snprintf(out,capacity,"row %u",y);}
 #include "vios_bridge.h"
 static void note_usb(unsigned action){assert(usb_tx_mutex&&usb_tx_mutex->held);usb_actions.push_back(action);}
 static std::vector<vios_wire_message> output_frames(){
@@ -226,6 +227,7 @@ static void check_stage0_instrumentation(){
     vios_usb_console_write((const uint8_t*)"abc",3);assert(console_out_drain(16)==1);output_frames();stats=control_text("T\n",80);
     assert(stats.find("console_bytes=3 console_writes=1 ")!=std::string::npos);
     assert(control_text("T0\n",81)=="STATS RESET\r\n"&&control_text("T\n",82).rfind("STATS glyphs=0 console_bytes=0",0)==0);
+    assert(control_text("CR05\n",83)=="CROW 05 row 5\r\n"&&control_text("CR3B\n",84).rfind("ERR",0)==0);
     probe_char.store(-1);
 }
 int main(int argc,char **argv){

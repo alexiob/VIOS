@@ -43,9 +43,11 @@ def main():
             ev(': FILL 0 DO I . CR LOOP ;')
 
             def screen(rows=12, settle=1.5):
+                # The console is rendered on the ESP (GUI Stage 1c): read its exact
+                # text over the control channel. Reading with CHAR@ would print
+                # into the very console being read and scroll it mid-read.
                 time.sleep(settle)
-                lines = ev(f'{rows} SCR')['output'].split('\r\n')[1:rows + 1]
-                return [l.rstrip('.').rstrip() for l in lines]
+                return c.tool('esp_console', {'rows': rows})['rows']
             r['dropped_before'] = drops()
             ev('WB-CONSOLE-CLEAR')
             ev('6 7 * .')
@@ -56,6 +58,12 @@ def main():
             check('result_visible', '42' in shown, shown)
             check('marker_visible', 'console-marker' in shown, shown)
             check('envelopes_hidden', not any('@' in l and '!' in l for l in shown), shown)
+            # The ESP's text is what is on the VGA output: CHAR@ matches the drawn
+            # glyph pixels of the marker's first cell (short output, no scroll).
+            marker_row = shown.index('console-marker')
+            pixel = ev(f'3 COLOUR 128 COLOUR 0 {marker_row} CHAR@ .')['output']
+            r['marker_pixel_readback'] = pixel.split('\r\n')[1:2]
+            check('pixels_match_text', '99 ' in pixel, pixel[-80:])
             times = []
             for i in range(a.round_trips):
                 t = time.perf_counter()

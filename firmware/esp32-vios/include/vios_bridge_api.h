@@ -32,3 +32,10 @@ bool vios_injected_key(uint8_t *ascii);
 void vios_probe_key(uint8_t ascii);
 void vios_probe_glyph(char c);
 void vios_parser_time(uint32_t us);
+
+/* GUI Stage 1c: console terminal rendered on the ESP (vios_console_vdp.h). */
+void vios_console_feed(const uint8_t *data,size_t length);
+void vios_console_view(uint8_t op);
+void vios_console_tick();
+/* Text of ESP console row y (0..57) without trailing spaces; status row 58. */
+unsigned vios_console_row(unsigned y,char *out,unsigned capacity);

@@ -111,6 +111,21 @@ int main(int argc,char **argv) {
   shown[m]=0;assert(strstr(shown,"abtick\r\n\r\nab"));
   puts("resident echo redisplays after foreign output");return 0;
  }
+ if(!strcmp(argv[1],"key-echo-now")){
+  /* A physical keystroke's echo leaves at once: the ESP draws the VGA console
+   * from these frames, so it must not wait for ECHO_IDLE_POLLS idle polls
+   * (GUI Stage 1c). Count getc calls until each key's echo is transmitted. */
+  timer_step=10;const unsigned char keys[]={0x81,4,'a',0,0,1,0x81,4,'b',0,0,1};
+  memcpy(incoming,keys,sizeof keys);wire_length=sizeof keys;next_wire=0;platform_console_init();platform_console_line_mode(1);
+  int seen_a=-1,seen_b=-1,consumed=-1;
+  for(int i=0;i<200&&seen_b<0;++i){
+   (void)platform_console_getc();if(consumed<0&&next_wire==wire_length)consumed=i;
+   for(unsigned k=0;k+3<writes;){unsigned len=transmitted[k+3];for(unsigned j=0;j<len;++j){if(transmitted[k+4+j]=='a'&&seen_a<0)seen_a=i;if(transmitted[k+4+j]=='b'&&seen_b<0)seen_b=i;}k+=4+len;}
+  }
+  fprintf(stderr,"key-echo-now: all keys consumed by call %d, a echoed %d, b echoed %d\n",consumed,seen_a,seen_b);
+  assert(consumed>=0&&seen_b>=0&&seen_b<=consumed+2);
+  puts("resident keystroke echo is sent immediately");return 0;
+ }
  if(!strcmp(argv[1],"coalesce")){
   /* Echo of a streamed host line leaves in few frames, not one per byte. */
   timer_step=10;unsigned char line[44];line[0]=0xFE;line[1]=41;for(unsigned i=0;i<40;++i)line[2+i]=(unsigned char)('a'+i%26);line[42]='\r';

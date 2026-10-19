@@ -35,7 +35,11 @@ unsigned short platform_timer_read(void){static unsigned short ticks;timer_depth
 static unsigned vdp_max,vdp_calls,vdp_modes,vdp_fences;
 static int vdp_fence_fail;
 static unsigned char vdp_setup[64];static size_t vdp_setup_length;
-void platform_vdp_send(const void *data,size_t size){const unsigned char *bytes=data;if(size>=2&&bytes[0]==22){vdp_setup_length=0;++vdp_modes;}if(vdp_setup_length+size<=sizeof vdp_setup){memcpy(vdp_setup+vdp_setup_length,data,size);vdp_setup_length+=size;}++vdp_calls;if(size>vdp_max)vdp_max=(unsigned)size;}
+/* Order of display mode changes ('M') and console view commands ('0'..'2'). */
+static char vdp_trace[512];static unsigned vdp_trace_length;
+static void trace_vdp(char c){if(vdp_trace_length+1<sizeof vdp_trace){vdp_trace[vdp_trace_length++]=c;vdp_trace[vdp_trace_length]=0;}}
+void platform_vdp_send(const void *data,size_t size){const unsigned char *bytes=data;if(size>=2&&bytes[0]==22){vdp_setup_length=0;++vdp_modes;trace_vdp('M');}
+ if(size==4&&bytes[0]==23&&bytes[1]==0&&bytes[2]==0xE5)trace_vdp((char)('0'+bytes[3]));if(vdp_setup_length+size<=sizeof vdp_setup){memcpy(vdp_setup+vdp_setup_length,data,size);vdp_setup_length+=size;}++vdp_calls;if(size>vdp_max)vdp_max=(unsigned)size;}
 int platform_vdp_request(const void *command,size_t length,unsigned char reply,void *data,size_t capacity,unsigned *actual){
  (void)command;(void)length;unsigned char *p=data;
  if(reply==0x86&&capacity>=8){unsigned char mode[]={128,2,224,1,80,60,4,1};memcpy(p,mode,8);*actual=8;return 1;}

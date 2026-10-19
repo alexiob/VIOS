@@ -549,3 +549,28 @@ Data: `docs/bring-up/vios-ui-baseline-2026-10-19.json`.
 1c (console terminal on the ESP) give the visible gains. Idle typing latency
 is not the problem; typing under load is, which Stage 2 (ESP line editing)
 fixes and Stage 1c improves.
+
+## Stage 1a and 1c results (board, 2026-10-19)
+
+| Measure | Stage 0 baseline | 1a | 1c |
+| --- | --- | --- | --- |
+| VDP parser blocked in USB console writes (flood) | 36 % | 0.1 % | 1 % |
+| Flood glyphs drawn on VGA (1000 numbers, 3944 B) | 493 | 492 | **3978 (all)** |
+| Glyphs per second | 434 | 957 | **7058** |
+| Idle key-to-glyph median / p95 | 4.4 / 5.5 ms | 3.0 / 3.5 ms | **1.0 / 1.3 ms** |
+| Two busy tasks, 20 cps, median / p95 | 30 / 38 ms | 29 / 36 ms | 26 / 33 ms |
+| Editor <-> console round trip (with 30 lines) | 775 ms | — | 350-450 ms |
+
+1a: E0 console records go to USB from the control task through a 16-record
+queue (`vios_bridge.h`). 1c: `firmware/esp32-vios/include/vios_console.h`
+(portable terminal, tests `tests/console.cpp`) and `vios_console_vdp.h`
+(fabgl renderer) draw the console from the E0 bytes; the CPU tap, 512-byte
+ring and 4.6 KB shadow are gone, the CPU only sends VDU 23,0,E5 (hide/show/
+clear). Views switch without a VGA mode change (WB-REDRAW still resets it).
+Control command `CR<hh>` / harness tool `esp_console` read the console text
+exactly; `tools/vios_console_accept.py` uses it plus a `CHAR@` pixel check.
+A physical keystroke's echo is now flushed immediately (it was held up to 16
+idle polls, invisible before because the CPU drew echo from its tap); host
+lines still coalesce. Typing under load stays CPU-bound until Stage 2.
+Not done from Stage 1: 1b (ESP surfaces for the editor) and the local F1
+hotkey. A 30-minute soak gate was passed by 1a; 1c's soak is in progress.

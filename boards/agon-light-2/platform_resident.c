@@ -58,7 +58,7 @@ void platform_console_putc(unsigned char c) {
 }
 /* Show the cooked local line as it is edited, using only printable bytes,
  * spaces and BS so any terminal (USB or the VGA console view) renders it.
- * Runs outside poll(). Only the changed tail is redrawn. A handed-over line
+ * Runs outside poll(). Only the changed tail is redrawn and flushed at once. A handed-over line
  * is erased before the REPL echoes its first byte, so it is shown once.
  * Host bytes may interleave with this echo; only display is affected. */
 static void back(unsigned n){while(n--)platform_console_putc(8);}
@@ -79,6 +79,10 @@ static void echo_local(void) {
  unsigned end=length;for(;end<shown_length;++end)platform_console_putc(' ');
  back(end-cursor);
  for(unsigned k=0;k<length;++k)shown[k]=rx.local[k];shown_length=(unsigned char)length;shown_cursor=(unsigned char)cursor;in_echo=0;
+ /* The ESP draws the VGA console from these bytes (GUI Stage 1c): send a
+  * physical keystroke's echo now. Coalescing still applies to host lines,
+  * which never pass through this cooked-line editor. */
+ platform_console_flush();
 }
 int platform_console_getc(void) {
  ez80_uart0_rx_pause();

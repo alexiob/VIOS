@@ -21,18 +21,16 @@ static void paint_bindings(void){
  vios_workbench_idle(1);assert(fvm_depth==1&&fvm_ds[0]==88&&strstr(status().error,"budget"));
  eval("' WB-PAINT-DEFAULT IS WB-PAINT WB-REDRAW WB-FLUSH");assert(!status().error[0]&&!vios_text_pending()&&fvm_depth==1&&fvm_ds[0]==88);
 }
-static const char *console_row(unsigned y){
- static char row[81];unsigned n=0;
- for(unsigned x=0;x<80;++x){struct vios_text_cell c;vios_text_cell(x,y,&c);row[x]=(char)c.ch;if(c.ch!=' ')n=x+1;}
- row[n]=0;return row;
-}
 int main(int argc,char **argv){
  assert(argc==2);strcpy(root,argv[1]);reset();assert(storage_mkdir("/VIOS"));
  assert(forth_find_xt("WB-PAINT-DEFAULT")&&forth_find_xt("WB-PAINT"));
  eval("WB-RENDER-STATS RESET WB-STATUS");
- eval("WB-OPEN");assert(vios_workbench_active()&&keyboard_route);
- static const unsigned char setup[]={22,1,17,3,17,128,12,23,1,0};
- assert(vdp_setup_length==sizeof setup&&!memcmp(vdp_setup,setup,sizeof setup));
+ /* The VDP already reports mode 1: opening repaints without a mode change. */
+ vdp_setup_length=0;unsigned modes_before=vdp_modes;
+ eval("WB-OPEN");assert(vios_workbench_active()&&keyboard_route&&vdp_modes==modes_before);
+ static const unsigned char setup[]={26,17,3,17,128,12,23,1,0};
+ assert(vdp_setup_length>=sizeof setup&&!memcmp(vdp_setup,setup,sizeof setup));
+ eval("WB-REDRAW");assert(vdp_modes==modes_before+1&&"explicit redraw still resets the VGA mode");
  assert(fvm_push(77));forth_set_base(16);vios_workbench_idle(1);assert(fvm_depth==1&&fvm_ds[0]==77&&forth_get_base()==16);assert(vdp_max<=128);assert(!input_paused);
  /* The exact trusted native painter avoids observer stack copying. */
  assert(timer_depth==1);
@@ -70,35 +68,19 @@ int main(int argc,char **argv){
  reset();eval("WB-NEW unsaved 1 0");s=status();request("WB-PATCH %lu 0 0 3A20554E53415645442031203B",s.revision);s=status();request("WB-STAGE %lu",s.revision);request("WB-ACTIVATE %lu",s.revision);
  eval(": WB-SAVE-DEFAULT ;");assert(fvm_push(66));snprintf(save_line,sizeof save_line,"WB-SAVE %lu",(unsigned long)s.revision);assert(!forth_eval(save_line));assert(!status().saved&&fvm_depth==1&&fvm_ds[0]==66);
  paint_bindings();
- /* VGA console view: framing hidden, scrolling, F1 toggle, home view. */
- eval("WB-CONSOLE");assert(!vios_workbench_active()&&!keyboard_route);
- for(const char *t="@12345678 !ABCDEF01 1 2 + .\r\n3 \r\n\r\n@12345678\r\nok\r\nvios> ";*t;++t)vios_console_putc((unsigned char)*t);
- for(int i=0;i<40;++i)vios_workbench_idle(0);
- assert(!strcmp(console_row(0),"1 2 + .")&&!strcmp(console_row(1),"3")&&!strcmp(console_row(2),""));
- assert(!strcmp(console_row(3),"ok")&&!strcmp(console_row(4),"vios>"));
- assert(strstr(console_row(58),"VIOS console")&&strstr(console_row(58),"F1: editor"));
- /* Row 4 holds the prompt "vios> "; a host envelope after it is hidden. */
- for(const char *t="@0000ABCD !12345678 SEE X\r\n";*t;++t)vios_console_putc((unsigned char)*t);
- for(int i=0;i<40;++i)vios_workbench_idle(0);assert(!strcmp(console_row(4),"vios> SEE X"));
- eval("WB-CONSOLE");char line[16];
- for(int n=0;n<70;++n){snprintf(line,sizeof line,"L%02d\r\n",n);for(char *q=line;*q;++q)vios_console_putc((unsigned char)*q);for(int i=0;i<8;++i)vios_workbench_idle(0);}
- for(int i=0;i<200;++i)vios_workbench_idle(0);
- assert(!strcmp(console_row(56),"L69")&&!strcmp(console_row(57),"")&&!strcmp(console_row(0),"L13"));
- for(int n=0;n<600;++n)vios_console_putc('x');
- for(int i=0;i<200;++i)vios_workbench_idle(0);assert(strstr(console_row(58),"dropped 88"));
- eval("WB-CONSOLE-CLEAR");for(const char *t="before\r\n";*t;++t)vios_console_putc((unsigned char)*t);
- for(int i=0;i<20;++i)vios_workbench_idle(0);assert(!strcmp(console_row(0),"before"));
- hotkey=1;vios_workbench_idle(0);assert(vios_workbench_active()&&keyboard_route);
- /* Output while the editor is visible lands in the console shadow only. */
- for(const char *t="while-editor\r\n";*t;++t)vios_console_putc((unsigned char)*t);
- for(int i=0;i<20;++i)vios_workbench_idle(0);
- eval("WB-CLOSE");assert(!vios_workbench_active()&&!keyboard_route);
- for(int i=0;i<20;++i)vios_workbench_idle(0);
- assert(!strcmp(console_row(0),"before")&&!strcmp(console_row(1),"while-editor")&&"returning redraws captured output");
- /* The block cursor (inverse attribute) appears at the terminal position. */
- {struct vios_text_cell c,plain;vios_text_cell(5,5,&plain);int inverse=0;
-  for(int i=0;i<400000&&!inverse;++i){vios_workbench_idle(0);vios_text_cell(0,2,&c);inverse=c.attr!=plain.attr;}assert(inverse);}
- eval("WB-CONSOLE-CLEAR");for(int i=0;i<20;++i)vios_workbench_idle(0);assert(!strcmp(console_row(0),"")&&!strcmp(console_row(1),""));
+ /* VGA console view: the ESP renders it (firmware tests/console.cpp checks
+  * framing, scrolling, capture while hidden and the cursor). The CPU sends
+  * view commands in order: hide before the screen is reset, clear on first
+  * open, and never change the VGA mode to switch views (WB-REDRAW does). */
+ vdp_trace_length=0;vdp_trace[0]=0;
+ eval("WB-CONSOLE");assert(!vios_workbench_active()&&!keyboard_route);assert(!strcmp(vdp_trace,"21"));
+ eval("WB-CONSOLE");assert(!strcmp(vdp_trace,"2101")&&"reopening hides then shows without a mode change; no clear");
+ hotkey=1;vios_workbench_idle(0);assert(vios_workbench_active()&&keyboard_route&&!strcmp(vdp_trace,"21010"));
+ eval("WB-CLOSE");assert(!vios_workbench_active()&&!keyboard_route&&!strcmp(vdp_trace,"210101")&&"closing the editor returns to the kept console");
+ eval("WB-CONSOLE-CLEAR");assert(!strcmp(vdp_trace,"2101012"));
+ eval("WB-OPEN");assert(vios_workbench_active()&&!strcmp(vdp_trace,"21010120")&&"hidden before the editor repaints");
+ eval("WB-CLOSE");assert(!strcmp(vdp_trace,"210101201"));
+ for(int i=0;i<20;++i)vios_workbench_idle(0);assert(!strcmp(vdp_trace,"210101201")&&"idle never re-sends view commands");
  eval("WB-CONSOLE?");
  puts("Workbench runtime checks passed");return 0;
 }

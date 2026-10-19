@@ -276,3 +276,15 @@ class ResidentBoard(ViosBoard):
         if not 1 <= len(data) <= 32 or any(b not in (8, 9, 13, 27) and not 32 <= b < 127 for b in data):
             raise ValueError('inject 1..32 printable characters (or BS, TAB, CR, ESC)')
         return {'reply': self._esp(b'KI' + data.hex().upper().encode())}
+
+    def esp_console(self, rows=59):
+        """Exact text of the ESP-rendered console rows 0..rows-1 (row 58 is the status bar)."""
+        if type(rows) is not int or not 1 <= rows <= 59:
+            raise ValueError('rows must be 1..59')
+        lines = []
+        for y in range(rows):
+            line = self._esp(b'CR%02X' % y)
+            if not line.startswith('CROW %02X' % y):
+                raise IOError('Malformed console row reply: ' + line)
+            lines.append(line[8:])
+        return {'rows': lines}

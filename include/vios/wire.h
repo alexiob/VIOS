@@ -16,6 +16,8 @@ extern "C" {
 /* Host service: CPU request (VDU 23,0,E3,len,payload) -> USB channel 4;
  * USB channel 4 reply -> CPU packet FC,len,payload. One request in flight. */
 #define VIOS_VDU_HOST 0xE3
+/* Console view on the ESP terminal: op 0 hide, 1 show (redraw), 2 clear. */
+#define VIOS_VDU_CONSOLE_VIEW 0xE5
 #define VIOS_PACKET_CONSOLE 0xFE
 #define VIOS_PACKET_CLOCK 0xFD
 #define VIOS_PACKET_HOST 0xFC

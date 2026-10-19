@@ -294,6 +294,11 @@ static void control_command(uint16_t sequence,const char *command,size_t length)
         control_reply(sequence,"PROBE ARMED\r\n");return;
     }
     if(length==2&&command[0]=='P'&&command[1]=='R'){probe_report(reply,sizeof reply);control_reply(sequence,reply);return;}
+    // Exact console text from the ESP terminal (no pixel matching), row hh 00..3A.
+    if(length==4&&command[0]=='C'&&command[1]=='R'&&parse_hex(command+2,2,&stage0_value)&&stage0_value<=58){
+        char text[96];vios_console_row((unsigned)stage0_value,text,sizeof text);
+        snprintf(reply,sizeof reply,"CROW %02X %s\r\n",(unsigned)stage0_value,text);control_reply(sequence,reply);return;
+    }
     if(length>=4&&length<=2+2*32&&length%2==0&&command[0]=='K'&&command[1]=='I') {
         uint8_t keys[32];unsigned count=(unsigned)(length-2)/2;
         for(unsigned i=0;i<count;++i){if(!parse_hex(command+2+2*i,2,&stage0_value)){control_reply(sequence,"ERR inject hex\r\n");return;}keys[i]=(uint8_t)stage0_value;}

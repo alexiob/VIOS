@@ -79,6 +79,7 @@ VDUStreamProcessor *	processor;				// VDU Stream Processor
 
 #include "vios_zdi.h"
 #include "vios_bridge.h"
+#include "vios_console_vdp.h"
 
 void setup() {
 	disableCore0WDT(); delay(200);				// Disable the watchdog timers
@@ -130,6 +131,7 @@ void loop() {
 			do_cursor();
       		if (!cursorState && ttxtMode) ttxt_instance.flash(false);
 		}
+		vios_console_tick();
 		if (!vios_cpu_is_paused()) {
 			do_keyboard();
 			do_mouse();
