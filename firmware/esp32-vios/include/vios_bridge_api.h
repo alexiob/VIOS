@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <vios_wire.h>
 #include "vios_bootserve.h"
+#include "vios_mos_queries.h"
 void vios_bridge_poll();
 void vios_bridge_boot();
 void vios_usb_console_write(const uint8_t *data,size_t length);

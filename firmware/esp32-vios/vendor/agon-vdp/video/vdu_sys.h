@@ -207,8 +207,8 @@ void VDUStreamProcessor::vdu_sys_video() {
 		case 0x99: {					// VDU 23, 0, &99, vk: resend a key's state
 			auto vk = readByte_t();
 			if (vk >= 0) {
-				uint8_t packet[] = {0, 0, (uint8_t)vk, (uint8_t)(getKeyboard()->isVKDown((fabgl::VirtualKey)vk) ? 1 : 0)};
-				send_packet(PACKET_KEYCODE, sizeof packet, packet);
+				uint8_t packet[4];
+				send_packet(PACKET_KEYCODE, vios_key_state_reply(packet, (uint8_t)vk, getKeyboard()->isVKDown((fabgl::VirtualKey)vk)), packet);
 			}
 		}	break;
 		case 0xF8: {					// VDU 23, 0, &F8, flag; value;  set a VDP variable
@@ -316,15 +316,12 @@ void VDUStreamProcessor::sendScreenChar(uint16_t x, uint16_t y) {
  * foreground, 129 text background, 130 graphics foreground, 131 graphics
  * background) as a pixel packet {R, G, B, index}; unknown indices get no reply. */
 void VDUStreamProcessor::vios_send_colour(uint8_t colour) {
-	RGB888 pixel;
-	if (colour < 64) pixel = colourLookup[palette[colour % getVGAColourDepth()]];
-	else if (colour == 128) pixel = tfg;
-	else if (colour == 129) pixel = tbg;
-	else if (colour == 130) pixel = gfg;
-	else if (colour == 131) pixel = gbg;
-	else return;
-	uint8_t packet[] = {pixel.R, pixel.G, pixel.B, colour < 64 ? colour : getPaletteIndex(pixel)};
-	send_packet(PACKET_SCRPIXEL, sizeof packet, packet);
+	static RGB888 *const active[] = {nullptr, &tfg, &tbg, &gfg, &gbg};
+	int source = vios_colour_source(colour);
+	if (source < 0) return;
+	RGB888 pixel = source ? *active[source] : colourLookup[palette[colour % getVGAColourDepth()]];
+	uint8_t packet[4];
+	send_packet(PACKET_SCRPIXEL, vios_colour_reply(packet, pixel.R, pixel.G, pixel.B, source ? getPaletteIndex(pixel) : colour), packet);
 }
 
 void VDUStreamProcessor::sendScreenPixel(uint16_t x, uint16_t y) {
