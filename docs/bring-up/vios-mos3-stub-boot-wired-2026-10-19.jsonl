@@ -1,0 +1,374 @@
+{"time": 1792441800.32371, "direction": "tx", "hex": "04010201020207420a6911d87d00", "text": "\u0004\u0001\u0002\u0001\u0002\u0002\u0007B\ni\u0011\ufffd}\u0000"}
+{"time": 1792441800.583252, "direction": "rx", "hex": "45", "text": "E"}
+{"time": 1792441800.583555, "direction": "rx", "hex": "202832353529206573705f636f72657f0678756d705f666c6173683a204e6f", "text": " (255) esp_core\u007f\u0006xump_flash: No"}
+{"time": 1792441800.5858738, "direction": "rx", "hex": "20", "text": " "}
+{"time": 1792441800.5859962, "direction": "rx", "hex": "636f72652064756d7020706172746974696f6e20666f756e64210d0a452028", "text": "core dump partition found!\r\nE ("}
+{"time": 1792441800.5886238, "direction": "rx", "hex": "32", "text": "2"}
+{"time": 1792441800.588814, "direction": "rx", "hex": "353529206573705f636f72655f64756d705f666c6173683a204e6f20636f72", "text": "55) esp_core_dump_flash: No cor"}
+{"time": 1792441800.593023, "direction": "rx", "hex": "65", "text": "e"}
+{"time": 1792441800.5933719, "direction": "rx", "hex": "2064756d7020706172746974696f6e20666f756e64210d0a", "text": " dump partition found!\r\n"}
+{"time": 1792441801.23857, "direction": "rx", "hex": "5b", "text": "["}
+{"time": 1792441801.238925, "direction": "rx", "hex": "2020203635375d5b455d5b65737033322d68616c2d6d6973632e633a313433", "text": "   657][E][esp32-hal-misc.c:143"}
+{"time": 1792441801.241024, "direction": "rx", "hex": "5d", "text": "]"}
+{"time": 1792441801.241127, "direction": "rx", "hex": "2064697361626c65436f72653157445428293a204661696c656420746f2072", "text": " disableCore1WDT(): Failed to r"}
+{"time": 1792441801.2437901, "direction": "rx", "hex": "65", "text": "e"}
+{"time": 1792441801.2439759, "direction": "rx", "hex": "6d6f766520436f726520312049444c45207461736b2066726f6d205744540d", "text": "move Core 1 IDLE task from WDT\r"}
+{"time": 1792441801.245805, "direction": "rx", "hex": "0a", "text": "\n"}
+{"time": 1792441801.4379442, "direction": "rx", "hex": "00", "text": "\u0000"}
+{"time": 1792441802.439432, "direction": "rx", "hex": "03", "text": "\u0003"}
+{"time": 1792441802.439817, "direction": "rx", "hex": "01030102282d424f4f542056494f532056445020312e3034206d75782d7631", "text": "\u0001\u0003\u0001\u0002(-BOOT VIOS VDP 1.04 mux-v1"}
+{"time": 1792441802.442153, "direction": "rx", "hex": "20", "text": " "}
+{"time": 1792441802.442383, "direction": "rx", "hex": "7a64692d65646765203175730d0ad85858aa0003010301021a1f424f4f5420", "text": "zdi-edge 1us\r\n\ufffdXX\ufffd\u0000\u0003\u0001\u0003\u0001\u0002\u001a\u001fBOOT "}
+{"time": 1792441802.450058, "direction": "rx", "hex": "72", "text": "r"}
+{"time": 1792441802.45028, "direction": "rx", "hex": "657461696e6564206661696c7572657320300d0ae4e4174b000301030102151a4649524d5741524520617070312076616c69640d0aa0ccad3d", "text": "etained failures 0\r\n\ufffd\ufffd\u0017K\u0000\u0003\u0001\u0003\u0001\u0002\u0015\u001aFIRMWARE app1 valid\r\n\ufffd\u032d="}
+{"time": 1792441802.453639, "direction": "rx", "hex": "00", "text": "\u0000"}
+{"time": 1792441802.45383, "direction": "rx", "hex": "03010301023237444953434f5645522052414d204235204237204237204237", "text": "\u0003\u0001\u0003\u0001\u000227DISCOVER RAM B5 B7 B7 B7"}
+{"time": 1792441802.458514, "direction": "rx", "hex": "20", "text": " "}
+{"time": 1792441802.4587572, "direction": "rx", "hex": "42342038302038302038302042415345204237453030300d0ae4b41e1f00", "text": "B4 80 80 80 BASE B7E000\r\n\ufffd\u001e\u001f\u0000"}
+{"time": 1792441802.468077, "direction": "rx", "hex": "03", "text": "\u0003"}
+{"time": 1792441802.4683928, "direction": "rx", "hex": "010301022b304e41544956452052414d204237453030302043533020303420", "text": "\u0001\u0003\u0001\u0002+0NATIVE RAM B7E000 CS0 04 "}
+{"time": 1792441802.4739048, "direction": "rx", "hex": "30", "text": "0"}
+{"time": 1792441802.4743, "direction": "rx", "hex": "4220303820303120444f4e452041350d0af654223200", "text": "B 08 01 DONE A5\r\n\ufffdT\"2\u0000"}
+{"time": 1792441806.405865, "direction": "tx", "hex": "04010202020207420ac7634cfb00", "text": "\u0004\u0001\u0002\u0002\u0002\u0002\u0007B\n\ufffdcL\ufffd\u0000"}
+{"time": 1792441806.415912, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441806.416188, "direction": "rx", "hex": "010202020f14424f4f54205354415254494e470d0a7162134500", "text": "\u0001\u0002\u0002\u0002\u000f\u0014BOOT STARTING\r\nqb\u0013E\u0000"}
+{"time": 1792441807.420945, "direction": "tx", "hex": "04010203020207420a62b0103000", "text": "\u0004\u0001\u0002\u0003\u0002\u0002\u0007B\nb\ufffd\u00100\u0000"}
+{"time": 1792441807.4337869, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441807.434121, "direction": "rx", "hex": "010203020f14424f4f54205354415254494e470d0a29e2f19200", "text": "\u0001\u0002\u0003\u0002\u000f\u0014BOOT STARTING\r\n)\ufffd\ufffd\u0000"}
+{"time": 1792441808.439357, "direction": "tx", "hex": "04010204020207420ada80152d00", "text": "\u0004\u0001\u0002\u0004\u0002\u0002\u0007B\n\u0680\u0015-\u0000"}
+{"time": 1792441808.449224, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441808.451384, "direction": "rx", "hex": "010204020f14424f4f54205354415254494e470d0a6269cfd800", "text": "\u0001\u0002\u0004\u0002\u000f\u0014BOOT STARTING\r\nbi\ufffd\ufffd\u0000"}
+{"time": 1792441809.453774, "direction": "tx", "hex": "04010205020207420a7f5349e600", "text": "\u0004\u0001\u0002\u0005\u0002\u0002\u0007B\n\u007fSI\ufffd\u0000"}
+{"time": 1792441809.457791, "direction": "rx", "hex": "03010301022a2f56494f52454144592052414d20696d616765207665726966696564204352432035373236393131390d0afc1e8e7f0003010301020f144845414c544820666c616720300d0a90ea1e8600", "text": "\u0003\u0001\u0003\u0001\u0002*/VIOREADY RAM image verified CRC 57269119\r\n\ufffd\u001e\ufffd\u007f\u0000\u0003\u0001\u0003\u0001\u0002\u000f\u0014HEALTH flag 0\r\n\ufffd\ufffd\u001e\ufffd\u0000"}
+{"time": 1792441809.465941, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441809.466431, "direction": "rx", "hex": "010205020f14424f4f54205354415254494e470d0a3ae92d0f00", "text": "\u0001\u0002\u0005\u0002\u000f\u0014BOOT STARTING\r\n:\ufffd-\u000f\u0000"}
+{"time": 1792441810.469923, "direction": "tx", "hex": "04010206020207420ad121dd6000", "text": "\u0004\u0001\u0002\u0006\u0002\u0002\u0007B\n\ufffd!\ufffd`\u0000"}
+{"time": 1792441810.4780438, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441810.478255, "direction": "rx", "hex": "010206020f14424f4f54205354415254494e470d0a936f7bac00", "text": "\u0001\u0002\u0006\u0002\u000f\u0014BOOT STARTING\r\n\ufffdo{\ufffd\u0000"}
+{"time": 1792441811.4837492, "direction": "tx", "hex": "04010207020207420a74f281ab00", "text": "\u0004\u0001\u0002\u0007\u0002\u0002\u0007B\nt\ufffd\u0000"}
+{"time": 1792441811.491932, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441811.492361, "direction": "rx", "hex": "010207020f14424f4f54205354415254494e470d0acbef997b00", "text": "\u0001\u0002\u0007\u0002\u000f\u0014BOOT STARTING\r\n\ufffd\ufffd{\u0000"}
+{"time": 1792441812.497113, "direction": "tx", "hex": "04010208020207420aa140d75a00", "text": "\u0004\u0001\u0002\b\u0002\u0002\u0007B\n\ufffd@\ufffdZ\u0000"}
+{"time": 1792441812.505126, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441812.5054688, "direction": "rx", "hex": "010208020f14424f4f54205354415254494e470d0a0579063800", "text": "\u0001\u0002\b\u0002\u000f\u0014BOOT STARTING\r\n\u0005y\u00068\u0000"}
+{"time": 1792441813.508806, "direction": "tx", "hex": "04010209020207420a04938b9100", "text": "\u0004\u0001\u0002\t\u0002\u0002\u0007B\n\u0004\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792441813.511796, "direction": "rx", "hex": "03010101021217626f6f7420636f6e6669726d656420410d0af1e2e2410003010301020f144845414c544820666c616720310d0aa780dc8700030101010210156175746f72756e207461736b20310d0ada407eca00030101010202070d0a9b8b8df00003010101021e2356494f5320466f727468203234202f2041676f6e204c6967687420320d0a1baa51af000301010102060b76696f733e204ead91e1000301010102353a68656c6c6f3a2056494f53206170706c69636174696f6e207374617274656420285441534b53202f205441534b2d4b494c4c290d0aa3c75a7a00", "text": "\u0003\u0001\u0001\u0001\u0002\u0012\u0017boot confirmed A\r\n\ufffd\ufffd\ufffdA\u0000\u0003\u0001\u0003\u0001\u0002\u000f\u0014HEALTH flag 1\r\n\ufffd\ufffd\u0707\u0000\u0003\u0001\u0001\u0001\u0002\u0010\u0015autorun task 1\r\n\ufffd@~\ufffd\u0000\u0003\u0001\u0001\u0001\u0002\u0002\u0007\r\n\ufffd\ufffd\ufffd\ufffd\u0000\u0003\u0001\u0001\u0001\u0002\u001e#VIOS Forth 24 / Agon Light 2\r\n\u001b\ufffdQ\ufffd\u0000\u0003\u0001\u0001\u0001\u0002\u0006\u000bvios> N\ufffd\ufffd\ufffd\u0000\u0003\u0001\u0001\u0001\u00025:hello: VIOS application started (TASKS / TASK-KILL)\r\n\ufffd\ufffdZz\u0000"}
+{"time": 1792441813.516889, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441813.5172029, "direction": "rx", "hex": "010209020c11424f4f542052454144590d0a61c3462700", "text": "\u0001\u0002\t\u0002\f\u0011BOOT READY\r\na\ufffdF'\u0000"}
+{"time": 1792441813.517361, "direction": "tx", "hex": "0401020a0203084d520a55ea9d4000", "text": "\u0004\u0001\u0002\n\u0002\u0003\bMR\nU\ufffd@\u0000"}
+{"time": 1792441813.5266519, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441813.5269709, "direction": "rx", "hex": "01020a020b104d4f532052455345540d0a62a5838f00", "text": "\u0001\u0002\n\u0002\u000b\u0010MOS RESET\r\nb\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792441815.531646, "direction": "tx", "hex": "0401020b020207420a0f3243dc00", "text": "\u0004\u0001\u0002\u000b\u0002\u0002\u0007B\n\u000f2C\ufffd\u0000"}
+{"time": 1792441815.534347, "direction": "rx", "hex": "03010301022d324d4f533a2041676f6e20506c6174666f726d204d4f532056657273696f6e20332e302e32204172746875720d0ab9e0836e000301030102252a424f4f54206c696e6b3a207374756220737769746368656420746f20313135323030300d0a7603678400", "text": "\u0003\u0001\u0003\u0001\u0002-2MOS: Agon Platform MOS Version 3.0.2 Arthur\r\n\ufffd\ufffd\ufffdn\u0000\u0003\u0001\u0003\u0001\u0002%*BOOT link: stub switched to 1152000\r\nv\u0003g\ufffd\u0000"}
+{"time": 1792441815.540077, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441815.540498, "direction": "rx", "hex": "01020b020d12424f4f542048414c5445440d0ab21f0d8a00", "text": "\u0001\u0002\u000b\u0002\r\u0012BOOT HALTED\r\n\ufffd\u001f\r\ufffd\u0000"}
+{"time": 1792441817.5409658, "direction": "tx", "hex": "0401020c020207420ab70246c100", "text": "\u0004\u0001\u0002\f\u0002\u0002\u0007B\n\ufffd\u0002F\ufffd\u0000"}
+{"time": 1792441817.548692, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441817.548903, "direction": "rx", "hex": "01020c020d12424f4f542048414c5445440d0af9639faa00", "text": "\u0001\u0002\f\u0002\r\u0012BOOT HALTED\r\n\ufffdc\ufffd\ufffd\u0000"}
+{"time": 1792441819.554024, "direction": "tx", "hex": "0401020d020207420a12d11a0a00", "text": "\u0004\u0001\u0002\r\u0002\u0002\u0007B\n\u0012\ufffd\u001a\n\u0000"}
+{"time": 1792441819.5616078, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441819.56181, "direction": "rx", "hex": "01020d020d12424f4f542048414c5445440d0abaa8392d00", "text": "\u0001\u0002\r\u0002\r\u0012BOOT HALTED\r\n\ufffd\ufffd9-\u0000"}
+{"time": 1792441821.565574, "direction": "tx", "hex": "0401020e020207420abca38e8c00", "text": "\u0004\u0001\u0002\u000e\u0002\u0002\u0007B\n\ufffd\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792441821.573705, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441821.573998, "direction": "rx", "hex": "01020e020d12424f4f542048414c5445440d0a3ef3a37e00", "text": "\u0001\u0002\u000e\u0002\r\u0012BOOT HALTED\r\n>\ufffd~\u0000"}
+{"time": 1792441823.5760581, "direction": "tx", "hex": "0401020f020207420a1970d24700", "text": "\u0004\u0001\u0002\u000f\u0002\u0002\u0007B\n\u0019p\ufffdG\u0000"}
+{"time": 1792441823.5836968, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441823.583848, "direction": "rx", "hex": "01020f020d12424f4f542048414c5445440d0a7d3805f900", "text": "\u0001\u0002\u000f\u0002\r\u0012BOOT HALTED\r\n}8\u0005\ufffd\u0000"}
+{"time": 1792441825.588816, "direction": "tx", "hex": "04010210020207420a57c052b500", "text": "\u0004\u0001\u0002\u0010\u0002\u0002\u0007B\nW\ufffdR\ufffd\u0000"}
+{"time": 1792441825.5967832, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441825.597006, "direction": "rx", "hex": "010210020d12424f4f542048414c5445440d0ad592d62800", "text": "\u0001\u0002\u0010\u0002\r\u0012BOOT HALTED\r\n\u0552\ufffd(\u0000"}
+{"time": 1792441827.5990121, "direction": "tx", "hex": "04010211020207420af2130e7e00", "text": "\u0004\u0001\u0002\u0011\u0002\u0002\u0007B\n\ufffd\u0013\u000e~\u0000"}
+{"time": 1792441827.60692, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441827.607126, "direction": "rx", "hex": "010211020d12424f4f542048414c5445440d0a965970af00", "text": "\u0001\u0002\u0011\u0002\r\u0012BOOT HALTED\r\n\ufffdYp\ufffd\u0000"}
+{"time": 1792441829.608054, "direction": "tx", "hex": "04010212020207420a5c619af800", "text": "\u0004\u0001\u0002\u0012\u0002\u0002\u0007B\n\\a\ufffd\ufffd\u0000"}
+{"time": 1792441829.6105611, "direction": "rx", "hex": "03010301020f144845414c544820666c616720300d0a90ea1e8600", "text": "\u0003\u0001\u0003\u0001\u0002\u000f\u0014HEALTH flag 0\r\n\ufffd\ufffd\u001e\ufffd\u0000"}
+{"time": 1792441829.615722, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441829.615795, "direction": "rx", "hex": "010212020f14424f4f54205354415254494e470d0a7b59515600", "text": "\u0001\u0002\u0012\u0002\u000f\u0014BOOT STARTING\r\n{YQV\u0000"}
+{"time": 1792441831.618094, "direction": "tx", "hex": "04010213020207420af9b2c63300", "text": "\u0004\u0001\u0002\u0013\u0002\u0002\u0007B\n\ufffd\ufffd\ufffd3\u0000"}
+{"time": 1792441831.62588, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441831.626094, "direction": "rx", "hex": "010213020f14424f4f54205354415254494e470d0a23d9b38100", "text": "\u0001\u0002\u0013\u0002\u000f\u0014BOOT STARTING\r\n#\u0673\ufffd\u0000"}
+{"time": 1792441833.632307, "direction": "tx", "hex": "04010214020207420a4182c32e00", "text": "\u0004\u0001\u0002\u0014\u0002\u0002\u0007B\nA\ufffd\ufffd.\u0000"}
+{"time": 1792441833.634884, "direction": "rx", "hex": "03010101021217626f6f7420636f6e6669726d656420410d0af1e2e2410003010301020f144845414c544820666c616720310d0aa780dc8700030101010210156175746f72756e207461736b20310d0ada407eca00030101010202070d0a9b8b8df00003010101021e2356494f5320466f727468203234202f2041676f6e204c6967687420320d0a1baa51af000301010102060b76696f733e204ead91e1000301010102353a68656c6c6f3a2056494f53206170706c69636174696f6e207374617274656420285441534b53202f205441534b2d4b494c4c290d0aa3c75a7a00", "text": "\u0003\u0001\u0001\u0001\u0002\u0012\u0017boot confirmed A\r\n\ufffd\ufffd\ufffdA\u0000\u0003\u0001\u0003\u0001\u0002\u000f\u0014HEALTH flag 1\r\n\ufffd\ufffd\u0707\u0000\u0003\u0001\u0001\u0001\u0002\u0010\u0015autorun task 1\r\n\ufffd@~\ufffd\u0000\u0003\u0001\u0001\u0001\u0002\u0002\u0007\r\n\ufffd\ufffd\ufffd\ufffd\u0000\u0003\u0001\u0001\u0001\u0002\u001e#VIOS Forth 24 / Agon Light 2\r\n\u001b\ufffdQ\ufffd\u0000\u0003\u0001\u0001\u0001\u0002\u0006\u000bvios> N\ufffd\ufffd\ufffd\u0000\u0003\u0001\u0001\u0001\u00025:hello: VIOS application started (TASKS / TASK-KILL)\r\n\ufffd\ufffdZz\u0000"}
+{"time": 1792441833.63952, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441833.639767, "direction": "rx", "hex": "010214020c11424f4f542052454144590d0aa6bf2bc800", "text": "\u0001\u0002\u0014\u0002\f\u0011BOOT READY\r\n\ufffd\ufffd+\ufffd\u0000"}
+{"time": 1792441835.643801, "direction": "tx", "hex": "04010215020207420ae4519fe500", "text": "\u0004\u0001\u0002\u0015\u0002\u0002\u0007B\n\ufffdQ\ufffd\ufffd\u0000"}
+{"time": 1792441835.650624, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441835.652976, "direction": "rx", "hex": "010215020c11424f4f542052454144590d0a372e436600", "text": "\u0001\u0002\u0015\u0002\f\u0011BOOT READY\r\n7.Cf\u0000"}
+{"time": 1792441837.654809, "direction": "tx", "hex": "04010216020207420a4a230b6300", "text": "\u0004\u0001\u0002\u0016\u0002\u0002\u0007B\nJ#\u000bc\u0000"}
+{"time": 1792441837.661601, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441837.661814, "direction": "rx", "hex": "010216020c11424f4f542052454144590d0ac59a8b4f00", "text": "\u0001\u0002\u0016\u0002\f\u0011BOOT READY\r\n\u015a\ufffdO\u0000"}
+{"time": 1792441839.6686342, "direction": "tx", "hex": "04010217020207420aeff057a800", "text": "\u0004\u0001\u0002\u0017\u0002\u0002\u0007B\n\ufffd\ufffdW\ufffd\u0000"}
+{"time": 1792441839.675615, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441839.675819, "direction": "rx", "hex": "010217020c11424f4f542052454144590d0a540be3e100", "text": "\u0001\u0002\u0017\u0002\f\u0011BOOT READY\r\nT\u000b\ufffd\ufffd\u0000"}
+{"time": 1792441841.684736, "direction": "tx", "hex": "04010218020207420a3a42015900", "text": "\u0004\u0001\u0002\u0018\u0002\u0002\u0007B\n:B\u0001Y\u0000"}
+{"time": 1792441841.691631, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441841.691831, "direction": "rx", "hex": "010218020c11424f4f542052454144590d0a6e6c096f00", "text": "\u0001\u0002\u0018\u0002\f\u0011BOOT READY\r\nnl\to\u0000"}
+{"time": 1792441843.692894, "direction": "tx", "hex": "04010219020207420a9f915d9200", "text": "\u0004\u0001\u0002\u0019\u0002\u0002\u0007B\n\ufffd\ufffd]\ufffd\u0000"}
+{"time": 1792441843.695436, "direction": "rx", "hex": "0301010102151a68656c6c6f3a206865617274626561742031200d0a558552f600", "text": "\u0003\u0001\u0001\u0001\u0002\u0015\u001ahello: heartbeat 1 \r\nU\ufffdR\ufffd\u0000"}
+{"time": 1792441843.701685, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441843.7018712, "direction": "rx", "hex": "010219020c11424f4f542052454144590d0afffd61c100", "text": "\u0001\u0002\u0019\u0002\f\u0011BOOT READY\r\n\ufffd\ufffda\ufffd\u0000"}
+{"time": 1792441845.7042382, "direction": "tx", "hex": "0401021a020207420a31e3c91400", "text": "\u0004\u0001\u0002\u001a\u0002\u0002\u0007B\n1\ufffd\ufffd\u0014\u0000"}
+{"time": 1792441845.711591, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441845.7118669, "direction": "rx", "hex": "01021a020c11424f4f542052454144590d0a0d49a9e800", "text": "\u0001\u0002\u001a\u0002\f\u0011BOOT READY\r\n\rI\ufffd\ufffd\u0000"}
+{"time": 1792441847.715751, "direction": "tx", "hex": "0401021b020207420a943095df00", "text": "\u0004\u0001\u0002\u001b\u0002\u0002\u0007B\n\ufffd0\ufffd\ufffd\u0000"}
+{"time": 1792441847.7235782, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441847.723705, "direction": "rx", "hex": "01021b020c11424f4f542052454144590d0a9cd8c14600", "text": "\u0001\u0002\u001b\u0002\f\u0011BOOT READY\r\n\ufffd\ufffd\ufffdF\u0000"}
+{"time": 1792441849.7277079, "direction": "tx", "hex": "0401021c020204420a2c0390c200", "text": "\u0004\u0001\u0002\u001c\u0002\u0002\u0004B\n,\u0003\ufffd\ufffd\u0000"}
+{"time": 1792441849.734624, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441849.734781, "direction": "rx", "hex": "01021c020c11424f4f542052454144590d0ae92038bb00", "text": "\u0001\u0002\u001c\u0002\f\u0011BOOT READY\r\n\ufffd 8\ufffd\u0000"}
+{"time": 1792441851.739892, "direction": "tx", "hex": "0401021d020207420a89d3cc0900", "text": "\u0004\u0001\u0002\u001d\u0002\u0002\u0007B\n\ufffd\ufffd\ufffd\t\u0000"}
+{"time": 1792441851.7465332, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441851.7466502, "direction": "rx", "hex": "01021d020c11424f4f542052454144590d0a78b1501500", "text": "\u0001\u0002\u001d\u0002\f\u0011BOOT READY\r\nx\ufffdP\u0015\u0000"}
+{"time": 1792441853.752933, "direction": "tx", "hex": "0401021e020207420a27a1588f00", "text": "\u0004\u0001\u0002\u001e\u0002\u0002\u0007B\n'\ufffdX\ufffd\u0000"}
+{"time": 1792441853.7554529, "direction": "rx", "hex": "0301010102151a68656c6c6f3a206865617274626561742032200d0abb2ae7e400", "text": "\u0003\u0001\u0001\u0001\u0002\u0015\u001ahello: heartbeat 2 \r\n\ufffd*\ufffd\ufffd\u0000"}
+{"time": 1792441853.760515, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441853.76062, "direction": "rx", "hex": "01021e020c11424f4f542052454144590d0a8a05983c00", "text": "\u0001\u0002\u001e\u0002\f\u0011BOOT READY\r\n\ufffd\u0005\ufffd<\u0000"}
+{"time": 1792441855.762231, "direction": "tx", "hex": "0401021f020207420a8272044400", "text": "\u0004\u0001\u0002\u001f\u0002\u0002\u0007B\n\ufffdr\u0004D\u0000"}
+{"time": 1792441855.76957, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441855.7696981, "direction": "rx", "hex": "01021f020c11424f4f542052454144590d0a1b94f09200", "text": "\u0001\u0002\u001f\u0002\f\u0011BOOT READY\r\n\u001b\ufffd\ufffd\u0000"}
+{"time": 1792441857.7739809, "direction": "tx", "hex": "04010220020207420afac728b100", "text": "\u0004\u0001\u0002 \u0002\u0002\u0007B\n\ufffd\ufffd(\ufffd\u0000"}
+{"time": 1792441857.7816792, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441857.781842, "direction": "rx", "hex": "010220020c11424f4f542052454144590d0ac2b602ed00", "text": "\u0001\u0002 \u0002\f\u0011BOOT READY\r\n\u00b6\u0002\ufffd\u0000"}
+{"time": 1792441859.7862039, "direction": "tx", "hex": "04010221020207420a5f14747a00", "text": "\u0004\u0001\u0002!\u0002\u0002\u0007B\n_\u0014tz\u0000"}
+{"time": 1792441859.793907, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441859.7941031, "direction": "rx", "hex": "010221020c11424f4f542052454144590d0a53276a4300", "text": "\u0001\u0002!\u0002\f\u0011BOOT READY\r\nS'jC\u0000"}
+{"time": 1792441861.7966359, "direction": "tx", "hex": "04010222020207420af166e0fc00", "text": "\u0004\u0001\u0002\"\u0002\u0002\u0007B\n\ufffdf\ufffd\ufffd\u0000"}
+{"time": 1792441861.803445, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441861.8035488, "direction": "rx", "hex": "010222020c11424f4f542052454144590d0aa193a26a00", "text": "\u0001\u0002\"\u0002\f\u0011BOOT READY\r\n\ufffd\ufffd\ufffdj\u0000"}
+{"time": 1792441863.8086872, "direction": "tx", "hex": "04010223020207420a54b5bc3700", "text": "\u0004\u0001\u0002#\u0002\u0002\u0007B\nT\ufffd\ufffd7\u0000"}
+{"time": 1792441863.811161, "direction": "rx", "hex": "0301010102151a68656c6c6f3a206865617274626561742033200d0ade4d5b5c00", "text": "\u0003\u0001\u0001\u0001\u0002\u0015\u001ahello: heartbeat 3 \r\n\ufffdM[\\\u0000"}
+{"time": 1792441863.815347, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441863.815418, "direction": "rx", "hex": "010223020c11424f4f542052454144590d0a3002cac400", "text": "\u0001\u0002#\u0002\f\u0011BOOT READY\r\n0\u0002\ufffd\ufffd\u0000"}
+{"time": 1792441865.820118, "direction": "tx", "hex": "04010224020207420aec85b92a00", "text": "\u0004\u0001\u0002$\u0002\u0002\u0007B\n\uc179*\u0000"}
+{"time": 1792441865.827575, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441865.8277729, "direction": "rx", "hex": "010224020c11424f4f542052454144590d0a45fa333900", "text": "\u0001\u0002$\u0002\f\u0011BOOT READY\r\nE\ufffd39\u0000"}
+{"time": 1792441867.8320699, "direction": "tx", "hex": "04010225020207420a4956e5e100", "text": "\u0004\u0001\u0002%\u0002\u0002\u0007B\nIV\ufffd\ufffd\u0000"}
+{"time": 1792441867.839524, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441867.8396301, "direction": "rx", "hex": "010225020c11424f4f542052454144590d0ad46b5b9700", "text": "\u0001\u0002%\u0002\f\u0011BOOT READY\r\n\ufffdk[\ufffd\u0000"}
+{"time": 1792441869.8401139, "direction": "tx", "hex": "04010226020207420ae724716700", "text": "\u0004\u0001\u0002&\u0002\u0002\u0007B\n\ufffd$qg\u0000"}
+{"time": 1792441869.847593, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441869.847706, "direction": "rx", "hex": "010226020c11424f4f542052454144590d0a26df93be00", "text": "\u0001\u0002&\u0002\f\u0011BOOT READY\r\n&\u07d3\ufffd\u0000"}
+{"time": 1792441871.849338, "direction": "tx", "hex": "04010227020207420a42f72dac00", "text": "\u0004\u0001\u0002'\u0002\u0002\u0007B\nB\ufffd-\ufffd\u0000"}
+{"time": 1792441871.856668, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441871.85694, "direction": "rx", "hex": "010227020c11424f4f542052454144590d0ab74efb1000", "text": "\u0001\u0002'\u0002\f\u0011BOOT READY\r\n\ufffdN\ufffd\u0010\u0000"}
+{"time": 1792441873.8588958, "direction": "tx", "hex": "04010228020207420a97457b5d00", "text": "\u0004\u0001\u0002(\u0002\u0002\u0007B\n\ufffdE{]\u0000"}
+{"time": 1792441873.861388, "direction": "rx", "hex": "0301010102151a68656c6c6f3a206865617274626561742034200d0a67758cc100", "text": "\u0003\u0001\u0001\u0001\u0002\u0015\u001ahello: heartbeat 4 \r\ngu\ufffd\ufffd\u0000"}
+{"time": 1792441873.865549, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441873.865622, "direction": "rx", "hex": "010228020c11424f4f542052454144590d0a8d29119e00", "text": "\u0001\u0002(\u0002\f\u0011BOOT READY\r\n\ufffd)\u0011\ufffd\u0000"}
+{"time": 1792441873.86568, "direction": "tx", "hex": "040102290203084d580ade21274400", "text": "\u0004\u0001\u0002)\u0002\u0003\bMX\n\ufffd!'D\u0000"}
+{"time": 1792441873.871945, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441873.872013, "direction": "rx", "hex": "01022902f0f54d4f5320525820363134352031372030302038302030312031", "text": "\u0001\u0002)\u0002\ufffd\ufffdMOS RX 6145 17 00 80 01 1"}
+{"time": 1792441873.8753421, "direction": "rx", "hex": "37", "text": "7"}
+{"time": 1792441873.875445, "direction": "rx", "hex": "20303020463820303120303120303120303020313720303020393920373520", "text": " 00 F8 01 01 01 00 17 00 99 75 "}
+{"time": 1792441873.877527, "direction": "rx", "hex": "31", "text": "1"}
+{"time": 1792441873.8776178, "direction": "rx", "hex": "37203030203836203137203030203934203830203044203431203637203646", "text": "7 00 86 17 00 94 80 0D 41 67 6F"}
+{"time": 1792441873.8803399, "direction": "rx", "hex": "20", "text": " "}
+{"time": 1792441873.880517, "direction": "rx", "hex": "36452032302035302036432036312037342036362036462037322036442032", "text": "6E 20 50 6C 61 74 66 6F 72 6D 2"}
+{"time": 1792441873.883033, "direction": "rx", "hex": "30", "text": "0"}
+{"time": 1792441873.887367, "direction": "rx", "hex": "203444203446203533203230203536203635203732203733203639203646203645205458203833352038302f312038312f342038362f382038342f34203837", "text": " 4D 4F 53 20 56 65 72 73 69 6F 6E TX 835 80/1 81/4 86/8 84/4 87"}
+{"time": 1792441873.888651, "direction": "rx", "hex": "2f", "text": "/"}
+{"time": 1792441873.88868, "direction": "rx", "hex": "362038372f362046422f352046422f31362046422f3139392046422f313939", "text": "6 87/6 FB/5 FB/16 FB/199 FB/199"}
+{"time": 1792441873.8914912, "direction": "rx", "hex": "20", "text": " "}
+{"time": 1792441873.891585, "direction": "rx", "hex": "46422f3139392046422f3139392046422f3139392046e27bcc650004010229", "text": "FB/199 FB/199 FB/199 F\ufffd{\ufffde\u0000\u0004\u0001\u0002)"}
+{"time": 1792441873.8958879, "direction": "rx", "hex": "02", "text": "\u0002"}
+{"time": 1792441873.8959842, "direction": "rx", "hex": "151a422f3139392046422f3139392046422f3139390d0ac9daeb2100", "text": "\u0015\u001aB/199 FB/199 FB/199\r\n\ufffd\ufffd\ufffd!\u0000"}
+{"time": 1792441873.8960378, "direction": "tx", "hex": "0401022a02050a435230300a4646b48e00", "text": "\u0004\u0001\u0002*\u0002\u0005\nCR00\nFF\ufffd\ufffd\u0000"}
+{"time": 1792441873.902465, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441873.90254, "direction": "rx", "hex": "01022a021a1f43524f5720303020626f6f7420636f6e6669726d656420410d", "text": "\u0001\u0002*\u0002\u001a\u001fCROW 00 boot confirmed A\r"}
+{"time": 1792441873.904823, "direction": "rx", "hex": "0a", "text": "\n"}
+{"time": 1792441873.904854, "direction": "rx", "hex": "4b5682e900", "text": "KV\ufffd\ufffd\u0000"}
+{"time": 1792441873.904897, "direction": "tx", "hex": "0401022b02050a435230310a4463d48000", "text": "\u0004\u0001\u0002+\u0002\u0005\nCR01\nDc\u0500\u0000"}
+{"time": 1792441873.910418, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441873.910516, "direction": "rx", "hex": "01022b02181d43524f57203031206175746f72756e207461736b20310d0ace", "text": "\u0001\u0002+\u0002\u0018\u001dCROW 01 autorun task 1\r\n\ufffd"}
+{"time": 1792441873.912641, "direction": "rx", "hex": "9f", "text": "\ufffd"}
+{"time": 1792441873.9126642, "direction": "rx", "hex": "2c3200", "text": ",2\u0000"}
+{"time": 1792441873.912711, "direction": "tx", "hex": "0401022c02050a435230320a4e5d98cf00", "text": "\u0004\u0001\u0002,\u0002\u0005\nCR02\nN]\ufffd\ufffd\u0000"}
+{"time": 1792441873.91954, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441873.919639, "direction": "rx", "hex": "01022c020a0f43524f57203032200d0ac3e48c4900", "text": "\u0001\u0002,\u0002\n\u000fCROW 02 \r\n\ufffd\ufffdI\u0000"}
+{"time": 1792441873.9196868, "direction": "tx", "hex": "0401022d02050a435230330a4c78f8c100", "text": "\u0004\u0001\u0002-\u0002\u0005\nCR03\nLx\ufffd\ufffd\u0000"}
+{"time": 1792441873.925672, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441873.925777, "direction": "rx", "hex": "01022d02262b43524f572030332056494f5320466f727468203234202f2041", "text": "\u0001\u0002-\u0002&+CROW 03 VIOS Forth 24 / A"}
+{"time": 1792441873.928912, "direction": "rx", "hex": "67", "text": "g"}
+{"time": 1792441873.928959, "direction": "rx", "hex": "6f6e204c6967687420320d0ab14624b600", "text": "on Light 2\r\n\ufffdF$\ufffd\u0000"}
+{"time": 1792441873.9290082, "direction": "tx", "hex": "0401022e02050a435230340a4ed234b700", "text": "\u0004\u0001\u0002.\u0002\u0005\nCR04\nN\ufffd4\ufffd\u0000"}
+{"time": 1792441873.93774, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441873.9381068, "direction": "rx", "hex": "01022e02434843524f572030342076696f733e2068656c6c6f3a2056494f53", "text": "\u0001\u0002.\u0002CHCROW 04 vios> hello: VIOS"}
+{"time": 1792441873.938198, "direction": "rx", "hex": "206170706c69636174696f6e207374617274656420285441534b53202f205441", "text": " application started (TASKS / TA"}
+{"time": 1792441873.9414551, "direction": "rx", "hex": "53", "text": "S"}
+{"time": 1792441873.9415438, "direction": "rx", "hex": "4b2d4b494c4c290d0a24e2d54100", "text": "K-KILL)\r\n$\ufffd\ufffdA\u0000"}
+{"time": 1792441873.9415958, "direction": "tx", "hex": "0401022f02050a435230350a4cf754b900", "text": "\u0004\u0001\u0002/\u0002\u0005\nCR05\nL\ufffdT\ufffd\u0000"}
+{"time": 1792441873.947456, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441873.947529, "direction": "rx", "hex": "01022f02303543524f572030352041676f6e20506c6174666f726d204d4f53", "text": "\u0001\u0002/\u000205CROW 05 Agon Platform MOS"}
+{"time": 1792441873.951797, "direction": "rx", "hex": "20", "text": " "}
+{"time": 1792441873.951869, "direction": "rx", "hex": "56657273696f6e20332e302e32204172746875720d0a036ac94a00", "text": "Version 3.0.2 Arthur\r\n\u0003j\ufffdJ\u0000"}
+{"time": 1792441873.951922, "direction": "tx", "hex": "04010230020508435230360a2f2902e100", "text": "\u0004\u0001\u00020\u0002\u0005\bCR06\n/)\u0002\ufffd\u0000"}
+{"time": 1792441873.959536, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441873.959643, "direction": "rx", "hex": "010230020a0f43524f57203036200d0ad5dea98a00", "text": "\u0001\u00020\u0002\n\u000fCROW 06 \r\n\ufffd\u07a9\ufffd\u0000"}
+{"time": 1792441873.95969, "direction": "tx", "hex": "0401023102050a435230370a2d0c60ef00", "text": "\u0004\u0001\u00021\u0002\u0005\nCR07\n-\f`\ufffd\u0000"}
+{"time": 1792441873.965348, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441873.965538, "direction": "rx", "hex": "010231021a1f43524f5720303720626f6f7420636f6e6669726d656420410d", "text": "\u0001\u00021\u0002\u001a\u001fCROW 07 boot confirmed A\r"}
+{"time": 1792441873.968104, "direction": "rx", "hex": "0a", "text": "\n"}
+{"time": 1792441873.968226, "direction": "rx", "hex": "c3f7fd0400", "text": "\ufffd\ufffd\ufffd\u0004\u0000"}
+{"time": 1792441873.9682891, "direction": "tx", "hex": "0401023202050a435230380a272c755100", "text": "\u0004\u0001\u00022\u0002\u0005\nCR08\n',uQ\u0000"}
+{"time": 1792441873.9746308, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441873.974842, "direction": "rx", "hex": "01023202181d43524f57203038206175746f72756e207461736b20310d0a06", "text": "\u0001\u00022\u0002\u0018\u001dCROW 08 autorun task 1\r\n\u0006"}
+{"time": 1792441873.9768288, "direction": "rx", "hex": "43", "text": "C"}
+{"time": 1792441873.981766, "direction": "rx", "hex": "6add00", "text": "j\ufffd\u0000"}
+{"time": 1792441873.982042, "direction": "tx", "hex": "0401023302050a435230390a2509155f00", "text": "\u0004\u0001\u00023\u0002\u0005\nCR09\n%\t\u0015_\u0000"}
+{"time": 1792441873.989494, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441873.9896011, "direction": "rx", "hex": "010233020a0f43524f57203039200d0a58ebabae00", "text": "\u0001\u00023\u0002\n\u000fCROW 09 \r\nX\ubaee\u0000"}
+{"time": 1792441873.989655, "direction": "tx", "hex": "0401023402050a435230410a129792dc00", "text": "\u0004\u0001\u00024\u0002\u0005\nCR0A\n\u0012\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792441873.9953952, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441873.996093, "direction": "rx", "hex": "01023402262b43524f572030412056494f5320466f727468203234202f2041", "text": "\u0001\u00024\u0002&+CROW 0A VIOS Forth 24 / A"}
+{"time": 1792441873.998852, "direction": "rx", "hex": "67", "text": "g"}
+{"time": 1792441873.9990258, "direction": "rx", "hex": "6f6e204c6967687420320d0a0c9afb6700", "text": "on Light 2\r\n\f\ufffd\ufffdg\u0000"}
+{"time": 1792441873.999177, "direction": "tx", "hex": "0401023502050a435230420a92d0c4e000", "text": "\u0004\u0001\u00025\u0002\u0005\nCR0B\n\ufffd\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792441874.005397, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441874.005505, "direction": "rx", "hex": "01023502434843524f572030422076696f733e2068656c6c6f3a2056494f53", "text": "\u0001\u00025\u0002CHCROW 0B vios> hello: VIOS"}
+{"time": 1792441874.008244, "direction": "rx", "hex": "20", "text": " "}
+{"time": 1792441874.008349, "direction": "rx", "hex": "6170706c69636174696f6e207374617274656420285441534b53202f205441", "text": "application started (TASKS / TA"}
+{"time": 1792441874.01147, "direction": "rx", "hex": "53", "text": "S"}
+{"time": 1792441874.011575, "direction": "rx", "hex": "4b2d4b494c4c290d0adf6f2c2b00", "text": "K-KILL)\r\n\ufffdo,+\u0000"}
+{"time": 1792441874.0116348, "direction": "tx", "hex": "0401023602050a435230430a16dd52c000", "text": "\u0004\u0001\u00026\u0002\u0005\nCR0C\n\u0016\ufffdR\ufffd\u0000"}
+{"time": 1792441874.021236, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441874.021352, "direction": "rx", "hex": "010236021c2143524f572030432068656c6c6f3a2068656172746265617420310d0a904aa33900", "text": "\u0001\u00026\u0002\u001c!CROW 0C hello: heartbeat 1\r\n\ufffdJ\ufffd9\u0000"}
+{"time": 1792441874.021409, "direction": "tx", "hex": "0401023702050a435230440a925f689800", "text": "\u0004\u0001\u00027\u0002\u0005\nCR0D\n\ufffd_h\ufffd\u0000"}
+{"time": 1792441874.027373, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441874.027487, "direction": "rx", "hex": "010237021c2143524f572030442068656c6c6f3a2068656172746265617420", "text": "\u0001\u00027\u0002\u001c!CROW 0D hello: heartbeat "}
+{"time": 1792441874.029813, "direction": "rx", "hex": "32", "text": "2"}
+{"time": 1792441874.029865, "direction": "rx", "hex": "0d0a23cfe6af00", "text": "\r\n#\ufffd\ufffd\u0000"}
+{"time": 1792441874.0299158, "direction": "tx", "hex": "0401023802050a435230450a02a1ca5e00", "text": "\u0004\u0001\u00028\u0002\u0005\nCR0E\n\u0002\ufffd\ufffd^\u0000"}
+{"time": 1792441874.036322, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441874.036434, "direction": "rx", "hex": "010238021c2143524f572030452068656c6c6f3a2068656172746265617420", "text": "\u0001\u00028\u0002\u001c!CROW 0E hello: heartbeat "}
+{"time": 1792441874.0389419, "direction": "rx", "hex": "33", "text": "3"}
+{"time": 1792441874.039008, "direction": "rx", "hex": "0d0a15e78de200", "text": "\r\n\u0015\ufffd\ufffd\u0000"}
+{"time": 1792441874.039052, "direction": "tx", "hex": "0401023902050a435230460a82e69c6200", "text": "\u0004\u0001\u00029\u0002\u0005\nCR0F\n\ufffd\ufffdb\u0000"}
+{"time": 1792441874.045322, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441874.045461, "direction": "rx", "hex": "010239021c2143524f572030462068656c6c6f3a2068656172746265617420", "text": "\u0001\u00029\u0002\u001c!CROW 0F hello: heartbeat "}
+{"time": 1792441874.047905, "direction": "rx", "hex": "34", "text": "4"}
+{"time": 1792441874.04794, "direction": "rx", "hex": "0d0a7a59602f00", "text": "\r\nzY`/\u0000"}
+{"time": 1792441874.047988, "direction": "tx", "hex": "0401023a020506435231300a046eb62300", "text": "\u0004\u0001\u0002:\u0002\u0005\u0006CR10\n\u0004n\ufffd#\u0000"}
+{"time": 1792441874.055406, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441874.055496, "direction": "rx", "hex": "01023a020a0f43524f57203130200d0a2272954000", "text": "\u0001\u0002:\u0002\n\u000fCROW 10 \r\n\"r\ufffd@\u0000"}
+{"time": 1792441874.055537, "direction": "tx", "hex": "0401023b02050a435231310a024bd62d00", "text": "\u0004\u0001\u0002;\u0002\u0005\nCR11\n\u0002K\ufffd-\u0000"}
+{"time": 1792441874.062548, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441874.062659, "direction": "rx", "hex": "01023b020a0f43524f57203131200d0a31f4266500", "text": "\u0001\u0002;\u0002\n\u000fCROW 11 \r\n1\ufffd&e\u0000"}
+{"time": 1792441874.062711, "direction": "tx", "hex": "0401023c02050a435231320a08759a6200", "text": "\u0004\u0001\u0002<\u0002\u0005\nCR12\n\bu\ufffdb\u0000"}
+{"time": 1792441874.071365, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441874.0715709, "direction": "rx", "hex": "01023c020a0f43524f57203132200d0a1ff15e1200", "text": "\u0001\u0002<\u0002\n\u000fCROW 12 \r\n\u001f\ufffd^\u0012\u0000"}
+{"time": 1792441874.071685, "direction": "tx", "hex": "0401023d02050a435231330a0a50fa6c00", "text": "\u0004\u0001\u0002=\u0002\u0005\nCR13\n\nP\ufffdl\u0000"}
+{"time": 1792441874.078335, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441874.078443, "direction": "rx", "hex": "01023d020a0f43524f57203133200d0a0c77ed3700", "text": "\u0001\u0002=\u0002\n\u000fCROW 13 \r\n\fw\ufffd7\u0000"}
+{"time": 1792441874.0784929, "direction": "tx", "hex": "0401023e02050a435231340a08fa361a00", "text": "\u0004\u0001\u0002>\u0002\u0005\nCR14\n\b\ufffd6\u001a\u0000"}
+{"time": 1792441874.085433, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441874.085533, "direction": "rx", "hex": "01023e020a0f43524f57203134200d0a6e6a5bd600", "text": "\u0001\u0002>\u0002\n\u000fCROW 14 \r\nnj[\ufffd\u0000"}
+{"time": 1792441874.085578, "direction": "tx", "hex": "0401023f02050a435231350a0adf561400", "text": "\u0004\u0001\u0002?\u0002\u0005\nCR15\n\n\ufffdV\u0014\u0000"}
+{"time": 1792441874.092708, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441874.09291, "direction": "rx", "hex": "01023f020a0f43524f57203135200d0a7dece8f300", "text": "\u0001\u0002?\u0002\n\u000fCROW 15 \r\n}\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792441874.093021, "direction": "tx", "hex": "0401024002050a435231360acd80611000", "text": "\u0004\u0001\u0002@\u0002\u0005\nCR16\n\u0340a\u0010\u0000"}
+{"time": 1792441874.10677, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441874.107012, "direction": "rx", "hex": "010240020a0f43524f57203136200d0a2044a65d00", "text": "\u0001\u0002@\u0002\n\u000fCROW 16 \r\n D\ufffd]\u0000"}
+{"time": 1792441874.107161, "direction": "tx", "hex": "0401024102050a435231370acfa5011e00", "text": "\u0004\u0001\u0002A\u0002\u0005\nCR17\n\u03e5\u0001\u001e\u0000"}
+{"time": 1792441874.1144772, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441874.114583, "direction": "rx", "hex": "010241020a0f43524f57203137200d0a33c2157800", "text": "\u0001\u0002A\u0002\n\u000fCROW 17 \r\n3\ufffd\u0015x\u0000"}
+{"time": 1792441874.114644, "direction": "tx", "hex": "0401024202050a435231380ac58514a000", "text": "\u0004\u0001\u0002B\u0002\u0005\nCR18\n\u0145\u0014\ufffd\u0000"}
+{"time": 1792441874.1214552, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441874.121556, "direction": "rx", "hex": "010242020a0f43524f57203138200d0abef7175c00", "text": "\u0001\u0002B\u0002\n\u000fCROW 18 \r\n\ufffd\ufffd\u0017\\\u0000"}
+{"time": 1792441874.1216042, "direction": "tx", "hex": "0401024302050a435231390ac7a074ae00", "text": "\u0004\u0001\u0002C\u0002\u0005\nCR19\n\u01e0t\ufffd\u0000"}
+{"time": 1792441874.1284149, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441874.128512, "direction": "rx", "hex": "010243020a0f43524f57203139200d0aad71a47900", "text": "\u0001\u0002C\u0002\n\u000fCROW 19 \r\n\ufffdq\ufffdy\u0000"}
+{"time": 1792441874.128557, "direction": "tx", "hex": "0401024402050a435231410af03ef32d00", "text": "\u0004\u0001\u0002D\u0002\u0005\nCR1A\n\ufffd>\ufffd-\u0000"}
+{"time": 1792441874.1354702, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441874.135566, "direction": "rx", "hex": "010244020a0f43524f57203141200d0a1e53e2b200", "text": "\u0001\u0002D\u0002\n\u000fCROW 1A \r\n\u001eS\ufffd\u0000"}
+{"time": 1792441874.135618, "direction": "tx", "hex": "0401024502050a435231420a7079a51100", "text": "\u0004\u0001\u0002E\u0002\u0005\nCR1B\npy\ufffd\u0011\u0000"}
+{"time": 1792441874.142525, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441874.142623, "direction": "rx", "hex": "010245020a0f43524f57203142200d0a861d583d00", "text": "\u0001\u0002E\u0002\n\u000fCROW 1B \r\n\ufffd\u001dX=\u0000"}
+{"time": 1792441874.142666, "direction": "tx", "hex": "0401024602050a435231430af474333100", "text": "\u0004\u0001\u0002F\u0002\u0005\nCR1C\n\ufffdt31\u0000"}
+{"time": 1792441874.1493309, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441874.149408, "direction": "rx", "hex": "010246020a0f43524f57203143200d0a385f85f900", "text": "\u0001\u0002F\u0002\n\u000fCROW 1C \r\n8_\ufffd\ufffd\u0000"}
+{"time": 1792441874.1494489, "direction": "tx", "hex": "0401024702050a435231440a70f6096900", "text": "\u0004\u0001\u0002G\u0002\u0005\nCR1D\np\ufffd\ti\u0000"}
+{"time": 1792441874.1563368, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441874.156422, "direction": "rx", "hex": "010247020a0f43524f57203144200d0af7865df900", "text": "\u0001\u0002G\u0002\n\u000fCROW 1D \r\n\ufffd\ufffd]\ufffd\u0000"}
+{"time": 1792441874.1564631, "direction": "tx", "hex": "0401024802050a435231450ae008abaf00", "text": "\u0004\u0001\u0002H\u0002\u0005\nCR1E\n\ufffd\b\ufffd\ufffd\u0000"}
+{"time": 1792441874.1645272, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441874.16486, "direction": "rx", "hex": "010248020a0f43524f57203145200d0a6455751700", "text": "\u0001\u0002H\u0002\n\u000fCROW 1E \r\ndUu\u0017\u0000"}
+{"time": 1792441874.165838, "direction": "tx", "hex": "0401024902050a435231460a604ffd9300", "text": "\u0004\u0001\u0002I\u0002\u0005\nCR1F\n`O\ufffd\ufffd\u0000"}
+{"time": 1792441874.173515, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441874.173621, "direction": "rx", "hex": "010249020a0f43524f57203146200d0afc1bcf9800", "text": "\u0001\u0002I\u0002\n\u000fCROW 1F \r\n\ufffd\u001b\u03d8\u0000"}
+{"time": 1792441874.173677, "direction": "tx", "hex": "0401024a02050a435232300a8c1353d100", "text": "\u0004\u0001\u0002J\u0002\u0005\nCR20\n\ufffd\u0013S\ufffd\u0000"}
+{"time": 1792441874.180485, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441874.180592, "direction": "rx", "hex": "01024a020a0f43524f57203230200d0ab7bb5aed00", "text": "\u0001\u0002J\u0002\n\u000fCROW 20 \r\n\ufffd\ufffdZ\ufffd\u0000"}
+{"time": 1792441874.1806421, "direction": "tx", "hex": "0401024b02050a435232310a8e3633df00", "text": "\u0004\u0001\u0002K\u0002\u0005\nCR21\n\ufffd63\ufffd\u0000"}
+{"time": 1792441874.187537, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441874.187635, "direction": "rx", "hex": "01024b020a0f43524f57203231200d0aa43de9c800", "text": "\u0001\u0002K\u0002\n\u000fCROW 21 \r\n\ufffd=\ufffd\ufffd\u0000"}
+{"time": 1792441874.187681, "direction": "tx", "hex": "0401024c02050a435232320a84087f9000", "text": "\u0004\u0001\u0002L\u0002\u0005\nCR22\n\ufffd\b\u007f\ufffd\u0000"}
+{"time": 1792441874.1948318, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441874.195037, "direction": "rx", "hex": "01024c020a0f43524f57203232200d0a8a3891bf00", "text": "\u0001\u0002L\u0002\n\u000fCROW 22 \r\n\ufffd8\ufffd\ufffd\u0000"}
+{"time": 1792441874.1951518, "direction": "tx", "hex": "0401024d02050a435232330a862d1f9e00", "text": "\u0004\u0001\u0002M\u0002\u0005\nCR23\n\ufffd-\u001f\ufffd\u0000"}
+{"time": 1792441874.2030249, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441874.203226, "direction": "rx", "hex": "01024d020a0f43524f57203233200d0a99be229a00", "text": "\u0001\u0002M\u0002\n\u000fCROW 23 \r\n\ufffd\ufffd\"\ufffd\u0000"}
+{"time": 1792441874.203348, "direction": "tx", "hex": "0401024e02050a435232340a8487d3e800", "text": "\u0004\u0001\u0002N\u0002\u0005\nCR24\n\ufffd\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792441874.210711, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441874.210934, "direction": "rx", "hex": "01024e020a0f43524f57203234200d0afba3947b00", "text": "\u0001\u0002N\u0002\n\u000fCROW 24 \r\n\ufffd\ufffd\ufffd{\u0000"}
+{"time": 1792441874.211075, "direction": "tx", "hex": "0401024f02050a435232350a86a2b3e600", "text": "\u0004\u0001\u0002O\u0002\u0005\nCR25\n\ufffd\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792441874.222253, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441874.222539, "direction": "rx", "hex": "01024f020a0f43524f57203235200d0ae825275e00", "text": "\u0001\u0002O\u0002\n\u000fCROW 25 \r\n\ufffd%'^\u0000"}
+{"time": 1792441874.222655, "direction": "tx", "hex": "0401025002050a435232360ae57ce7be00", "text": "\u0004\u0001\u0002P\u0002\u0005\nCR26\n\ufffd|\ufffd\u0000"}
+{"time": 1792441874.2294788, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441874.229652, "direction": "rx", "hex": "010250020a0f43524f57203236200d0a9c02b47c00", "text": "\u0001\u0002P\u0002\n\u000fCROW 26 \r\n\ufffd\u0002\ufffd|\u0000"}
+{"time": 1792441874.2297652, "direction": "tx", "hex": "0401025102050a435232370ae75987b000", "text": "\u0004\u0001\u0002Q\u0002\u0005\nCR27\n\ufffdY\ufffd\ufffd\u0000"}
+{"time": 1792441874.238303, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441874.238417, "direction": "rx", "hex": "010251020a0f43524f57203237200d0a8f84075900", "text": "\u0001\u0002Q\u0002\n\u000fCROW 27 \r\n\ufffd\ufffd\u0007Y\u0000"}
+{"time": 1792441874.2384682, "direction": "tx", "hex": "0401025202050a435232380aed79920e00", "text": "\u0004\u0001\u0002R\u0002\u0005\nCR28\n\ufffdy\ufffd\u000e\u0000"}
+{"time": 1792441874.2455502, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441874.245833, "direction": "rx", "hex": "010252020a0f43524f57203238200d0a02b1057d00", "text": "\u0001\u0002R\u0002\n\u000fCROW 28 \r\n\u0002\ufffd\u0005}\u0000"}
+{"time": 1792441874.245949, "direction": "tx", "hex": "04010253020509435232390aef5cf20100", "text": "\u0004\u0001\u0002S\u0002\u0005\tCR29\n\ufffd\\\ufffd\u0001\u0000"}
+{"time": 1792441874.2543108, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441874.254443, "direction": "rx", "hex": "010253020a0f43524f57203239200d0a1137b65800", "text": "\u0001\u0002S\u0002\n\u000fCROW 29 \r\n\u00117\ufffdX\u0000"}
+{"time": 1792441874.2544918, "direction": "tx", "hex": "0401025402050a435232410ad8c2758300", "text": "\u0004\u0001\u0002T\u0002\u0005\nCR2A\n\ufffd\ufffdu\ufffd\u0000"}
+{"time": 1792441874.2616498, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441874.261884, "direction": "rx", "hex": "010254020a0f43524f57203241200d0aa215f09300", "text": "\u0001\u0002T\u0002\n\u000fCROW 2A \r\n\ufffd\u0015\ufffd\u0000"}
+{"time": 1792441874.2619982, "direction": "tx", "hex": "0401025502050a435232420a588523bf00", "text": "\u0004\u0001\u0002U\u0002\u0005\nCR2B\nX\ufffd#\ufffd\u0000"}
+{"time": 1792441874.2714329, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441874.27165, "direction": "rx", "hex": "010255020a0f43524f57203242200d0a3a5b4a1c00", "text": "\u0001\u0002U\u0002\n\u000fCROW 2B \r\n:[J\u001c\u0000"}
+{"time": 1792441874.2717729, "direction": "tx", "hex": "0401025602050a435232430adc88b59f00", "text": "\u0004\u0001\u0002V\u0002\u0005\nCR2C\n\u0708\ufffd\ufffd\u0000"}
+{"time": 1792441874.2800288, "direction": "rx", "hex": "04010256020a0f43524f57203243200d0a841997d800", "text": "\u0004\u0001\u0002V\u0002\n\u000fCROW 2C \r\n\ufffd\u0019\ufffd\ufffd\u0000"}
+{"time": 1792441874.280364, "direction": "tx", "hex": "0401025702050a435232440a580a8fc700", "text": "\u0004\u0001\u0002W\u0002\u0005\nCR2D\nX\n\ufffd\ufffd\u0000"}
+{"time": 1792441874.288455, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441874.288744, "direction": "rx", "hex": "010257020a0f43524f57203244200d0a4bc04fd800", "text": "\u0001\u0002W\u0002\n\u000fCROW 2D \r\nK\ufffdO\ufffd\u0000"}
+{"time": 1792441874.288863, "direction": "tx", "hex": "0401025802050a435232450ac8f42d0100", "text": "\u0004\u0001\u0002X\u0002\u0005\nCR2E\n\ufffd\ufffd-\u0001\u0000"}
+{"time": 1792441874.2975209, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441874.297827, "direction": "rx", "hex": "010258020a0f43524f57203245200d0ad813673600", "text": "\u0001\u0002X\u0002\n\u000fCROW 2E \r\n\ufffd\u0013g6\u0000"}
+{"time": 1792441874.29809, "direction": "tx", "hex": "0401025902050a435232460a48b37b3d00", "text": "\u0004\u0001\u0002Y\u0002\u0005\nCR2F\nH\ufffd{=\u0000"}
+{"time": 1792441874.305444, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441874.3055518, "direction": "rx", "hex": "010259020a0f43524f57203246200d0a405dddb900", "text": "\u0001\u0002Y\u0002\n\u000fCROW 2F \r\n@]\u0779\u0000"}
+{"time": 1792441874.305606, "direction": "tx", "hex": "0401025a02050a435233300aca3b517c00", "text": "\u0004\u0001\u0002Z\u0002\u0005\nCR30\n\ufffd;Q|\u0000"}
+{"time": 1792441874.312654, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441874.312762, "direction": "rx", "hex": "01025a020a0f43524f57203330200d0a6bae88b600", "text": "\u0001\u0002Z\u0002\n\u000fCROW 30 \r\nk\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792441874.3128152, "direction": "tx", "hex": "0401025b02050a435233310ac81e317200", "text": "\u0004\u0001\u0002[\u0002\u0005\nCR31\n\ufffd\u001e1r\u0000"}
+{"time": 1792441874.3195012, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441874.3195908, "direction": "rx", "hex": "01025b020a0f43524f57203331200d0a78283b9300", "text": "\u0001\u0002[\u0002\n\u000fCROW 31 \r\nx(;\ufffd\u0000"}
+{"time": 1792441874.319634, "direction": "tx", "hex": "0401025c02050a435233320ac2207d3d00", "text": "\u0004\u0001\u0002\\\u0002\u0005\nCR32\n\ufffd }=\u0000"}
+{"time": 1792441874.326605, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441874.3268049, "direction": "rx", "hex": "01025c020a0f43524f57203332200d0a562d43e400", "text": "\u0001\u0002\\\u0002\n\u000fCROW 32 \r\nV-C\ufffd\u0000"}
+{"time": 1792441874.326922, "direction": "tx", "hex": "0401025d02050a435233330ac0051d3300", "text": "\u0004\u0001\u0002]\u0002\u0005\nCR33\n\ufffd\u0005\u001d3\u0000"}
+{"time": 1792441874.3357499, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441874.335961, "direction": "rx", "hex": "01025d020a0f43524f57203333200d0a45abf0c100", "text": "\u0001\u0002]\u0002\n\u000fCROW 33 \r\nE\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792441874.336444, "direction": "tx", "hex": "0401025e02050a435233340ac2afd14500", "text": "\u0004\u0001\u0002^\u0002\u0005\nCR34\n\u00af\ufffdE\u0000"}
+{"time": 1792441874.3439848, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441874.344432, "direction": "rx", "hex": "01025e020a0f43524f57203334200d0a27b6462000", "text": "\u0001\u0002^\u0002\n\u000fCROW 34 \r\n'\ufffdF \u0000"}
+{"time": 1792441874.344556, "direction": "tx", "hex": "0401025f02050a435233350ac08ab14b00", "text": "\u0004\u0001\u0002_\u0002\u0005\nCR35\n\ufffd\ufffd\ufffdK\u0000"}
+{"time": 1792441874.352533, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441874.3526678, "direction": "rx", "hex": "01025f020a0f43524f57203335200d0a3430f50500", "text": "\u0001\u0002_\u0002\n\u000fCROW 35 \r\n40\ufffd\u0005\u0000"}
+{"time": 1792441874.352724, "direction": "tx", "hex": "04010260020506435233360a04d6149100", "text": "\u0004\u0001\u0002`\u0002\u0005\u0006CR36\n\u0004\ufffd\u0014\ufffd\u0000"}
+{"time": 1792441874.360606, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441874.360851, "direction": "rx", "hex": "010260020a0f43524f57203336200d0a986f02ea00", "text": "\u0001\u0002`\u0002\n\u000fCROW 36 \r\n\ufffdo\u0002\ufffd\u0000"}
+{"time": 1792441874.3609622, "direction": "tx", "hex": "0401026102050a435233370a02f3749f00", "text": "\u0004\u0001\u0002a\u0002\u0005\nCR37\n\u0002\ufffdt\ufffd\u0000"}
+{"time": 1792441874.369942, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441874.370035, "direction": "rx", "hex": "010261020a0f43524f57203337200d0a8be9b1cf00", "text": "\u0001\u0002a\u0002\n\u000fCROW 37 \r\n\ufffd\ufffd\ufffd\u0000"}
+{"time": 1792441874.370079, "direction": "tx", "hex": "0401026202050a435233380a08d3612100", "text": "\u0004\u0001\u0002b\u0002\u0005\nCR38\n\b\ufffda!\u0000"}
+{"time": 1792441874.3774889, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441874.3778281, "direction": "rx", "hex": "010262020a0f43524f57203338200d0a06dcb3eb00", "text": "\u0001\u0002b\u0002\n\u000fCROW 38 \r\n\u0006\u0733\ufffd\u0000"}
+{"time": 1792441874.377972, "direction": "tx", "hex": "0401026302050a435233390a0af6012f00", "text": "\u0004\u0001\u0002c\u0002\u0005\nCR39\n\n\ufffd\u0001/\u0000"}
+{"time": 1792441874.387661, "direction": "rx", "hex": "04", "text": "\u0004"}
+{"time": 1792441874.387775, "direction": "rx", "hex": "010263020a0d43524f57203339200d0a155a02ce00", "text": "\u0001\u0002c\u0002\n\rCROW 39 \r\n\u0015Z\u0002\ufffd\u0000"}

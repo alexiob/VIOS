@@ -778,3 +778,20 @@ writes a JSON report next to the backup.
 then repeat `MR`/`MX`. Then comes the wire-off boot: `autoexec.txt`, then
 `viosboot`.
 
+### 16.8 MOS 3 boots VIOS through the stub (wire attached, `MR`), 2026-10-19
+
+1. **Queries answered.** With `&94`, `&99` and `&F8`/`&F9` answered
+   (`9dfac53`; replies in VDP 2.16.0 formats, host-tested against MOS 3's
+   recorded boot stream), MOS 3 still panicked, with identical registers.
+   So the queries weren't the cause.
+2. **The real cause was the old `autoexec.txt`.** It ran the 2026-10-16
+   bring-up diagnostic (`LOAD console.bin` / `RUN`, built for the old MOS),
+   with BC=DE=`040000`. The file is now just `viosboot`; the original is in
+   `backups/sd-u6-2026-10-19`.
+3. **Then the whole chain ran:** `MR`, MOS 3.0.2 banner, `autoexec.txt`,
+   `viosboot`, the `E8` rate switch (`BOOT link: stub switched to 1152000`),
+   825 `E8` block packets, VIOS starts, health 0 at 16 s, health 1 at 20 s,
+   `BOOT READY`, and HELLO's heartbeats. Log:
+   `docs/bring-up/vios-mos3-stub-boot-wired-2026-10-19.jsonl`.
+4. **Next:** the wire-off cold boot.
+
