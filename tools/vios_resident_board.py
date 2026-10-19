@@ -135,20 +135,31 @@ class ResidentBoard(ViosBoard):
             boot = self._wait_boot(session, deadline)
             identity = session.control(b'I', timeout=min(5, max(.001, deadline-time.monotonic())))
             parts = identity.split()
-            if len(parts) != 6 or parts[0] != b'ID' or parts[2] != b'REV' or parts[4] != b'STAT':
+            untethered = parts[6:] == [b'USER'] or (
+                any(b'BOOT user mode' in (e if isinstance(e, bytes) else str(e).encode()) for e in getattr(session, 'events', []))   # firmware before the USER tag
+                and parts[1:2] in ([b'FFFF'], [b'0000']))
+            if len(parts) not in (6, 7) or parts[0] != b'ID' or parts[2] != b'REV' or parts[4] != b'STAT' or (len(parts) == 7 and not untethered):
                 raise IOError('Malformed resident identity: ' + repr(identity))
             try:
                 product, revision, status = (int(parts[index],16) for index in (1,3,5))
             except ValueError as error:
                 raise IOError('Malformed resident identity: ' + repr(identity)) from error
-            if product != 7:
-                raise IOError('Resident CPU identity mismatch: ' + repr(identity))
-            self._resident_identity = identity.decode('ascii').strip()
-            self.paused = session.paused = bool(status & 0x80)
-            if self.paused or boot == b'BOOT HALTED\r\n':
-                raise RuntimeError('Resident CPU is halted; use explicit deploy or debug recovery')
-            if not status & 0x10:
-                raise RuntimeError('Resident CPU is not in ADL mode; explicitly deploy to recover')
+            if untethered:
+                # No ZDI wire (MOS and the boot stub loaded VIOS): the CPU cannot be
+                # inspected, only its boot state, which must be READY.
+                if boot != b'BOOT READY\r\n':
+                    raise RuntimeError('Untethered resident is not running yet: ' + boot.decode('ascii', 'replace').strip())
+                self._resident_identity = 'untethered (no ZDI wire)'
+                self.paused = session.paused = False
+            else:
+                if product != 7:
+                    raise IOError('Resident CPU identity mismatch: ' + repr(identity))
+                self._resident_identity = identity.decode('ascii').strip()
+                self.paused = session.paused = bool(status & 0x80)
+                if self.paused or boot == b'BOOT HALTED\r\n':
+                    raise RuntimeError('Resident CPU is halted; use explicit deploy or debug recovery')
+                if not status & 0x10:
+                    raise RuntimeError('Resident CPU is not in ADL mode; explicitly deploy to recover')
             nonce = secrets.token_hex(4).upper()
             self.pending_source = ''
             self.pending_remaining = []

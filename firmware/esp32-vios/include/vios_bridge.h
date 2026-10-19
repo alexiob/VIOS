@@ -483,6 +483,7 @@ static void control_command(uint16_t sequence,const char *command,size_t length)
     }
     if(length==2&&command[0]=='F'&&command[1]=='R'){control_reply(sequence,"FIRMWARE ROLLBACK\r\n");firmware_trial=true;firmware_fallback("host request");return;}
     if(length==1&&command[0]=='I') {
+        if(boot_user_mode){control_reply(sequence,"ID FFFF REV FF STAT 00 USER\r\n");return;}   // no ZDI wire: nothing to read
         snprintf(reply,sizeof reply,"ID %04X REV %02X STAT %02X\r\n",vios_zdi_id(),vios_zdi_revision(),vios_zdi_status());control_reply(sequence,reply);return;
     }
     if(length==1&&command[0]=='B') {

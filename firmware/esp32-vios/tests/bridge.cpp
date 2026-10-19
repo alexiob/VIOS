@@ -358,6 +358,7 @@ static void check_user_mode(){
     assert(boot_user_mode&&vios_boot_user_mode()&&!cpu_paused&&!ram_ready&&!boot_deadline_armed&&native_runs==runs);
     assert(pin_modes[ZDI_TCK]==INPUT&&pin_modes[ZDI_TDI]==INPUT&&saw_event(f,"BOOT user mode: no ZDI; MOS and its stub load the resident\r\n"));
     incoming("B\n",95);f=output_frames();assert(f.size()==1&&!memcmp(f[0].payload,"BOOT USER waiting for the MOS stub\r\n",36));
+    assert(control_text("I\n",96)=="ID FFFF REV FF STAT 00 USER\r\n");
     uint8_t reply[3+VIOS_BOOT_BLOCK+4];
     assert(vios_boot_manifest_reply(reply)==16&&reply[0]=='M'&&boot_deadline_armed);    // the stub started: deadline armed
     assert(vios_boot_block_reply(0,reply)==3+VIOS_BOOT_BLOCK+4&&!memcmp(reply+3,vios_image,VIOS_BOOT_BLOCK));

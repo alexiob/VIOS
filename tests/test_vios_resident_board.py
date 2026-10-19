@@ -17,10 +17,11 @@ class Raw:
 class Session:
     def __init__(self,raw):
         self.raw=raw;self.paused=False;self.pending=b'';self.commands=[];self.controls=[];self.writes=[]
-        self.events=[];self.status=b'18';self.identity=b'0007';self.compile=False
+        self.events=[];self.status=b'18';self.identity=b'0007';self.compile=False;self.user=False
     def control(self,command,timeout=20):
         self.controls.append(command)
         if command==b'B':return b'BOOT HALTED\r\n' if self.status==b'98' else b'BOOT READY\r\n'
+        if self.user:return b'ID FFFF REV FF STAT 00 USER\r\n'
         return b'ID '+self.identity+b' REV AA STAT '+self.status+b'\r\n'
     def command(self,envelope):
         self.commands.append(envelope)
@@ -69,6 +70,17 @@ class ResidentBoardTests(unittest.TestCase):
         with self.assertRaises(RuntimeError):board.connect(.01)
         self.assertTrue(board.paused);self.assertTrue(session.paused)
         self.assertFalse(board.deployed);self.assertEqual(session.commands,[]);self.assertEqual(session.writes,[])
+    def test_untethered_boards_connect_without_zdi(self):
+        for tagged in (True, False):              # the USER tag, or the boot event of older firmware
+            session=Session(Raw())
+            if tagged:session.user=True
+            else:session.identity=b'FFFF';session.events=[b'BOOT user mode: no ZDI; MOS and its stub load the resident\r\n']
+            board=ResidentBoard(session=session)
+            result=board.connect(.1)
+            self.assertTrue(result['connected']);self.assertEqual(result['identity'],'untethered (no ZDI wire)')
+            self.assertEqual(len(session.commands),1)
+        session=Session(Raw());session.identity=b'FFFF'          # floating ZDI without the user-mode signal: still refused
+        with self.assertRaises(IOError):ResidentBoard(session=session).connect(.01)
     def test_explicit_deploy_uses_resident_halt_before_delay_and_never_ram_loader(self):
         raw=Raw();session=Session(raw);loads=[];deploys=[]
         def forbidden_loader(*args):loads.append(args);raise AssertionError('ROM loader must not be used')
