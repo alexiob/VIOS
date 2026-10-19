@@ -286,7 +286,12 @@ static void editor_row(unsigned row,unsigned line,unsigned left,int focused){
  int changed=memcmp(cached,shown,width)!=0;
  if(changed||old_cursor!=cursor){
   if(old_cursor<width&&old_cursor!=cursor)vios_text_put(origin+old_cursor,row+18,shown+old_cursor,1,3,0);
-  if(changed){
+  if(changed&&!view.editor_valid){
+   /* A full frame starts from blank cells, so one span up to the last glyph
+    * stores the same cells as the diff walk with one call instead of many. */
+   unsigned end=width;while(shown[end-1]==' ')--end;
+   vios_text_put(origin,row+18,shown,end,3,0);memcpy(cached,shown,width);
+  }else if(changed){
    const char *want=shown,*seen=cached,*limit=shown+width;
    while(want<limit){
     if(*want==*seen){++want;++seen;continue;}
