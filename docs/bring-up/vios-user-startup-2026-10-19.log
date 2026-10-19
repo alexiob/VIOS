@@ -1,0 +1,11 @@
+connected True
+before: ['CDD1B05F', 'A9BA189F', 'B360CCE2', 'BOOT_A.VIB', 'BOOT1.REC', 'BOOT0.REC', 'BOOT_B.VIB', 'A8783CA5']
+{'ok': True, 'path': '/VIOS/USER.FTH', 'bytes': 136, 'sha256': '1534156f94d637310d7bd3eeae07b117b97b8e3be41e3df2f0e829d2365d33e4'}
+reboot True True
+BOOTCONF 4242  | tasks line task-slice 1024
+after removal: False
+note: BOOTCONF=4242 proves /VIOS/USER.FTH ran at boot. Its second line was
+written as "768 TASK-SLICE" (wrong order; the command takes its argument
+after it), so LOAD stopped there with an error and boot continued as
+designed (task slice stayed 1024). The file was removed afterwards; the SD
+card's boot slots were not touched.
