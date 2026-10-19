@@ -123,6 +123,7 @@ class VDUStreamProcessor {
 
 		void wait_eZ80();
 		void sendModeInformation();
+		void vios_send_colour(uint8_t colour);
 };
 
 // Read an unsigned byte from the serial port, with a timeout

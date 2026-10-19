@@ -198,6 +198,26 @@ void VDUStreamProcessor::vdu_sys_video() {
 		case VDP_AUDIO: {				// VDU 23, 0, &85, channel, command, <args>
 			vdu_sys_audio();
 		}	break;
+		/* VIOS: the three VDP queries Agon MOS 3.0.2 makes while booting,
+		 * answered as AgonPlatform VDP 2.16.0 does (untethered-boot spec §16.7). */
+		case 0x94: {					// VDU 23, 0, &94, index: read a colour
+			auto index = readByte_t();
+			if (index >= 0) vios_send_colour((uint8_t)index);
+		}	break;
+		case 0x99: {					// VDU 23, 0, &99, vk: resend a key's state
+			auto vk = readByte_t();
+			if (vk >= 0) {
+				uint8_t packet[] = {0, 0, (uint8_t)vk, (uint8_t)(getKeyboard()->isVKDown((fabgl::VirtualKey)vk) ? 1 : 0)};
+				send_packet(PACKET_KEYCODE, sizeof packet, packet);
+			}
+		}	break;
+		case 0xF8: {					// VDU 23, 0, &F8, flag; value;  set a VDP variable
+			auto flag = readWord_t(); if (flag < 0) return;
+			readWord_t();				// accepted: VIOS links always run CTS/RTS flow control
+		}	break;
+		case 0xF9: {					// VDU 23, 0, &F9, flag;  clear a VDP variable
+			readWord_t();
+		}	break;
 		case VDP_MODE: {				// VDU 23, 0, &86
 			sendModeInformation();		// Send mode information (screen dimensions, etc)
 		}	break;
@@ -292,6 +312,21 @@ void VDUStreamProcessor::sendScreenChar(uint16_t x, uint16_t y) {
 
 // VDU 23, 0, &84: Send a pixel value back to MOS
 //
+/* VDU 23, 0, &94: a palette entry (index < 64) or an active colour (128 text
+ * foreground, 129 text background, 130 graphics foreground, 131 graphics
+ * background) as a pixel packet {R, G, B, index}; unknown indices get no reply. */
+void VDUStreamProcessor::vios_send_colour(uint8_t colour) {
+	RGB888 pixel;
+	if (colour < 64) pixel = colourLookup[palette[colour % getVGAColourDepth()]];
+	else if (colour == 128) pixel = tfg;
+	else if (colour == 129) pixel = tbg;
+	else if (colour == 130) pixel = gfg;
+	else if (colour == 131) pixel = gbg;
+	else return;
+	uint8_t packet[] = {pixel.R, pixel.G, pixel.B, colour < 64 ? colour : getPaletteIndex(pixel)};
+	send_packet(PACKET_SCRPIXEL, sizeof packet, packet);
+}
+
 void VDUStreamProcessor::sendScreenPixel(uint16_t x, uint16_t y) {
 	waitPlotCompletion();
 	RGB888 pixel = getPixel(x, y);
