@@ -2,6 +2,10 @@
 #include "vds_proto.h"
 #include <string.h>
 
+static void reply(vds_proto *p, const uint8_t *data, uint8_t n) {
+    if (p->send) p->send(p->ctx, VDS_PACKET_REPLY, data, n);
+}
+
 static int16_t s16(const uint8_t *b) { return (int16_t)(uint16_t)(b[0] | b[1] << 8); }
 static uint16_t u16(const uint8_t *b) { return (uint16_t)(b[0] | b[1] << 8); }
 static void put16(uint8_t *b, uint32_t v) { b[0] = (uint8_t)v; b[1] = (uint8_t)(v >> 8); }
@@ -18,7 +22,7 @@ static size_t op_size(const uint8_t *b, size_t n) {
     case 0x13: s = 8; break;
     case 0x14: s = 4; break;
     case 0x15: s = 6; break;
-    case 0x30: case 0x34: s = 1; break;
+    case 0x30: case 0x34: case 0x36: s = 1; break;
     case 0x31: case 0x33: case 0x35: s = 2; break;
     case 0x32: s = 5; break;
     case 0x50: s = 10; break;
@@ -40,18 +44,53 @@ static size_t op_size(const uint8_t *b, size_t n) {
 }
 
 void vds_proto_event(vds_proto *p, uint8_t kind, uint8_t id, const uint8_t *args, uint8_t n) {
-    uint8_t data[29];
+    uint8_t data[VDS_EVENT_MAX];
     if (n > sizeof data - 3) n = sizeof data - 3;
     data[0] = p->event_seq++;
     data[1] = kind;
     data[2] = id;
     if (n) memcpy(data + 3, args, n);
-    if (p->send) p->send(p->ctx, VDS_PACKET_EVENT, data, (uint8_t)(n + 3));
+    if (p->push_events) {
+        if (p->send) p->send(p->ctx, VDS_PACKET_EVENT, data, (uint8_t)(n + 3));
+        return;
+    }
+    if (p->event_count == VDS_EVENT_QUEUE) {                /* keep the newest; count the loss */
+        p->event_head = (uint8_t)((p->event_head + 1) % VDS_EVENT_QUEUE);
+        --p->event_count;
+        if (p->event_lost < 255) ++p->event_lost;
+    }
+    unsigned slot = (p->event_head + p->event_count++) % VDS_EVENT_QUEUE;
+    memcpy(p->events[slot], data, n + 3u);
+    p->event_len[slot] = (uint8_t)(n + 3);
 }
 
-static void reply(vds_proto *p, const uint8_t *data, uint8_t n) {
-    if (p->send) p->send(p->ctx, VDS_PACKET_REPLY, data, n);
+/* Reply 36 left n (len event)*n: as many queued events as fit. A loss is
+ * reported first as an OVERFLOW event so the CPU knows to resynchronise. */
+static void poll_events(vds_proto *p) {
+    uint8_t r[VDS_REPLY_MAX] = {0x36, 0, 0};
+    unsigned at = 3;
+    if (p->event_lost) {
+        uint8_t lost = p->event_lost;
+        p->event_lost = 0;
+        uint8_t ev[4] = {p->event_seq++, VDS_EVENT_OVERFLOW, 0, lost};
+        r[at++] = sizeof ev;
+        memcpy(r + at, ev, sizeof ev);
+        at += sizeof ev;
+        ++r[2];
+    }
+    while (p->event_count && at + 1u + p->event_len[p->event_head] <= sizeof r) {
+        uint8_t len = p->event_len[p->event_head];
+        r[at++] = len;
+        memcpy(r + at, p->events[p->event_head], len);
+        at += len;
+        ++r[2];
+        p->event_head = (uint8_t)((p->event_head + 1) % VDS_EVENT_QUEUE);
+        --p->event_count;
+    }
+    r[1] = p->event_count;
+    reply(p, r, (uint8_t)at);
 }
+
 
 static void error(vds_proto *p, uint8_t op, size_t offset) {
     uint8_t args[2] = {op, (uint8_t)offset};
@@ -67,6 +106,7 @@ void vds_proto_init(vds_proto *p, vds *v, vds_cell *(*cells)(void *, uint8_t, ui
     p->send = send;
     p->ctx = ctx;
 }
+
 
 static void reset(vds_proto *p) {
     vds *v = p->v;
@@ -179,6 +219,7 @@ static int apply(vds_proto *p, const uint8_t *b) {
         return 1;
     }
     case 0x34: reset(p); return 1;
+    case 0x36: poll_events(p); return 1;
     case 0x35:
         p->raw = b[1] != 0;
         if (!p->raw) vds_damage_all(v);
@@ -242,7 +283,7 @@ int vds_proto_batch(vds_proto *p, const uint8_t *b, size_t len) {
     for (size_t at = 0; at < len;) {
         size_t s = op_size(b + at, len - at);
         uint8_t op = b[at];
-        if (op != 0x30 && op != 0x31 && op != 0x32 && op != 0x33 && !p->hold) { p->hold = 1; p->held_ms = 0; }
+        if (op != 0x30 && op != 0x31 && op != 0x32 && op != 0x33 && op != 0x36 && !p->hold) { p->hold = 1; p->held_ms = 0; }
         if (!apply(p, b + at)) error(p, op, at);
         at += s;
     }

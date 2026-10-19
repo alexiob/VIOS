@@ -21,6 +21,8 @@
  *  30                                    commit: show everything sent so far
  *  31  seq                               reply 31 seq epoch(u16) gen(u16) errors desync raw
  *  32  id col row n                      reply 32 n (ch attr)*n, n <= 14
+ *  36                                    poll events: reply 36 left n (len event)*n, as many
+ *                                        queued events as fit in one reply (events are pulled)
  *  33  sel                               reply 33 sel u32 u32 (0 frames rows, 1 pixels carried,
  *                                        2 lut_misses damage|windows<<8|sprites<<16)
  *  34                                    reset: drop windows, sprites, surfaces; epoch++
@@ -61,6 +63,10 @@ extern "C" {
 #define VDS_PACKET_EVENT 0x70
 #define VDS_PACKET_REPLY 0x71
 #define VDS_EVENT_ERROR 0x0F
+#define VDS_EVENT_OVERFLOW 0x0E        /* args: events lost */
+#define VDS_EVENT_QUEUE 16
+#define VDS_EVENT_MAX 29                /* seq kind id + 26 argument bytes */
+#define VDS_REPLY_MAX 30                /* the CPU keeps 32-byte reply slots */
 
 typedef struct vds_proto {
     vds *v;
@@ -75,6 +81,10 @@ typedef struct vds_proto {
     uint8_t raw, hold, errors, desync, event_seq;
     uint16_t epoch, generation;
     uint32_t held_ms;
+    /* Events are queued for the CPU to poll (op 36) unless push_events is set,
+     * in which case each one is sent at once as a VDS_PACKET_EVENT. */
+    uint8_t push_events, event_head, event_count, event_lost;
+    uint8_t event_len[VDS_EVENT_QUEUE], events[VDS_EVENT_QUEUE][VDS_EVENT_MAX];
     /* Optional intrinsics (vds_ui sets these): CPU focus requests, closes. */
     void *ui;
     int (*ui_focus)(void *ui, uint8_t id);
@@ -92,7 +102,7 @@ int vds_proto_batch(vds_proto *p, const uint8_t *payload, size_t len);
  * changes are held for a COMMIT or the screen is raw. Returns vds_frame's
  * result (1 when nothing is left). */
 int vds_proto_frame(vds_proto *p, uint32_t elapsed_ms, uint32_t budget);
-/* Queue one event to the CPU: kind, window/widget id and up to 26 bytes. */
+/* Queue (or push) one event for the CPU: kind, window/widget id and up to 26 bytes. */
 void vds_proto_event(vds_proto *p, uint8_t kind, uint8_t id, const uint8_t *args, uint8_t n);
 
 #ifdef __cplusplus

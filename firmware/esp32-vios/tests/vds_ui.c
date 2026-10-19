@@ -50,6 +50,7 @@ int main(int argc, char **argv) {
     for (int y = 0; y < H; ++y) { rows_a[y] = fb_a[y]; rows_b[y] = fb_b[y]; }
     assert(vds_init(&v, rows_a, W, H, font));
     vds_proto_init(&p, &v, cell_mem, send, 0);
+    p.push_events = 1;                                  /* these checks watch events as they happen */
     vds_ui_init(&u, &p);
     uint8_t deco = VDS_W_VISIBLE | VDS_W_DECOR | VDS_W_SHADOW;
     for (uint8_t s = 0; s < 3; ++s) assert(vds_surface_init(&v, s, 40, 20, cells[s], 0x30));

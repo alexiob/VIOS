@@ -58,6 +58,7 @@ int main(int argc, char **argv) {
     for (int y = 0; y < H; ++y) { rows_a[y] = fb_a[y]; rows_b[y] = fb_b[y]; }
     assert(vds_init(&va, rows_a, W, H, font) && vds_init(&vb, rows_b, W, H, font));
     vds_proto_init(&p, &va, cells, send, 0);
+    p.push_events = 1;                                  /* these checks watch events as they happen */
 
     /* One scene through E4 batches ... */
     begin();
@@ -162,6 +163,25 @@ int main(int argc, char **argv) {
     assert(!va.count && !va.sprites[2].used && !va.surfaces[0].cells && va.style.kind == VDS_STYLE_SMALLTALK);
     begin(); b8(0x31); b8(2); assert(send_batch());
     assert((uint16_t)(last[2] | last[3] << 8) == epoch + 1);
+
+    /* Pull mode (the board default): events queue until the CPU polls. */
+    p.push_events = 0;
+    for (uint8_t i = 0; i < 5; ++i) vds_proto_event(&p, 0x11, i, (const uint8_t[]){i, 0, 2}, 3);
+    unsigned before_events = events;
+    begin(); b8(0x36); assert(send_batch());
+    assert(events == before_events && last_code == VDS_PACKET_REPLY && last[0] == 0x36);
+    assert(last[2] == 3 && last[1] == 2 && last_n == 3 + 3 * 7);              /* 3 x (len + 6 bytes) fit in 30 */
+    assert(last[3] == 6 && last[5] == 0x11 && last[6] == 0 && last[3 + 7 + 3] == 1);
+    begin(); b8(0x36); assert(send_batch());
+    assert(last[2] == 2 && last[1] == 0 && last[6] == 3 && last[13] == 4);
+    begin(); b8(0x36); assert(send_batch());
+    assert(last[2] == 0 && last_n == 3);
+    for (unsigned i = 0; i < VDS_EVENT_QUEUE + 3; ++i) vds_proto_event(&p, 0x11, (uint8_t)i, 0, 0);
+    begin(); b8(0x36); assert(send_batch());
+    assert(last[4 + 1] == VDS_EVENT_OVERFLOW && last[4 + 3] == 3);           /* loss reported first */
+    assert(last[4 + 4] == 3 && last[4 + 4 + 1 + 2] == 3);                      /* oldest kept: id 3 */
+    while (last[1] || last[2]) { begin(); b8(0x36); assert(send_batch()); }
+    p.push_events = 1;
 
     /* Random batches: valid opcodes with random arguments, plus junk. */
     static const uint8_t ops[] = {0x01, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x30, 0x31, 0x32, 0x33, 0x35, 0x50, 0x51,
