@@ -112,7 +112,7 @@ static size_t plain(const char *text, char *out, size_t max, int *m) {
     *m = -1;
     for (; *text && n < max; ++text) {
         if (*text == '&' && text[1] && text[1] != '&') { *m = (int)n; continue; }
-        if (*text == '&') ++text;
+        if (*text == '&' && text[1] == '&') ++text;        /* "&&" is a literal '&'; a lone trailing '&' too */
         out[n++] = *text;
     }
     return n;
@@ -175,6 +175,7 @@ static void render(vds_ui *u, uint8_t id) {
     }
     case VDS_WK_LIST:
         if (w->value >= w->count) w->value = w->count ? (int16_t)(w->count - 1) : 0;
+        if (w->value < 0) w->value = 0;
         if (w->value < w->top) w->top = (uint8_t)w->value;
         if (w->value >= w->top + w->h) w->top = (uint8_t)(w->value - w->h + 1);
         for (int r = 0; r < w->h; ++r) {
@@ -244,9 +245,11 @@ int vds_ui_widget(vds_ui *u, uint8_t id, uint8_t window, uint8_t kind, uint8_t p
     vds *v = core(u);
     if (id >= VDS_MAX_WIDGETS || window >= VDS_UI_FIRST_WINDOW || !v->windows[window].used ||
         kind < VDS_WK_BOX || kind > VDS_WK_PROGRESS) return 0;
+    /* Replace first: the new widget then has no children, so whatever parent
+     * survives the deletion cannot be one of its descendants (no cycles). */
+    if (u->widgets[id].used) vds_ui_widget_delete(u, id);
     if (parent != VDS_NONE && (parent == id || !widget(u, parent) || u->widgets[parent].window != window ||
                                u->widgets[parent].kind != VDS_WK_BOX)) return 0;
-    if (u->widgets[id].used) vds_ui_widget_delete(u, id);
     vds_widget *x = &u->widgets[id];
     memset(x, 0, sizeof *x);
     x->used = 1; x->window = window; x->kind = kind; x->parent = parent; x->flags = flags;
@@ -295,6 +298,7 @@ int vds_ui_widget_value(vds_ui *u, uint8_t id, int16_t value) {
     vds_widget *w = widget(u, id);
     if (!w) return 0;
     if (w->kind == VDS_WK_RADIO && value) { select_radio(u, id); return 1; }
+    if (w->kind == VDS_WK_LIST) value = value < 0 ? 0 : value >= w->count ? (int16_t)(w->count ? w->count - 1 : 0) : value;
     w->value = value;
     render(u, id);
     return 1;
@@ -386,13 +390,13 @@ int vds_ui_widget_delete(vds_ui *u, uint8_t id) {
     vds_widget *w = widget(u, id);
     if (!w) return 0;
     uint8_t window = w->window;
+    w->used = 0;                                                  /* before the children: no re-entry */
     for (unsigned i = 0; i < VDS_MAX_WIDGETS; ++i)                /* children go with it */
         if (u->widgets[i].used && u->widgets[i].parent == id) vds_ui_widget_delete(u, (uint8_t)i);
     if (u->caret_widget == id) caret_off(u);
     uint8_t s = surface_of(u, window);
     if (s != VDS_NONE && w->kind != VDS_WK_BOX && w->w && w->h)
         vds_fill(core(u), s, w->col, w->row, w->w, w->h, ' ', attr(core(u)->style.title_fg, core(u)->style.body));
-    w->used = 0;
     if (w->kind == VDS_WK_LIST) { w->count = 0; compact(u); }
     if (u->widget_focus[window] == id) {
         u->widget_focus[window] = VDS_NONE;

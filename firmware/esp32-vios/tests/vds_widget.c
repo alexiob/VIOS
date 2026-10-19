@@ -253,6 +253,26 @@ int main(int argc, char **argv) {
     assert(vds_ui_widget_delete(&u, LIST) && u.items_used == 20 && !strcmp(u.items[w[30].first], "L0"));
     matches_full_render();
 
+    /* Regressions from review: no parent cycles, no negative list index, a
+     * trailing '&' stays inside the string. */
+    assert(vds_ui_widget(&u, 41, 1, VDS_WK_BOX, VDS_NONE, 45, 10, 10, 6, 0) && vds_ui_widget_layout(&u, 41, VDS_LAYOUT_COLUMN, 0));
+    assert(vds_ui_widget(&u, 42, 1, VDS_WK_BOX, 41, 0, 0, 0, 0, 0));
+    assert(!vds_ui_widget(&u, 41, 1, VDS_WK_BOX, 42, 0, 0, 0, 0, 0));       /* 42 died with the old 41 */
+    assert(!w[41].used && !w[42].used);
+    assert(vds_ui_widget(&u, 41, 1, VDS_WK_BOX, VDS_NONE, 45, 10, 10, 6, 0) && vds_ui_widget(&u, 42, 1, VDS_WK_BOX, 41, 0, 0, 0, 0, 0));
+    assert(!vds_ui_widget(&u, 41, 1, VDS_WK_BOX, 42, 0, 0, 0, 0, 0) && vds_ui_widget(&u, 42, 1, VDS_WK_BOX, VDS_NONE, 45, 10, 1, 1, 0));
+    assert(vds_ui_widget_delete(&u, 42) && !vds_ui_widget_delete(&u, 41));
+    assert(vds_ui_widget(&u, 43, 1, VDS_WK_LIST, VDS_NONE, 45, 10, 10, 3, 0) && vds_ui_widget_count(&u, 43, 3));
+    for (uint8_t i = 0; i < 3; ++i) assert(vds_ui_widget_item(&u, 43, i, "abc", 3));
+    assert(vds_ui_widget_value(&u, 43, -5) && w[43].value == 0 && vds_ui_widget_value(&u, 43, 99) && w[43].value == 2);
+    u.widgets[43].value = -7;                                                     /* even if it got there somehow */
+    assert(vds_ui_widget_focus(&u, 43) && w[43].value == 0 && key('a', 0, 0));
+    assert(vds_ui_widget(&u, 44, 1, VDS_WK_BUTTON, VDS_NONE, 45, 14, 10, 1, 0) && vds_ui_widget_text(&u, 44, "Go&", 3));
+    text_at(0, 45, 14, 10, t);
+    assert(strstr(t, "Go&"));
+    assert(vds_ui_widget_delete(&u, 43) && vds_ui_widget_delete(&u, 44));
+    matches_full_render();
+
     /* Random widget traffic, keys and resizes; the screen stays exact. */
     static const uint8_t vks[] = {VDS_VK_TAB, VDS_VK_UP, VDS_VK_DOWN, VDS_VK_LEFT, VDS_VK_RIGHT, VDS_VK_HOME, VDS_VK_END,
                                   VDS_VK_PAGEUP, VDS_VK_PAGEDOWN, VDS_VK_RETURN, VDS_VK_BACKSPACE, VDS_VK_DELETE, 0, 0, 0};
