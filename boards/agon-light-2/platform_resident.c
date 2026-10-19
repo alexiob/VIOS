@@ -5,6 +5,7 @@
 #include "platform/timer.h"
 #include "platform/input.h"
 #include "drivers/vdp_transport.h"
+#include "vios/wire.h"
 #include "arch/ez80/uart0.h"
 extern void ez80_uart0_raw_init(void);
 static struct vdp_transport rx;
@@ -92,8 +93,18 @@ int platform_console_getc(void) {
  ez80_uart0_rx_resume();return -1;
 }
 void platform_input_resume(void) {ez80_uart0_rx_resume();}
+/* Stage 2a: the ESP edits physical lines while the REPL awaits one and keys
+ * are not routed to an application; tell it whenever that changes. Pending
+ * console output goes first so its echo stays in order. */
+static unsigned char esp_line_flags=0xFF;
+static void esp_line_update(void){
+ unsigned char flags=(unsigned char)((rx.line_mode?1:0)|(rx.key_route?2:0));
+ if(flags==esp_line_flags)return;
+ esp_line_flags=flags;platform_console_flush();
+ const unsigned char command[]={23,0,VIOS_VDU_LINE_MODE,flags};send_bytes(command,sizeof command);
+}
 void platform_keyboard_route(int enabled) {
- ez80_uart0_rx_pause();vdp_transport_keyboard_route(&rx,enabled);poll();
+ ez80_uart0_rx_pause();vdp_transport_keyboard_route(&rx,enabled);poll();esp_line_update();
 }
 int platform_keyboard_event(struct platform_key_event *out) {
  ez80_uart0_rx_pause();
@@ -141,7 +152,7 @@ uint32_t platform_millis(void) {
  return (uint32_t)data[0]|((uint32_t)data[1]<<8)|((uint32_t)data[2]<<16)|((uint32_t)data[3]<<24);
 }
 unsigned platform_console_dropped(void) {return rx.dropped+rx.local_dropped+ez80_uart0_rx_overruns;}
-void platform_console_line_mode(int awaiting_line) {vdp_transport_line_mode(&rx,awaiting_line);}
+void platform_console_line_mode(int awaiting_line) {vdp_transport_line_mode(&rx,awaiting_line);esp_line_update();}
 /* Background-task admission: listen ~1 ms with RTS asserted; any received
  * byte or key event defers tasks to the console. Otherwise pause RX so the
  * peer holds new input for the whole slice (the FIFO is not drained then). */

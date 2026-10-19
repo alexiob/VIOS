@@ -71,7 +71,7 @@ int main(int argc,char **argv) {
   /* Cooked keys echo as typed, Backspace erases, and the handed-over line is
    * erased before the REPL sees it so its own echo is the only copy. */
   timer_step=10;const unsigned char keys[]={0x81,4,'a',0,0,1,0x81,4,'b',0,0,1,0x81,4,8,0,132,1,0x81,4,'c',0,0,1,0x81,4,13,0,143,1};
-  memcpy(incoming,keys,sizeof keys);wire_length=sizeof keys;next_wire=0;platform_console_init();platform_console_line_mode(1);
+  memcpy(incoming,keys,sizeof keys);wire_length=sizeof keys;next_wire=0;platform_console_init();platform_console_line_mode(1);writes=0; /* drop the line-mode notice (VDU 23,0,E7) */
   char got[8];unsigned n=0;for(unsigned i=0;i<400&&n<3;++i){int c=platform_console_getc();if(c>=0)got[n++]=(char)c;}
   assert(n==3&&got[0]=='a'&&got[1]=='c'&&got[2]=='\r');
   platform_console_flush(); /* the REPL's own echo would follow in this buffer */
@@ -91,7 +91,7 @@ int main(int argc,char **argv) {
    * the echo always equals the edited line with the cursor in place. */
   timer_step=10;const unsigned char keys[]={0x81,4,'a',0,0,1,0x81,4,'b',0,0,1,0x81,4,'c',0,0,1,
    0x81,4,0,0,154,1,0x81,4,0,0,154,1,0x81,4,'X',0,0,1,0x81,4,0,0,130,1};
-  memcpy(incoming,keys,sizeof keys);wire_length=sizeof keys;next_wire=0;platform_console_init();platform_console_line_mode(1);
+  memcpy(incoming,keys,sizeof keys);wire_length=sizeof keys;next_wire=0;platform_console_init();platform_console_line_mode(1);writes=0; /* drop the line-mode notice (VDU 23,0,E7) */
   for(unsigned i=0;i<400;++i)(void)platform_console_getc();
   platform_console_flush();
   char screen[32];memset(screen,' ',sizeof screen);unsigned col=0;
@@ -102,7 +102,7 @@ int main(int argc,char **argv) {
  if(!strcmp(argv[1],"foreign")){
   /* Output arriving while a local line is shown redisplays it on a new row. */
   timer_step=10;const unsigned char keys[]={0x81,4,'a',0,0,1,0x81,4,'b',0,0,1};
-  memcpy(incoming,keys,sizeof keys);wire_length=sizeof keys;next_wire=0;platform_console_init();platform_console_line_mode(1);
+  memcpy(incoming,keys,sizeof keys);wire_length=sizeof keys;next_wire=0;platform_console_init();platform_console_line_mode(1);writes=0; /* drop the line-mode notice (VDU 23,0,E7) */
   for(unsigned i=0;i<200;++i)(void)platform_console_getc();
   const char *tick="tick\r\n";for(const char *q=tick;*q;++q)platform_console_putc((unsigned char)*q);
   for(unsigned i=0;i<20;++i)(void)platform_console_getc();platform_console_flush();
@@ -116,7 +116,7 @@ int main(int argc,char **argv) {
    * from these frames, so it must not wait for ECHO_IDLE_POLLS idle polls
    * (GUI Stage 1c). Count getc calls until each key's echo is transmitted. */
   timer_step=10;const unsigned char keys[]={0x81,4,'a',0,0,1,0x81,4,'b',0,0,1};
-  memcpy(incoming,keys,sizeof keys);wire_length=sizeof keys;next_wire=0;platform_console_init();platform_console_line_mode(1);
+  memcpy(incoming,keys,sizeof keys);wire_length=sizeof keys;next_wire=0;platform_console_init();platform_console_line_mode(1);writes=0; /* drop the line-mode notice (VDU 23,0,E7) */
   int seen_a=-1,seen_b=-1,consumed=-1;
   for(int i=0;i<200&&seen_b<0;++i){
    (void)platform_console_getc();if(consumed<0&&next_wire==wire_length)consumed=i;
@@ -125,6 +125,16 @@ int main(int argc,char **argv) {
   fprintf(stderr,"key-echo-now: all keys consumed by call %d, a echoed %d, b echoed %d\n",consumed,seen_a,seen_b);
   assert(consumed>=0&&seen_b>=0&&seen_b<=consumed+2);
   puts("resident keystroke echo is sent immediately");return 0;
+ }
+ if(!strcmp(argv[1],"line-notice")){
+  /* The ESP line editor learns when the REPL awaits a line and when keys are
+   * routed to an application: VDU 23,0,E7,flags, sent only on change. */
+  timer_step=10;wire_length=0;next_wire=0;platform_console_init();
+  platform_console_line_mode(1);assert(writes==4&&transmitted[0]==23&&transmitted[1]==0&&transmitted[2]==0xE7&&transmitted[3]==1);
+  platform_console_line_mode(1);assert(writes==4);
+  platform_keyboard_route(1);assert(writes==8&&transmitted[6]==0xE7&&transmitted[7]==3);
+  platform_keyboard_route(0);platform_console_line_mode(0);assert(writes==16&&transmitted[11]==1&&transmitted[15]==0);
+  puts("resident line-mode notices are sent on change");return 0;
  }
  if(!strcmp(argv[1],"coalesce")){
   /* Echo of a streamed host line leaves in few frames, not one per byte. */
