@@ -40,15 +40,20 @@ static int write_state(void){
  boot.generation=generation;committed=boot;return 1;
 }
 static int field_terminated(const unsigned char *p,unsigned capacity){for(unsigned i=0;i<capacity;++i)if(!p[i])return 1;return 0;}
+/* Verify a slot bundle into b without side effects; NULL or why it is unusable. */
+static const char *read_slot(unsigned slot,unsigned char *b){
+ size_t size=0;if(!storage_read_file(slot_path(slot),b,BUNDLE_MAX,&size))return storage_error();
+ if(size<20||b[0]!='V'||b[1]!='I'||b[2]!='B'||b[3]!='1'||b[4]!=1||b[5]!=24||b[6]>FORTH_MODULES_MAX)return "invalid/incompatible boot bundle";
+ if(size!=16+(size_t)ENTRY_SIZE*b[6]+4)return "boot bundle length mismatch";
+ uint32_t crc=vios_get32(b+size-4);
+ if(crc!=vios_crc32(b,size-4)||crc!=boot.crc[slot])return "boot bundle CRC mismatch";
+ for(unsigned i=0;i<b[6];++i){const unsigned char *e=b+16+(size_t)i*ENTRY_SIZE;if(!field_terminated(e,32)||!field_terminated(e+32,128))return "unterminated boot bundle entry";}
+ return 0;
+}
 static int load_slot(unsigned slot){
  if(slot>1)return 0;
- size_t size=0;if(!storage_read_file(slot_path(slot),bundle,sizeof bundle,&size))return forth_error(storage_error());
- if(size<20||bundle[0]!='V'||bundle[1]!='I'||bundle[2]!='B'||bundle[3]!='1'||bundle[4]!=1||bundle[5]!=24||bundle[6]>FORTH_MODULES_MAX)return forth_error("invalid/incompatible boot bundle");
- unsigned count=bundle[6];if(size!=16+(size_t)ENTRY_SIZE*count+4)return forth_error("boot bundle length mismatch");
- uint32_t crc=vios_get32(bundle+size-4);
- if(crc!=vios_crc32(bundle,size-4)||crc!=boot.crc[slot])return forth_error("boot bundle CRC mismatch");
- for(unsigned i=0;i<count;++i){const unsigned char *e=bundle+16+(size_t)i*ENTRY_SIZE;
-  if(!field_terminated(e,32)||!field_terminated(e+32,128))return forth_error("unterminated boot bundle entry");
+ const char *why=read_slot(slot,bundle);if(why)return forth_error(why);
+ for(unsigned i=0;i<bundle[6];++i){const unsigned char *e=bundle+16+(size_t)i*ENTRY_SIZE;
   if(!vios_module_load((const char *)e+32))return 0;
   struct forth_module_info info;int found=0;for(unsigned n=0;n<forth_module_count();++n)if(forth_module_info(n,&info)&&vios_same(info.name,(const char *)e)&&info.source_crc32==vios_get32(e+160)){found=1;break;}
   if(!found)return forth_error("boot package identity mismatch");
@@ -106,6 +111,20 @@ void vios_boot_status(void){
  read_state();vios_out("boot confirmed ");vios_out(slot_name(boot.confirmed));vios_out(" candidate ");vios_out(slot_name(boot.candidate));
  vios_out(" state ");vios_out(boot.state==CLEAN?"CLEAN":boot.state==PENDING?"PENDING":"TRIED");vios_out(" current ");vios_out(slot_name(running));vios_out(" generation ");vios_uint(boot.generation);vios_out("\r\n");
 }
+/* Read-only: what a power cycle would load. Problems are reported, never raised. */
+static void manifest_slot(unsigned slot,const char *role){
+ vios_out("manifest ");vios_out(slot_name(slot));vios_out(" ");vios_out(role);
+ const char *why=slot<2?read_slot(slot,checked):0;
+ if(slot>1)vios_out(" none\r\n");else if(why){vios_out(" error ");vios_out(why);vios_out("\r\n");}
+ else{vios_out(" modules ");vios_uint(checked[6]);vios_out(" crc32 ");vios_uint(boot.crc[slot]);vios_out("\r\n");}
+ if(why||slot>1)return;
+ for(unsigned i=0;i<checked[6];++i){const unsigned char *e=checked+16+(size_t)i*ENTRY_SIZE;char version[32];uint32_t crc=vios_get32(e+160);
+  int package=vios_module_package_version((const char *)e+32,crc,version);
+  vios_out("manifest-module ");vios_out(slot_name(slot));vios_out(" ");vios_out((const char *)e);vios_out(" version ");vios_out(package>0?version:"-");
+  vios_out(" crc32 ");vios_uint(crc);vios_out(" package ");vios_out(package>0?"ok":package?"bad":"unreadable");vios_out("\r\n");
+ }
+}
+void vios_boot_manifest(void){read_state();manifest_slot(boot.confirmed,"confirmed");manifest_slot(boot.candidate,"candidate");}
 static int fresh_runtime(void){forth_init();if(!vios_runtime_init())return 0;
 #ifdef __ez80__
  forth_set_engine(FORTH_DIRECT);
@@ -144,6 +163,7 @@ int vios_boot_startup(void){
 int vios_boot_command(const char *word,const char **rest){
  (void)rest;
  if(vios_same(word,"BOOT-STATUS")){vios_boot_status();return 1;}
+ if(vios_same(word,"BOOT-MANIFEST")){vios_boot_manifest();return 1;}
  if(vios_same(word,"BOOT-TRIAL"))return vios_boot_trial()?1:-1;
  if(vios_same(word,"BOOT-CONFIRM"))return vios_boot_confirm()?1:-1;
  if(vios_same(word,"BOOT-REVERT"))return vios_boot_revert()?1:-1;

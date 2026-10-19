@@ -3,9 +3,11 @@
 The record keeps the field layout of docs/bring-up/vios-fast-display-preserved.json
 ('status', 'source', 'stack', 'resources', 'modules', 'boot', 'base',
 'module_sources'), so tools/vios_fast_display_state.py can restore from it.
-A 'summary' classifies what is live, dirty, staged and persisted. Facts the
-current firmware does not report (boot bundle contents, MODULE-STAGE pending
-source) are explicitly null rather than guessed.
+A 'summary' classifies what is live, dirty, staged and persisted. 'persisted'
+means the exact name+CRC32 is in the confirmed boot bundle (BOOT-MANIFEST), i.e.
+survives a power cycle; a SAVEd package alone does not. Facts the firmware does
+not report (manifest on older firmware, MODULE-STAGE pending source) are
+explicitly null rather than guessed.
 
 A backend supplies the ModuleClient/WorkbenchClient queries, stacks(),
 resources(), evaluate(), _body() and an RLock named lock. No target RAM cost.
@@ -38,8 +40,32 @@ def classify_draft(workbench):
     return 'modified' if workbench['dirty'] else 'diverged'
 
 
+def _bundle(role):
+    """{(name, crc32)} for a usable manifest role, set() for no slot, None if unknown.
+
+    One unverified package makes startup reject the whole slot and fall back,
+    so its contents say nothing certain about what a power cycle loads.
+    """
+    if role is None or role['status'] == 'error' or any(m['package'] != 'ok' for m in role['modules']):
+        return None
+    return {(m['name'], m['crc32']) for m in role['modules']}
+
+
+def _manifest_error(result, manifest):
+    if manifest is None:
+        return (result or {}).get('error') or 'boot manifest unavailable'
+    errors = [f"{role} {manifest[role]['slot']}: {manifest[role]['error']}"
+              for role in ('confirmed', 'candidate') if manifest[role]['status'] == 'error']
+    errors += [f"{role} {manifest[role]['slot']}: package {m['name']} {m['package']}"
+               for role in ('confirmed', 'candidate') for m in manifest[role]['modules'] if m['package'] != 'ok']
+    return '; '.join(errors) or None
+
+
 def summarize(record):
     modules = record['modules']['modules']
+    manifest = record.get('manifest', {}).get('manifest')
+    confirmed = _bundle(manifest and manifest['confirmed'])
+    candidate = _bundle(manifest and manifest['candidate'])
     active = {m['name']: m for m in modules if m['active']}
     workbench = record['status']['workbench']
     rows = []
@@ -50,14 +76,15 @@ def summarize(record):
                      'live': m['active'], 'rollback_available': m['previous'],
                      'dependencies_satisfied': not missing, 'unsatisfied_dependencies': missing,
                      'draft': classify_draft(workbench) if workbench['module'] == m['name'] else None,
-                     # The boot bundle membership is not reported by BOOT-STATUS.
-                     'persisted': True if (workbench['module'] == m['name'] and workbench['saved']) else None})
+                     'persisted': None if confirmed is None else (m['name'], m['crc32']) in confirmed,
+                     'in_candidate': None if candidate is None else (m['name'], m['crc32']) in candidate})
     boot = record['boot']['boot']
     return {'modules': rows,
             'draft': {'module': workbench['module'] or None, 'state': classify_draft(workbench),
                       'revision': workbench['revision'], 'bytes': workbench['length']},
             'boot': {'slot': boot['current'], 'confirmed': boot['confirmed'], 'state': boot['state'],
-                     'trial_pending': boot['state'] != 'CLEAN'},
+                     'trial_pending': boot['state'] != 'CLEAN',
+                     'manifest_error': _manifest_error(record.get('manifest'), manifest)},
             'engine': record['resources']['resources'].get('engine'),
             'base': record['base']['base'],
             'data_stack_depth': record['stack']['data_stack']['depth_text'],
@@ -70,6 +97,17 @@ def summarize(record):
 
 
 class SnapshotClient:
+    def _manifest(self, stack):
+        # Firmware without BOOT-MANIFEST answers 'unknown word', and any Forth
+        # error clears the data stack; only ask when there is nothing to lose.
+        if stack['data_stack']['depth_text'].strip() != '0':
+            return {'ok': False, 'error': 'skipped: data stack not empty'}
+        try:
+            result = self.boot_manifest()
+        except IOError as error:
+            return {'ok': False, 'error': str(error)}
+        return result if result.get('ok') else {**result, 'error': result.get('error') or 'BOOT-MANIFEST failed'}
+
     def _base(self):
         result = self._query(BASE_QUERY)
         body = ' '.join(self._body(result['output'], BASE_QUERY)).split()
@@ -95,7 +133,8 @@ class SnapshotClient:
                       'stack': need(self.stacks(), '.S'), 'resources': need(self.resources(), 'RESOURCES'),
                       'modules': need(self.modules(), 'MODULES'), 'boot': need(self.boot_status(), 'BOOT-STATUS'),
                       'base': self._base(), 'module_sources': {}, 'previous_sources': {}}
-            # Firmware before Stage 2 has no TASKS command; report that as absent.
+            record['manifest'] = self._manifest(record['stack'])
+            # Firmware before Stage 2 has no TASKS/HANDLES/LAST-ERROR; report absent.
             if hasattr(self, 'tasks'):
                 listed = self.tasks()
                 record['tasks'] = listed['tasks'] if listed.get('ok') else None

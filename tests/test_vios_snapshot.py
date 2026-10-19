@@ -28,11 +28,21 @@ def wb(**changes):
 
 
 class Fake(SnapshotClient):
-    def __init__(self, base='16', app_dep_crc=None, torn=False, wrong_crc=False, draft=True):
+    def __init__(self, base='16', app_dep_crc=None, torn=False, wrong_crc=False, draft=True, depth='0', manifest=None):
         self.lock = threading.RLock()
         self.draft = draft
         self.base, self.torn, self.wrong_crc, self.status_calls = base, torn, wrong_crc, 0
         self.queries = []
+        self.depth, self.manifest_calls = depth, 0
+        crc = lambda name: zlib.crc32(SOURCES[name].encode())
+        # Default: CORE is in the confirmed bundle, APP's live CRC only in the candidate.
+        self.manifest = manifest if manifest is not None else {'ok': True, 'manifest': {
+            'confirmed': {'slot': 'A', 'status': 'ok', 'error': None, 'crc32': 5, 'modules': [
+                {'name': 'CORE', 'version': '1', 'crc32': crc('CORE'), 'package': 'ok'},
+                {'name': 'APP', 'version': '1', 'crc32': crc('APP') ^ 1, 'package': 'ok'}]},
+            'candidate': {'slot': 'B', 'status': 'ok', 'error': None, 'crc32': 6, 'modules': [
+                {'name': 'CORE', 'version': '1', 'crc32': crc('CORE'), 'package': 'ok'},
+                {'name': 'APP', 'version': '2', 'crc32': crc('APP'), 'package': 'ok'}]}}}
         self.app_dep_crc = zlib.crc32(SOURCES['CORE'].encode()) if app_dep_crc is None else app_dep_crc
 
     def wb_status(self):
@@ -44,7 +54,7 @@ class Fake(SnapshotClient):
         return {'ok': True, 'workbench': wb(), 'source': SOURCES['APP']}
 
     def stacks(self):
-        return {'ok': True, 'data_stack': {'depth_text': '0', 'values_text': []}}
+        return {'ok': True, 'data_stack': {'depth_text': self.depth, 'values_text': []}}
 
     def resources(self):
         return {'ok': True, 'resources': {'engine': 'DIRECT', 'words': '90/512'}}
@@ -64,6 +74,12 @@ class Fake(SnapshotClient):
 
     def boot_status(self):
         return {'ok': True, 'boot': {'confirmed': 'A', 'candidate': 'NONE', 'state': 'CLEAN', 'current': 'A', 'generation': 7}}
+
+    def boot_manifest(self):
+        self.manifest_calls += 1
+        if isinstance(self.manifest, Exception):
+            raise self.manifest
+        return self.manifest
 
     def _query(self, source, timeout=15):
         self.queries.append(source)
@@ -95,9 +111,34 @@ class SnapshotTest(unittest.TestCase):
         app = next(m for m in summary['modules'] if m['name'] == 'APP')
         self.assertTrue(app['dependencies_satisfied'] and app['rollback_available'] and app['live'])
         self.assertEqual(app['draft'], 'live')
-        self.assertIsNone(app['persisted'], 'boot bundle contents are not observable')
+        core = next(m for m in summary['modules'] if m['name'] == 'CORE')
+        self.assertEqual((core['persisted'], core['in_candidate']), (True, True))
+        self.assertEqual((app['persisted'], app['in_candidate']), (False, True), 'name alone is not enough; CRC must match')
+        self.assertIsNone(summary['boot']['manifest_error'])
         self.assertIsNone(summary['pending_module_stage'])
         json.dumps(record, allow_nan=False)
+
+    def test_persistence_unknown_unless_manifest_is_trustworthy(self):
+        def persisted(record):
+            return [(m['persisted'], m['in_candidate']) for m in record['summary']['modules']]
+        old = Fake(manifest={'ok': False, 'output': 'error: unknown word: BOOT-MANIFEST\r\n'}).snapshot()
+        self.assertEqual(persisted(old), [(None, None)] * 2)
+        self.assertEqual(old['summary']['boot']['manifest_error'], 'BOOT-MANIFEST failed')
+        busy = Fake(depth='1')
+        record = busy.snapshot()
+        self.assertEqual(busy.manifest_calls, 0, 'an unknown word would clear the data stack')
+        self.assertIn('data stack', record['summary']['boot']['manifest_error'])
+        self.assertEqual(persisted(Fake(manifest=IOError('Malformed boot manifest line')).snapshot()), [(None, None)] * 2)
+        none = {'slot': 'NONE', 'status': 'none', 'error': None, 'crc32': None, 'modules': []}
+        empty = Fake(manifest={'ok': True, 'manifest': {'confirmed': none, 'candidate': none}}).snapshot()
+        self.assertEqual(persisted(empty), [(False, False)] * 2, 'no confirmed slot: nothing survives power-off')
+        bad = Fake().manifest
+        bad['manifest']['confirmed']['modules'][0]['package'] = 'unreadable'
+        bad['manifest']['candidate'] = {'slot': 'B', 'status': 'error', 'error': 'boot bundle CRC mismatch', 'crc32': None, 'modules': []}
+        record = Fake(manifest=bad).snapshot()
+        self.assertEqual(persisted(record), [(None, None)] * 2, 'startup rejects a slot with an unverified package')
+        self.assertEqual(record['summary']['boot']['manifest_error'],
+                         'candidate B: boot bundle CRC mismatch; confirmed A: package CORE unreadable')
 
     def test_previous_sources_and_dependency_mismatch(self):
         record = Fake(app_dep_crc=1).snapshot(previous_sources=True)
@@ -167,7 +208,7 @@ class SurfaceTest(unittest.TestCase):
         text = out.getvalue()
         self.assertIn('engine DIRECT base 16 ds 0 boot A confirmed A CLEAN', text)
         self.assertIn('module APP 2 ', text)
-        self.assertIn('rollback draft:live persisted:unknown', text)
+        self.assertIn('rollback draft:live persisted:no candidate', text)
         self.assertIn('draft APP live rev 7 bytes 19', text)
         self.assertIn('Snapshot not written', err.getvalue(), 'existing files are never overwritten')
 
