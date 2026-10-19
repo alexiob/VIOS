@@ -129,7 +129,7 @@ $(RESIDENT_UART_OBJECT): arch/ez80/uart0_raw.s
 	@mkdir -p $(dir $@)
 	$(EZAS) -march=ez80+full --defsym VIOS_UART0_BAUD=$(VIOS_INTERNAL_BAUD) arch/ez80/uart0_raw.s -o $@
 .PHONY: vios-resident
-vios-resident: build/vios-resident.bin build/agon-stage0.bin
+vios-resident: build/vios-resident.bin build/agon-stage0.bin build/agon-crc.bin
 build/agon-stage0.o: arch/ez80/agon_stage0.s
 	@mkdir -p build
 	$(EZAS) -march=ez80+full $< -o $@
@@ -137,6 +137,13 @@ build/agon-stage0.o: arch/ez80/agon_stage0.s
 build/agon-stage0.bin: build/agon-stage0.o
 	$(EZOBJCOPY) --only-section .text -O binary $< $@
 	.venv/bin/python -c 'from pathlib import Path;import hashlib;b=Path("$@").read_bytes();assert 0<len(b)<=256;print("Agon stage0",len(b),"bytes",hashlib.sha256(b).hexdigest())'
+build/agon-crc.o: arch/ez80/agon_crc.s
+	@mkdir -p build
+	$(EZAS) -march=ez80+full $< -o $@
+	$(EZNM) -u $@
+build/agon-crc.bin: build/agon-crc.o
+	$(EZOBJCOPY) --only-section .text -O binary $< $@
+	.venv/bin/python -c 'from pathlib import Path;import hashlib;b=Path("$@").read_bytes();assert 0<len(b)<=256;print("Agon CRC stage",len(b),"bytes",hashlib.sha256(b).hexdigest())'
 build/vios-resident.elf: $(RESIDENT_OBJECTS) boards/agon-light-2/ram.ld
 	$(EZLD) -T boards/agon-light-2/ram.ld -Map build/vios-resident.map -o $@ $(RESIDENT_OBJECTS) -L$(AGONDEV)/lib -lagon
 	$(EZNM) -u $@

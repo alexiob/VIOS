@@ -10,7 +10,7 @@ def write_manifest(source,target,env):
     firmware=binary.read_bytes()
     if len(firmware)>0x140000:
         raise RuntimeError('Firmware exceeds preserved app0 slot')
-    paths=[project/'platformio.ini',project/'scripts/embed_vios.py',project/'scripts/build_manifest.py',root/'include/vios/wire.h',root/'include/vios/internal_uart.h',root/'drivers/vios-wire/wire.c',root/'arch/ez80/agon_stage0.s']
+    paths=[project/'platformio.ini',project/'scripts/embed_vios.py',project/'scripts/build_manifest.py',root/'include/vios/wire.h',root/'include/vios/internal_uart.h',root/'drivers/vios-wire/wire.c',root/'arch/ez80/agon_stage0.s',root/'arch/ez80/agon_crc.s']
     paths+=list((project/'include').glob('*.h'))
     paths+=list((project/'vendor/agon-vdp/video').glob('*'))
     # PlatformIO creates video.ino.cpp transiently and deletes it after building.

@@ -428,6 +428,43 @@ void vios_bridge_probe() {
     if(!cpu_halt()){bridge_event("ERR probe halt\r\n");return;}
     vios_zdi_cpu_read(SET_ADL);vios_zdi_di();
 }
+static uint32_t boot_crc_update(uint32_t crc,const uint8_t *data,size_t n){
+    while(n--){crc^=*data++;for(unsigned b=0;b<8;++b)crc=(crc>>1)^((crc&1)?0xEDB88320UL:0);}return crc;
+}
+/* Run the native CRC stage over `blocks` uploaded RAM blocks and compare with
+ * the CRC the ESP computed while sending them. Stage code, table and metadata
+ * live in the on-chip SRAM window stage0 proved; each is readback-verified. */
+static bool boot_crc_check(uint32_t internal,unsigned blocks,uint32_t expected){
+    static uint8_t table[1024];uint8_t verify[256];
+    for(unsigned n=0;n<256;++n){uint32_t c=n;for(unsigned b=0;b<8;++b)c=(c>>1)^((c&1)?0xEDB88320UL:0);for(unsigned k=0;k<4;++k)table[256*k+n]=(uint8_t)(c>>(8*k));}
+    for(unsigned k=0;k<4;++k){
+        vios_zdi_write_memory(internal+0x400+256*k,256,table+256*k);vios_zdi_read_memory(internal+0x400+256*k,256,verify);
+        if(memcmp(table+256*k,verify,256)){bridge_event("ERR CRC table readback; CPU left halted\r\n");return false;}
+    }
+    uint8_t stage[256],metadata[10];memset(metadata,0,sizeof metadata);metadata[3]=(uint8_t)blocks;metadata[4]=(uint8_t)(blocks>>8);
+    memcpy_P(stage,vios_crc_stage,vios_crc_stage_size);
+    vios_zdi_write_memory(internal,vios_crc_stage_size,stage);vios_zdi_read_memory(internal,vios_crc_stage_size,verify);
+    if(memcmp(stage,verify,vios_crc_stage_size)){bridge_event("ERR CRC stage readback; CPU left halted\r\n");return false;}
+    vios_zdi_write_memory(internal+256,sizeof metadata,metadata);vios_zdi_read_memory(internal+256,sizeof metadata,verify);
+    if(memcmp(metadata,verify,sizeof metadata)){bridge_event("ERR CRC metadata readback; CPU left halted\r\n");return false;}
+    vios_zdi_cpu_write(REG_IX,0x40000);vios_zdi_cpu_write(REG_IY,internal+256);vios_zdi_cpu_write(REG_HL,internal+0x400);vios_zdi_cpu_write(REG_PC,internal);
+    // ~0.4 s at 18.432 MHz (bound 6 s). Halt, look for the A5 completion, resume if not yet done.
+    for(unsigned tries=0;;++tries) {
+        vios_zdi_write_register(ZDI_BRK_CTL,0);cpu_paused=false;delay(100);
+        if(!cpu_halt()){bridge_event("ERR CRC stage halt timeout\r\n");return false;}
+        // ZDI memory reads go through PC: save it so an unfinished stage resumes where it stopped.
+        uint32_t pc=vios_zdi_cpu_read(REG_PC);
+        vios_zdi_read_memory(internal+256,sizeof metadata,metadata);
+        if(metadata[9]==0xA5)break;
+        vios_zdi_cpu_write(REG_PC,pc);
+        if(tries==60){bridge_event("ERR CRC stage did not finish; CPU left halted\r\n");return false;}
+    }
+    uint32_t got=(uint32_t)metadata[5]|((uint32_t)metadata[6]<<8)|((uint32_t)metadata[7]<<16)|((uint32_t)metadata[8]<<24);
+    if(got!=expected){
+        char line[80];snprintf(line,sizeof line,"ERR VIOS RAM CRC %08lX expected %08lX; CPU left halted\r\n",(unsigned long)got,(unsigned long)expected);bridge_event(line);return false;
+    }
+    return true;
+}
 void vios_bridge_boot() {
     cpu_boot_ready=false;boot_deadline_armed=false;
     ram_ready=false;memset(native_ram_map,0,sizeof native_ram_map);
@@ -472,17 +509,20 @@ void vios_bridge_boot() {
     if(memcmp(metadata,expected,sizeof expected)){bridge_event("ERR native stage0 mapping/completion\r\n");return;}
     memcpy(native_ram_map,metadata,sizeof native_ram_map);ram_ready=true;
     char native_event[100];snprintf(native_event,sizeof native_event,"NATIVE RAM %06lX CS0 %02X %02X %02X %02X DONE %02X\r\n",(unsigned long)internal,metadata[0],metadata[1],metadata[2],metadata[3],metadata[4]);bridge_event(native_event);
-    uint8_t block[256],verify[256];
-    for(unsigned offset=0;offset<vios_image_size;offset+=sizeof block) {
+    // Upload whole 256-byte blocks (the tail zero-padded) without per-block
+    // readback; the CPU then CRCs the RAM it received (arch/ez80/agon_crc.s).
+    uint8_t block[256];uint32_t crc=0xFFFFFFFFUL;unsigned blocks=0;
+    for(unsigned offset=0;offset<vios_image_size;offset+=sizeof block,++blocks) {
         unsigned count=vios_image_size-offset;if(count>sizeof block)count=sizeof block;
-        memcpy_P(block,vios_image+offset,count);
-        vios_zdi_write_memory(0x40000+offset,count,block);vios_zdi_read_memory(0x40000+offset,(uint16_t)count,verify);
-        if(memcmp(block,verify,count)){bridge_event("ERR VIOS RAM readback; CPU left halted\r\n");return;}
-        if((offset/sizeof block)%16==15)delay(1); // Let same-core audio/idle tasks run.
+        memcpy_P(block,vios_image+offset,count);memset(block+count,0,sizeof block-count);
+        vios_zdi_write_memory(0x40000+offset,sizeof block,block);crc=boot_crc_update(crc,block,sizeof block);
+        if(blocks%16==15)delay(1); // Let same-core audio/idle tasks run.
     }
+    crc=~crc;
+    if(!boot_crc_check(internal,blocks,crc))return;
     while(VDPSerial.available())VDPSerial.read();
     vios_zdi_cpu_write(REG_PC,0x40000);
-    bridge_event("VIOREADY RAM image verified\r\n");
+    {char ready[48];snprintf(ready,sizeof ready,"VIOREADY RAM image verified CRC %08lX\r\n",(unsigned long)crc);bridge_event(ready);}
     boot_started=millis();boot_deadline_armed=true;
     vios_zdi_write_register(ZDI_BRK_CTL,0);cpu_paused=false;
     pinMode(ZDI_TCK,INPUT);pinMode(ZDI_TDI,INPUT);

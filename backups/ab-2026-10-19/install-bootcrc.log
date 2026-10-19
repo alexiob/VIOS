@@ -1,0 +1,34 @@
+event: BOOT VIOS VDP 1.04 mux-v1 zdi-edge 1us
+event: BOOT retained failures 0
+event: FIRMWARE app1 valid trial
+event: DISCOVER RAM B5 B7 B7 B7 B4 80 80 80 BASE B7E000
+event: NATIVE RAM B7E000 CS0 04 0B 08 01 DONE A5
+event: ERR CRC stage did not finish; CPU left halted
+event: FIRMWARE rollback: no CPU health
+{
+  "running_before": "app0",
+  "target": "app1",
+  "image": "backups/app0-2026-10-18/firmware-bootcrc.bin",
+  "image_sha256": "673533a54bf07db7b96f95d079f76037407afc3b69aaf5f1e054a50a942e48ea",
+  "backup_dir": "backups/ab-2026-10-19",
+  "stamp": "20261019-092522",
+  "otadata_sector": 1,
+  "otadata_entry": {
+    "sector": 1,
+    "seq": 6,
+    "state": "valid",
+    "crc_ok": true,
+    "valid": true,
+    "trial": true
+  },
+  "verdict": "FIRMWARE rollback: no CPU health",
+  "events": [
+    "BOOT VIOS VDP 1.04 mux-v1 zdi-edge 1us",
+    "BOOT retained failures 0",
+    "FIRMWARE app1 valid trial",
+    "DISCOVER RAM B5 B7 B7 B7 B4 80 80 80 BASE B7E000",
+    "NATIVE RAM B7E000 CS0 04 0B 08 01 DONE A5",
+    "ERR CRC stage did not finish; CPU left halted",
+    "FIRMWARE rollback: no CPU health"
+  ]
+}

@@ -20,6 +20,8 @@
 #define REG_AF 0
 #define REG_PC 7
 #define REG_HL 3
+#define REG_IX 4
+#define REG_IY 5
 #define SET_ADL 8
 #define CS0_LBR 0xA8
 #define CS0_UBR 0xA9
@@ -36,6 +38,7 @@ static void pinMode(int,int){}
 static void digitalWrite(int,int){}
 #define memcpy_P memcpy
 #include "runtime.h"
+#include "vios_stage0.h"
 struct Serial {
     bool usb;
     explicit Serial(bool is_usb=false):usb(is_usb){}
@@ -50,6 +53,7 @@ struct Serial {
 static uint8_t memory[0x1000000],ports[256],status=0x98;
 static uint32_t regs[8];
 static bool bad_readback,bad_code_readback,bad_completion,bad_map;
+static bool stage0_completed; // External RAM is written only after a native stage0 completion.
 static unsigned native_runs,external_writes,memory_writes;
 static unsigned discovery_port,discovery_samples;
 static bool disagree_discovery;
@@ -67,14 +71,34 @@ static void native_stage0(){
             else {assert(sub==0x38);regs[0]=(regs[0]&0xFFFF00)|ports[port];}
             continue;
         }
-        if(op==0x77){assert(regs[3]>=start+256&&regs[3]<=start+260);if(!(bad_completion&&regs[3]==start+260))memory[regs[3]]=(uint8_t)regs[0];continue;}
+        if(op==0x77){assert(regs[3]>=start+256&&regs[3]<=start+260);if(!(bad_completion&&regs[3]==start+260)){memory[regs[3]]=(uint8_t)regs[0];if(regs[3]==start+260&&regs[0]%256==0xA5)stage0_completed=true;}continue;}
         if(op==0x23){++regs[3];continue;}
         assert(op==0x18&&memory[pc]==0xFE);regs[7]=pc-1;return;
     }
     assert(false);
 }
+static bool bad_crc,crc_never_finishes;static unsigned crc_runs,crc_slices;
+static const unsigned crc_slices_needed=3; // The real stage outlives one 100 ms slice.
+/* Native model of arch/ez80/agon_crc.s (its real bytes are executed by
+ * tests/test_agon_crc.py): CRC32 of count*256 bytes at IX, result at IY+5. */
+static void native_crc(){
+    uint32_t meta=regs[5],start=internal_base();
+    if(regs[7]==start){++crc_runs;crc_slices=0;assert(meta==start+256&&regs[3]==start+0x400&&regs[4]==0x40000);}
+    if(++crc_slices<crc_slices_needed||crc_never_finishes){regs[7]=start+8;return;} // Halted mid-loop.
+    unsigned blocks=memory[meta+3]|(memory[meta+4]<<8);assert(blocks);
+    uint32_t crc=vios_wire_crc32(memory+regs[4],blocks*256u);if(bad_crc)crc^=1;
+    for(unsigned i=0;i<4;++i)memory[meta+5+i]=(uint8_t)(crc>>(8*i));
+    memory[meta+9]=0xA5;
+    regs[7]=start+vios_crc_stage_size-2;
+}
 static void inject(unsigned,uint8_t);
-static void vios_zdi_write_register(unsigned r,uint8_t value){if(r==0x10){status=value?0x98:0x18;if(!value&&regs[7]==internal_base())native_stage0();}else inject(r,value);}
+static void vios_zdi_write_register(unsigned r,uint8_t value){
+    if(r==0x10){status=value?0x98:0x18;
+        bool crc_loaded=!memcmp(memory+internal_base(),vios_crc_stage,vios_crc_stage_size);
+        if(!value&&regs[7]==internal_base()){if(crc_loaded)native_crc();else native_stage0();}
+        else if(!value&&crc_loaded&&crc_slices&&memory[internal_base()+265]!=0xA5){assert(regs[7]==internal_base()+8);native_crc();} // Must resume mid-loop.
+    }else inject(r,value);
+}
 static uint8_t vios_zdi_status(){return status;}
 static unsigned identity_reads;
 static uint16_t vios_zdi_id(){++identity_reads;return 7;}
@@ -96,7 +120,7 @@ static uint8_t vios_zdi_boot_in0(uint8_t port){
 }
 static void vios_zdi_di(){discovery_port=0;discovery_samples=0;}
 static void vios_zdi_write_memory(uint32_t address,unsigned n,uint8_t *data){++memory_writes;assert((address>=0x40000&&address+n<=0xAF000)||(address>=internal_base()&&address+n<=internal_base()+0x2000));
-    if(address<0xAF000){assert(native_runs&&memory[internal_base()+260]==0xA5);++external_writes;}
+    if(address<0xAF000){assert(native_runs&&stage0_completed);++external_writes;}
     memcpy(memory+address,data,n);regs[7]=address+n;}
 static void vios_zdi_read_memory(uint32_t address,unsigned n,uint8_t *data){
     assert((address>=0x40000&&address+n<=0xC0000)||(address>=internal_base()&&address+n<=internal_base()+0x2000));
@@ -196,9 +220,14 @@ int main(int argc,char **argv){
     incoming("H\n",92);assert(identity_reads==0);output_frames();
     incoming("Z\n",93);assert(ESP.restarted&&retained_count==0);output_frames();ESP.restarted=false;
     memset(memory,0xA5,sizeof memory);ports[0xB5]=0xFF;ports[0xB4]=0x80;regs[0]=0x123400;regs[7]=0x45678;
-    vios_bridge_boot();vios_bridge_handoff();assert(!cpu_paused&&ram_ready&&boot_deadline_armed);assert(!memcmp(memory+0x40000,vios_image,vios_image_size));assert(memory[0x3FFFF]==0xA5);assert(memory[0xAF000]==0xA5);output_frames();
+    vios_bridge_boot();vios_bridge_handoff();assert(!cpu_paused&&ram_ready&&boot_deadline_armed);assert(!memcmp(memory+0x40000,vios_image,vios_image_size));assert(memory[0x3FFFF]==0xA5);assert(memory[0xAF000]==0xA5);auto startup_frames_ready=output_frames();
     assert(native_runs==1&&discovery==std::vector<unsigned>({0xB5,0xB5,0xB5,0xB4,0xB4,0xB4}));
-    assert(!memcmp(memory+internal_base(),vios_stage0,vios_stage0_size));assert(memory[internal_base()-1]==0xA5&&memory[internal_base()+261]==0xA5);
+    // The CRC stage replaced stage0 in SRAM; only its metadata (base+256..265) and table (base+0x400..) were written.
+    assert(crc_runs==1&&!memcmp(memory+internal_base(),vios_crc_stage,vios_crc_stage_size));
+    assert(memory[internal_base()-1]==0xA5&&memory[internal_base()+265]==0xA5&&memory[internal_base()+266]==0xA5&&memory[internal_base()+0x800]==0xA5);
+    {unsigned padded=(vios_image_size+255)/256*256;for(unsigned i=vios_image_size;i<padded;++i)assert(memory[0x40000+i]==0);assert(memory[0x40000+padded]==0xA5);}
+    {const char *want="VIOREADY RAM image verified CRC ";bool saw=false;
+     for(auto &f:startup_frames_ready)if(f.length>strlen(want)&&!memcmp(f.payload,want,strlen(want)))saw=true;assert(saw);}
     incoming("B\n",1);auto boot_frames=output_frames();assert(boot_frames.size()==1&&!memcmp(boot_frames[0].payload,"BOOT STARTING\r\n",15));
     vios_wire_message too_early{};too_early.channel=1;too_early.length=1;too_early.payload[0]='K';usb_dispatch(&too_early);assert(uxQueueMessagesWaiting(console_queue)==0);output_frames();
     vios_boot_health(1);vios_bridge_poll();assert(cpu_boot_ready&&!boot_deadline_armed&&boot_failures==0);
@@ -265,7 +294,12 @@ int main(int argc,char **argv){
     ports[0xB5]=4;vios_bridge_boot();vios_bridge_handoff();assert(cpu_paused&&!ram_ready&&external_writes==writes_before);output_frames();
     ports[0xB5]=0xB7;disagree_discovery=true;unsigned before_mismatch=memory_writes;
     vios_bridge_boot();vios_bridge_handoff();assert(cpu_paused&&!ram_ready&&memory_writes==before_mismatch);output_frames();disagree_discovery=false;
-    regs[0]&=0xFFFF00;vios_bridge_boot();vios_bridge_handoff();assert(ram_ready&&!cpu_paused);assert(!memcmp(memory+0xB7E000,vios_stage0,vios_stage0_size));
+    // A wrong RAM CRC or a stage that never completes leaves the CPU halted and never starts VIOS.
+    regs[0]&=0xFFFF00;bad_crc=true;vios_bridge_boot();vios_bridge_handoff();bad_crc=false;assert(cpu_paused&&!boot_deadline_armed);
+    {auto f=output_frames();bool saw=false;for(auto &x:f)if(x.length>16&&!memcmp(x.payload,"ERR VIOS RAM CRC",16))saw=true;assert(saw);}
+    regs[0]&=0xFFFF00;crc_never_finishes=true;vios_bridge_boot();vios_bridge_handoff();crc_never_finishes=false;assert(cpu_paused&&!boot_deadline_armed);
+    {auto f=output_frames();bool saw=false;for(auto &x:f)if(x.length>22&&!memcmp(x.payload,"ERR CRC stage did not",21))saw=true;assert(saw);}
+    regs[0]&=0xFFFF00;vios_bridge_boot();vios_bridge_handoff();assert(ram_ready&&!cpu_paused);assert(!memcmp(memory+0xB7E000,vios_crc_stage,vios_crc_stage_size));
     frames=output_frames();bool saw_stale_discovery=false;
     const char *samples="DISCOVER RAM B5 00 B7 B7 B4 B7 80 80 BASE B7E000\r\n";
     for(auto &frame:frames)if(frame.length==strlen(samples)&&!memcmp(frame.payload,samples,strlen(samples)))saw_stale_discovery=true;

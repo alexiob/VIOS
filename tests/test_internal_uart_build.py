@@ -33,6 +33,7 @@ class InternalRateBuildTests(unittest.TestCase):
         (root/'build/vios-resident.bin').write_bytes(b'\0'*64+b'MOS\0\1')
         (root/'build/vios-resident.baud').write_text(str(embedded)+'\n')
         (root/'build/agon-stage0.bin').write_bytes(b'\xf3')
+        (root/'build/agon-crc.bin').write_bytes(b'\x18\xfe')
         class Env:
             definitions=[]
             def subst(self,text):return str(project) if text=='$PROJECT_DIR' else text

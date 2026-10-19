@@ -271,3 +271,22 @@ slot or partition write is involved.
   its byte-for-byte readback.
 - No eZ80 flash, SD boot-slot, bootloader or partition writes. Options 6 and 7
   are listed as needing owner approval and are not recommended now.
+
+## Result on the board (2026-10-19)
+
+| Build | VIOREADY | HEALTH 1 | Evidence |
+| --- | --- | --- | --- |
+| before (10 us edges, per-block readback) | 62.5 s | 66.2 s | install-1 events |
+| Phase 1a (1 us edges, readback kept) | 12.1 s | 15.7 s | `docs/bring-up/vios-boot-timing-zdi1us-2026-10-19.json` (5 boots) |
+| Phase 1b (CRC stage, no per-block readback) | 7.6 s | 11.3 s | `docs/bring-up/vios-boot-timing-crc-2026-10-19.json` (5 boots) |
+
+Times are from the ESP reset (serial-port open). Both builds were installed through the
+A/B trial and confirmed. The first 1b build hit `ERR CRC stage did not finish`
+and rolled itself back to app0 automatically: `vios_zdi_read_memory` loads PC,
+so the poll resumed the CPU inside the metadata. The fix saves and restores PC.
+The bridge fake now needs three 100 ms slices and asserts the resume PC, which
+catches that bug (checked by reverting the fix). The CRC stage's real bytes run
+in `tests/test_agon_crc.py` against `zlib.crc32`. Debug pause, registers, 10 RAM
+block reads matching `build/vios-resident.bin`, and resume all work at 1 us
+edges. Board: app1 = `firmware-bootcrc2.bin` (confirmed), app0 = Phase 1a build.
+Phase 2 (CPU tail after HEALTH) is not done.

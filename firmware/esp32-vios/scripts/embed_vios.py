@@ -34,9 +34,15 @@ stage_path=root/'build/agon-stage0.bin'
 stage=stage_path.read_bytes()
 if not stage or len(stage)>256:
     raise RuntimeError('Build bounded build/agon-stage0.bin before the VDP image')
-stage_content='/* Generated native RAM bootstrap; no CPU flash writes. */\n#include <stdint.h>\n'
+stage_content='/* Generated native RAM bootstrap; no CPU flash writes. */\n#pragma once\n#include <stdint.h>\n'
 stage_content+=f'static const unsigned vios_stage0_size = {len(stage)};\n'
 stage_content+='static const uint8_t vios_stage0[] PROGMEM = {'+','.join(f'0x{x:02x}' for x in stage)+'};\n'
+crc_stage=(root/'build/agon-crc.bin').read_bytes() if (root/'build/agon-crc.bin').is_file() else b''
+if not crc_stage or len(crc_stage)>256:
+    raise RuntimeError('Build bounded build/agon-crc.bin before the VDP image')
+stage_content+=f'static const unsigned vios_crc_stage_size = {len(crc_stage)};\n'
+stage_content+='static const uint8_t vios_crc_stage[] PROGMEM = {'+','.join(f'0x{x:02x}' for x in crc_stage)+'};\n'
 stage_out=project/'include/vios_stage0.h'
 if not stage_out.exists() or stage_out.read_text()!=stage_content:stage_out.write_text(stage_content)
-(project/'include/vios_stage0.json').write_text(json.dumps({'path':'build/agon-stage0.bin','size':len(stage),'sha256':hashlib.sha256(stage).hexdigest()},indent=2)+'\n')
+(project/'include/vios_stage0.json').write_text(json.dumps({'path':'build/agon-stage0.bin','size':len(stage),'sha256':hashlib.sha256(stage).hexdigest(),
+    'crc_stage':{'path':'build/agon-crc.bin','size':len(crc_stage),'sha256':hashlib.sha256(crc_stage).hexdigest()}},indent=2)+'\n')
