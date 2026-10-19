@@ -30,6 +30,10 @@ static size_t op_size(const uint8_t *b, size_t n) {
     case 0x76: s = 7; break;
     case 0x77: s = n < 5 ? 0 : 5u + b[4]; break;
     case 0x78: s = 6; break;
+    case 0x59: s = 3; break;
+    case 0x60: s = n < 8 ? 0 : 8u + b[7]; break;
+    case 0x61: s = n < 4 || n < 4u + b[2] ? 0 : 4u + b[2] + 2u * b[3 + b[2]]; break;
+    case 0x62: s = 4; break;
     default: s = 0; break;
     }
     return s && s <= n ? s : 0;
@@ -78,6 +82,7 @@ static void reset(vds_proto *p) {
     memset(p->sprite_len, 0, sizeof p->sprite_len);
     vds_set_snap(v, 8);
     vds_set_style(v, VDS_STYLE_SMALLTALK);
+    if (p->ui_reset) p->ui_reset(p->ui);
     ++p->epoch;
 }
 
@@ -95,10 +100,25 @@ static int define_sprite(vds_proto *p, const uint8_t *b) {
     return vds_sprite_define(p->v, id, w, h, b[4], b[5], tr, p->pool + p->sprite_off[id]);
 }
 
+/* Ops whose window (b[1]) or surface argument the CPU may not name. */
+static int reserved(const uint8_t *b) {
+    switch (b[0]) {
+    case 0x01: case 0x10: case 0x12: case 0x13: case 0x14: case 0x15: case 0x32:
+        return b[1] >= VDS_PROTO_SURFACES;
+    case 0x50: case 0x55:
+        return b[1] >= VDS_PROTO_WINDOWS || (b[2] != VDS_NONE && b[2] >= VDS_PROTO_SURFACES);
+    case 0x51: case 0x52: case 0x53: case 0x54: case 0x56: case 0x57: case 0x58: case 0x59:
+        return b[1] >= VDS_PROTO_WINDOWS;
+    }
+    return 0;
+}
+
 static int apply(vds_proto *p, const uint8_t *b) {
     vds *v = p->v;
     uint8_t op = b[0];
     if (op != 0x10 && op != 0x11) p->more_ok = 0;
+    if (reserved(b)) return 0;
+    if (op >= 0x59 && op <= 0x62) return p->ui_op ? p->ui_op(p->ui, b) : 0;
     switch (op) {
     case 0x01: {
         if (b[1] >= VDS_MAX_SURFACES || !b[2] || !b[3] || !p->cells) return 0;
@@ -227,6 +247,7 @@ int vds_proto_batch(vds_proto *p, const uint8_t *b, size_t len) {
         at += s;
     }
     ++p->generation;
+    if (p->ui_after) p->ui_after(p->ui);
     return 1;
 }
 

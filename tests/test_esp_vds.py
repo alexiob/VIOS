@@ -57,6 +57,18 @@ class EspVdsTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             self.assertIn('vds intrinsics checks passed', result.stdout)
 
+    def test_commands_and_menus(self):
+        with tempfile.TemporaryDirectory() as temp:
+            binary, font = Path(temp) / 'vds_menu', Path(temp) / 'font.bin'
+            font.write_bytes(agon_font())
+            subprocess.run(['cc', '-std=c99', '-pedantic', '-Wall', '-Wextra', '-Werror', '-g',
+                            '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '-I' + str(VDS),
+                            str(VDS / 'vds.c'), str(VDS / 'vds_proto.c'), str(VDS / 'vds_ui.c'),
+                            str(FIRMWARE / 'tests/vds_menu.c'), '-o', str(binary)], check=True)
+            result = subprocess.run([str(binary), str(font), temp], capture_output=True, text=True, timeout=120)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn('vds menu checks passed', result.stdout)
+
     def test_core_is_freestanding(self):
         source = ''.join(path.read_text() for path in sorted(VDS.glob('*.[ch]')))
         self.assertLessEqual(set(re.findall(r'#include\s*[<"]([^>"]+)', source)),

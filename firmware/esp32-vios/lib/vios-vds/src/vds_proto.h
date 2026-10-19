@@ -6,7 +6,9 @@
  * malformed batch is dropped without side effects and the stream can never
  * desynchronise. An op that is well formed but refers to something absent
  * (an unknown window, say) is skipped and reported as an ERROR event.
- * Multi-byte values are little endian; s16 is two's complement.
+ * Multi-byte values are little endian; s16 is two's complement. Window ids
+ * from VDS_PROTO_WINDOWS and surface ids from VDS_PROTO_SURFACES are reserved
+ * for the intrinsics (menus, menu bar, status line) and refused here.
  *
  *  op  bytes          meaning
  *  01  id cols rows attr                 create/resize surface (cells from the adapter)
@@ -32,6 +34,11 @@
  *  56  id col row                        client scroll offset
  *  57  id                                close
  *  58  id                                focus (raise, activate; refused under a modal)
+ *  59  id menu                           pop-up menu of a window (255: world menu)
+ *  60  cmd(u16) flags vk mods ascii n ch*n   define a command ('&' marks the mnemonic)
+ *  61  menu n title*n count item(u16)*count  define a menu (items: command, FFFF separator,
+ *                                        FE00|menu submenu); menu 0 is the bar / world menu
+ *  62  cmd(u16) flags                    command state (enabled 2, checked 4, status line 8)
  *  74  key value(u16)                    config: 1 snap_x, 2 style
  *  76  id w h hot_x hot_y transparent    define a sprite (pixels from the pool)
  *  77  id offset(u16) n byte*n           sprite pixel data
@@ -48,6 +55,8 @@ extern "C" {
 #endif
 
 #define VDS_PROTO_POOL 4096             /* sprite pixel bytes */
+#define VDS_PROTO_WINDOWS 27            /* CPU window ids 0..26 */
+#define VDS_PROTO_SURFACES 11           /* CPU surface ids 0..10 */
 #define VDS_PROTO_HOLD_MS 33            /* uncommitted changes show after this */
 #define VDS_PACKET_EVENT 0x70
 #define VDS_PACKET_REPLY 0x71
@@ -70,6 +79,9 @@ typedef struct vds_proto {
     void *ui;
     int (*ui_focus)(void *ui, uint8_t id);
     void (*ui_forget)(void *ui, uint8_t id);
+    int (*ui_op)(void *ui, const uint8_t *op);   /* ops 59-62 */
+    void (*ui_after)(void *ui);                  /* after every applied batch */
+    void (*ui_reset)(void *ui);
 } vds_proto;
 
 void vds_proto_init(vds_proto *p, vds *v, vds_cell *(*cells)(void *, uint8_t, uint16_t),

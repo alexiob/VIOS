@@ -9,13 +9,15 @@ static const vds_style STYLES[VDS_STYLE_COUNT] = {
         VDS_STYLE_SMALLTALK,
         {0x00, 0x30, 0x3C, 0x3F, 0x2A, 0x15, 0x3E, 0x2B, 0x17, 0x3A, 0x2E, 0x1B, 0x05, 0x29, 0x39, 0x01},
         {0, 14, 13, 4, 5, 0, 13, 11, 15, 14, 13, 15, 0, 5, 1, 0},
-        4, 5, 3, 0, 0, 0, 0, 6, 4
+        4, 5, 3, 0, 0, 0, 0, 6, 4,
+        0, 3, 8, 3, 0, 5, 0
     },
     {   /* Turbo Vision: blue desktop, blue windows, double frames, drop shadows. */
         VDS_STYLE_TURBO,
         {0x00, 0x30, 0x3C, 0x3F, 0x02, 0x06, 0x2A, 0x15, 0x08, 0x0F, 0x0A, 0x28, 0x01, 0x2F, 0x20, 0x17},
         {0, 14, 11, 7, 12, 12, 7, 0, 0, 10, 12, 0, 0, 10, 0, 12},
-        5, 12, 4, 3, 6, 3, 6, 4, 4
+        5, 12, 4, 3, 6, 3, 6, 4, 4,
+        0, 6, 1, 3, 8, 7, 0
     },
 };
 
@@ -49,7 +51,9 @@ static geometry geom(const vds *v, const vds_window *w) {
     g.client = rect(w->x, w->y, cw, ch);
     g.body = g.client;
     g.tab = rect(0, 0, 0, 0);
-    if (w->flags & VDS_W_DECOR) {
+    if ((w->flags & VDS_W_MENU) && !(w->flags & VDS_W_DECOR))
+        g.body = rect(w->x - 1, w->y - 1, cw + 2, ch + 2);
+    else if (w->flags & VDS_W_DECOR) {
         int b = turbo ? 8 : 2;
         g.body = rect(w->x - b, w->y - b, cw + 2 * b, ch + 2 * b);
         if (!turbo && w->title[0])
@@ -232,6 +236,8 @@ static void window_row(vds *v, const vds_window *w, int y, int x0, int x1) {
                 fill(ln, bx + t, bx + bw - t, st->body, x0, x1);
             }
         }
+    } else if ((w->flags & VDS_W_MENU) && !(w->flags & VDS_W_DECOR) && has_row(g.body, y)) {
+        hline_or_sides(ln, g.body, y, st->menu_frame, x0, x1);
     } else if ((w->flags & VDS_W_DECOR) && has_row(g.body, y)) {
         fill(ln, g.body.x, g.body.x + g.body.w, st->body, x0, x1);
         vds_rect b = g.body;
@@ -403,12 +409,16 @@ int vds_put(vds *v, uint8_t id, uint8_t col, uint8_t row, uint8_t attr, const ch
     vds_surface *sf = surface(v, id);
     if (!sf || row >= sf->rows || col >= sf->cols) return 0;
     if (n > (size_t)(sf->cols - col)) n = sf->cols - col;
+    int first = -1, last = -1;                          /* damage only cells that change */
     for (size_t i = 0; i < n; ++i) {
         vds_cell *c = &sf->cells[row * sf->cols + col + i];
+        if (c->ch == (uint8_t)s[i] && c->attr == attr) continue;
         c->ch = (uint8_t)s[i];
         c->attr = attr;
+        if (first < 0) first = (int)i;
+        last = (int)i;
     }
-    damage_surface(v, id, col, row, (int)n, 1);
+    if (first >= 0) damage_surface(v, id, col + first, row, last - first + 1, 1);
     return 1;
 }
 
@@ -417,9 +427,15 @@ int vds_fill(vds *v, uint8_t id, uint8_t col, uint8_t row, uint8_t w, uint8_t h,
     if (!sf || row >= sf->rows || col >= sf->cols) return 0;
     if (w > sf->cols - col) w = (uint8_t)(sf->cols - col);
     if (h > sf->rows - row) h = (uint8_t)(sf->rows - row);
+    int changed = 0;
     for (unsigned y = row; y < (unsigned)row + h; ++y)
-        for (unsigned x = col; x < (unsigned)col + w; ++x) { sf->cells[y * sf->cols + x].ch = ch; sf->cells[y * sf->cols + x].attr = attr; }
-    damage_surface(v, id, col, row, w, h);
+        for (unsigned x = col; x < (unsigned)col + w; ++x) {
+            vds_cell *c = &sf->cells[y * sf->cols + x];
+            changed |= c->ch != ch || c->attr != attr;
+            c->ch = ch;
+            c->attr = attr;
+        }
+    if (changed) damage_surface(v, id, col, row, w, h);
     return 1;
 }
 
@@ -468,6 +484,14 @@ static int16_t snapped(const vds *v, uint8_t flags, int x) {
     return (int16_t)((v->snap_x == 8 && !(flags & VDS_W_FREE_X)) ? (x & ~7) : x);
 }
 
+/* Index just above the last window of the band a window with `flags` joins. */
+static unsigned band_top(const vds *v, uint8_t flags) {
+    if (flags & VDS_W_OVERLAY) return v->count;
+    unsigned at = 0;
+    while (at < v->count && !(v->windows[v->order[at]].flags & VDS_W_OVERLAY)) ++at;
+    return at;
+}
+
 static void set_title(vds_window *w, const char *title) {
     size_t n = title ? strlen(title) : 0;
     if (n >= VDS_TITLE_MAX) n = VDS_TITLE_MAX - 1;
@@ -489,7 +513,10 @@ int vds_window_open(vds *v, uint8_t id, uint8_t surface_id, int16_t x, int16_t y
     w->x = snapped(v, flags, x);
     w->y = y;
     set_title(w, title);
-    v->order[v->count++] = id;
+    unsigned at = band_top(v, flags);
+    for (unsigned i = v->count; i > at; --i) v->order[i] = v->order[i - 1];
+    v->order[at] = id;
+    ++v->count;
     damage_window(v, id);
     return 1;
 }
@@ -519,7 +546,11 @@ int vds_window_raise(vds *v, uint8_t id) {
     unsigned i = 0;
     while (v->order[i] != id) ++i;
     for (; i + 1 < v->count; ++i) v->order[i] = v->order[i + 1];
-    v->order[v->count - 1] = id;
+    --v->count;
+    unsigned at = band_top(v, v->windows[id].flags);       /* ordinary windows stay below overlays */
+    for (unsigned k = v->count; k > at; --k) v->order[k] = v->order[k - 1];
+    v->order[at] = id;
+    ++v->count;
     damage_window(v, id);
     return 1;
 }

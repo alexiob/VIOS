@@ -30,7 +30,10 @@ extern "C" {
 #define VDS_NONE 255
 
 typedef struct { int16_t x, y, w, h; } vds_rect;
-typedef struct { uint8_t ch, attr; } vds_cell;          /* attr = fg | bg << 4 */
+/* attr = fg | bg << 4, palette indices. Indices 0-3 are pinned (black, red,
+ * yellow, white) in every style; 4-15 belong to the style, so content meant to
+ * look the same in both styles uses 0-3 or the style's role indices. */
+typedef struct { uint8_t ch, attr; } vds_cell;
 
 enum { VDS_STYLE_SMALLTALK = 0, VDS_STYLE_TURBO = 1, VDS_STYLE_COUNT };
 
@@ -40,7 +43,9 @@ enum {
     VDS_W_SHADOW = 4,
     VDS_W_ACTIVE = 8,
     VDS_W_FREE_X = 16,  /* never snap this window's x */
-    VDS_W_MODAL = 32    /* the topmost visible modal window dims everything below it */
+    VDS_W_MODAL = 32,   /* the topmost visible modal window dims everything below it */
+    VDS_W_OVERLAY = 64, /* stays above all ordinary windows (menus, bars) */
+    VDS_W_MENU = 128    /* plain 1 px frame in the style's menu colours */
 };
 
 typedef struct {
@@ -49,6 +54,7 @@ typedef struct {
     uint8_t shade[16];          /* colour index -> its shadowed index */
     uint8_t desktop_a, desktop_b, body, frame, frame_inactive;
     uint8_t title_fg, title_fg_inactive, tab, tab_inactive;
+    uint8_t menu_fg, menu_bg, menu_key, menu_sel_fg, menu_sel_bg, menu_disabled, menu_frame;
 } vds_style;
 
 enum { VDS_CURSOR_OFF = 0, VDS_CURSOR_BLOCK = 1, VDS_CURSOR_UNDERLINE = 2, VDS_CURSOR_BAR = 3 };
