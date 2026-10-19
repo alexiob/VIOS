@@ -15,7 +15,7 @@ class Packet:
 
 
 def encode(packet):
-    if packet.channel not in (1,2,3) or type(packet.sequence) is not int or not 0<=packet.sequence<=65535 or not isinstance(packet.payload,bytes) or len(packet.payload)>MAX_PAYLOAD:
+    if packet.channel not in (1,2,3,4) or type(packet.sequence) is not int or not 0<=packet.sequence<=65535 or not isinstance(packet.payload,bytes) or len(packet.payload)>MAX_PAYLOAD:
         raise ValueError('Invalid VIOS packet')
     raw=struct.pack('<BBHH',1,packet.channel,packet.sequence,len(packet.payload))+packet.payload
     raw+=struct.pack('<I',zlib.crc32(raw))
@@ -40,7 +40,7 @@ def decode(encoded):
         if code<255 and index<len(encoded):raw.append(0)
     if len(raw)<10:raise ValueError('Short VIOS frame')
     version,channel,sequence,length=struct.unpack('<BBHH',raw[:6])
-    if version!=1 or channel not in (1,2,3) or length>MAX_PAYLOAD or len(raw)!=length+10:
+    if version!=1 or channel not in (1,2,3,4) or length>MAX_PAYLOAD or len(raw)!=length+10:
         raise ValueError('Invalid VIOS header')
     if zlib.crc32(raw[:-4])!=struct.unpack('<I',raw[-4:])[0]:
         raise ValueError('VIOS CRC mismatch')

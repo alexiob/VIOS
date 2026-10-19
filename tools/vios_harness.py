@@ -283,6 +283,7 @@ def main():
     parser.add_argument('--tcp',metavar='127.0.0.1:PORT',help='Serve loopback TCP instead of stdio')
     parser.add_argument('--backend',choices=('ram','resident'),default='ram',help='RAM bridge deployment or installed resident firmware')
     parser.add_argument('--fast-console',action='store_true',help='Opt in to one UART write per envelope (default: paced characters)')
+    parser.add_argument('--host-root',default='~/VIOS-host',help='Directory served to the board as /host/ (resident backend; use "" to disable)')
     args = parser.parse_args()
     if args.backend=='resident':
         try:
@@ -290,6 +291,8 @@ def main():
         except ImportError:
             from vios_resident_board import ResidentBoard
         board=ResidentBoard(port=args.port,image=args.image,log=args.log,fast_console=args.fast_console)
+        if args.host_root and hasattr(board,'enable_host_service'):
+            print('VIOS /host/ serves '+board.enable_host_service(args.host_root),file=sys.stderr)
     else:
         board=ViosBoard(port=args.port,image=args.image,log=args.log,fast_console=args.fast_console)
     try:

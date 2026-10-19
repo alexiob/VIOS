@@ -6,6 +6,7 @@
 void vios_bridge_poll();
 void vios_bridge_boot();
 void vios_usb_console_write(const uint8_t *data,size_t length);
+void vios_usb_host_write(const uint8_t *data,size_t length);
 
 void vios_legacy_hexload_notice();
 void vios_boot_health(uint8_t flag);

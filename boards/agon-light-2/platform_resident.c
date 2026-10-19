@@ -116,6 +116,21 @@ int platform_vdp_request(const void *command,size_t length,unsigned char reply,v
  }while(elapsed<PLATFORM_TIMER_HZ);
  if(actual)*actual=0;return 0;
 }
+/* One host-service exchange (VDU 23,0,E3 -> USB channel 4 -> packet FC).
+ * Returns 0 after ~1 s without a reply (no harness, or it is not serving). */
+int platform_host_request(const void *request,size_t length,void *reply,size_t capacity,unsigned *actual) {
+ if(length>240)return 0;
+ unsigned char discard[240];unsigned stale=0;poll();(void)vdp_transport_host_reply(&rx,discard,sizeof discard,&stale);
+ unsigned char header[4]={23,0,0xE3,(unsigned char)length};
+ platform_console_flush();send_bytes(header,sizeof header);send_bytes(request,length);
+ unsigned short previous=platform_timer_read();uint32_t elapsed=0;
+ do {
+  poll();if(vdp_transport_host_reply(&rx,reply,(unsigned)capacity,actual))return 1;
+  unsigned short now=platform_timer_read();elapsed+=(unsigned short)(previous-now);previous=now;
+  if(elapsed<PLATFORM_TIMER_HZ)ez80_uart0_rx_resume();
+ }while(elapsed<PLATFORM_TIMER_HZ);
+ if(actual)*actual=0;return 0;
+}
 uint32_t platform_millis(void) {
  static const unsigned char command[]={23,0,0xE1};unsigned char data[4];unsigned n;
  if(!platform_vdp_request(command,sizeof command,0xFD,data,sizeof data,&n)||n!=4)return UINT32_MAX;

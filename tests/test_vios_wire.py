@@ -47,7 +47,7 @@ class WireTests(unittest.TestCase):
             with self.assertRaises(ValueError):decode(invalid)
 
     def test_invalid_packet_bounds(self):
-        for packet in [Packet(4,0,b''),Packet(1,-1,b''),Packet(1,65536,b''),Packet(1,0,b'x'*241)]:
+        for packet in [Packet(5,0,b''),Packet(1,-1,b''),Packet(1,65536,b''),Packet(1,0,b'x'*241)]:
             with self.assertRaises(ValueError):encode(packet)
 
     def test_atomic_source_lines_and_fail_closed_output(self):

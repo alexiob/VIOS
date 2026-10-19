@@ -16,7 +16,7 @@
 #endif
 static SemaphoreHandle_t usb_tx_mutex,vdp_tx_mutex;
 struct ConsoleRecord {uint16_t length;uint8_t data[256];};
-static QueueHandle_t console_queue;
+static QueueHandle_t console_queue,host_queue;
 static std::atomic<bool> parser_busy(false);
 static std::atomic<bool> full_control(false);
 static std::atomic<int> health_mailbox(-1);
@@ -71,6 +71,8 @@ static void usb_send(uint8_t channel,uint16_t sequence,const uint8_t *data,size_
     }while(length);
 }
 void vios_usb_console_write(const uint8_t *data,size_t length) {usb_send(VIOS_CHANNEL_CONSOLE,0,data,length);}
+/* Host service requests from the CPU go to the Mac unpaced (small, rare). */
+void vios_usb_host_write(const uint8_t *data,size_t length) {usb_send(VIOS_CHANNEL_HOST,0,data,length);}
 static void control_reply(uint16_t sequence,const char *line) {usb_send(VIOS_CHANNEL_CONTROL,sequence,(const uint8_t *)line,strlen(line));}
 static void bridge_event(const char *line) {usb_send(VIOS_CHANNEL_EVENT,0,(const uint8_t *)line,strlen(line));}
 void vios_legacy_hexload_notice(){bridge_event("ERR raw hexload replaced by framed RAM control\r\n");}
@@ -224,13 +226,19 @@ void vios_vdp_tx_begin(){
 }
 void vios_vdp_tx_end(){VDPSerial.flush();if(vdp_tx_mutex)xSemaphoreGive(vdp_tx_mutex);}
 void vios_bridge_service_vdp(){
-    if(cpu_paused.load()||!console_queue||!uxQueueMessagesWaiting(console_queue))return;
+    if(cpu_paused.load())return;
+    bool console=console_queue&&uxQueueMessagesWaiting(console_queue),host=host_queue&&uxQueueMessagesWaiting(host_queue);
+    if(!console&&!host)return;
     ConsoleRecord record;
     vios_vdp_tx_begin();
-    if(xQueueReceive(console_queue,&record,0)==pdTRUE){
+    if(console&&xQueueReceive(console_queue,&record,0)==pdTRUE){
         size_t at=0;while(at<record.length){size_t count=record.length-at;if(count>240)count=240;
             VDPSerial.write((uint8_t)VIOS_PACKET_CONSOLE);VDPSerial.write((uint8_t)count);
             VDPSerial.write(record.data+at,count);at+=count;}
+    }
+    /* One host reply is one packet (<=240 bytes), never split. */
+    if(host&&xQueueReceive(host_queue,&record,0)==pdTRUE&&record.length<=240){
+        VDPSerial.write((uint8_t)VIOS_PACKET_HOST);VDPSerial.write((uint8_t)record.length);VDPSerial.write(record.data,record.length);
     }
     vios_vdp_tx_end();
 }
@@ -275,6 +283,11 @@ static void usb_dispatch(const struct vios_wire_message *message) {
         if(cpu_paused){bridge_event("ERR console while paused\r\n");return;}
         if(source_used){line_reply(source_sequence,"LINE ERR interleaved\r\n");source_used=0;return;}
         if(!enqueue_console(message->payload,message->length))bridge_event("ERR console queue full\r\n");return;
+    }
+    if(message->channel==VIOS_CHANNEL_HOST) {
+        if(!host_queue||!message->length){bridge_event("ERR host reply invalid\r\n");return;}
+        ConsoleRecord record;record.length=message->length;memcpy(record.data,message->payload,message->length);
+        if(xQueueSend(host_queue,&record,0)!=pdTRUE)bridge_event("ERR host queue full\r\n");return;
     }
     if(message->channel!=VIOS_CHANNEL_CONTROL)return;
     if(control_used&&control_sequence!=message->sequence){control_reply(message->sequence,"ERR command sequence busy\r\n");return;}
@@ -328,10 +341,10 @@ bool vios_bridge_init(){
     health_mailbox.store(-1);parser_busy.store(false);full_control.store(false);
     usb_used=control_used=source_used=0;usb_discard=false;
     usb_tx_mutex=xSemaphoreCreateMutex();vdp_tx_mutex=xSemaphoreCreateMutex();
-    console_queue=xQueueCreate(8,sizeof(ConsoleRecord));
+    console_queue=xQueueCreate(8,sizeof(ConsoleRecord));host_queue=xQueueCreate(2,sizeof(ConsoleRecord));
     if(esp_reset_reason()!=ESP_RST_SW||retained_magic!=retained_signature||retained_count>3||retained_inverse!=~retained_count)retain_failures(0);
     boot_failures=retained_count;
-    return usb_tx_mutex&&vdp_tx_mutex&&console_queue;
+    return usb_tx_mutex&&vdp_tx_mutex&&console_queue&&host_queue;
 }
 static void control_task(void*){for(;;){vios_bridge_poll();vTaskDelay(pdMS_TO_TICKS(1));}}
 void vios_bridge_handoff(){full_control.store(true);}

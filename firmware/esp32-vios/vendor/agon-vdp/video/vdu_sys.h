@@ -127,6 +127,16 @@ void VDUStreamProcessor::vdu_sys_video() {
             }
             if(length<=VIOS_WIRE_PAYLOAD_MAX)vios_usb_console_write(payload,(size_t)length);
         } break;
+        case VIOS_VDU_HOST: {
+            auto length=readByte_t();
+            uint8_t payload[VIOS_WIRE_PAYLOAD_MAX];
+            if(length<0)return;
+            for(int i=0;i<length;++i) {
+                auto value=readByte_t();if(value<0)return;
+                if(i<VIOS_WIRE_PAYLOAD_MAX)payload[i]=(uint8_t)value;
+            }
+            if(length<=VIOS_WIRE_PAYLOAD_MAX)vios_usb_host_write(payload,(size_t)length);
+        } break;
         case VIOS_VDU_CLOCK: {
             uint32_t now=millis();
             uint8_t packet[4]={(uint8_t)now,(uint8_t)(now>>8),(uint8_t)(now>>16),(uint8_t)(now>>24)};

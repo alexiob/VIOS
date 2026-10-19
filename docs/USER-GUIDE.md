@@ -56,6 +56,10 @@ DIR /VIOS                                  \ list a directory
 LOAD /VIOS/APP.FTH                         \ run a source file
 ```
 
+**Mac files:** while the harness runs, `/host/...` paths are files in
+`~/VIOS-host` on the Mac (`--host-root` changes it). Edit on the Mac and run
+on the Agon with `LOAD /host/app.fth`; `OPEN`, `READ`, `WRITE` work too.
+
 Devices: `/dev/null`, `/dev/cons` (write), `/dev/tasks` (read). Any Forth
 word can serve a device of your own, Plan 9 style:
 

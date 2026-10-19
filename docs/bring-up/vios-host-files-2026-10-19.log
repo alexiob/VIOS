@@ -1,0 +1,11 @@
+connected True
+'CREATE MB 128 ALLOT VARIABLE MH\r\n\r\nok\r\nvios> '
+'S" /host/hello.txt" 1 OPEN MH ! MH @ .\r\n1 \r\nok\r\nvios> '
+read ms 102 'MB 128 MH @ READ DUP . MB SWAP TYPE MH @ CLOSE .\r\n37 hello from the Mac\n: MACWORD 6 7 * ;\n0 \r\nok\r\nvios> '
+'S" /host/from-agon.txt" 2 OPEN MH ! S" written by VIOS on the Agon" MH @ WRITE-ALL . MH @ CLOSE .\r\n0 0 \r\nok\r\nvios> '
+mac sees: written by VIOS on the Agon
+'S" /host/../secret" 1 OPEN .\r\n-5 \r\nok\r\nvios> '
+{'output': 'HANDLES\r\nio-error forbidden path\r\n\r\nok\r\nvios> ', 'ok': True, 'compiling': False, 'pending': False, 'handles': [], 'last_error': 'forbidden path'}
+connected True
+LOAD ms 106 'LOAD /host/demo.fth\r\ndemo loaded from the Mac\r\n1 4 9 16 25 \r\n\r\nok\r\nvios> '
+'LOAD /host/nope.fth\r\nerror: no such host file\r\n\r\nerror\r\nvios> '

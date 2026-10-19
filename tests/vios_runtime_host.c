@@ -45,6 +45,22 @@ int platform_vdp_request(const void *command,size_t length,unsigned char reply,v
  return 0;
 }
 uint32_t platform_millis(void){return 1234567;}
+/* Fake Mac host service over the same protocol (files under ROOT/HOSTSHARE). */
+static FILE *host_files[4];static int host_online=1;
+int platform_host_request(const void *request,size_t length,void *reply,size_t capacity,unsigned *actual){
+ const unsigned char *r=request;unsigned char *o=reply;*actual=0;(void)capacity;
+ if(!host_online||!length)return 0;
+ if(r[0]=='O'){char name[200],full[768];size_t n=length-2<sizeof name-1?length-2:sizeof name-1;memcpy(name,r+2,n);name[n]=0;
+  if(strstr(name,"..")||name[0]=='/'){memcpy(o,"Eforbidden path",15);*actual=15;return 1;}
+  snprintf(full,sizeof full,"%s/HOSTSHARE/%s",root,name);
+  for(unsigned h=0;h<4;++h)if(!host_files[h]){host_files[h]=fopen(full,r[1]=='w'?"wb":"rb");if(!host_files[h]){memcpy(o,"Eno such host file",18);*actual=18;return 1;}o[0]='K';o[1]=(unsigned char)h;*actual=2;return 1;}
+  memcpy(o,"Etoo many host files",20);*actual=20;return 1;}
+ unsigned h=length>1?r[1]:99;if(h>=4||!host_files[h]){memcpy(o,"Ebad host handle",16);*actual=16;return 1;}
+ if(r[0]=='R'){size_t got=fread(o+1,1,r[2],host_files[h]);o[0]='K';*actual=(unsigned)got+1;return 1;}
+ if(r[0]=='W'){size_t put=fwrite(r+2,1,length-2,host_files[h]);o[0]='K';o[1]=(unsigned char)put;*actual=2;return 1;}
+ if(r[0]=='C'){fclose(host_files[h]);host_files[h]=NULL;o[0]='K';*actual=1;return 1;}
+ memcpy(o,"Eunknown request",16);*actual=16;return 1;
+}
 unsigned platform_console_dropped(void){return 0;}
 void platform_boot_ready(void){++ready;}
 void platform_boot_trial(void){}
@@ -202,6 +218,21 @@ int main(int argc,char **argv){
   console_used=0;eval(cmd);assert(strstr(console_capture,"get -"));eval("SVH @ CLOSE DROP");
   console_used=0;eval("DIR /VIOS");assert(strstr(console_capture,"entry SVC.TXT size 5 dir 0"));
   assert(!forth_eval("HANDLE-GET 99 4")&&strstr(forth_last_error(),"bad handle"));}
+ /* Mac files over USB: /host/ handles through the host service. */
+ {char share[768];snprintf(share,sizeof share,"%s/HOSTSHARE",root);mkdir(share,0700);
+  eval("VARIABLE HH CREATE HB 64 ALLOT");
+  eval("S\" /host/notes.txt\" 2 OPEN HH !");assert((eval("HH @"),fvm_pop())>=1);
+  assert((eval("S\" from the agon\" HH @ WRITE-ALL"),fvm_pop())==0&&(eval("HH @ CLOSE"),fvm_pop())==0);
+  char full[800];snprintf(full,sizeof full,"%s/notes.txt",share);FILE *f=fopen(full,"rb");char text[32]={0};assert(f&&fread(text,1,sizeof text,f)==13);fclose(f);assert(!strcmp(text,"from the agon"));
+  eval("S\" /host/notes.txt\" 1 OPEN HH !");assert((eval("HB 64 HH @ READ"),fvm_pop())==13&&(eval("HB C@"),fvm_pop())=='f');
+  assert((eval("HB 64 HH @ READ"),fvm_pop())==0);eval("HH @ CLOSE DROP");
+  assert((eval("S\" /host/missing.txt\" 1 OPEN"),fvm_pop())==((fcell)-5&FVM_MASK));
+  assert((eval("S\" /host/../etc/passwd\" 1 OPEN"),fvm_pop())==((fcell)-5&FVM_MASK));
+  host_online=0;assert((eval("S\" /host/notes.txt\" 1 OPEN"),fvm_pop())==((fcell)-5&FVM_MASK));host_online=1;
+  {char app[800];snprintf(app,sizeof app,"%s/app.fth",share);FILE *g=fopen(app,"wb");fputs(": FROMMAC 6 7 * ;\n",g);fclose(g);}
+  eval("LOAD /host/app.fth FROMMAC");assert(fvm_pop()==42&&"LOAD reads source from the Mac");
+  assert(!forth_eval("LOAD /host/nope.fth")&&strstr(forth_last_error(),"no such host file"));
+  for(unsigned h=0;h<4;++h)assert(!host_files[h]&&"every host handle was closed");}
  /* User-space devices: a Forth word serves /dev/NAME through a pipe. */
  {eval("CREATE DVB 16 ALLOT VARIABLE DVH : COUNTER 5 0 DO I 48 + EMIT LOOP ; S\" count\" ' COUNTER DEVICE");
   eval("S\" /dev/count\" 1 OPEN DVH !");assert((eval("DVH @"),fvm_pop())>=1);

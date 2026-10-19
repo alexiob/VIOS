@@ -19,6 +19,8 @@ struct vdp_transport {
  unsigned char history[4][235],history_length[4],history_count,history_next,history_pos;
  /* F1 pressed while keys are not routed to the UI: a view-switch request. */
  unsigned char hotkey;
+ /* Host-service reply (packet FC): whole payload, one in flight. */
+ unsigned char host[240],host_length,host_ready;
 };
 void vdp_transport_init(struct vdp_transport *p);
 void vdp_transport_keyboard_route(struct vdp_transport *p,int enabled);
@@ -28,5 +30,7 @@ int vdp_transport_keyboard_event(struct vdp_transport *p,struct platform_key_eve
 void vdp_transport_line_mode(struct vdp_transport *p,int enabled);
 void vdp_transport_feed(struct vdp_transport *p,unsigned char byte);
 int vdp_transport_getc(struct vdp_transport *p);
+/* Take the latest host-service reply; 0 if none has arrived. */
+int vdp_transport_host_reply(struct vdp_transport *p,unsigned char *data,unsigned capacity,unsigned *length);
 int vdp_transport_packet(struct vdp_transport *p,unsigned char type,void *data,size_t capacity,unsigned *length);
 #endif

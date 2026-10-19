@@ -93,5 +93,12 @@ int main(void) {
  vdp_transport_line_mode(&p,0);
  const unsigned char raw[]={0x81,4,'k',0,0,1};for(size_t j=0;j<sizeof raw;++j)vdp_transport_feed(&p,raw[j]);
  assert(vdp_transport_getc(&p)=='k'&&vdp_transport_getc(&p)==-1);
+ /* Host-service reply packets arrive whole and are taken exactly once. */
+ {vdp_transport_init(&p);unsigned char reply[240];unsigned n=0;assert(!vdp_transport_host_reply(&p,reply,sizeof reply,&n));
+  const unsigned char pkt[]={0xFC,5,'K',1,2,3,4,0xFE,1,'z'};for(size_t j=0;j<sizeof pkt;++j)vdp_transport_feed(&p,pkt[j]);
+  assert(vdp_transport_host_reply(&p,reply,sizeof reply,&n)&&n==5&&reply[0]=='K'&&reply[4]==4);
+  assert(!vdp_transport_host_reply(&p,reply,sizeof reply,&n));assert(vdp_transport_getc(&p)=='z');
+  vdp_transport_feed(&p,0xFC);vdp_transport_feed(&p,200);for(unsigned j=0;j<200;++j)vdp_transport_feed(&p,(unsigned char)j);
+  assert(vdp_transport_host_reply(&p,reply,sizeof reply,&n)&&n==200&&reply[199]==199);}
  puts("VDP console, keyboard, metadata and bounded packet parsing passed");return 0;
 }

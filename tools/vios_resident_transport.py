@@ -12,6 +12,7 @@ class ResidentSession(Session):
         self.pending=bytearray();self.replies={};self.events=[]
         self.sequence=0;self.paused=False
         self.integrity_error=False;self.protected=False;self.line_ack=None
+        self.host_service=None  # vios_host_service.HostService answering channel 4
 
     def _send(self,channel,sequence,data):
         for offset in range(0,len(data),MAX_PAYLOAD):
@@ -30,6 +31,10 @@ class ResidentSession(Session):
                 if packet.sequence==self.sequence:
                     self.replies.setdefault(packet.sequence,bytearray()).extend(packet.payload)
                     if len(self.replies[packet.sequence])>1024:raise IOError('Oversized debug reply')
+            elif packet.channel==4:
+                # Board-initiated host-file request: answer immediately.
+                reply=self.host_service.handle(packet.payload) if self.host_service else b'Ehost service not enabled'
+                self._send(4,0,reply)
             else:
                 self.events.append(packet.payload)
                 if len(self.events)>128:del self.events[0]

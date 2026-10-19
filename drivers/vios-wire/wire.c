@@ -13,7 +13,7 @@ uint32_t vios_wire_crc32(const void *data,size_t length) {
     }
     return crc^0xFFFFFFFFUL;
 }
-static int channel_valid(uint8_t n) {return n>=VIOS_CHANNEL_CONSOLE&&n<=VIOS_CHANNEL_EVENT;}
+static int channel_valid(uint8_t n) {return n>=VIOS_CHANNEL_CONSOLE&&n<=VIOS_CHANNEL_HOST;}
 size_t vios_wire_encode(const struct vios_wire_message *m,uint8_t *out,size_t capacity) {
     uint8_t raw[VIOS_WIRE_RAW_MAX];
     size_t size,i,code_at=0,used=1;

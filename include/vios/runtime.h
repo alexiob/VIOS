@@ -11,6 +11,8 @@ int vios_prelude_init(void); /* core library words in Forth (kernel/vios_prelude
 /* Handles, /dev endpoints and pipes (kernel/vios_handles.c). */
 int vios_handles_init(void);
 void vios_handles_report(void);
+int vios_host_read_file(const char *path,char *buffer,size_t capacity,size_t *size);
+const char *vios_host_error(void);
 int vios_handles_command(const char *word,const char **rest); /* DIR, HANDLE-PUT, HANDLE-GET */
 int vios_load_source(const char *path);
 int vios_module_command(const char *word,const char **rest);

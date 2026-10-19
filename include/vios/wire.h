@@ -13,11 +13,16 @@ extern "C" {
 #define VIOS_VDU_CONSOLE 0xE0
 #define VIOS_VDU_CLOCK 0xE1
 #define VIOS_VDU_BOOT_HEALTH 0xE2
+/* Host service: CPU request (VDU 23,0,E3,len,payload) -> USB channel 4;
+ * USB channel 4 reply -> CPU packet FC,len,payload. One request in flight. */
+#define VIOS_VDU_HOST 0xE3
 #define VIOS_PACKET_CONSOLE 0xFE
 #define VIOS_PACKET_CLOCK 0xFD
+#define VIOS_PACKET_HOST 0xFC
 #define VIOS_CHANNEL_CONSOLE 1
 #define VIOS_CHANNEL_CONTROL 2
 #define VIOS_CHANNEL_EVENT 3
+#define VIOS_CHANNEL_HOST 4
 struct vios_wire_message {
     uint8_t channel;
     uint16_t sequence;

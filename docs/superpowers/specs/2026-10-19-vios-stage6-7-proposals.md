@@ -1,6 +1,6 @@
 # Proposals: Stage 6 (networking) and Stage 7 (distribution, second architecture)
 
-Status: **proposals for the owner's decision**, nothing implemented. Each
+Status: owner decisions 2026-10-19: Stage 6 option A **implemented** (see below); app1 firmware A/B **approved**; second architecture **on hold**. Each
 option lists cost on the measured Oct 19 system (CPU image ~147 KB, ~37 KB
 RAM headroom; ESP app0 705 KB of 1.25 MB; USB 115200 to the Mac).
 
@@ -41,3 +41,15 @@ latency (35.9 ms median today).
 - Stage 6: proceed with option A (host namespace over USB)?
 - Stage 7: schedule the power-cut session? Allow app1/OTA partition use?
 - Which 6502 board (if any) should be the second target?
+
+## Stage 6 option A, implemented 2026-10-19
+
+USB channel 4 carries host-service messages: the CPU sends VDU 23,0,E3,len,
+payload; the ESP forwards it on channel 4; the harness answers from
+`HostService` (`tools/vios_host_service.py`, sandbox `~/VIOS-host`, no
+absolute paths, `..` or symlink escapes) and the ESP delivers the reply as
+CPU packet FC. `OPEN /host/...` is a handle kind (read/write, 200-byte
+chunks, 1 s timeout when no harness serves); `LOAD`/`INCLUDE /host/...`
+read whole files. An idle pump in the harness answers requests between
+commands. Agon: read 37 bytes from a Mac file, wrote a file back, LOAD of a
+Mac-edited source in 106 ms, forbidden path refused, no leaks.

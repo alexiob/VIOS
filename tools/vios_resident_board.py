@@ -10,6 +10,7 @@ No ROM helper is uploaded by this backend and construction never opens a port.
 import contextlib
 import secrets
 import sys
+import threading
 import time
 try:
     from .vios_board import ROOT, ViosBoard
@@ -27,6 +28,8 @@ class ResidentBoard(ViosBoard):
         self.resident_factory = resident_factory
         self._attach_pending = False
         self._resident_identity = None
+        self.host_service = None
+        self._host_pump = None
 
     def _open_resident(self):
         if self.session is not None:
@@ -51,7 +54,42 @@ class ResidentBoard(ViosBoard):
             except Exception:
                 raw.close()
                 raise
+        if self.host_service is not None and hasattr(self.session, 'host_service'):
+            self.session.host_service = self.host_service
         return self.session
+
+    def enable_host_service(self, root):
+        """Serve /host/ files from root; an idle pump answers board requests."""
+        try:
+            from .vios_host_service import HostService
+        except ImportError:
+            from vios_host_service import HostService
+        self.host_service = HostService(root)
+        if self.session is not None and hasattr(self.session, 'host_service'):
+            self.session.host_service = self.host_service
+        if self._host_pump is None:
+            self._host_pump = threading.Thread(target=self._pump_idle, daemon=True)
+            self._host_pump.start()
+        return str(self.host_service.root)
+
+    def _pump_idle(self):
+        # While no command is in flight nobody reads the serial port, so host
+        # requests would time out on the board. Pump briefly when idle only.
+        while not self.closed:
+            time.sleep(0.02)
+            if not self.lock.acquire(blocking=False):
+                continue
+            try:
+                session = self.session
+                port = getattr(getattr(session, 'raw', None), 'port', None)
+                waiting = getattr(port, 'in_waiting', 0) if port is not None else 0
+                if (waiting and session is not None and self.deployed and not self.paused and not self.pending_nonce
+                        and hasattr(session, '_pump') and not getattr(session, 'integrity_error', False)):
+                    session._pump()
+            except Exception:
+                pass
+            finally:
+                self.lock.release()
 
     def _attach_result(self, result):
         if not result.get('pending'):

@@ -27,7 +27,9 @@ uint32_t vios_get32(const unsigned char *p){return (uint32_t)p[0]|((uint32_t)p[1
 int vios_load_source(const char *path){
  if(include_depth==4)return forth_error("INCLUDE nesting exceeds 4");
  size_t n=0;char *source=include_source[include_depth];
- if(!storage_read_file(path,source,FORTH_MODULE_SOURCE_MAX,&n))return forth_error(storage_error());
+ /* /host/ paths come from the Mac over USB; everything else from SD. */
+ if(path[0]=='/'&&path[1]=='h'&&path[2]=='o'&&path[3]=='s'&&path[4]=='t'&&path[5]=='/'){if(!vios_host_read_file(path,source,FORTH_MODULE_SOURCE_MAX,&n))return forth_error(vios_host_error());}
+ else if(!storage_read_file(path,source,FORTH_MODULE_SOURCE_MAX,&n))return forth_error(storage_error());
  for(size_t i=0;i<n;++i)if(!source[i])return forth_error("NUL in source file");
  source[n]=0;++include_depth;int ok=forth_eval(source);--include_depth;
  if(ok&&forth_compiling())return forth_error("incomplete definition in source file");return ok;

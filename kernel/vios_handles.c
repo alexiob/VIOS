@@ -3,11 +3,12 @@
  * docs/superpowers/specs/2026-10-18-vios-handles.md. */
 #include "vios/runtime.h"
 #include "platform/storage.h"
+#include "platform/vdp.h"
 #define HANDLES 8
 #define PIPES 4
 #define PIPE_BYTES 128
 #define SNAPSHOT 512
-enum {H_FREE,H_FILE,H_PIPE,H_NULL,H_CONS,H_SNAPSHOT};
+enum {H_FREE,H_FILE,H_PIPE,H_NULL,H_CONS,H_SNAPSHOT,H_HOST};
 enum {E_AGAIN=1,E_BROKEN=2,E_BAD=3,E_FULL=4,E_PATH=5,E_IO=6,E_MODE=7};
 static struct {unsigned char kind,mode,owner,slot;uint32_t moved;char path[24];} handles[HANDLES];
 static struct {unsigned char data[PIPE_BYTES];unsigned short head,count;unsigned char readers,writers,used;} pipes[PIPES];
@@ -26,6 +27,25 @@ static int path_copy(fcell address,fcell length,char *out,size_t capacity){
  out[length]=0;return 1;
 }
 static int same(const char *a,const char *b){return vios_same(a,b);}
+/* Mac files over USB (/host/...): one bounded request/reply per operation.
+ * Requests: O<mode r|w><path>, R<h><n>, W<h><bytes>, C<h>; replies K<data>
+ * or E<message>. No harness serving -> the request times out (~1 s). */
+static unsigned char host_reply[240];static unsigned host_reply_length;
+static int host_call(const unsigned char *request,size_t length){
+ if(!platform_host_request(request,length,host_reply,sizeof host_reply,&host_reply_length)||!host_reply_length){note("host service unavailable");return 0;}
+ if(host_reply[0]=='K')return 1;
+ unsigned n=host_reply_length-1<sizeof last_error-1?host_reply_length-1:sizeof last_error-1;
+ for(unsigned i=0;i<n;++i)last_error[i]=(char)host_reply[1+i];last_error[n]=0;return 0;
+}
+static int host_close(unsigned remote){unsigned char r[2]={'C',(unsigned char)remote};return host_call(r,2);}
+static int host_read(unsigned remote,unsigned char *out,unsigned want,unsigned *got){
+ unsigned char r[3]={'R',(unsigned char)remote,(unsigned char)(want>200?200:want)};*got=0;
+ if(!host_call(r,3))return 0;*got=host_reply_length-1;for(unsigned i=0;i<*got;++i)out[i]=host_reply[1+i];return 1;
+}
+static int host_write(unsigned remote,const unsigned char *data,unsigned n,unsigned *put){
+ unsigned char r[202];r[0]='W';r[1]=(unsigned char)remote;if(n>200)n=200;for(unsigned i=0;i<n;++i)r[2+i]=data[i];*put=0;
+ if(!host_call(r,n+2)||host_reply_length<2)return 0;*put=host_reply[1];return 1;
+}
 static void put(char c){if(snapshot_length<SNAPSHOT)snapshot[snapshot_length++]=c;}
 static void put_text(const char *s){while(*s)put(*s++);}
 static void put_number(uint32_t n){char b[11];unsigned i=0;do{b[i++]=(char)('0'+n%10);n/=10;}while(n);while(i)put(b[--i]);}
@@ -40,6 +60,7 @@ static void render_tasks(void){
 }
 static void release(int i){
  if(handles[i].kind==H_FILE)storage_stream_close(handles[i].slot);
+ else if(handles[i].kind==H_HOST)(void)host_close(handles[i].slot);
  else if(handles[i].kind==H_PIPE){if(handles[i].mode==1)--pipes[handles[i].slot].readers;else --pipes[handles[i].slot].writers;
   if(!pipes[handles[i].slot].readers&&!pipes[handles[i].slot].writers)pipes[handles[i].slot].used=0;}
  else if(handles[i].kind==H_SNAPSHOT)snapshot_owner=-1;
@@ -77,6 +98,11 @@ static int open_native(void){
   }
   return push(code(E_PATH,"no such device"));
  }
+ if(path[0]=='/'&&path[1]=='h'&&path[2]=='o'&&path[3]=='s'&&path[4]=='t'&&path[5]=='/'&&path[6]){
+  unsigned char r[130];unsigned n=0;r[n++]='O';r[n++]=mode==1?'r':'w';for(const char *q=path+6;*q&&n<sizeof r;++q)r[n++]=(unsigned char)*q;
+  if(!host_call(r,n)||host_reply_length<2)return push(code(E_PATH,last_error[0]?last_error:"host open failed"));
+  claim(i,H_HOST,(unsigned char)mode,host_reply[1],path);return push((fcell)(i+1));
+ }
  unsigned s=STORAGE_STREAMS;
  for(unsigned k=0;k<STORAGE_STREAMS;++k){int busy=0;for(int j=0;j<HANDLES;++j)if(handles[j].kind==H_FILE&&handles[j].slot==k)busy=1;if(!busy){s=k;break;}}
  if(s==STORAGE_STREAMS)return push(code(E_FULL,"no free file stream"));
@@ -87,7 +113,9 @@ static int close_native(void){
  fcell h=fvm_pop();if(fvm_error)return forth_error("data stack underflow");
  int i=handle(h);if(i<0)return push(code(E_BAD,"bad handle"));
  int ok=1;
- if(handles[i].kind==H_FILE){ok=storage_stream_close(handles[i].slot);handles[i].kind=H_FREE;}else release(i);
+ if(handles[i].kind==H_FILE){ok=storage_stream_close(handles[i].slot);handles[i].kind=H_FREE;}
+ else if(handles[i].kind==H_HOST){ok=host_close(handles[i].slot);handles[i].kind=H_FREE;}
+ else release(i);
  return push(ok?0:code(E_IO,storage_error()));
 }
 static int transfer(int writing){
@@ -107,6 +135,15 @@ static int transfer(int writing){
   }else{
    if(length&&!pipes[p].count)return push(pipes[p].writers?code(E_AGAIN,"pipe empty"):0);
    for(;done<length&&pipes[p].count;++done){fvm_write8(address+done,pipes[p].data[pipes[p].head]);pipes[p].head=(unsigned short)((pipes[p].head+1)%PIPE_BYTES);--pipes[p].count;}
+  }
+ }
+ else if(kind==H_HOST){
+  unsigned char bounce[200];
+  while(done<length){
+   unsigned want=length-done>sizeof bounce?(unsigned)sizeof bounce:(unsigned)(length-done),moved=0;
+   if(writing){for(unsigned k=0;k<want;++k)bounce[k]=fvm_read8(address+done+(fcell)k);if(!host_write(handles[i].slot,bounce,want,&moved))return push(done?done:code(E_IO,last_error));}
+   else{if(!host_read(handles[i].slot,bounce,want,&moved))return push(done?done:code(E_IO,last_error));for(unsigned k=0;k<moved;++k)fvm_write8(address+done+(fcell)k,bounce[k]);}
+   done+=moved;if(moved<want)break;
   }
  }
  else {
@@ -142,6 +179,7 @@ static int io_write(unsigned h,unsigned char c){
  if(handles[i].kind==H_PIPE){unsigned p=handles[i].slot;if(!pipes[p].readers)return -1;if(pipes[p].count==PIPE_BYTES)return 0;
   pipes[p].data[(pipes[p].head+pipes[p].count)%PIPE_BYTES]=c;++pipes[p].count;++handles[i].moved;return 1;}
  if(handles[i].kind==H_FILE){size_t put=0;if(!storage_stream_write(handles[i].slot,&c,1,&put)||put!=1)return -1;++handles[i].moved;return 1;}
+ if(handles[i].kind==H_HOST){unsigned put=0;if(!host_write(handles[i].slot,&c,1,&put)||put!=1)return -1;++handles[i].moved;return 1;}
  return -1;
 }
 static int io_read(unsigned h,unsigned char *c){
@@ -150,6 +188,7 @@ static int io_read(unsigned h,unsigned char *c){
   *c=pipes[p].data[pipes[p].head];pipes[p].head=(unsigned short)((pipes[p].head+1)%PIPE_BYTES);--pipes[p].count;++handles[i].moved;return 1;}
  if(handles[i].kind==H_SNAPSHOT){if(snapshot_offset>=snapshot_length)return -1;*c=(unsigned char)snapshot[snapshot_offset++];++handles[i].moved;return 1;}
  if(handles[i].kind==H_FILE){size_t got=0;if(!storage_stream_read(handles[i].slot,c,1,&got))return -1;if(!got)return -1;++handles[i].moved;return 1;}
+ if(handles[i].kind==H_HOST){unsigned got=0;if(!host_read(handles[i].slot,c,1,&got)||!got)return -1;++handles[i].moved;return 1;}
  return -1; /* null: EOF */
 }
 static int io_give(unsigned h,unsigned task){int i=handle(h);if(i<0)return 0;handles[i].owner=(unsigned char)task;return 1;}
@@ -163,6 +202,17 @@ static int device_native(void){
  unsigned n=0;while(name[n]){devices[free_slot].name[n]=name[n];++n;}devices[free_slot].name[n]=0;devices[free_slot].xt=xt;return 1;
 }
 static void task_exit(unsigned id){for(int i=0;i<HANDLES;++i)if(handles[i].kind!=H_FREE&&handles[i].owner==id)release(i);}
+/* Whole-file read from the Mac for LOAD/INCLUDE /host/...; 1 ok, 0 failed. */
+int vios_host_read_file(const char *path,char *buffer,size_t capacity,size_t *size){
+ *size=0;if(!(path[0]=='/'&&path[1]=='h'&&path[2]=='o'&&path[3]=='s'&&path[4]=='t'&&path[5]=='/'&&path[6]))return 0;
+ unsigned char r[130];unsigned n=0;r[n++]='O';r[n++]='r';for(const char *q=path+6;*q&&n<sizeof r;++q)r[n++]=(unsigned char)*q;
+ if(!host_call(r,n)||host_reply_length<2)return 0;unsigned remote=host_reply[1];int ok=1;
+ for(;;){unsigned got=0;if(*size==capacity){ok=0;note("host file exceeds buffer");break;}
+  if(!host_read(remote,(unsigned char *)buffer+*size,(unsigned)(capacity-*size>200?200:capacity-*size),&got)){ok=0;break;}
+  if(!got)break;*size+=got;}
+ (void)host_close(remote);return ok;
+}
+const char *vios_host_error(void){return last_error;}
 static void list_entry(const char *name,unsigned long size,int directory,void *ctx){
  (void)ctx;vios_out("entry ");vios_out(name);vios_out(" size ");vios_uint((uint32_t)size);vios_out(directory?" dir 1\r\n":" dir 0\r\n");
 }
@@ -194,7 +244,7 @@ int vios_handles_command(const char *word,const char **rest){
  return 0;
 }
 void vios_handles_report(void){
- static const char *const kinds[]={"free","file","pipe","null","cons","snapshot"};
+ static const char *const kinds[]={"free","file","pipe","null","cons","snapshot","host"};
  for(int i=0;i<HANDLES;++i){if(handles[i].kind==H_FREE)continue;
   vios_out("handle ");vios_uint((uint32_t)i+1);vios_out(" kind ");vios_out(kinds[handles[i].kind]);vios_out(handles[i].mode==1?" read":" write");
   vios_out(" owner ");vios_uint(handles[i].owner);vios_out(" bytes ");vios_uint(handles[i].moved);
