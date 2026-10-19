@@ -81,3 +81,15 @@ upper-casing pipeline output on the console, 5000 bytes exact through one
 128-byte pipe with no drops (662 B/s with the host polling `tasks` every
 0.25 s; draining only between slices is the current limit), broken pipe
 reported, no leaked handles, no console drops.
+
+## Review follow-ups (2026-10-19)
+
+An independent review found and the fixes address: a failed or killed task
+with buffered redirected output lost its real error and last bytes (now
+drained before its handles close); MS deadlines lost time when the gate
+skipped rounds (clock sampled on every call); `.` in BASE 2 could overflow
+the ring headroom (now 32 bytes); output arriving while a local line is
+shown corrupted the echo (line is redisplayed on a fresh row); the VGA
+view's backspace now crosses a row wrap. Known and accepted: handle numbers
+carry no generation, so a task's stdout handle closed by the foreground and
+reused by a later OPEN would redirect into the new object.

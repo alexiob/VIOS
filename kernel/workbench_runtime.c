@@ -130,7 +130,7 @@ static void con_draw(unsigned char c){
  con_bol=c=='\n';
  if(c=='\r'){con_col=0;return;}
  if(c=='\n'){con_newline();return;}
- if(c==8){if(con_col)--con_col;return;}
+ if(c==8){if(con_col)--con_col;else if(con_row){--con_row;con_col=VIOS_TEXT_COLUMNS-1;}return;}
  if(c<32||c>126)return;
  CON_LINE(con_row)[con_col]=(char)c;
  if(con_open)vios_text_put(con_col,con_row,&CON_LINE(con_row)[con_col],1,3,0);

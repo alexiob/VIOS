@@ -109,7 +109,7 @@ static void (*task_exit_hook)(unsigned);
 static int (*io_write)(unsigned handle,unsigned char c);
 static int (*io_read)(unsigned handle,unsigned char *c);
 static int (*io_give)(unsigned handle,unsigned task);
-#define OUT_HIGH (FORTH_TASK_OUT-16)
+#define OUT_HIGH (FORTH_TASK_OUT-32) /* a BASE 2 . prints up to 26 bytes */
 static void out(unsigned char c);
 
 static size_t length(const char *s) { size_t n=0;while(s[n])++n;return n; }
@@ -336,6 +336,7 @@ static void out(unsigned char c) {
  if(t->out_handle&&t->out_count>=OUT_HIGH)yield_request=1;
 }
 static void task_flush(unsigned id);
+static void task_drain(unsigned id);
 static int task_id(fcell id);
 static uint32_t now_ms(void){return clock_hook?clock_hook():0;}
 static int tasks_live(void){for(unsigned i=0;i<FORTH_TASKS_MAX;++i)if(tasks[i].state==TS_READY||tasks[i].state==TS_SLEEPING)return 1;return 0;}
@@ -360,7 +361,7 @@ static void run_slice(unsigned id) {
  else if(result==1)t->state=TS_DONE;
  else if(!result)task_fail(t,error_text[0]?error_text:"task failed",TS_FAILED);
  else if(fvm_depth>FORTH_TASK_DS||fvm_rdepth>FORTH_TASK_RS||fvm_ldepth>FORTH_TASK_LOOPS)task_fail(t,"task stack exceeds saved capacity",TS_FAILED);
- if(t->state!=TS_READY&&t->state!=TS_SLEEPING)task_exited(id);
+ if(t->state!=TS_READY&&t->state!=TS_SLEEPING){task_drain(id);task_exited(id);}
  else if(!t->finishing){
   t->depth=fvm_depth;t->rdepth=fvm_rdepth;t->ldepth=fvm_ldepth;t->ip=fvm_ip;
   cells(t->ds,fvm_ds,fvm_depth);cells(t->rs,fvm_rs,fvm_rdepth);cells(t->loops,fvm_loops,fvm_ldepth*2);
@@ -371,9 +372,11 @@ static void run_slice(unsigned id) {
  copy(error_text,foreground.error_text);
 }
 unsigned forth_tasks_run(void) {
+ /* Sample the clock on every call so MS deadlines see gaps the gate skips. */
+ uint32_t now=now_ms();
  if(scheduling||running>=0||current>=0||transaction_active||observer_active||!tasks_live())return 0;
  if(task_gate&&!task_gate())return 0;
- scheduling=1;unsigned ran=0;uint32_t now=now_ms();
+ scheduling=1;unsigned ran=0;
  for(unsigned k=0;k<FORTH_TASKS_MAX;++k) {
   unsigned id=(next_task+k)%FORTH_TASKS_MAX;struct task *t=&tasks[id];
   if(t->state==TS_SLEEPING&&(int32_t)(now-t->wake)>=0)t->state=TS_READY;
@@ -390,8 +393,15 @@ void forth_register_clock(uint32_t (*hook)(void)){clock_hook=hook;}
 void forth_register_task_gate(int (*gate)(void)){task_gate=gate;}
 void forth_register_task_exit(void (*hook)(unsigned)){task_exit_hook=hook;}
 void forth_register_task_io(int (*w)(unsigned,unsigned char),int (*r)(unsigned,unsigned char *),int (*g)(unsigned,unsigned)){io_write=w;io_read=r;io_give=g;}
+/* Best-effort delivery of buffered redirected output for a task that has
+ * already ended (done, failed, killed), before its handles are closed. */
+static void task_drain(unsigned id) {
+ struct task *t=&tasks[id];if(!t->out_handle||!io_write)return; /* unredirected output stays for TASK-OUT */
+ while(t->out_count&&io_write(t->out_handle,t->out[t->out_head])>0){t->out_head=(unsigned short)((t->out_head+1)%FORTH_TASK_OUT);--t->out_count;}
+ t->out_dropped+=t->out_count;t->out_count=0;
+}
 static void task_flush(unsigned id) {
- struct task *t=&tasks[id];if(!t->out_handle||!io_write)return;
+ struct task *t=&tasks[id];if(!t->out_handle||!io_write||(t->state!=TS_READY&&t->state!=TS_SLEEPING))return;
  while(t->out_count){
   int r=io_write(t->out_handle,t->out[t->out_head]);
   if(!r)return;
@@ -485,7 +495,7 @@ static int native_kill(void) {
  struct task *t=&tasks[id-1];if(t->state==TS_READY||t->state==TS_SLEEPING||(int)(id-1)==running)task_fail(t,"killed",TS_KILLED);
  else return 1;
  /* A running task's slice end reports its own exit. */
- if((int)(id-1)==running)yield_request=1;else task_exited((unsigned)(id-1));return 1;
+ if((int)(id-1)==running)yield_request=1;else{t->finishing=0;task_drain((unsigned)(id-1));task_exited((unsigned)(id-1));}return 1;
 }
 static int native_state(void) {
  fcell id=fvm_pop();if(fvm_error)return fail(vm_message());if(!task_id(id))return 0;

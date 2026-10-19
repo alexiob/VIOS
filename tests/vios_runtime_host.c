@@ -163,6 +163,11 @@ int main(int argc,char **argv){
  eval("CREATE LONGB 300 ALLOT LONGB 300 90 FILL : LONGT LONGB 300 TYPE ;");
  eval("' LONGT ' CNT PIPELINE 2DROP");for(int i=0;i<2000&&forth_tasks_run();++i){}
  assert((eval("GOT @"),fvm_pop())==300&&"TYPE delivered the whole string through the pipe");
+ /* A failing producer keeps its own error and its buffered bytes arrive. */
+ eval(": FAILP 65 EMIT 66 EMIT DROP ; VARIABLE FG : FCNT 0 FG ! BEGIN KEY -1 <> WHILE 1 FG +! REPEAT ;");
+ eval("' FAILP ' FCNT PIPELINE DROP");{fcell producer=fvm_pop();for(int i=0;i<200&&forth_tasks_run();++i){}
+  struct forth_task_info t;assert(forth_task_info((unsigned)producer,&t)&&t.state==4&&!strcmp(t.error,"data stack underflow"));
+  assert((eval("FG @"),fvm_pop())==2&&"buffered output of a failed task is delivered");}
  eval(": QUIT1 ; ' BIG ' QUIT1 PIPELINE 2DROP");for(int i=0;i<200&&forth_tasks_run();++i){}
  {struct forth_task_info a;unsigned failed=0;for(unsigned id=1;id<=FORTH_TASKS_MAX;++id)if(forth_task_info(id,&a)&&a.state==4&&!strcmp(a.error,"broken pipe"))++failed;assert(failed==1);}
  console_used=0;console_capture[0]=0;eval("HANDLES");assert(!strstr(console_capture,"handle ")&&"pipeline ends are closed by their tasks");
