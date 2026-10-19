@@ -265,6 +265,37 @@ static int ui_sprite_show(void) {                       /* ( id flag -- ) */
 }
 static int ui_arrow(void) { fcell id = fvm_pop(); if (fvm_error || !sprite_id(id)) return 0; unsigned char o[] = {0x7A, b(id)}; op(o, 2); return 1; }
 
+static int ui_animate(void) {                           /* ( target id prop from to ms easing -- ) */
+    fcell a[7];
+    if (!pop(a, 7) || !range(a[0], 1, "UI-ANIMATE target: 0 window, 1 sprite") || !range(a[2], 3, "UI-ANIMATE property 0..3") ||
+        !range(a[5], 65535, "UI-ANIMATE: at most 65535 ms") || !range(a[6], 3, "UI-ANIMATE easing 0..3")) return 0;
+    if (a[0] == 0 ? !window_id(a[1]) : !sprite_id(a[1])) return 0;
+    unsigned char o[11] = {0x70, b(a[0]), b(a[1]), b(a[2])};
+    le16(o + 4, s24(a[3]));
+    le16(o + 6, s24(a[4]));
+    le16(o + 8, (int32_t)a[5]);
+    o[10] = b(a[6]);
+    op(o, sizeof o);
+    return 1;
+}
+static int ui_stop(void) {                              /* ( target id prop -- ) */
+    fcell a[3];
+    if (!pop(a, 3) || !range(a[0], 1, "UI-STOP target") || !range(a[2], 3, "UI-STOP property")) return 0;
+    unsigned char o[] = {0x71, b(a[0]), b(a[1]), b(a[2])};
+    op(o, sizeof o);
+    return 1;
+}
+static int ui_pointer(void) {                           /* ( x y buttons -- ) */
+    fcell a[3];
+    if (!pop(a, 3)) return 0;
+    unsigned char o[6] = {0x7B};
+    le16(o + 1, s24(a[0]));
+    le16(o + 3, s24(a[1]));
+    o[5] = b(a[2]);
+    op(o, sizeof o);
+    return 1;
+}
+
 static int ui_begin(void) { batching = 1; return 1; }
 static int ui_commit(void) { unsigned char o[] = {0x30}; batching = 0; op(o, 1); return 1; }
 
@@ -336,7 +367,7 @@ int vios_ui_init(void) {
         {"UI-FOCUS", ui_focus}, {"UI-FLAGS", ui_flags}, {"UI-CLIENT", ui_client}, {"UI-VIEW", ui_view},
         {"UI-COMMAND", ui_command}, {"UI-MENU", ui_menu}, {"UI-STATE", ui_state}, {"UI-POPUP", ui_popup},
         {"UI-SPRITE", ui_sprite}, {"UI-PIXELS", ui_pixels}, {"UI-SPRITE-AT", ui_sprite_at}, {"UI-SPRITE-SHOW", ui_sprite_show},
-        {"UI-ARROW", ui_arrow}, {"UI-BEGIN", ui_begin}, {"UI-COMMIT", ui_commit},
+        {"UI-ARROW", ui_arrow}, {"UI-ANIMATE", ui_animate}, {"UI-STOP", ui_stop}, {"UI-POINTER", ui_pointer}, {"UI-BEGIN", ui_begin}, {"UI-COMMIT", ui_commit},
         {"UI-SYNC", ui_sync}, {"UI-EVENT", ui_event}, {"UI-NEXT", ui_next}};
     batch_used = batching = event_head = event_count = 0;
     /* Words that only send bytes may run in background tasks; requests wait
@@ -352,5 +383,8 @@ int vios_ui_init(void) {
         "65535 CONSTANT UI-SEPARATOR : UI-SUBMENU ( menu -- item ) 65024 OR ; "
         "1 CONSTANT UI-CTRL 2 CONSTANT UI-SHIFT 4 CONSTANT UI-ALT "
         "6 CONSTANT UI-EV-FOCUS 16 CONSTANT UI-EV-WIN 17 CONSTANT UI-EV-COMMAND 14 CONSTANT UI-EV-OVERFLOW 15 CONSTANT UI-EV-ERROR "
-        "15 CONSTANT UI-CURSOR");
+        "15 CONSTANT UI-CURSOR 7 CONSTANT UI-EV-POINTER 18 CONSTANT UI-EV-ANIMDONE "
+        "0 CONSTANT UI-TWEEN-WINDOW 1 CONSTANT UI-TWEEN-SPRITE 0 CONSTANT UI-X 1 CONSTANT UI-Y "
+        "2 CONSTANT UI-SCROLL-ROW 3 CONSTANT UI-SCROLL-COL 0 CONSTANT UI-LINEAR 1 CONSTANT UI-IN-OUT "
+        "2 CONSTANT UI-OUT 3 CONSTANT UI-SPRING");
 }

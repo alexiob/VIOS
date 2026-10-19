@@ -4,7 +4,10 @@ import subprocess
 import tempfile
 import unittest
 
-from test_esp_vds import agon_font, VDS
+try:
+    from test_esp_vds import agon_font, VDS
+except ImportError:
+    from tests.test_esp_vds import agon_font, VDS
 
 ROOT = Path(__file__).resolve().parents[1]
 

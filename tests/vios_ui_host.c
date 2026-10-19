@@ -141,6 +141,23 @@ int main(int argc, char **argv) {
     }
     assert(got == 12);
 
+    /* Animation and the pointer from Forth. */
+    eval("UI-TWEEN-WINDOW 1 UI-Y 40 120 100 UI-LINEAR UI-ANIMATE");
+    vds_proto_frame(&p, 50, UINT32_MAX);
+    assert(va.windows[1].y == 80);
+    vds_proto_frame(&p, 50, UINT32_MAX);
+    assert(va.windows[1].y == 120);
+    eval("UI-NEXT");
+    assert(fvm_pop() == FVM_MASK && fvm_pop() == (0 | 1 << 8) && fvm_pop() == 1 && fvm_pop() == 18);  /* ANIMDONE window 1, prop Y */
+    eval("200 150 1 UI-POINTER 200 150 0 UI-POINTER");
+    eval("UI-NEXT");
+    assert(fvm_pop() == FVM_MASK && fvm_pop() == 200 && fvm_pop() == 1 && fvm_pop() == 7);            /* POINTER over window 1 */
+    eval("UI-NEXT");
+    assert(fvm_pop() == FVM_MASK);
+    fvm_pop(); fvm_pop(); fvm_pop();
+    fails("2 1 0 0 1 10 0 UI-ANIMATE");
+    fails("0 1 0 0 1 10 4 UI-ANIMATE");
+
     /* Turbo Vision from Forth: the menu bar and the status line appear. */
     eval("1 UI-STYLE");
     assert(u.bar_shown && u.status_shown);

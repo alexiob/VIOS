@@ -41,12 +41,18 @@
  *  61  menu n title*n count item(u16)*count  define a menu (items: command, FFFF separator,
  *                                        FE00|menu submenu); menu 0 is the bar / world menu
  *  62  cmd(u16) flags                    command state (enabled 2, checked 4, status line 8)
+ *  70  target id prop from(s16) to(s16) ms(u16) easing   tween (target 0 window, 1 sprite;
+ *                                        prop 0 x, 1 y, 2 scroll row, 3 scroll col;
+ *                                        easing 0 linear, 1 in-out, 2 out, 3 spring)
+ *  71  target id prop                    stop a tween where it is
  *  74  key value(u16)                    config: 1 snap_x, 2 style
  *  76  id w h hot_x hot_y transparent    define a sprite (pixels from the pool)
  *  77  id offset(u16) n byte*n           sprite pixel data
  *  78  id x(s16) y(s16)                  move a sprite (hotspot position)
  *  79  id on                             show/hide a sprite
  *  7A  id                                define the built-in arrow cursor
+ *  7B  x(s16) y(s16) buttons             pointer position and buttons (host or keyboard
+ *                                        pointer; a press focuses the window under it)
  */
 #ifndef VIOS_VDS_PROTO_H
 #define VIOS_VDS_PROTO_H
@@ -89,7 +95,8 @@ typedef struct vds_proto {
     void *ui;
     int (*ui_focus)(void *ui, uint8_t id);
     void (*ui_forget)(void *ui, uint8_t id);
-    int (*ui_op)(void *ui, const uint8_t *op);   /* ops 59-62 */
+    int (*ui_op)(void *ui, const uint8_t *op);   /* ops 59-62, 70, 71, 7B */
+    void (*ui_tick)(void *ui, uint32_t ms);      /* once per frame, before composing */
     void (*ui_after)(void *ui);                  /* after every applied batch */
     void (*ui_reset)(void *ui);
 } vds_proto;

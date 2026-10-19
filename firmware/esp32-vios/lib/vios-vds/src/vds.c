@@ -74,6 +74,21 @@ vds_rect vds_window_outer(const vds *v, uint8_t id) {
     return unite(unite(g.body, g.tab), unite(g.shadow_right, g.shadow_bottom));
 }
 
+static int contains(vds_rect r, int x, int y) { return x >= r.x && x < r.x + r.w && y >= r.y && y < r.y + r.h; }
+
+uint8_t vds_hit(const vds *v, int x, int y, uint8_t *part) {
+    for (int i = v->count - 1; i >= 0; --i) {
+        const vds_window *w = &v->windows[v->order[i]];
+        if (!(w->flags & VDS_W_VISIBLE)) continue;
+        geometry g = geom(v, w);
+        uint8_t p = contains(g.client, x, y) ? VDS_PART_CLIENT : contains(g.body, x, y) ? VDS_PART_FRAME :
+                    contains(g.tab, x, y) ? VDS_PART_TAB : 0;
+        if (p) { if (part) *part = p; return v->order[i]; }
+    }
+    if (part) *part = 0;
+    return VDS_NONE;
+}
+
 /* ------------------------------------------------------------ damage */
 
 void vds_damage(vds *v, vds_rect r) {

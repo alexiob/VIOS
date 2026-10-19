@@ -585,6 +585,139 @@ static int accelerator(vds_ui *u, uint8_t ascii, uint8_t modifiers, uint8_t vk) 
     return 0;
 }
 
+/* ------------------------------------------------------------ animation */
+
+/* Eased progress for t in 0..65536, as 16.16 fixed point (spring overshoots). */
+static int32_t ease(uint8_t easing, int32_t t) {
+    switch (easing) {
+    case VDS_EASE_IN_OUT: return (int32_t)(((int64_t)t * t >> 16) * (3 * 65536 - 2 * t) >> 16);
+    case VDS_EASE_OUT: { int32_t r = 65536 - t; return 65536 - (int32_t)((int64_t)r * r >> 16); }
+    case VDS_EASE_SPRING: {                                 /* back-out: 1 + c3 u^3 + c1 u^2, u = t - 1 */
+        int64_t q = t - 65536, q2 = q * q >> 16, q3 = q2 * q >> 16;
+        return (int32_t)(65536 + (177050 * q3 >> 16) + (111514 * q2 >> 16));
+    }
+    }
+    return t;
+}
+
+static int tween_target_ok(vds_ui *u, uint8_t target, uint8_t id) {
+    vds *v = core(u);
+    if (target == VDS_TWEEN_WINDOW) return id < VDS_UI_FIRST_WINDOW && v->windows[id].used;
+    if (target == VDS_TWEEN_SPRITE) return id < VDS_MAX_SPRITES && v->sprites[id].used;
+    return 0;
+}
+
+static void tween_apply(vds_ui *u, const vds_tween *t, int32_t value) {
+    vds *v = core(u);
+    if (value < -32768) value = -32768;
+    if (value > 32767) value = 32767;
+    if (t->target == VDS_TWEEN_SPRITE) {
+        const vds_sprite *s = &v->sprites[t->id];
+        vds_sprite_move(v, t->id, t->prop == VDS_PROP_X ? (int16_t)value : s->x, t->prop == VDS_PROP_Y ? (int16_t)value : s->y);
+        return;
+    }
+    const vds_window *w = &v->windows[t->id];
+    if (t->prop == VDS_PROP_X || t->prop == VDS_PROP_Y)
+        vds_window_move(v, t->id, t->prop == VDS_PROP_X ? (int16_t)value : w->x, t->prop == VDS_PROP_Y ? (int16_t)value : w->y);
+    else {
+        uint8_t n = (uint8_t)(value < 0 ? 0 : value > 255 ? 255 : value);
+        vds_window_scroll(v, t->id, t->prop == VDS_PROP_SCROLL_COL ? n : w->scroll_col, t->prop == VDS_PROP_SCROLL_ROW ? n : w->scroll_row);
+    }
+}
+
+static void tween_done(vds_ui *u, vds_tween *t) {
+    uint8_t args[2] = {t->target, t->prop};
+    t->used = 0;
+    vds_proto_event(u->p, VDS_EVENT_ANIMDONE, t->id, args, sizeof args);
+}
+
+int vds_ui_animate(vds_ui *u, uint8_t target, uint8_t id, uint8_t prop, int16_t from, int16_t to, uint16_t ms, uint8_t easing) {
+    if (!tween_target_ok(u, target, id) || prop > VDS_PROP_SCROLL_COL || easing > VDS_EASE_SPRING ||
+        (target == VDS_TWEEN_SPRITE && prop > VDS_PROP_Y)) return 0;
+    vds_tween *slot = 0;
+    for (unsigned i = 0; i < VDS_MAX_TWEENS && !slot; ++i)
+        if (u->tweens[i].used && u->tweens[i].target == target && u->tweens[i].id == id && u->tweens[i].prop == prop) slot = &u->tweens[i];
+    for (unsigned i = 0; i < VDS_MAX_TWEENS && !slot; ++i)
+        if (!u->tweens[i].used) slot = &u->tweens[i];
+    if (!slot) return 0;
+    vds_tween t = {1, target, id, prop, easing, from, to, ms, 0};
+    *slot = t;
+    tween_apply(u, slot, ms ? from : to);
+    if (!ms) tween_done(u, slot);
+    return 1;
+}
+
+int vds_ui_stop(vds_ui *u, uint8_t target, uint8_t id, uint8_t prop) {
+    for (unsigned i = 0; i < VDS_MAX_TWEENS; ++i)
+        if (u->tweens[i].used && u->tweens[i].target == target && u->tweens[i].id == id && u->tweens[i].prop == prop) {
+            u->tweens[i].used = 0;
+            return 1;
+        }
+    return 0;
+}
+
+void vds_ui_tick(vds_ui *u, uint32_t ms) {
+    for (unsigned i = 0; i < VDS_MAX_TWEENS; ++i) {
+        vds_tween *t = &u->tweens[i];
+        if (!t->used) continue;
+        if (!tween_target_ok(u, t->target, t->id)) { t->used = 0; continue; }   /* its object went away */
+        uint32_t e = t->elapsed + ms;
+        t->elapsed = (uint16_t)(e > t->ms ? t->ms : e);
+        int32_t s = ease(t->easing, (int32_t)((int64_t)t->elapsed * 65536 / t->ms));
+        tween_apply(u, t, t->from + (int32_t)((int64_t)(t->to - t->from) * s >> 16));
+        if (t->elapsed >= t->ms) tween_done(u, t);
+    }
+}
+
+/* ------------------------------------------------------------ pointer */
+
+void vds_ui_pointer(vds_ui *u, int16_t x, int16_t y, uint8_t buttons) {
+    vds *v = core(u);
+    if (!v->sprites[VDS_CURSOR_SPRITE].used)
+        vds_sprite_define(v, VDS_CURSOR_SPRITE, VDS_ARROW_W, VDS_ARROW_H, 0, 0, VDS_ARROW_TRANSPARENT, vds_arrow_cursor);
+    if (x < 0) x = 0;
+    if (y < 0) y = 0;
+    if (x >= v->width) x = (int16_t)(v->width - 1);
+    if (y >= v->height) y = (int16_t)(v->height - 1);
+    vds_sprite_move(v, VDS_CURSOR_SPRITE, x, y);
+    vds_sprite_show(v, VDS_CURSOR_SPRITE, 1);
+    u->px = x;
+    u->py = y;
+    if (buttons == u->buttons) return;
+    uint8_t part = 0, id = vds_hit(v, x, y, &part);
+    int press = (buttons & 1) && !(u->buttons & 1);
+    u->buttons = buttons;
+    if (press && id != VDS_NONE && focusable(v, id) && id != u->focus) vds_ui_focus(u, id);
+    int lx = id == VDS_NONE ? x : x - v->windows[id].x, ly = id == VDS_NONE ? y : y - v->windows[id].y;
+    uint8_t args[7] = {(uint8_t)x, (uint8_t)((uint16_t)x >> 8), (uint8_t)y, (uint8_t)((uint16_t)y >> 8),
+                       (uint8_t)(part == VDS_PART_CLIENT ? lx / 8 + v->windows[id].scroll_col : 0),
+                       (uint8_t)(part == VDS_PART_CLIENT ? ly / 8 + v->windows[id].scroll_row : 0), part};
+    uint8_t all[8];
+    memcpy(all, args, 7);
+    all[7] = buttons;
+    vds_proto_event(u->p, VDS_EVENT_POINTER, id, all, sizeof all);
+}
+
+static int pointer_key(vds_ui *u, uint8_t ascii, uint8_t modifiers, uint8_t vk) {
+    int step = (modifiers & VDS_MOD_SHIFT) ? 1 : 8;
+    switch (vk) {
+    case VDS_VK_LEFT: case VDS_VK_KP_LEFT: vds_ui_pointer(u, (int16_t)(u->px - step), u->py, u->buttons); return 1;
+    case VDS_VK_RIGHT: case VDS_VK_KP_RIGHT: vds_ui_pointer(u, (int16_t)(u->px + step), u->py, u->buttons); return 1;
+    case VDS_VK_UP: case VDS_VK_KP_UP: vds_ui_pointer(u, u->px, (int16_t)(u->py - step), u->buttons); return 1;
+    case VDS_VK_DOWN: case VDS_VK_KP_DOWN: vds_ui_pointer(u, u->px, (int16_t)(u->py + step), u->buttons); return 1;
+    case VDS_VK_ESCAPE:
+        u->pointer_mode = 0;
+        vds_sprite_show(core(u), VDS_CURSOR_SPRITE, 0);
+        return 1;
+    case VDS_VK_RETURN: case VDS_VK_KP_ENTER: ascii = ' '; break;
+    }
+    if (ascii == ' ') {                                     /* click: press then release */
+        vds_ui_pointer(u, u->px, u->py, (uint8_t)(u->buttons | 1));
+        vds_ui_pointer(u, u->px, u->py, (uint8_t)(u->buttons & ~1));
+    }
+    return 1;
+}
+
 /* ------------------------------------------------------------ routing */
 
 static int route(vds_ui *u, uint8_t ascii, uint8_t modifiers, uint8_t vk) {
@@ -593,6 +726,13 @@ static int route(vds_ui *u, uint8_t ascii, uint8_t modifiers, uint8_t vk) {
     int alt = (modifiers & (VDS_MOD_LALT | VDS_MOD_RALT)) != 0;
     if (u->focus != VDS_NONE && !focusable(v, u->focus)) vds_ui_forget(u, u->focus);
     if (u->depth) return menu_key(u, ascii, modifiers, vk);
+    if (vk == VDS_VK_F12 && ctrl) {                         /* keyboard pointer on/off */
+        u->pointer_mode = !u->pointer_mode;
+        if (u->pointer_mode) vds_ui_pointer(u, u->px, u->py, u->buttons);
+        else vds_sprite_show(v, VDS_CURSOR_SPRITE, 0);
+        return 1;
+    }
+    if (u->pointer_mode) return pointer_key(u, ascii, modifiers, vk);
     if (u->wm_mode) return wm_key(u, modifiers, vk);
     if (vk == VDS_VK_F10 && !shift && !ctrl) {
         if (u->bar_shown) return open_bar(u, 0);
@@ -637,7 +777,7 @@ static int route(vds_ui *u, uint8_t ascii, uint8_t modifiers, uint8_t vk) {
 int vds_ui_key(vds_ui *u, uint8_t ascii, uint8_t modifiers, uint8_t vk, uint8_t down) {
     if (!down) {                                            /* a consumed press keeps its release */
         if (u->held && vk == u->held_vk && (vk || ascii == u->held_ascii)) { u->held = 0; return 1; }
-        return u->wm_mode || u->depth;
+        return u->wm_mode || u->depth || u->pointer_mode;
     }
     int used = route(u, ascii, modifiers, vk);
     u->held = (uint8_t)used;
@@ -685,9 +825,16 @@ static int op_hook(void *ui, const uint8_t *b) {
         return vds_ui_menu(u, b[1], title, items, count);
     }
     case 0x62: return vds_ui_command_state(u, (uint16_t)(b[1] | b[2] << 8), b[3]);
+    case 0x70:
+        return vds_ui_animate(u, b[1], b[2], b[3], (int16_t)(uint16_t)(b[4] | b[5] << 8), (int16_t)(uint16_t)(b[6] | b[7] << 8),
+                              (uint16_t)(b[8] | b[9] << 8), b[10]);
+    case 0x71: return vds_ui_stop(u, b[1], b[2], b[3]);
+    case 0x7B: vds_ui_pointer(u, (int16_t)(uint16_t)(b[1] | b[2] << 8), (int16_t)(uint16_t)(b[3] | b[4] << 8), b[5]); return 1;
     }
     return 0;
 }
+
+static void tick_hook(void *ui, uint32_t ms) { vds_ui_tick((vds_ui *)ui, ms); }
 
 void vds_ui_init(vds_ui *u, vds_proto *p) {
     memset(u, 0, sizeof *u);
@@ -701,4 +848,5 @@ void vds_ui_init(vds_ui *u, vds_proto *p) {
     p->ui_op = op_hook;
     p->ui_after = after_hook;
     p->ui_reset = reset_hook;
+    p->ui_tick = tick_hook;
 }

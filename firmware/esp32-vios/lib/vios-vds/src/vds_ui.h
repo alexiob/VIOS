@@ -18,6 +18,7 @@
  *   Ctrl+F5              start move/resize mode
  *   F5                   zoom / restore the focused window
  *   Alt+F3, Ctrl+W       close request (the CPU decides)
+ *   Ctrl+F12             keyboard pointer: arrows move (Shift: 1 px), Space/Enter click, Esc leaves
  * A visible modal window keeps focus to itself.
  *
  * Commands and menus come from the CPU (protocol ops 59-62). Menu 0 is the
@@ -32,7 +33,10 @@
  *   06 FOCUS    id=new  args: previous
  *   10 WIN      id      args: what x(s16) y(s16) cols rows
  *                       what: 1 moved/resized, 2 close request, 3 zoomed, 4 restored
- *   11 COMMAND  id=focused window  args: command(u16) source (1 menu, 2 accelerator, 3 palette) */
+ *   11 COMMAND  id=focused window  args: command(u16) source (1 menu, 2 accelerator, 3 palette)
+ *   12 ANIMDONE id      args: target prop
+ *   07 POINTER  id=window under the pointer (VDS_NONE: desktop)
+ *               args: x(s16) y(s16) col row part buttons; sent when buttons change */
 #ifndef VIOS_VDS_UI_H
 #define VIOS_VDS_UI_H
 #include "vds_proto.h"
@@ -48,7 +52,11 @@ enum {
     VDS_VK_F1 = 159, VDS_VK_F3 = 161, VDS_VK_F5 = 163, VDS_VK_F6 = 164, VDS_VK_F10 = 168, VDS_VK_F12 = 170
 };
 enum { VDS_MOD_CTRL = 1, VDS_MOD_SHIFT = 2, VDS_MOD_LALT = 4, VDS_MOD_RALT = 8 };
-enum { VDS_EVENT_FOCUS = 0x06, VDS_EVENT_WIN = 0x10, VDS_EVENT_COMMAND = 0x11 };
+enum { VDS_EVENT_POINTER = 0x07, VDS_EVENT_FOCUS = 0x06, VDS_EVENT_WIN = 0x10, VDS_EVENT_COMMAND = 0x11, VDS_EVENT_ANIMDONE = 0x12 };
+enum { VDS_TWEEN_WINDOW = 0, VDS_TWEEN_SPRITE = 1 };
+enum { VDS_PROP_X = 0, VDS_PROP_Y = 1, VDS_PROP_SCROLL_ROW = 2, VDS_PROP_SCROLL_COL = 3 };
+enum { VDS_EASE_LINEAR = 0, VDS_EASE_IN_OUT = 1, VDS_EASE_OUT = 2, VDS_EASE_SPRING = 3 };
+#define VDS_MAX_TWEENS 16
 enum { VDS_WIN_MOVED = 1, VDS_WIN_CLOSE = 2, VDS_WIN_ZOOMED = 3, VDS_WIN_RESTORED = 4 };
 enum { VDS_FROM_MENU = 1, VDS_FROM_ACCELERATOR = 2, VDS_FROM_PALETTE = 3 };
 
@@ -71,6 +79,7 @@ typedef struct { int16_t x, y; uint8_t cols, rows; } vds_geometry;
 typedef struct { uint16_t id; uint8_t flags, vk, mods, ascii; char label[VDS_LABEL_MAX]; } vds_command;
 typedef struct { uint8_t used, count; uint16_t items[VDS_MENU_ITEMS]; char title[16]; } vds_menu;
 typedef struct { uint8_t menu, sel, count; uint16_t items[VDS_MENU_ITEMS]; } vds_open_menu;
+typedef struct { uint8_t used, target, id, prop, easing; int16_t from, to; uint16_t ms, elapsed; } vds_tween;
 
 typedef struct vds_ui {
     vds_proto *p;
@@ -89,6 +98,9 @@ typedef struct vds_ui {
     uint8_t bar_shown, status_shown, style_seen;
     vds_cell popup_cells[VDS_MENU_DEPTH][(VDS_MENU_ITEMS + 1) * VDS_POPUP_COLS];   /* +1: palette filter row */
     vds_cell bar_cells[80], status_cells[80];
+    vds_tween tweens[VDS_MAX_TWEENS];
+    uint8_t pointer_mode, buttons;
+    int16_t px, py;
 } vds_ui;
 
 void vds_ui_init(vds_ui *u, vds_proto *p);
@@ -104,6 +116,15 @@ int vds_ui_command(vds_ui *u, uint16_t id, uint8_t flags, uint8_t vk, uint8_t mo
 int vds_ui_command_state(vds_ui *u, uint16_t id, uint8_t flags);
 int vds_ui_menu(vds_ui *u, uint8_t menu, const char *title, const uint16_t *items, uint8_t count);
 int vds_ui_window_menu(vds_ui *u, uint8_t window, uint8_t menu);
+/* Tweens (op 70/71): ms 0 jumps at once; a new tween replaces the old one on
+ * the same target, id and property. Returns 0 for an unknown target. */
+int vds_ui_animate(vds_ui *u, uint8_t target, uint8_t id, uint8_t prop, int16_t from, int16_t to, uint16_t ms, uint8_t easing);
+int vds_ui_stop(vds_ui *u, uint8_t target, uint8_t id, uint8_t prop);
+/* Advance tweens by ms (called once per frame through the protocol hook). */
+void vds_ui_tick(vds_ui *u, uint32_t ms);
+/* Pointer at (x, y) with buttons (bit 0 primary): moves the cursor sprite; a
+ * press focuses the window under it; button changes send POINTER events. */
+void vds_ui_pointer(vds_ui *u, int16_t x, int16_t y, uint8_t buttons);
 /* Re-render the menu bar, status line and open menus (after style changes). */
 void vds_ui_refresh(vds_ui *u);
 /* Text shown for a command's accelerator, e.g. "Ctrl+S"; out holds VDS_ACCEL_MAX bytes. */

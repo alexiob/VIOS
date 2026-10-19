@@ -39,6 +39,7 @@ static int active(uint8_t id) { return (v.windows[id].flags & VDS_W_ACTIVE) != 0
 static const uint8_t *last_event(uint8_t kind) { for (int i = ev_n - 1; i >= 0; --i) if (ev[i][1] == kind) return ev[i]; return 0; }
 static int16_t s16(const uint8_t *b) { return (int16_t)(uint16_t)(b[0] | b[1] << 8); }
 static uint8_t px(int x, int y) { return (x & 1) ? fb_a[y][x >> 1] & 15 : fb_a[y][x >> 1] >> 4; }
+static int focusable_for_test(vds *vv, uint8_t id) { return (vv->windows[id].flags & (VDS_W_VISIBLE | VDS_W_DECOR)) == (VDS_W_VISIBLE | VDS_W_DECOR); }
 static unsigned seed = 5;
 static unsigned rnd(unsigned n) { seed = seed * 1103515245u + 12345u; return (seed >> 16) % n; }
 
@@ -129,6 +130,90 @@ int main(int argc, char **argv) {
     assert(px(0, 0) == v.style.desktop_b);
     matches_full_render();
 
+    /* Tweens: exact easing values at known points, events, replacement, stop. */
+    vds_window_close(&v, 4); vds_ui_forget(&u, 4);
+    assert(vds_set_snap(&v, 1));
+    vds_window_flags(&v, 2, (uint8_t)(v.windows[2].flags | VDS_W_FREE_X));
+    ev_n = 0;
+    assert(vds_ui_animate(&u, VDS_TWEEN_WINDOW, 2, VDS_PROP_X, 40, 240, 100, VDS_EASE_LINEAR));
+    assert(v.windows[2].x == 40);
+    vds_ui_tick(&u, 25); assert(v.windows[2].x == 90);
+    vds_ui_tick(&u, 25); assert(v.windows[2].x == 140);
+    matches_full_render();
+    vds_ui_tick(&u, 60); assert(v.windows[2].x == 240);
+    e = last_event(VDS_EVENT_ANIMDONE);
+    assert(e && e[2] == 2 && e[3] == VDS_TWEEN_WINDOW && e[4] == VDS_PROP_X && !u.tweens[0].used);
+    assert(vds_ui_animate(&u, VDS_TWEEN_WINDOW, 2, VDS_PROP_Y, 0, 160, 400, VDS_EASE_IN_OUT));
+    vds_ui_tick(&u, 100); assert(v.windows[2].y == 25);                     /* 0.15625 * 160 */
+    vds_ui_tick(&u, 100); assert(v.windows[2].y == 80);                     /* half way */
+    assert(vds_ui_animate(&u, VDS_TWEEN_WINDOW, 2, VDS_PROP_Y, 80, 0, 100, VDS_EASE_OUT));   /* replaces */
+    unsigned live = 0;
+    for (unsigned i = 0; i < VDS_MAX_TWEENS; ++i) live += u.tweens[i].used;
+    assert(live == 1);
+    vds_ui_tick(&u, 50); assert(v.windows[2].y == 20);                      /* 1 - 0.25 = 0.75 of the way */
+    assert(vds_ui_stop(&u, VDS_TWEEN_WINDOW, 2, VDS_PROP_Y) && !vds_ui_stop(&u, VDS_TWEEN_WINDOW, 2, VDS_PROP_Y));
+    vds_ui_tick(&u, 100); assert(v.windows[2].y == 20);                     /* stopped where it was */
+    int16_t peak = 0;                                                        /* spring overshoots, then settles */
+    assert(vds_ui_animate(&u, VDS_TWEEN_WINDOW, 2, VDS_PROP_X, 0, 200, 300, VDS_EASE_SPRING));
+    for (int i = 0; i < 30; ++i) { vds_ui_tick(&u, 10); if (v.windows[2].x > peak) peak = v.windows[2].x; }
+    assert(peak > 200 && peak < 230 && v.windows[2].x == 200);
+    assert(vds_ui_animate(&u, VDS_TWEEN_WINDOW, 2, VDS_PROP_SCROLL_ROW, 0, 6, 60, VDS_EASE_LINEAR));
+    vds_ui_tick(&u, 30); assert(v.windows[2].scroll_row == 3);
+    vds_ui_tick(&u, 30); assert(v.windows[2].scroll_row == 6);
+    assert(vds_ui_animate(&u, VDS_TWEEN_WINDOW, 2, VDS_PROP_X, 0, 64, 0, VDS_EASE_LINEAR) && v.windows[2].x == 64);  /* jump */
+    assert(!vds_ui_animate(&u, VDS_TWEEN_WINDOW, 9 + 20, VDS_PROP_X, 0, 1, 10, 0));                                  /* reserved */
+    assert(!vds_ui_animate(&u, VDS_TWEEN_SPRITE, 3, VDS_PROP_SCROLL_ROW, 0, 1, 10, 0));
+    static uint8_t dot[2] = {0x99, 0x99};
+    assert(vds_sprite_define(&v, 3, 2, 2, 0, 0, VDS_NONE, dot) && vds_sprite_show(&v, 3, 1));
+    uint8_t anim[] = {0x70, VDS_TWEEN_SPRITE, 3, VDS_PROP_Y, 10, 0, 110, 0, 100, 0, VDS_EASE_LINEAR, 0x30};
+    assert(vds_proto_batch(&p, anim, sizeof anim));
+    vds_proto_frame(&p, 50, UINT32_MAX);
+    assert(v.sprites[3].y == 60);
+    assert(vds_ui_animate(&u, VDS_TWEEN_WINDOW, 1, VDS_PROP_X, 0, 300, 1000, VDS_EASE_LINEAR));
+    uint8_t close1[] = {0x57, 1};
+    assert(vds_proto_batch(&p, close1, sizeof close1));
+    vds_ui_tick(&u, 10);
+    live = 0;
+    for (unsigned i = 0; i < VDS_MAX_TWEENS; ++i) live += u.tweens[i].used && u.tweens[i].target == VDS_TWEEN_WINDOW;
+    assert(live == 0);                                                       /* dropped with its window */
+    vds_proto_frame(&p, 60, UINT32_MAX);
+    matches_full_render();
+
+    /* Pointer: host injection and keyboard pointer mode. */
+    assert(vds_window_open(&v, 1, 0, 400, 200, 20, 10, deco, "One"));
+    finish();
+    ev_n = 0;
+    uint8_t click[] = {0x7B, (uint8_t)(400 + 20), 1, 200 + 17, 0, 1};      /* x = 420: client col 2, row 2 */
+    assert(vds_proto_batch(&p, click, sizeof click));
+    assert(u.focus == 1 && v.sprites[VDS_CURSOR_SPRITE].visible && v.sprites[VDS_CURSOR_SPRITE].x == 420);
+    e = last_event(VDS_EVENT_POINTER);
+    assert(e && e[2] == 1 && s16(e + 3) == 420 && s16(e + 5) == 217 && e[7] == 2 && e[8] == 2 && e[9] == VDS_PART_CLIENT && e[10] == 1);
+    click[5] = 0;
+    assert(vds_proto_batch(&p, click, sizeof click) && last_event(VDS_EVENT_POINTER)[10] == 0);
+    unsigned pointer_events = 0;
+    for (unsigned i = 0; i < ev_n; ++i) pointer_events += ev[i][1] == VDS_EVENT_POINTER;
+    assert(vds_proto_batch(&p, click, sizeof click));                       /* no button change: no event */
+    unsigned again = 0;
+    for (unsigned i = 0; i < ev_n; ++i) again += ev[i][1] == VDS_EVENT_POINTER;
+    assert(again == pointer_events);
+    uint8_t desk[] = {0x7B, 5, 0, 5, 0, 1, 0x7B, 5, 0, 5, 0, 0};
+    assert(vds_proto_batch(&p, desk, sizeof desk));
+    e = last_event(VDS_EVENT_POINTER);
+    assert(e[2] == VDS_NONE && e[9] == 0 && u.focus == 1);
+    matches_full_render();
+    assert(key(0, VDS_MOD_CTRL, VDS_VK_F12) && u.pointer_mode);
+    assert(key(0, 0, VDS_VK_RIGHT) && u.px == 13 && key(0, VDS_MOD_SHIFT, VDS_VK_DOWN) && u.py == 6);
+    for (int i = 0; i < 30; ++i) key(0, 0, VDS_VK_RIGHT);
+    for (int i = 0; i < 6; ++i) key(0, 0, VDS_VK_DOWN);
+    assert(u.px == 253 && u.py == 54);
+    assert(key('a', 0, 0) && key(0, 0, VDS_VK_F6));                         /* swallowed in pointer mode */
+    uint8_t under = vds_hit(&v, u.px, u.py, 0);
+    assert(key(' ', 0, 0));
+    assert(under == VDS_NONE || !focusable_for_test(&v, under) || u.focus == under);
+    assert(key(0, 0, VDS_VK_ESCAPE) && !u.pointer_mode && !v.sprites[VDS_CURSOR_SPRITE].visible);
+    matches_full_render();
+    vds_set_snap(&v, 8);
+
     /* Random keys mixed with protocol traffic; the screen stays exact. */
     static const uint8_t vks[] = {VDS_VK_F6, VDS_VK_F5, VDS_VK_F3, VDS_VK_LEFT, VDS_VK_RIGHT, VDS_VK_UP, VDS_VK_DOWN,
                                   VDS_VK_RETURN, VDS_VK_ESCAPE, VDS_VK_F1, 0};
@@ -149,6 +234,10 @@ int main(int argc, char **argv) {
         case 5: { uint8_t b[] = {0x58, id}; vds_proto_batch(&p, b, sizeof b); break; }
         case 6: { uint8_t b[] = {0x10, (uint8_t)rnd(3), (uint8_t)rnd(40), (uint8_t)rnd(20), (uint8_t)rnd(256), 2, 'h', 'i', 0x30};
                   vds_proto_batch(&p, b, sizeof b); break; }
+        case 7:
+            if (rnd(2)) vds_ui_animate(&u, VDS_TWEEN_WINDOW, id, (uint8_t)rnd(4), (int16_t)rnd(600), (int16_t)rnd(440), (uint16_t)rnd(300), (uint8_t)rnd(4));
+            else vds_ui_pointer(&u, (int16_t)rnd(640), (int16_t)rnd(480), (uint8_t)rnd(2));
+            /* fall through */
         default: vds_proto_frame(&p, rnd(40), 1 + rnd(60000)); break;
         }
         if (u.focus != VDS_NONE) assert(v.windows[u.focus].used && active(u.focus));

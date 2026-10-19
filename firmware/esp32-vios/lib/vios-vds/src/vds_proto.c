@@ -39,6 +39,9 @@ static size_t op_size(const uint8_t *b, size_t n) {
     case 0x60: s = n < 8 ? 0 : 8u + b[7]; break;
     case 0x61: s = n < 4 || n < 4u + b[2] ? 0 : 4u + b[2] + 2u * b[3 + b[2]]; break;
     case 0x62: s = 4; break;
+    case 0x70: s = 11; break;
+    case 0x71: s = 4; break;
+    case 0x7B: s = 6; break;
     default: s = 0; break;
     }
     return s && s <= n ? s : 0;
@@ -159,7 +162,7 @@ static int apply(vds_proto *p, const uint8_t *b) {
     uint8_t op = b[0];
     if (op != 0x10 && op != 0x11) p->more_ok = 0;
     if (reserved(b)) return 0;
-    if (op >= 0x59 && op <= 0x62) return p->ui_op ? p->ui_op(p->ui, b) : 0;
+    if ((op >= 0x59 && op <= 0x62) || op == 0x70 || op == 0x71 || op == 0x7B) return p->ui_op ? p->ui_op(p->ui, b) : 0;
     switch (op) {
     case 0x01: {
         if (b[1] >= VDS_MAX_SURFACES || !b[2] || !b[3] || !p->cells) return 0;
@@ -294,6 +297,7 @@ int vds_proto_batch(vds_proto *p, const uint8_t *b, size_t len) {
 }
 
 int vds_proto_frame(vds_proto *p, uint32_t elapsed_ms, uint32_t budget) {
+    if (p->ui_tick) p->ui_tick(p->ui, elapsed_ms);
     vds_tick(p->v, elapsed_ms);
     if (p->raw) return 1;
     if (p->hold) {

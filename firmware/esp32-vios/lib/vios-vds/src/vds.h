@@ -135,6 +135,10 @@ int vds_window_title(vds *v, uint8_t id, const char *title);
 int vds_window_surface(vds *v, uint8_t id, uint8_t surface);
 int vds_window_close(vds *v, uint8_t id);
 vds_rect vds_window_outer(const vds *v, uint8_t id);    /* incl. title tab and shadow */
+/* Topmost visible window at screen pixel (x, y), VDS_NONE if only desktop.
+ * *part: 1 client area, 2 frame or title bar, 3 Smalltalk title tab. */
+enum { VDS_PART_CLIENT = 1, VDS_PART_FRAME = 2, VDS_PART_TAB = 3 };
+uint8_t vds_hit(const vds *v, int x, int y, uint8_t *part);
 
 /* Sprites (cursor = VDS_CURSOR_SPRITE). Defining one leaves it hidden. */
 int vds_sprite_define(vds *v, uint8_t id, uint8_t w, uint8_t h, uint8_t hot_x, uint8_t hot_y,
