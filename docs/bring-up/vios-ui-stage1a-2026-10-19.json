@@ -1,0 +1,82 @@
+{
+  "status": "measured",
+  "B1_console_flood": {
+    "lines": 1000,
+    "repl_seconds": 0.464,
+    "display_settled_seconds": 0.514,
+    "stats": {
+      "glyphs": 492,
+      "console_bytes": 3944,
+      "console_writes": 36,
+      "usb_block_us": 343,
+      "usb_block_max": 62,
+      "parser_us": 200079,
+      "parser_max": 6106,
+      "injected": 0,
+      "console_sync": 0,
+      "console_queued": 0
+    },
+    "glyphs_per_s": 957,
+    "usb_console_bytes_per_s": 7668,
+    "parser_blocked_on_usb_share": 0.001,
+    "parser_busy_share": 0.389
+  },
+  "B2_typing_idle": {
+    "20cps": {
+      "n": 40,
+      "min": 2189,
+      "med": 3009,
+      "p95": 3466,
+      "max": 3545
+    },
+    "100cps": {
+      "n": 40,
+      "min": 2053,
+      "med": 3063,
+      "p95": 3439,
+      "max": 3635
+    }
+  },
+  "B2_stats": {
+    "glyphs": 323,
+    "console_bytes": 320,
+    "console_writes": 160,
+    "usb_block_us": 1405,
+    "usb_block_max": 78,
+    "parser_us": 113227,
+    "parser_max": 315,
+    "injected": 160,
+    "console_sync": 0,
+    "console_queued": 0
+  },
+  "B3_typing_two_tasks": {
+    "20cps": {
+      "n": 40,
+      "min": 18795,
+      "med": 28980,
+      "p95": 36490,
+      "max": 36646
+    },
+    "100cps": {
+      "n": 33,
+      "min": 743,
+      "med": 6079,
+      "p95": 35990,
+      "max": 36232
+    }
+  },
+  "events_after": {
+    "ok": true,
+    "events": [
+      {
+        "time": 1792397514.018,
+        "text": "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \bqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b"
+      },
+      {
+        "time": 1792397521.026,
+        "text": "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq\b\b\b   \b\b\b\b \b\b\b\b   \b\b\b\b \b\b\b\b   \b\b\b\b \b\b\b\b   \b\b\b\b \b\b\b  \b\b\b\b  \b\b\b\b  \b\b\b\b  \b\b\b\b\b   \b\b\b\b \b\b\b\b   \b\b\b\b \b\b\b\b   \b\b\b\b \b\b\b\b   \b\b\b\b \bqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq\b\b\b   \b\b\b\b \b\b\b\b   \b\b\b\b \b\b\b\b   \b\b\b\b \b\b\b\b   \b\b\b\b \b\b\b\b   \b\b\b\b \b\b\b\b   \b\b\b\b \b\b\b\b   \b\b\b\b \b\b\b\b   \b\b\b\b \b\b\b\b   \b\b\b\b \b\b\b\b   \b\b\b\b \b"
+      }
+    ]
+  },
+  "handles_after": []
+}

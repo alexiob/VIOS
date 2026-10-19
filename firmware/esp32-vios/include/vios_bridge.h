@@ -21,7 +21,7 @@ extern "C" bool verifyRollbackLater(){return true;}
 #endif
 static SemaphoreHandle_t usb_tx_mutex,vdp_tx_mutex;
 struct ConsoleRecord {uint16_t length;uint8_t data[256];};
-static QueueHandle_t console_queue,host_queue;
+static QueueHandle_t console_queue,host_queue,console_out_queue;
 static std::atomic<bool> parser_busy(false);
 static std::atomic<bool> full_control(false);
 static std::atomic<int> health_mailbox(-1);
@@ -80,6 +80,7 @@ static void usb_send(uint8_t channel,uint16_t sequence,const uint8_t *data,size_
  * probe), control task (injection, reset). Readers tolerate torn snapshots. */
 static std::atomic<uint32_t> stat_glyphs(0),stat_console_bytes(0),stat_console_writes(0),stat_injected(0);
 static std::atomic<uint32_t> stat_usb_block_us(0),stat_usb_block_max(0),stat_parser_us(0),stat_parser_max(0);
+static std::atomic<uint32_t> stat_console_sync(0); // 50 ms waits on a full console queue
 static std::atomic<int> probe_char(-1);
 static std::atomic<bool> probe_pending(false);
 static std::atomic<uint32_t> probe_t0(0);
@@ -106,7 +107,7 @@ void vios_probe_glyph(char c){
 void vios_parser_time(uint32_t us){stat_parser_us.fetch_add(us);stat_max(stat_parser_max,us);}
 static void stats_reset(){
     stat_glyphs=0;stat_console_bytes=0;stat_console_writes=0;stat_injected=0;
-    stat_usb_block_us=0;stat_usb_block_max=0;stat_parser_us=0;stat_parser_max=0;
+    stat_usb_block_us=0;stat_usb_block_max=0;stat_parser_us=0;stat_parser_max=0;stat_console_sync=0;
 }
 static void probe_report(char *line,size_t size){
     unsigned n=probe_count.load();uint32_t sorted[PROBE_SAMPLES];
@@ -116,9 +117,26 @@ static void probe_report(char *line,size_t size){
     snprintf(line,size,"PROBE n=%u min=%lu med=%lu p95=%lu max=%lu\r\n",n,(unsigned long)sorted[0],(unsigned long)sorted[n/2],
         (unsigned long)sorted[(n*95)/100<n?(n*95)/100:n-1],(unsigned long)sorted[n-1]);
 }
+/* CPU console output (VDU 23,0,E0) is queued by the VDP task and drained to
+ * USB by the control task (GUI Stage 1a), so glyph drawing never waits for
+ * the 115200 USB link. A full queue blocks the parser in 50 ms steps until
+ * the control task frees a slot: output is never dropped or reordered. */
+static void console_out_write(const uint8_t *data,size_t length){usb_send(VIOS_CHANNEL_CONSOLE,0,data,length);}
 void vios_usb_console_write(const uint8_t *data,size_t length) {
-    uint32_t start=stage0_us();usb_send(VIOS_CHANNEL_CONSOLE,0,data,length);uint32_t spent=stage0_us()-start;
-    stat_console_bytes.fetch_add((uint32_t)length);stat_console_writes.fetch_add(1);stat_usb_block_us.fetch_add(spent);stat_max(stat_usb_block_max,spent);
+    uint32_t start=stage0_us();
+    while(length) {
+        ConsoleRecord record;record.length=(uint16_t)(length>VIOS_WIRE_PAYLOAD_MAX?VIOS_WIRE_PAYLOAD_MAX:length);memcpy(record.data,data,record.length);
+        if(!console_out_queue)console_out_write(record.data,record.length);
+        else while(xQueueSend(console_out_queue,&record,pdMS_TO_TICKS(50))!=pdTRUE)stat_console_sync.fetch_add(1);
+        data+=record.length;length-=record.length;stat_console_bytes.fetch_add(record.length);stat_console_writes.fetch_add(1);
+    }
+    uint32_t spent=stage0_us()-start;stat_usb_block_us.fetch_add(spent);stat_max(stat_usb_block_max,spent);
+}
+/* Control task: send at most `budget` queued console records (each paced). */
+static unsigned console_out_drain(unsigned budget){
+    unsigned sent=0;ConsoleRecord record;
+    while(sent<budget&&console_out_queue&&xQueueReceive(console_out_queue,&record,0)==pdTRUE){console_out_write(record.data,record.length);++sent;}
+    return sent;
 }
 /* Host service requests from the CPU go to the Mac unpaced (small, rare). */
 void vios_usb_host_write(const uint8_t *data,size_t length) {usb_send(VIOS_CHANNEL_HOST,0,data,length);}
@@ -263,10 +281,11 @@ static void control_command(uint16_t sequence,const char *command,size_t length)
     // Stage 0 instrumentation; safe while the CPU runs.
     uint32_t stage0_value;
     if(length==1&&command[0]=='T'){
-        snprintf(reply,sizeof reply,"STATS glyphs=%lu console_bytes=%lu console_writes=%lu usb_block_us=%lu usb_block_max=%lu parser_us=%lu parser_max=%lu injected=%lu\r\n",
+        snprintf(reply,sizeof reply,"STATS glyphs=%lu console_bytes=%lu console_writes=%lu usb_block_us=%lu usb_block_max=%lu parser_us=%lu parser_max=%lu injected=%lu console_sync=%lu console_queued=%u\r\n",
             (unsigned long)stat_glyphs.load(),(unsigned long)stat_console_bytes.load(),(unsigned long)stat_console_writes.load(),
             (unsigned long)stat_usb_block_us.load(),(unsigned long)stat_usb_block_max.load(),(unsigned long)stat_parser_us.load(),
-            (unsigned long)stat_parser_max.load(),(unsigned long)stat_injected.load());
+            (unsigned long)stat_parser_max.load(),(unsigned long)stat_injected.load(),(unsigned long)stat_console_sync.load(),
+            console_out_queue?(unsigned)uxQueueMessagesWaiting(console_out_queue):0u);
         control_reply(sequence,reply);return;
     }
     if(length==2&&command[0]=='T'&&command[1]=='0'){stats_reset();control_reply(sequence,"STATS RESET\r\n");return;}
@@ -458,6 +477,7 @@ void vios_bridge_poll() {
     }
     }
     if(firmware_trial&&!cpu_boot_ready&&millis()>=FIRMWARE_TRIAL_MS){firmware_fallback("no CPU health");return;}
+    console_out_drain(2); // Bounded so USB input and deadlines keep being serviced.
     if(control_used&&millis()-control_started>2000){control_reply(control_sequence,"ERR command timeout\r\n");control_used=0;}
     if(usb_used&&millis()-usb_started>2000){usb_used=0;usb_discard=true;}
     unsigned usb_budget=1024; // Yield/check deadlines even under continuous host input.
@@ -483,9 +503,10 @@ bool vios_bridge_init(){
     usb_used=control_used=source_used=0;usb_discard=false;
     usb_tx_mutex=xSemaphoreCreateMutex();vdp_tx_mutex=xSemaphoreCreateMutex();
     console_queue=xQueueCreate(8,sizeof(ConsoleRecord));host_queue=xQueueCreate(2,sizeof(ConsoleRecord));
+    if(!console_out_queue)console_out_queue=xQueueCreate(16,sizeof(ConsoleRecord));
     if(esp_reset_reason()!=ESP_RST_SW||retained_magic!=retained_signature||retained_count>3||retained_inverse!=~retained_count)retain_failures(0);
     boot_failures=retained_count;firmware_init();
-    return usb_tx_mutex&&vdp_tx_mutex&&console_queue&&host_queue;
+    return usb_tx_mutex&&vdp_tx_mutex&&console_queue&&host_queue&&console_out_queue;
 }
 static void control_task(void*){for(;;){vios_bridge_poll();vTaskDelay(pdMS_TO_TICKS(1));}}
 void vios_bridge_handoff(){full_control.store(true);}

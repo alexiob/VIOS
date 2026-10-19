@@ -140,7 +140,9 @@ static std::vector<vios_wire_message> output_frames(){
 static void incoming(const char *text,uint16_t sequence){vios_wire_message m{};m.channel=2;m.sequence=sequence;m.length=(uint16_t)strlen(text);assert(m.length<=240);memcpy(m.payload,text,m.length);usb_dispatch(&m);}
 static void check_usb_console_pacing(){
     uint8_t data[600];for(unsigned i=0;i<sizeof data;++i)data[i]=(uint8_t)i;
-    trace_usb=true;usb_actions.clear();vios_usb_console_write(data,sizeof data);trace_usb=false;
+    // The VDP-side write only queues (Stage 1a); the control-task drain does the paced USB work.
+    trace_usb=true;usb_actions.clear();vios_usb_console_write(data,sizeof data);assert(usb_actions.empty()&&DBGSerial.output.empty());
+    assert(console_out_drain(16)==3);trace_usb=false;
     const std::vector<unsigned> want={1,2,0x10001,1,2,0x10001,1,2,0x10001};
     assert(usb_actions==want); // Each complete frame drains, then yields under the frame lock.
     auto frames=output_frames();assert(frames.size()==3);
@@ -220,8 +222,8 @@ static void check_stage0_instrumentation(){
     for(unsigned i=1;i<=20;++i){vios_probe_glyph('A');vios_probe_key('B');vios_probe_key('A');now+=i;vios_probe_key('A');vios_probe_glyph('x');vios_probe_glyph('A');vios_probe_glyph('A');}
     assert(control_text("PR\n",78)=="PROBE n=20 min=1000 med=11000 p95=20000 max=20000\r\n");
     std::string stats=control_text("T\n",79);
-    assert(stats.rfind("STATS glyphs=80 ",0)==0&&stats.find(" injected=66\r\n")!=std::string::npos);
-    vios_usb_console_write((const uint8_t*)"abc",3);output_frames();stats=control_text("T\n",80);
+    assert(stats.rfind("STATS glyphs=80 ",0)==0&&stats.find(" injected=66 console_sync=0 console_queued=0\r\n")!=std::string::npos);
+    vios_usb_console_write((const uint8_t*)"abc",3);assert(console_out_drain(16)==1);output_frames();stats=control_text("T\n",80);
     assert(stats.find("console_bytes=3 console_writes=1 ")!=std::string::npos);
     assert(control_text("T0\n",81)=="STATS RESET\r\n"&&control_text("T\n",82).rfind("STATS glyphs=0 console_bytes=0",0)==0);
     probe_char.store(-1);
@@ -346,8 +348,10 @@ int main(int argc,char **argv){
     retain_failures(2);reset_reason=0;assert(vios_bridge_init()&&boot_failures==0);
     // Concurrent console/status producers must never interleave bytes within a COBS frame.
     std::thread first([]{for(unsigned i=0;i<30;++i)bridge_event("event\r\n");});
-    std::thread second([]{for(unsigned i=0;i<30;++i)vios_usb_console_write((const uint8_t*)"console",7);});
-    first.join();second.join();assert(output_frames().size()==60);
+    std::atomic<bool> producing(true);
+    std::thread drainer([&]{while(producing.load()||uxQueueMessagesWaiting(console_out_queue))console_out_drain(2);});
+    std::thread second([]{for(unsigned i=0;i<30;++i){while(uxQueueMessagesWaiting(console_out_queue)==16)std::this_thread::yield();vios_usb_console_write((const uint8_t*)"console",7);}});
+    first.join();second.join();producing=false;drainer.join();assert(output_frames().size()==60);
     check_firmware_ab();
     check_stage0_instrumentation();
     puts("bridge boot/control/ranges/CRC/fragment sequences/health checks passed");
