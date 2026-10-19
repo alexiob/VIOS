@@ -364,22 +364,23 @@ static void control_command(uint16_t sequence,const char *command,size_t length)
     // Stage 0 instrumentation; safe while the CPU runs.
     uint32_t stage0_value;
     if(length==1&&command[0]=='T'){
-        uint32_t frame_stats[3];vios_frame_stats(frame_stats,frame_stats+1,frame_stats+2);
-        snprintf(reply,sizeof reply,"STATS glyphs=%lu console_bytes=%lu console_writes=%lu usb_block_us=%lu usb_block_max=%lu parser_us=%lu parser_max=%lu injected=%lu console_sync=%lu console_queued=%u loop_gap_max=%lu host_service_max=%lu console_max=%lu keyboard_max=%lu frames=%lu vblank_start_max=%lu frame_work_max=%lu vga_isr_gap_max_us=%lu vga_isr_late=%lu top_black_frames=%lu\r\n",
+        uint32_t frame_stats[3];vios_frame_stats(frame_stats,frame_stats+1,frame_stats+2);uint32_t parts[3];vios_frame_parts(parts,parts+1,parts+2);uint32_t presents[2];vios_frame_presents(presents,presents+1);
+        snprintf(reply,sizeof reply,"STATS glyphs=%lu console_bytes=%lu console_writes=%lu usb_block_us=%lu usb_block_max=%lu parser_us=%lu parser_max=%lu injected=%lu console_sync=%lu console_queued=%u loop_gap_max=%lu host_service_max=%lu console_max=%lu keyboard_max=%lu frames=%lu vblank_start_max=%lu frame_work_max=%lu vga_isr_gap_max_us=%lu vga_isr_late=%lu top_black_frames=%lu frame_lock_max=%lu frame_service_max=%lu frame_gui_max=%lu present_frames=%lu present_work_max=%lu\r\n",
             (unsigned long)stat_glyphs.load(),(unsigned long)stat_console_bytes.load(),(unsigned long)stat_console_writes.load(),
             (unsigned long)stat_usb_block_us.load(),(unsigned long)stat_usb_block_max.load(),(unsigned long)stat_parser_us.load(),
             (unsigned long)stat_parser_max.load(),(unsigned long)stat_injected.load(),(unsigned long)stat_console_sync.load(),
             console_out_queue?(unsigned)uxQueueMessagesWaiting(console_out_queue):0u,(unsigned long)vios_g0_gap(),
             (unsigned long)stat_section_max[0].load(),(unsigned long)stat_section_max[1].load(),(unsigned long)stat_section_max[2].load(),
             (unsigned long)frame_stats[0],(unsigned long)frame_stats[1],(unsigned long)frame_stats[2],
-            (unsigned long)(vios_vga_isr_gap_max/240u),(unsigned long)vios_vga_isr_late,(unsigned long)vios_frame_top_black());
+            (unsigned long)(vios_vga_isr_gap_max/240u),(unsigned long)vios_vga_isr_late,(unsigned long)vios_frame_top_black(),
+            (unsigned long)parts[0],(unsigned long)parts[1],(unsigned long)parts[2],(unsigned long)presents[0],(unsigned long)presents[1]);
         control_reply(sequence,reply);return;
     }
     if(length==2&&command[0]=='T'&&command[1]=='0'){stats_reset();control_reply(sequence,"STATS RESET\r\n");return;}
     /* GUI: GS status; GK<ascii><mods><vk><down> a key for the window manager;
      * GP<x:3><y:3> a framebuffer pixel's colour index (all hex). */
     if(length==2&&command[0]=='G'&&command[1]=='S'){
-        char text[160];vios_gui_status(text,sizeof text);snprintf(reply,sizeof reply,"%s\r\n",text);control_reply(sequence,reply);return;
+        char text[300];vios_gui_status(text,sizeof text);snprintf(reply,sizeof reply,"%s\r\n",text);control_reply(sequence,reply);return;
     }
     if(length==10&&command[0]=='G'&&command[1]=='K'){
         uint32_t k[4];for(unsigned i=0;i<4;++i)if(!parse_hex(command+2+2*i,2,&k[i])){control_reply(sequence,"ERR GK hex\r\n");return;}

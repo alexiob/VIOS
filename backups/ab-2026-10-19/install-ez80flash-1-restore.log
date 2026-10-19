@@ -1,0 +1,41 @@
+read 0x190000 failed; retrying read
+read 0x190000 failed; retrying read
+read 0x230000 failed; retrying read
+event: BOOT VIOS VDP 1.04 mux-v1 zdi-edge 1us
+event: BOOT retained failures 0
+event: FIRMWARE app1 valid trial
+event: DISCOVER RAM B5 B7 B7 B7 B4 80 80 80 BASE B7E000
+event: NATIVE RAM B7E000 CS0 04 0B 08 01 DONE A5
+event: VIOREADY RAM image verified CRC 57269119
+event: HEALTH flag 0
+event: HEALTH flag 1
+event: FIRMWARE confirmed
+{
+  "running_before": "app0",
+  "target": "app1",
+  "image": "backups/app0-2026-10-18/firmware-ez80flash-1.bin",
+  "image_sha256": "1ed8047dec5fafb2b4cccbcf6d678fe96126b56e091107b1b89762e2f59d79ac",
+  "backup_dir": "backups/ab-2026-10-19",
+  "stamp": "20261019-212622",
+  "otadata_sector": 1,
+  "otadata_entry": {
+    "sector": 1,
+    "seq": 52,
+    "state": "valid",
+    "crc_ok": true,
+    "valid": true,
+    "trial": true
+  },
+  "verdict": "FIRMWARE confirmed",
+  "events": [
+    "BOOT VIOS VDP 1.04 mux-v1 zdi-edge 1us",
+    "BOOT retained failures 0",
+    "FIRMWARE app1 valid trial",
+    "DISCOVER RAM B5 B7 B7 B7 B4 80 80 80 BASE B7E000",
+    "NATIVE RAM B7E000 CS0 04 0B 08 01 DONE A5",
+    "VIOREADY RAM image verified CRC 57269119",
+    "HEALTH flag 0",
+    "HEALTH flag 1",
+    "FIRMWARE confirmed"
+  ]
+}

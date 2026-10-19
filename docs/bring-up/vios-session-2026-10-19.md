@@ -83,5 +83,26 @@ Data: `vios-vga-isr-2026-10-19.json`, `vios-top-black-2026-10-19.json`.
   compositor's 3 ms frame budget repaints it top to bottom over ~13 frames
   (~0.2 s), so a black band sweeps down. The soak opens and closes the
   workbench every iteration, which is what was seen during the soak.
-Possible improvement (not done): paint the workbench surface before showing
-its window, or give a full-screen opaque window a larger one-off budget.
+Fix (owner's choice: off-screen first; firmware-offscreen-6, b850f2b and
+follow-up): `vios_offscreen.h`. When at least half the screen is damaged,
+the frame task copies the screen into a 150 KB PSRAM shadow over ~5 frames
+(composition paused, nothing changes on screen), composes the repaint there
+under the usual 3 ms budget, then copies the written rows to the screen in
+one go. Scrolls recompose instead of blitting during a pass (`vds.no_blit`:
+row copies inside PSRAM cost ~10 ms). A 30-frame cap presents what is done
+if damage keeps arriving (rapid open/close), then draws directly until the
+damage clears. Board results (`vios-top-black-offscreen-2026-10-19.json`,
+`vios-gui-accept-offscreen-2026-10-19.json`):
+
+- A single workbench open or close is one present; no sweep.
+- The present is one long frame: 9-14 ms (PSRAM read bound; the copy runs
+  ahead of the beam, so no tear). It is reported apart as
+  `present_frames`/`present_work_max`; GUI acceptance budgets it at 15 ms.
+- Steady frames stay within budget: <= 4.5 ms in every workload (idle,
+  5x2000 console flood, workbench cycles, window ops); vblank start <= 96 us.
+- GUI acceptance passes (3 of 3 on offscreen-6); the earlier intermittent
+  7-8 ms frames were a present landing in the run (now budgeted apart) and
+  console scrolls blitting in PSRAM (now recomposed).
+- New counters: `esp_stats` frame_lock_max / frame_service_max /
+  frame_gui_max (where a long frame goes); GUI status presents, forced,
+  abandoned, present_us_max and the slowest step's phase.

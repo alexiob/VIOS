@@ -21,6 +21,11 @@ static TaskHandle_t vios_frame_handle;
 static volatile uint32_t vios_vblank_stamp;
 static volatile bool vios_vblank_pending;
 static std::atomic<uint32_t> vios_frames(0), vios_frame_start_max(0), vios_frame_work_max(0);
+/* Where a long frame goes: waiting for the display lock, console service, GUI step. */
+static std::atomic<uint32_t> vios_frame_lock_max(0), vios_frame_service_max(0), vios_frame_gui_max(0);
+/* Frames that copied an off-screen repaint to the screen (one long copy each,
+ * vios_offscreen.h) are counted apart from the steady-state frame budget. */
+static std::atomic<uint32_t> vios_frame_present_max(0), vios_frame_present_count(0);
 /* Black-bar probe: after each GUI frame, 40 framebuffer points in the top 32
  * rows (the desktop there is never colour 0); count frames where any is 0. */
 static std::atomic<uint32_t> vios_top_black_frames(0);
@@ -62,13 +67,21 @@ static void vios_frame_task(void *) {
         uint32_t start = (uint32_t)esp_timer_get_time();
         if (vblank) { vios_frame_raise(vios_frame_start_max, start - vios_vblank_stamp); vios_vblank_pending = false; }
         vios_display_lock();
+        uint32_t locked = (uint32_t)esp_timer_get_time();
+        vios_frame_raise(vios_frame_lock_max, locked - start);
         if (!vios_gui_hold_console()) vios_console_terminal.service(vios_console_renderer.budget() > 40 ? VIOS_FRAME_CELLS : 40);
         uint32_t now_ms = millis();
         if (now_ms - last_blink >= 50) { last_blink = now_ms; vios_console_terminal.tick(now_ms); }
+        uint32_t served = (uint32_t)esp_timer_get_time();
+        vios_frame_raise(vios_frame_service_max, served - locked);
+        uint32_t presents = vios_gui_presents();
         vios_gui_frame(UINT32_MAX, VIOS_GUI_FRAME_US);
+        bool presented = vios_gui_presents() != presents;
+        if (!presented) vios_frame_raise(vios_frame_gui_max, (uint32_t)esp_timer_get_time() - served);
         vios_top_black_probe();   // the display server, when it owns the screen: by time, robust to rate changes
         vios_display_unlock();
-        vios_frame_raise(vios_frame_work_max, (uint32_t)esp_timer_get_time() - start);
+        if (presented) { vios_frame_raise(vios_frame_present_max, (uint32_t)esp_timer_get_time() - start); ++vios_frame_present_count; }
+        else vios_frame_raise(vios_frame_work_max, (uint32_t)esp_timer_get_time() - start);
         ++vios_frames;
     }
 }
@@ -85,5 +98,7 @@ void vios_frame_start() {
 void vios_frame_stats(uint32_t *frames, uint32_t *start_max_us, uint32_t *work_max_us) {
     *frames = vios_frames.load(); *start_max_us = vios_frame_start_max.load(); *work_max_us = vios_frame_work_max.load();
 }
-void vios_frame_stats_reset() { vios_frames = 0; vios_frame_start_max = 0; vios_frame_work_max = 0; vios_top_black_frames = 0; }
+void vios_frame_stats_reset() { vios_gui_slow_reset(); vios_frames = 0; vios_frame_start_max = 0; vios_frame_work_max = 0; vios_top_black_frames = 0; vios_frame_lock_max = 0; vios_frame_service_max = 0; vios_frame_gui_max = 0; vios_frame_present_max = 0; vios_frame_present_count = 0; }
+void vios_frame_presents(uint32_t *count, uint32_t *max_us) { *count = vios_frame_present_count.load(); *max_us = vios_frame_present_max.load(); }
+void vios_frame_parts(uint32_t *lock_us, uint32_t *service_us, uint32_t *gui_us) { *lock_us = vios_frame_lock_max.load(); *service_us = vios_frame_service_max.load(); *gui_us = vios_frame_gui_max.load(); }
 uint32_t vios_frame_top_black() { return vios_top_black_frames.load(); }

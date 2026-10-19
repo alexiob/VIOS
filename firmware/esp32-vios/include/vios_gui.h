@@ -13,8 +13,8 @@
  * drawn by the 4 bpp console blitter (vios_console_vdp.h); the display
  * server keeps its state while hidden and repaints everything on return.
  *
- * Large repaints (the workbench opening or closing, the GUI coming back)
- * are composed off-screen and shown at once (vios_offscreen.h).
+ * Near full-screen repaints (the workbench opening or closing, the GUI
+ * coming back) are composed off-screen and shown at once (vios_offscreen.h).
  *
  * Memory: the compositor (blitter tables, line buffer) is internal RAM; the
  * protocol, window manager, surface cells and the 150 KB off-screen shadow
@@ -144,6 +144,10 @@ void vios_gui_stop() {
 /* Slowest E4 batch and frame step since the last status read (us), with the
  * first op of that batch: finds what holds the display lock too long. */
 static uint32_t vios_gui_batch_max, vios_gui_frame_max;
+/* The slowest GUI frame step since the last stats reset, and what it was doing. */
+static struct { uint32_t us, damage_px, rows; uint8_t phase, ndamage, phase_after; } vios_gui_slow;
+void vios_gui_slow_reset() { vios_gui_slow = {}; }
+uint32_t vios_gui_presents() { return vios_gui_presenter.presents; }
 static uint8_t vios_gui_batch_op;
 
 /* One E4 payload from the CPU (VDP task). */
@@ -211,9 +215,12 @@ void vios_gui_frame(uint32_t budget_pixels, uint32_t budget_us) {
     uint32_t now = millis();
     uint32_t started = (uint32_t)esp_timer_get_time();
     uint32_t elapsed = now - vios_gui_last_frame;
+    uint8_t phase = vios_gui_presenter.phase(), ndamage = vios_gui_vds.ndamage;
+    uint32_t pixels = vios_offscreen::damage_pixels(&vios_gui_vds), rows_before = vios_gui_vds.stats.rows;
     vios_gui_presenter.frame(&vios_gui_vds, [&]() { return vds_proto_frame_within(vios_gui_proto, elapsed, budget_pixels, budget_us); });
     uint32_t spent = (uint32_t)esp_timer_get_time() - started;
     if (spent > vios_gui_frame_max) vios_gui_frame_max = spent;
+    if (spent > vios_gui_slow.us) vios_gui_slow = {spent, pixels, vios_gui_vds.stats.rows - rows_before, phase, ndamage, vios_gui_presenter.phase()};
     vios_gui_last_frame = now;
 }
 
@@ -227,12 +234,16 @@ int vios_gui_pixel(unsigned x, unsigned y) {
 /* Control-channel summary for the harness: "GUI on windows frames rows carried errors". */
 unsigned vios_gui_status(char *out, unsigned capacity) {
     if (!vios_gui_ready) return (unsigned)snprintf(out, capacity, "GUI off");
-    unsigned n = (unsigned)snprintf(out, capacity, "GUI %s windows %u frames %u rows %u carried %u errors %u style %u batch_max_us %u batch_op %02X frame_max_us %u presents %u forced %u",
+    unsigned n = (unsigned)snprintf(out, capacity, "GUI %s windows %u frames %u rows %u carried %u errors %u style %u batch_max_us %u batch_op %02X frame_max_us %u presents %u forced %u abandoned %u present_us_max %u sync_frames_max %u slow_us %u slow_px %u slow_rows %u slow_nd %u slow_phase %u>%u",
                               vios_gui_on ? "on" : "text", vios_gui_vds.count, (unsigned)vios_gui_vds.stats.frames,
                               (unsigned)vios_gui_vds.stats.rows, (unsigned)vios_gui_vds.stats.carried,
                               vios_gui_proto->errors, vios_gui_vds.style.kind,
                               (unsigned)vios_gui_batch_max, vios_gui_batch_op, (unsigned)vios_gui_frame_max,
-                              (unsigned)vios_gui_presenter.presents, (unsigned)vios_gui_presenter.forced);
+                              (unsigned)vios_gui_presenter.presents, (unsigned)vios_gui_presenter.forced,
+                              (unsigned)vios_gui_presenter.abandoned, (unsigned)vios_gui_presenter.present_us_max,
+                              (unsigned)vios_gui_presenter.sync_frames_max,
+                              (unsigned)vios_gui_slow.us, (unsigned)vios_gui_slow.damage_px, (unsigned)vios_gui_slow.rows,
+                              vios_gui_slow.ndamage, vios_gui_slow.phase, vios_gui_slow.phase_after);
     vios_gui_batch_max = vios_gui_frame_max = 0;
     return n;
 }

@@ -41,6 +41,15 @@ static unsigned run(bool atomic) {
     return frames;
 }
 static void matches_reference() { reference(); assert(!memcmp(screen, ref, sizeof screen)); }
+/* Frames until the pass composes in the shadow (the screen copy is done). */
+static void until_offscreen() {
+    for (int i = 0; i < 20 && !p.composing_offscreen(); ++i) {
+        memcpy(before, screen, sizeof screen);
+        assert(p.frame(&v, BUDGET, UINT32_MAX) == 0);
+        assert(!memcmp(screen, before, sizeof screen));   // copying, not composing
+    }
+    assert(p.composing_offscreen());
+}
 
 int main(int argc, char **argv) {
     assert(argc >= 2);
@@ -57,10 +66,16 @@ int main(int argc, char **argv) {
     assert(frames > 3 && p.presents == 1 && p.last_rows == 480 && !p.active() && v.rows == screen_rows);
     matches_reference();
 
-    /* A small window goes straight to the screen (no off-screen pass). */
+    /* A small window, and a console-sized one, go straight to the screen. */
     assert(vds_surface_init(&v, 3, 30, 8, small_cells, 0x30));
     assert(vds_put(&v, 3, 1, 1, 0x30, "small", 5));
     assert(vds_window_open(&v, 3, 3, 64, 64, 30, 8, VDS_W_VISIBLE | VDS_W_DECOR | VDS_W_SHADOW, "Small"));
+    run(false);
+    assert(p.presents == 1);
+    matches_reference();
+    assert(vds_window_open(&v, 4, 3, 16, 228, 74, 28, VDS_W_VISIBLE | VDS_W_DECOR | VDS_W_SHADOW, "Console"));
+    run(false);
+    assert(vds_window_close(&v, 4));
     run(false);
     assert(p.presents == 1);
     matches_reference();
@@ -77,27 +92,52 @@ int main(int argc, char **argv) {
     assert(p.presents == 3);
     matches_reference();
 
-    /* A scroll blit during an off-screen pass moves shadow rows: all rows are presented. */
+    /* Outside a pass a scroll is a row copy (blit) ... */
+    uint32_t blits = v.stats.blits;
+    assert(vds_scroll_rect(&v, 3, 0, 0, 30, 8, 1, 0x30));
+    assert(v.stats.blits == blits + 1 && !v.no_blit);
+    run(false);
+    matches_reference();
+    /* ... during one it recomposes instead (no row copies in the shadow, no
+     * screen moving under the copy), while composing and while copying. */
     assert(vds_window_open(&v, 26, 10, 0, 0, 80, 60, VDS_W_VISIBLE, "Workbench"));
-    assert(p.frame(&v, BUDGET, UINT32_MAX) == 0 && p.active());
-    assert(vds_scroll(&v, 3, 1, 0x30));
+    assert(vds_window_raise(&v, 3));
+    until_offscreen();
+    assert(p.frame(&v, BUDGET, UINT32_MAX) == 0 && v.no_blit);
+    blits = v.stats.blits;
+    assert(vds_scroll_rect(&v, 3, 0, 0, 30, 8, 1, 0x30) && v.stats.blits == blits);
     run(true);
-    assert(p.presents == 4 && p.last_rows == 480);
+    assert(p.presents == 4 && !v.no_blit);
     matches_reference();
     assert(vds_window_close(&v, 26));
+    assert(p.frame(&v, BUDGET, UINT32_MAX) == 0 && p.active() && !p.composing_offscreen() && v.no_blit);
+    assert(vds_scroll_rect(&v, 3, 0, 0, 30, 8, 1, 0x30) && v.stats.blits == blits);
     run(true);
+    assert(p.presents == 5);
+    matches_reference();
 
     /* The frame cap presents what is done; the rest is drawn on the screen. */
     p.max_frames = 2;
+    p.sync_rows = 480;
     assert(vds_window_open(&v, 26, 10, 0, 0, 80, 60, VDS_W_VISIBLE, "Workbench"));
     run(false);
     assert(p.forced == 1 && !p.active());
     matches_reference();
+    /* A copy that cannot finish within the cap is abandoned: drawn directly. */
+    p.sync_rows = 100;
+    assert(vds_window_close(&v, 26));
+    run(false);
+    assert(p.abandoned == 1);
+    matches_reference();
     p.max_frames = 30;
+    p.sync_rows = 120;
+    assert(vds_window_open(&v, 26, 10, 0, 0, 80, 60, VDS_W_VISIBLE, "Workbench"));
+    run(true);
 
     /* A new framebuffer mid-pass drops the pass; the caller re-damages. */
     assert(vds_window_close(&v, 26));
-    assert(p.frame(&v, BUDGET, UINT32_MAX) == 0 && p.active() && v.rows != screen_rows);
+    until_offscreen();
+    assert(v.rows != screen_rows);
     p.reset(&v, screen_rows);
     assert(!p.active() && v.rows == screen_rows && !v.row_written);
     vds_damage_all(&v);

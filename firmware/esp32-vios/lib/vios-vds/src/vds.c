@@ -481,7 +481,7 @@ int vds_scroll(vds *v, uint8_t id, int dy, uint8_t attr) {
  * is uniform over r, so it moves consistently. Pending damage inside r moves
  * with the pixels. Returns 0 when r must be recomposed instead. */
 static int blit_scroll(vds *v, unsigned at, vds_rect r, int shift) {
-    if ((r.x & 1) || (r.w & 1)) return 0;
+    if (v->no_blit || (r.x & 1) || (r.w & 1)) return 0;
     for (unsigned i = at + 1; i < v->count; ++i) {
         uint8_t id = v->order[i];
         if ((v->windows[id].flags & VDS_W_VISIBLE) && !empty(intersect(vds_window_outer(v, id), r))) return 0;
