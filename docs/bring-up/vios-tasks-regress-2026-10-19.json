@@ -1,0 +1,209 @@
+{
+  "status": "passed",
+  "checks": {
+    "no_live_tasks_before": {
+      "ok": true,
+      "detail": [
+        {
+          "id": 1,
+          "state": "done",
+          "xt": 148,
+          "name": "TCNT",
+          "slices": 15,
+          "steps": 13812,
+          "depth": 3,
+          "rdepth": 1,
+          "ds_peak": 3,
+          "rs_peak": 3,
+          "output_bytes": 0,
+          "output_dropped": 0,
+          "error": ""
+        },
+        {
+          "id": 2,
+          "state": "done",
+          "xt": 150,
+          "name": "TLT",
+          "slices": 9,
+          "steps": 14,
+          "depth": 2,
+          "rdepth": 1,
+          "ds_peak": 3,
+          "rs_peak": 1,
+          "output_bytes": 0,
+          "output_dropped": 0,
+          "error": ""
+        },
+        {
+          "id": 3,
+          "state": "free",
+          "xt": 0,
+          "name": "",
+          "slices": 0,
+          "steps": 0,
+          "depth": 0,
+          "rdepth": 0,
+          "ds_peak": 0,
+          "rs_peak": 0,
+          "output_bytes": 0,
+          "output_dropped": 0,
+          "error": ""
+        },
+        {
+          "id": 4,
+          "state": "free",
+          "xt": 0,
+          "name": "",
+          "slices": 0,
+          "steps": 0,
+          "depth": 0,
+          "rdepth": 0,
+          "ds_peak": 0,
+          "rs_peak": 0,
+          "output_bytes": 0,
+          "output_dropped": 0,
+          "error": ""
+        }
+      ]
+    },
+    "busy_task_progresses": {
+      "ok": true,
+      "detail": {
+        "seconds": 5.08,
+        "busy_task_increments_per_s": 10656,
+        "sleeping_task_wakes_per_s": 47.0
+      }
+    },
+    "sleeping_task_progresses": {
+      "ok": true,
+      "detail": {
+        "seconds": 5.08,
+        "busy_task_increments_per_s": 10656,
+        "sleeping_task_wakes_per_s": 47.0
+      }
+    },
+    "engine_refused_while_live": {
+      "ok": true,
+      "detail": null
+    },
+    "printer_done": {
+      "ok": true,
+      "detail": {
+        "id": 3,
+        "state": "done",
+        "xt": 155,
+        "name": "TPR",
+        "slices": 1,
+        "steps": 6,
+        "depth": 0,
+        "rdepth": 0,
+        "ds_peak": 1,
+        "rs_peak": 0,
+        "output_bytes": 4,
+        "output_dropped": 0,
+        "error": ""
+      }
+    },
+    "printer_output_isolated": {
+      "ok": true,
+      "detail": null
+    },
+    "key_task_fails_alone": {
+      "ok": true,
+      "detail": {
+        "id": 4,
+        "state": "failed",
+        "xt": 156,
+        "name": "TKK",
+        "slices": 1,
+        "steps": 1,
+        "depth": 0,
+        "rdepth": 0,
+        "ds_peak": 0,
+        "rs_peak": 0,
+        "output_bytes": 0,
+        "output_dropped": 0,
+        "error": "KEY unavailable in background task"
+      }
+    },
+    "all_stopped": {
+      "ok": true,
+      "detail": null
+    },
+    "foreground_stack_preserved": {
+      "ok": true,
+      "detail": {
+        "depth_text": "1",
+        "values_text": [
+          "1234"
+        ]
+      }
+    },
+    "engine_switch_allowed_after": {
+      "ok": true,
+      "detail": null
+    },
+    "no_console_drops": {
+      "ok": true,
+      "detail": [
+        0,
+        0
+      ]
+    }
+  },
+  "connect": {
+    "connected": true,
+    "identity": "ID 0007 REV AA STAT 18"
+  },
+  "dropped_before": 0,
+  "latency_no_tasks": {
+    "median_ms": 35.93,
+    "max_ms": 108.41
+  },
+  "throughput": {
+    "seconds": 5.08,
+    "busy_task_increments_per_s": 10656,
+    "sleeping_task_wakes_per_s": 47.0
+  },
+  "latency_two_tasks": {
+    "median_ms": 35.96,
+    "max_ms": 36.35
+  },
+  "tasks_running": [
+    {
+      "id": 1,
+      "state": "ready",
+      "xt": 153,
+      "name": "TCA",
+      "slices": 476,
+      "steps": 487424,
+      "depth": 1,
+      "rdepth": 0,
+      "ds_peak": 2,
+      "rs_peak": 1,
+      "output_bytes": 0,
+      "output_dropped": 0,
+      "error": ""
+    },
+    {
+      "id": 2,
+      "state": "sleeping",
+      "xt": 154,
+      "name": "TCB",
+      "slices": 239,
+      "steps": 3105,
+      "depth": 0,
+      "rdepth": 1,
+      "ds_peak": 2,
+      "rs_peak": 1,
+      "output_bytes": 0,
+      "output_dropped": 0,
+      "error": ""
+    }
+  ],
+  "latency_after": {
+    "median_ms": 35.94,
+    "max_ms": 37.2
+  },
+  "dropped_after": 0
+}

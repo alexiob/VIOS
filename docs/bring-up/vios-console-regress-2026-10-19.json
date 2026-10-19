@@ -1,0 +1,185 @@
+{
+  "status": "passed",
+  "checks": {
+    "command_echo_visible": {
+      "ok": true,
+      "detail": [
+        "WB-CONSOLE cleared",
+        "",
+        "ok",
+        "vios> 6 7 * .",
+        "42",
+        "ok",
+        "vios> S\" console-marker\" CONSOLE-WRITE CR",
+        "console-marker",
+        "",
+        "ok",
+        "vios>",
+        ""
+      ]
+    },
+    "result_visible": {
+      "ok": true,
+      "detail": [
+        "WB-CONSOLE cleared",
+        "",
+        "ok",
+        "vios> 6 7 * .",
+        "42",
+        "ok",
+        "vios> S\" console-marker\" CONSOLE-WRITE CR",
+        "console-marker",
+        "",
+        "ok",
+        "vios>",
+        ""
+      ]
+    },
+    "marker_visible": {
+      "ok": true,
+      "detail": [
+        "WB-CONSOLE cleared",
+        "",
+        "ok",
+        "vios> 6 7 * .",
+        "42",
+        "ok",
+        "vios> S\" console-marker\" CONSOLE-WRITE CR",
+        "console-marker",
+        "",
+        "ok",
+        "vios>",
+        ""
+      ]
+    },
+    "envelopes_hidden": {
+      "ok": true,
+      "detail": [
+        "WB-CONSOLE cleared",
+        "",
+        "ok",
+        "vios> 6 7 * .",
+        "42",
+        "ok",
+        "vios> S\" console-marker\" CONSOLE-WRITE CR",
+        "console-marker",
+        "",
+        "ok",
+        "vios>",
+        ""
+      ]
+    },
+    "preserved_across_editor": {
+      "ok": true,
+      "detail": [
+        "WB-CONSOLE cleared",
+        "ok",
+        "vios> S\" after-trips\" CONSOLE-WRITE CR",
+        "after-trips",
+        "ok",
+        "vios> WB-OPEN",
+        "WB-STATUS revision 1 catalog 301 open 1 draft 0 dirty 0 staged 0 active 0 saved",
+        "0 length 0 cursor 0 selection 0 browser 0 focus 0 words 174 words_max 512 modul",
+        " - version - test - error -",
+        "ok",
+        "vios> S\" hidden-while-editor\" CONSOLE-WRITE CR",
+        "hidden-while-editor",
+        "ok",
+        "vios> WB-CLOSE",
+        "WB-STATUS revision 1 catalog 301 open 0 draft 0 dirty 0 staged 0 active 0 saved",
+        "0 length 0 cursor 0 selection 0 browser 0 focus 0 words 174 words_max 512 modul",
+        " - version - test - error -",
+        "ok",
+        "vios> WB-CONSOLE? WB-RENDER-STATS WB-STATUS",
+        "WB-CONSOLE open 1 row 23 pending 83 dropped 0",
+        "WB-RENDER-STATS cells 59226 spans 6029 batches 2173 bytes 98270 elapsed_ticks 2",
+        "10991 pending 1",
+        "WB-STATUS revision 1 catalog 301 open 0 draft 0 dirty 0 staged 0 active 0 saved",
+        "0 length 0 cursor 0 selection 0 browser 0 focus 0 words 174 words_max 512 modul",
+        " - version - test - error -",
+        "ok",
+        "vios> ."
+      ]
+    },
+    "no_console_drops": {
+      "ok": true,
+      "detail": [
+        0,
+        0
+      ]
+    }
+  },
+  "dropped_before": 0,
+  "screen_after_commands": [
+    "WB-CONSOLE cleared",
+    "",
+    "ok",
+    "vios> 6 7 * .",
+    "42",
+    "ok",
+    "vios> S\" console-marker\" CONSOLE-WRITE CR",
+    "console-marker",
+    "",
+    "ok",
+    "vios>",
+    ""
+  ],
+  "round_trip_ms": [
+    604,
+    733,
+    714,
+    759,
+    709,
+    723,
+    743,
+    711,
+    752,
+    729,
+    743,
+    707,
+    725,
+    743,
+    726,
+    708,
+    724,
+    744,
+    711,
+    750
+  ],
+  "state_before_read": [
+    "WB-CONSOLE open 1 row 23 pending 83 dropped 0",
+    "WB-RENDER-STATS cells 59226 spans 6029 batches 2173 bytes 98270 elapsed_ticks 2610991 pending 1",
+    "WB-STATUS revision 1 catalog 301 open 0 draft 0 dirty 0 staged 0 active 0 saved 0 length 0 cursor 0 selection 0 browser 0 focus 0 words 174 words_max 512 module - version - test - error -"
+  ],
+  "screen_after_trip": [
+    "WB-CONSOLE cleared",
+    "ok",
+    "vios> S\" after-trips\" CONSOLE-WRITE CR",
+    "after-trips",
+    "ok",
+    "vios> WB-OPEN",
+    "WB-STATUS revision 1 catalog 301 open 1 draft 0 dirty 0 staged 0 active 0 saved",
+    "0 length 0 cursor 0 selection 0 browser 0 focus 0 words 174 words_max 512 modul",
+    " - version - test - error -",
+    "ok",
+    "vios> S\" hidden-while-editor\" CONSOLE-WRITE CR",
+    "hidden-while-editor",
+    "ok",
+    "vios> WB-CLOSE",
+    "WB-STATUS revision 1 catalog 301 open 0 draft 0 dirty 0 staged 0 active 0 saved",
+    "0 length 0 cursor 0 selection 0 browser 0 focus 0 words 174 words_max 512 modul",
+    " - version - test - error -",
+    "ok",
+    "vios> WB-CONSOLE? WB-RENDER-STATS WB-STATUS",
+    "WB-CONSOLE open 1 row 23 pending 83 dropped 0",
+    "WB-RENDER-STATS cells 59226 spans 6029 batches 2173 bytes 98270 elapsed_ticks 2",
+    "10991 pending 1",
+    "WB-STATUS revision 1 catalog 301 open 0 draft 0 dirty 0 staged 0 active 0 saved",
+    "0 length 0 cursor 0 selection 0 browser 0 focus 0 words 174 words_max 512 modul",
+    " - version - test - error -",
+    "ok",
+    "vios> ."
+  ],
+  "console_state": "WB-CONSOLE open 1 row 43 pending 57 dropped 4295",
+  "dropped_after": 0
+}

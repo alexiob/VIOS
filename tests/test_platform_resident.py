@@ -28,6 +28,7 @@ class ResidentPlatformTests(unittest.TestCase):
     def test_cooked_line_echoes_once(self):self.run_probe('echo')
     def test_echo_follows_mid_line_edits(self):self.run_probe('edit-echo')
     def test_echo_redisplays_after_foreign_output(self):self.run_probe('foreign')
+    def test_echo_coalesces_streamed_input(self):self.run_probe('coalesce')
     def test_keyboard_idle_work_pauses_peer_until_explicit_yield(self):self.run_probe('keyboard-work')
     def test_keyboard_event_polling_preserves_console_and_rts(self):self.run_probe('keyboard')
     def test_console_flush_receives_full_duplex_input_without_fifo_loss(self):self.run_probe('normal')

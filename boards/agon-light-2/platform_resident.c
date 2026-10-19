@@ -30,9 +30,17 @@ static void send_bytes(const unsigned char *data,size_t length) {
  }
  poll();
 }
+/* Console echo coalescing: while input keeps arriving (a host line streams
+ * in), the per-character REPL echo is held and leaves as one frame when the
+ * line ends or after ECHO_IDLE_POLLS empty polls. Fewer USB frames lower the
+ * exposure to the rare ESP/CH340 byte loss seen in the 2026-10-19 soak. The
+ * rule counts polls, not timer ticks, so output never waits on the timer. */
+#define ECHO_IDLE_POLLS 16u
+static unsigned idle_polls;
 static void poll(void) {
  /* Native collection precedes parsing; the peer obeys RTS while C runs. */
  unsigned count=ez80_uart0_rx_drain(incoming);
+ if(count)idle_polls=0;
  for(unsigned i=0;i<count;++i)vdp_transport_feed(&rx,incoming[i]);
 }
 void platform_console_init(void) {ez80_uart0_raw_init();ez80_uart0_rx_pause();ez80_uart0_rx_overruns=0;vdp_transport_init(&rx);output_used=0;}
@@ -76,7 +84,8 @@ int platform_console_getc(void) {
  ez80_uart0_rx_pause();
  int c=vdp_transport_getc(&rx);if(c>=0){echo_local();return c;}
  poll();c=vdp_transport_getc(&rx);echo_local();if(c>=0)return c;
- platform_console_flush();ez80_uart0_rx_resume();return -1;
+ if(idle_polls<ECHO_IDLE_POLLS)++idle_polls;else platform_console_flush();
+ ez80_uart0_rx_resume();return -1;
 }
 void platform_input_resume(void) {ez80_uart0_rx_resume();}
 void platform_keyboard_route(int enabled) {

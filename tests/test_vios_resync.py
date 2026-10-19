@@ -77,5 +77,19 @@ class EventsTest(unittest.TestCase):
         self.assertIn('events', TOOL_MAP)
 
 
+
+class WireLossTest(unittest.TestCase):
+    def test_resync_rearms_after_wire_integrity_loss(self):
+        session = Session()
+        session.integrity_error = True
+        board = ViosBoard(session=session)
+        board.deployed = True
+        board.receive_buffer.extend(b'garbled\r\nok\r\nvios> ')
+        result = board.resync(quiet=0.01, timeout=5)
+        self.assertTrue(result['synchronized'] and result['abandoned']['wire_integrity_lost'])
+        self.assertFalse(session.integrity_error)
+        self.assertTrue(board.evaluate('1 2 +')['ok'])
+
+
 if __name__ == '__main__':
     unittest.main()

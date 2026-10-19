@@ -1,0 +1,17 @@
+{
+  "status": "passed",
+  "engines": {
+    "DIRECT": {
+      "cases": 26,
+      "seconds": 1.0
+    },
+    "TOKEN": {
+      "cases": 26,
+      "seconds": 1.04
+    },
+    "C": {
+      "cases": 26,
+      "seconds": 1.06
+    }
+  }
+}

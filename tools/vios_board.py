@@ -211,8 +211,13 @@ class ViosBoard(FileServiceClient,TraceClient,ErrorClient,TaskClient,DevToolsCli
             session = self._session()
             if self.transition_unknown or self.paused:
                 raise RuntimeError('Debug transition/pause state prevents resync; resume or restart the harness')
-            if not (self.uncertain or self.pending_nonce):
+            wire_lost = getattr(session, 'integrity_error', False)
+            if not (self.uncertain or self.pending_nonce or wire_lost):
                 return {'ok': True, 'synchronized': True, 'resynced': False, 'compiling': self.compiling}
+            if wire_lost:
+                # Bytes were lost on USB: the abandoned output is untrusted, but
+                # a fresh idle prompt proves the REPL is ready. Re-arm framing.
+                session.integrity_error = False
             deadline = time.monotonic() + quiet
             while time.monotonic() < deadline:
                 data = session.read()
@@ -223,7 +228,8 @@ class ViosBoard(FileServiceClient,TraceClient,ErrorClient,TaskClient,DevToolsCli
             if not match:
                 raise RuntimeError('Board is not at a quiet idle prompt; use await_result/console_input or reboot')
             abandoned = {'source': self.pending_source, 'remaining_source': '\n'.join(self.pending_remaining),
-                         'output': self.receive_buffer.decode('ascii', 'replace'), 'outcome': 'unknown'}
+                         'output': self.receive_buffer.decode('ascii', 'replace'), 'outcome': 'unknown',
+                         'wire_integrity_lost': wire_lost}
             self.receive_buffer.clear()
             self.pending_nonce = self.pending_source = self.pending_envelope = None
             self.pending_remaining = []

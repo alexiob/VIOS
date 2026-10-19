@@ -111,6 +111,17 @@ int main(int argc,char **argv) {
   shown[m]=0;assert(strstr(shown,"abtick\r\n\r\nab"));
   puts("resident echo redisplays after foreign output");return 0;
  }
+ if(!strcmp(argv[1],"coalesce")){
+  /* Echo of a streamed host line leaves in few frames, not one per byte. */
+  timer_step=10;unsigned char line[44];line[0]=0xFE;line[1]=41;for(unsigned i=0;i<40;++i)line[2+i]=(unsigned char)('a'+i%26);line[42]='\r';
+  memcpy(incoming,line,43);wire_length=43;next_wire=0;platform_console_init();
+  unsigned got=0;for(unsigned i=0;i<2000&&got<41;++i){int c=platform_console_getc();if(c>=0){platform_console_putc((unsigned char)c);++got;}}
+  for(unsigned i=0;i<64;++i)(void)platform_console_getc();
+  unsigned frames=0,bytes=0;for(unsigned i=0;i+3<writes;){assert(transmitted[i]==23&&transmitted[i+2]==0xE0);bytes+=transmitted[i+3];i+=4+transmitted[i+3];++frames;}
+  fprintf(stderr,"coalesce: %u frames for %u echoed bytes\n",frames,bytes);
+  assert(got==41&&bytes==41&&frames<=6);
+  puts("resident echo coalesces streamed input");return 0;
+ }
  if(!strcmp(argv[1],"gate")){
   /* Quiet line: tasks admitted with RX paused. A host byte inside the ~1 ms
    * window defers tasks and is received, never left to overrun the FIFO. */

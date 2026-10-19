@@ -1,0 +1,173 @@
+{
+  "status": "passed",
+  "checks": {
+    "upper_done": {
+      "ok": true,
+      "detail": null
+    },
+    "upper_output_on_console": {
+      "ok": true,
+      "detail": " dropped 0 error -\r\ntask 4 state failed xt 156 name 544B4B slices 1 steps 1 depth 0 rdepth 0 ds-peak 0 rs-peak 0 out 0 dropped 0 error 4B455920756E617661696C61626C6520696E206261636B67726F756E64207461736B\r\n\r\nok\r\nvios> VDP-INFO\r\nvdp width 640 height 480 colours 4 mode 1 console-dropped 0\r\n\r\nok\r\nvios> "
+    },
+    "bulk_done": {
+      "ok": true,
+      "detail": null
+    },
+    "bulk_exact": {
+      "ok": true,
+      "detail": 5000
+    },
+    "no_output_drops": {
+      "ok": true,
+      "detail": [
+        {
+          "id": 1,
+          "state": "done",
+          "xt": 170,
+          "name": "PCNT",
+          "slices": 114,
+          "steps": 115012,
+          "depth": 2,
+          "rdepth": 1,
+          "ds_peak": 3,
+          "rs_peak": 3,
+          "output_bytes": 0,
+          "output_dropped": 0,
+          "error": ""
+        },
+        {
+          "id": 2,
+          "state": "done",
+          "xt": 169,
+          "name": "PBIG",
+          "slices": 83,
+          "steps": 15004,
+          "depth": 0,
+          "rdepth": 0,
+          "ds_peak": 2,
+          "rs_peak": 0,
+          "output_bytes": 0,
+          "output_dropped": 0,
+          "error": ""
+        },
+        {
+          "id": 3,
+          "state": "done",
+          "xt": 155,
+          "name": "TPR",
+          "slices": 1,
+          "steps": 6,
+          "depth": 0,
+          "rdepth": 0,
+          "ds_peak": 1,
+          "rs_peak": 0,
+          "output_bytes": 0,
+          "output_dropped": 0,
+          "error": ""
+        },
+        {
+          "id": 4,
+          "state": "failed",
+          "xt": 156,
+          "name": "TKK",
+          "slices": 1,
+          "steps": 1,
+          "depth": 0,
+          "rdepth": 0,
+          "ds_peak": 0,
+          "rs_peak": 0,
+          "output_bytes": 0,
+          "output_dropped": 0,
+          "error": "KEY unavailable in background task"
+        }
+      ]
+    },
+    "quit_done": {
+      "ok": true,
+      "detail": null
+    },
+    "broken_pipe_reported": {
+      "ok": true,
+      "detail": [
+        {
+          "id": 1,
+          "state": "done",
+          "xt": 171,
+          "name": "PQUIT",
+          "slices": 1,
+          "steps": 1,
+          "depth": 0,
+          "rdepth": 0,
+          "ds_peak": 0,
+          "rs_peak": 0,
+          "output_bytes": 0,
+          "output_dropped": 0,
+          "error": ""
+        },
+        {
+          "id": 2,
+          "state": "failed",
+          "xt": 169,
+          "name": "PBIG",
+          "slices": 1,
+          "steps": 290,
+          "depth": 0,
+          "rdepth": 0,
+          "ds_peak": 2,
+          "rs_peak": 0,
+          "output_bytes": 0,
+          "output_dropped": 0,
+          "error": "broken pipe"
+        },
+        {
+          "id": 3,
+          "state": "done",
+          "xt": 155,
+          "name": "TPR",
+          "slices": 1,
+          "steps": 6,
+          "depth": 0,
+          "rdepth": 0,
+          "ds_peak": 1,
+          "rs_peak": 0,
+          "output_bytes": 0,
+          "output_dropped": 0,
+          "error": ""
+        },
+        {
+          "id": 4,
+          "state": "failed",
+          "xt": 156,
+          "name": "TKK",
+          "slices": 1,
+          "steps": 1,
+          "depth": 0,
+          "rdepth": 0,
+          "ds_peak": 0,
+          "rs_peak": 0,
+          "output_bytes": 0,
+          "output_dropped": 0,
+          "error": "KEY unavailable in background task"
+        }
+      ]
+    },
+    "no_leaked_handles": {
+      "ok": true,
+      "detail": []
+    },
+    "no_console_drops": {
+      "ok": true,
+      "detail": [
+        0,
+        0
+      ]
+    }
+  },
+  "dropped_before": 0,
+  "bulk": {
+    "bytes": 5000,
+    "seconds": 7.0,
+    "bytes_per_s": 714
+  },
+  "dropped_after": 0
+}
