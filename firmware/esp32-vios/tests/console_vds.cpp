@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <string>
+static void vios_probe_glyphs(const char *, size_t) {} /* firmware latency probe (vios_bridge.h) */
 #include "vios_console_vds.h"
 using namespace vios_console;
 

@@ -42,11 +42,15 @@ int vios_text_owns_display(void) { return 1; }
 /* The workbench is a full-screen window over the desktop showing the screen
  * surface; F6 and the window manager reach the other windows. */
 #define WINDOW (VIOS_UI_WINDOWS - 1)
+static int window_open;
 static void window(int open) {
     unsigned char close[2] = {0x57, WINDOW};
     unsigned char show[10] = {0x50, WINDOW, VIOS_GUI_SCREEN_SURFACE, 0, 0, 0, 0, VIOS_TEXT_COLUMNS, VIOS_TEXT_ROWS, 1};
-    op(close, sizeof close);                /* refused (and harmless) when it is not open */
+    /* Close only an open window: closing a closed one is a protocol error the
+     * server counts and queues as an event (seen on the board as op 57). */
+    if (window_open) op(close, sizeof close);
     if (open) op(show, sizeof show);
+    window_open = open;
 }
 void vios_text_show(void) {
     window(1);
