@@ -614,3 +614,32 @@ options are `--resident` (default `build/vios-resident.bin` with its
   - Leaving DLAB set fails 5 tests.
 - **Card:** `/mos/viosboot.bin` must be replaced with this build.
 
+### 15.2 Board runs (2026-10-19 evening)
+
+1. **Run 2 (no wire), `firmware-untethered-2`:** the ESP hung entirely in user
+   mode. MOS never asserts RTS, so with CTS/RTS flow control a flush blocked the
+   control task. Fixed in `0640382`, with no CTS wait at 384,000.
+2. **Run 3 (no wire, `firmware-untethered-4`, which adds MOS-text events):**
+   MOS answered the ESC for the first time and printed `Agon Quark MOS Version
+   1.02`, then stopped.
+3. **With the wire, `MR` + `ML` reproduce the MOS boot.** The PC samples sat
+   at `0x0910`–`0x0915` and `0x062A`. That is MOS's RST 10 output loop: it
+   waits for port D bit 3, its CTS, which is the ESP's RTS. Fixed in
+   `dc3c736`: MOS's rate runs with RTS only.
+4. **After that fix, MOS gets one byte further and crashes** (`MX`, `MS`,
+   `firmware-untethered-7`):
+   - It sends its banner plus a single `0x17` (the start of a VDU 23), while
+     the ESP has sent it no packet at all (`TX 0`).
+   - It is then found out of ADL mode (STAT `8C`), cycling between `0xEDF3`
+     and `0x0038` (RST 38 over erased flash).
+   - So the crash happens inside MOS 1.02 itself, before any VDP reply.
+
+**Conclusion:** this board's MOS 1.02, the earliest Agon MOS, does not complete
+its own boot here. Path B depends on a working MOS, so it needs one of:
+- a current MOS in eZ80 flash (option 2);
+- path C, a VIOS loader in eZ80 flash (option 3).
+
+Both are flash writes that need the owner's approval. The ESP side is ready
+for either: user mode, ESC at 384,000, `E8` with its rate switch, and the
+diagnostics `MR`/`ML`/`MS`/`MB`/`MX`.
+
