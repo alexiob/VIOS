@@ -33,7 +33,7 @@ class ResidentSession(Session):
                     if len(self.replies[packet.sequence])>1024:raise IOError('Oversized debug reply')
             elif packet.channel==4:
                 # Board-initiated host-file request: answer immediately.
-                reply=self.host_service.handle(packet.payload) if self.host_service else b'Ehost service not enabled'
+                reply=self.host_service.handle(packet.payload) if self.host_service else packet.payload[:1]+b'Ehost service not enabled'
                 self._send(4,0,reply)
             else:
                 self.events.append(packet.payload)

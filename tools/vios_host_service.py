@@ -2,7 +2,8 @@
 
 The board sends one request per VIOS handle operation and waits ~1 s for one
 reply. Requests: O<r|w><path>, R<h><n>, W<h><bytes>, C<h>. Replies:
-K<data> or E<message>, at most 240 bytes. Files live under one sandbox
+K<data> or E<message>, at most 240 bytes. Each request starts with a 1-byte
+id that the reply echoes, so a late reply is never matched to a new request. Files live under one sandbox
 directory; absolute paths, '..' and symlink escapes are refused.
 """
 from pathlib import Path
@@ -29,8 +30,15 @@ class HostService:
     def handle(self, request):
         """Return the reply bytes for one request (never raises)."""
         self.requests += 1
+        request = bytes(request)
+        if not request:
+            return b''
+        ident, body = request[:1], request[1:]  # echo the board's request id
+        return ident + self._reply(body)[:MAX_REPLY - 1]
+
+    def _reply(self, request):
         try:
-            return self._handle(bytes(request))[:MAX_REPLY]
+            return self._handle(request)
         except PermissionError as error:
             return b'E' + str(error).encode('ascii', 'replace')
         except FileNotFoundError:

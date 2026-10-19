@@ -47,9 +47,17 @@ int platform_vdp_request(const void *command,size_t length,unsigned char reply,v
 uint32_t platform_millis(void){return 1234567;}
 /* Fake Mac host service over the same protocol (files under ROOT/HOSTSHARE). */
 static FILE *host_files[4];static int host_online=1;
+static int host_bad_reply;
+static int host_serve(const unsigned char *r,size_t length,unsigned char *o,unsigned *actual);
 int platform_host_request(const void *request,size_t length,void *reply,size_t capacity,unsigned *actual){
- const unsigned char *r=request;unsigned char *o=reply;*actual=0;(void)capacity;
- if(!host_online||!length)return 0;
+ const unsigned char *q=request;unsigned char *o=reply;*actual=0;(void)capacity;
+ if(!host_online||length<2)return 0;
+ unsigned n=0;int ok=host_serve(q+1,length-1,o+1,&n);if(!ok)return 0;o[0]=q[0];*actual=n+1;
+ if(host_bad_reply==1){o[0]=(unsigned char)(q[0]+1);}                    /* stale id */
+ if(host_bad_reply==2&&o[1]=='K'&&q[1]=='R'){memset(o+2,'X',230);*actual=232;} /* oversized */
+ return 1;
+}
+static int host_serve(const unsigned char *r,size_t length,unsigned char *o,unsigned *actual){
  if(r[0]=='O'){char name[200],full[768];size_t n=length-2<sizeof name-1?length-2:sizeof name-1;memcpy(name,r+2,n);name[n]=0;
   if(strstr(name,"..")||name[0]=='/'){memcpy(o,"Eforbidden path",15);*actual=15;return 1;}
   snprintf(full,sizeof full,"%s/HOSTSHARE/%s",root,name);
@@ -232,6 +240,11 @@ int main(int argc,char **argv){
   {char app[800];snprintf(app,sizeof app,"%s/app.fth",share);FILE *g=fopen(app,"wb");fputs(": FROMMAC 6 7 * ;\n",g);fclose(g);}
   eval("LOAD /host/app.fth FROMMAC");assert(fvm_pop()==42&&"LOAD reads source from the Mac");
   assert(!forth_eval("LOAD /host/nope.fth")&&strstr(forth_last_error(),"no such host file"));
+  /* Hostile/confused replies: a stale id or an oversized read never corrupt memory. */
+  host_bad_reply=1;assert((eval("S\" /host/notes.txt\" 1 OPEN"),fvm_pop())==((fcell)-5&FVM_MASK));host_bad_reply=0;
+  for(unsigned h=0;h<4;++h)if(host_files[h]){fclose(host_files[h]);host_files[h]=NULL;}
+  eval("S\" /host/notes.txt\" 1 OPEN HH !");host_bad_reply=2;
+  assert((eval("HB 4 HH @ READ"),fvm_pop())==((fcell)-6&FVM_MASK)&&"oversized reply rejected");host_bad_reply=0;eval("HH @ CLOSE DROP");
   for(unsigned h=0;h<4;++h)assert(!host_files[h]&&"every host handle was closed");}
  /* User-space devices: a Forth word serves /dev/NAME through a pipe. */
  {eval("CREATE DVB 16 ALLOT VARIABLE DVH : COUNTER 5 0 DO I 48 + EMIT LOOP ; S\" count\" ' COUNTER DEVICE");

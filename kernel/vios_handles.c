@@ -30,21 +30,31 @@ static int same(const char *a,const char *b){return vios_same(a,b);}
 /* Mac files over USB (/host/...): one bounded request/reply per operation.
  * Requests: O<mode r|w><path>, R<h><n>, W<h><bytes>, C<h>; replies K<data>
  * or E<message>. No harness serving -> the request times out (~1 s). */
-static unsigned char host_reply[240];static unsigned host_reply_length;
+static unsigned char host_reply[240];static unsigned host_reply_length;static unsigned char host_id;
+/* Every request carries a 1-byte id the host echoes first, so a late reply
+ * to an earlier (timed-out) request is never taken as the current answer.
+ * On success host_reply holds K/E and its data, without the id. */
 static int host_call(const unsigned char *request,size_t length){
- if(!platform_host_request(request,length,host_reply,sizeof host_reply,&host_reply_length)||!host_reply_length){note("host service unavailable");return 0;}
+ unsigned char framed[240];if(length+1>sizeof framed){note("host request too long");return 0;}
+ framed[0]=++host_id;for(size_t i=0;i<length;++i)framed[1+i]=request[i];
+ unsigned char raw[240];unsigned n=0;
+ if(!platform_host_request(framed,length+1,raw,sizeof raw,&n)||n<2||raw[0]!=host_id){note("host service unavailable");return 0;}
+ host_reply_length=n-1;for(unsigned i=0;i<host_reply_length;++i)host_reply[i]=raw[1+i];
  if(host_reply[0]=='K')return 1;
- unsigned n=host_reply_length-1<sizeof last_error-1?host_reply_length-1:sizeof last_error-1;
- for(unsigned i=0;i<n;++i)last_error[i]=(char)host_reply[1+i];last_error[n]=0;return 0;
+ unsigned m=host_reply_length-1<sizeof last_error-1?host_reply_length-1:sizeof last_error-1;
+ for(unsigned i=0;i<m;++i)last_error[i]=(char)host_reply[1+i];last_error[m]=0;return 0;
 }
 static int host_close(unsigned remote){unsigned char r[2]={'C',(unsigned char)remote};return host_call(r,2);}
 static int host_read(unsigned remote,unsigned char *out,unsigned want,unsigned *got){
  unsigned char r[3]={'R',(unsigned char)remote,(unsigned char)(want>200?200:want)};*got=0;
- if(!host_call(r,3))return 0;*got=host_reply_length-1;for(unsigned i=0;i<*got;++i)out[i]=host_reply[1+i];return 1;
+ if(!host_call(r,3))return 0;
+ if(host_reply_length-1>r[2]){note("host reply longer than requested");return 0;} /* never overrun out[] */
+ *got=host_reply_length-1;for(unsigned i=0;i<*got;++i)out[i]=host_reply[1+i];return 1;
 }
 static int host_write(unsigned remote,const unsigned char *data,unsigned n,unsigned *put){
  unsigned char r[202];r[0]='W';r[1]=(unsigned char)remote;if(n>200)n=200;for(unsigned i=0;i<n;++i)r[2+i]=data[i];*put=0;
- if(!host_call(r,n+2)||host_reply_length<2)return 0;*put=host_reply[1];return 1;
+ if(!host_call(r,n+2)||host_reply_length<2||host_reply[1]>n){if(host_reply_length>=2&&host_reply[1]>n)note("host write ack exceeds request");return 0;}
+ *put=host_reply[1];return 1;
 }
 static void put(char c){if(snapshot_length<SNAPSHOT)snapshot[snapshot_length++]=c;}
 static void put_text(const char *s){while(*s)put(*s++);}
