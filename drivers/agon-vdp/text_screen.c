@@ -14,28 +14,44 @@ static uint32_t generation;
 struct scroll_command { unsigned char x,y,width,height,pixels; };
 static struct scroll_command scroll_queue,scroll_cache[2];
 static unsigned char scroll_pending,scroll_phase,scroll_direction,cache_valid[2];
+/* Set only while every painted cell is known blank (after reset). Lets a
+ * full frame skip rescanning 4,800 painted cells for its dirty counts. */
+static unsigned char painted_blank;
 
 uint32_t vios_text_generation(void) {return generation;}
 static int dirty(unsigned index) {
  return desired[index].ch!=painted[index].ch||desired[index].attr!=painted[index].attr;
 }
 void vios_text_stats_reset(void) {stats.cells=stats.spans=stats.batches=stats.bytes=0;}
+/* Count painted cells that differ from the blank cell (' ', attr 3). A
+ * pointer walk keeps the eZ80 loop in registers instead of IX spill slots. */
+#if defined(__GNUC__)
+__attribute__((noinline))
+#endif
+static unsigned painted_nonblank(const struct vios_text_cell *cell,unsigned count) {
+ unsigned n=0;
+ for(const struct vios_text_cell *end=cell+count;cell!=end;++cell)if(cell->ch!=' '||cell->attr!=3)++n;
+ return n;
+}
 void vios_text_begin_frame(void) {
  ++generation;
- dirty_cells=0;unsigned index=0;
- for(unsigned row=0;row<VIOS_TEXT_ROWS;++row){
-  dirty_rows[row]=0;
-  for(unsigned col=0;col<VIOS_TEXT_COLUMNS;++col,++index){
-   desired[index].ch=' ';desired[index].attr=3;
-   if(index<CELL_COUNT-1&&(painted[index].ch!=' '||painted[index].attr!=3)){++dirty_cells;++dirty_rows[row];}
-  }
+ /* Blank one row, then block-copy it: distinct rows never overlap. */
+ for(unsigned col=0;col<VIOS_TEXT_COLUMNS;++col){desired[col].ch=' ';desired[col].attr=3;}
+ for(unsigned row=1;row<VIOS_TEXT_ROWS;++row)memcpy(desired+row*VIOS_TEXT_COLUMNS,desired,sizeof desired[0]*VIOS_TEXT_COLUMNS);
+ if(painted_blank){dirty_cells=0;memset(dirty_rows,0,sizeof dirty_rows);return;}
+ unsigned total=0;const struct vios_text_cell *seen=painted;
+ /* The bottom-right cell is never painted, so it is never counted dirty. */
+ for(unsigned row=0;row<VIOS_TEXT_ROWS;++row,seen+=VIOS_TEXT_COLUMNS){
+  unsigned n=painted_nonblank(seen,row==VIOS_TEXT_ROWS-1?VIOS_TEXT_COLUMNS-1:VIOS_TEXT_COLUMNS);
+  dirty_rows[row]=(unsigned char)n;total+=n;
  }
+ dirty_cells=total;
 }
 void vios_text_reset(void) {
  ++generation;
  for(unsigned i=0;i<CELL_COUNT;++i){desired[i].ch=painted[i].ch=' ';desired[i].attr=painted[i].attr=3;}
  for(unsigned row=0;row<VIOS_TEXT_ROWS;++row)dirty_rows[row]=0;
- paint_cursor=dirty_cells=0;scroll_pending=scroll_phase=0;
+ paint_cursor=dirty_cells=0;scroll_pending=scroll_phase=0;painted_blank=1;
  cache_valid[0]=cache_valid[1]=0;vios_text_stats_reset();
 }
 void vios_text_clear(unsigned x,unsigned y,unsigned width,unsigned height) {
@@ -43,29 +59,37 @@ void vios_text_clear(unsigned x,unsigned y,unsigned width,unsigned height) {
  if(width>VIOS_TEXT_COLUMNS-x)width=VIOS_TEXT_COLUMNS-x;
  if(height>VIOS_TEXT_ROWS-y)height=VIOS_TEXT_ROWS-y;
  for(unsigned row=y;row<y+height;++row){
-  unsigned index=row*VIOS_TEXT_COLUMNS+x,end=index+width;
-  if(end==CELL_COUNT)--end;
-  for(;index<end;++index){
-   if(dirty(index)){--dirty_cells;--dirty_rows[row];}
-   desired[index].ch=' ';desired[index].attr=3;
-   if(dirty(index)){++dirty_cells;++dirty_rows[row];}
+  unsigned index=row*VIOS_TEXT_COLUMNS+x,count=width;
+  if(index+count==CELL_COUNT)--count;
+  /* Pointer walk with one dirty delta per row: same counts as per-cell
+   * dirty() checks before and after each store, without the calls. */
+  struct vios_text_cell *want=desired+index;const struct vios_text_cell *seen=painted+index;
+  unsigned delta=0;
+  for(;count;--count,++want,++seen){
+   if(want->ch!=seen->ch||want->attr!=seen->attr)--delta;
+   want->ch=' ';want->attr=3;
+   if(seen->ch!=' '||seen->attr!=3)++delta;
   }
+  dirty_cells+=delta;dirty_rows[row]=(unsigned char)(dirty_rows[row]+delta);
  }
 }
 void vios_text_put(unsigned x,unsigned y,const char *text,size_t length,unsigned fg,unsigned bg) {
  if(x>=VIOS_TEXT_COLUMNS||y>=VIOS_TEXT_ROWS||!text)return;
  unsigned available=VIOS_TEXT_COLUMNS-x;
  if(length>available)length=available;
+ /* Printing the bottom-right cell would scroll the entire VDP viewport. */
+ if(y==VIOS_TEXT_ROWS-1&&length>=available)length=available-1;
  unsigned index=y*VIOS_TEXT_COLUMNS+x;
+ struct vios_text_cell *want=desired+index;const struct vios_text_cell *seen=painted+index;
  unsigned char attr=(unsigned char)((fg&15)|((bg&15)<<4));
- for(size_t n=0;n<length;++n,++index) {
-  /* Printing the bottom-right cell would scroll the entire VDP viewport. */
-  if(index==CELL_COUNT-1)break;
-  unsigned char ch=(unsigned char)text[n];
-  if(dirty(index)){--dirty_cells;--dirty_rows[y];}
-  desired[index].ch=ch>=32&&ch<=126?ch:'?';desired[index].attr=attr;
-  if(dirty(index)){++dirty_cells;++dirty_rows[y];}
+ const unsigned char *bytes=(const unsigned char *)text;unsigned delta=0;
+ for(;length;--length,++want,++seen) {
+  unsigned char ch=*bytes++;if(ch<32||ch>126)ch='?';
+  if(want->ch!=seen->ch||want->attr!=seen->attr)--delta;
+  want->ch=ch;want->attr=attr;
+  if(ch!=seen->ch||attr!=seen->attr)++delta;
  }
+ dirty_cells+=delta;dirty_rows[y]=(unsigned char)(dirty_rows[y]+delta);
 }
 int vios_text_cell(unsigned x,unsigned y,struct vios_text_cell *out) {
  if(x>=VIOS_TEXT_COLUMNS||y>=VIOS_TEXT_ROWS||!out)return 0;
@@ -91,7 +115,7 @@ int vios_text_scroll(unsigned x,unsigned y,unsigned width,unsigned height,int ro
    /* Distinct rows never overlap; ordered row copies preserve unread rows
     * and use the target's byte-copy loop rather than per-cell indexing. */
    memcpy(want,want+source_offset,row_bytes);
-   memcpy(seen,seen+source_offset,row_bytes);
+   memcpy(seen,seen+source_offset,row_bytes);painted_blank=0;
   }else{
    unsigned char *bytes=(unsigned char *)want;
    for(unsigned col=0;col<width;++col){*bytes++=' ';*bytes++=3;}
@@ -181,7 +205,7 @@ unsigned vios_text_render(unsigned budget) {
   if(fg!=new_fg){bytes[used++]=17;bytes[used++]=new_fg;fg=new_fg;}
   if(bg!=new_bg){bytes[used++]=17;bytes[used++]=(unsigned char)(128|new_bg);bg=new_bg;}
   if(cursor!=index){bytes[used++]=31;bytes[used++]=(unsigned char)(index%VIOS_TEXT_COLUMNS);bytes[used++]=(unsigned char)row;}
-  ++stats.spans;unsigned clean_gap=0;
+  ++stats.spans;painted_blank=0;unsigned clean_gap=0;
   do {
    bytes[used++]=desired[index].ch;
    if(clean_gap)--clean_gap;
