@@ -202,12 +202,14 @@ void vds_ui_accel_text(const vds_command *c, char *out) {
     else if (c->vk == VDS_VK_RETURN) memcpy(key, "Enter", 6);
     else if (c->vk == VDS_VK_TAB) memcpy(key, "Tab", 4);
     else if (c->ascii > 32 && c->ascii < 127) key[0] = (char)(c->ascii >= 'a' && c->ascii <= 'z' ? c->ascii - 32 : c->ascii);
+    const char *parts[4] = {c->mods & VDS_MOD_CTRL ? "Ctrl+" : "", c->mods & VDS_MOD_SHIFT ? "Shift+" : "",
+                            c->mods & (VDS_MOD_LALT | VDS_MOD_RALT) ? "Alt+" : "", key};
+    size_t n = 0;
     out[0] = 0;
     if (!key[0]) return;
-    if (c->mods & VDS_MOD_CTRL) strcat(out, "Ctrl+");
-    if (c->mods & VDS_MOD_SHIFT) strcat(out, "Shift+");
-    if (c->mods & (VDS_MOD_LALT | VDS_MOD_RALT)) strcat(out, "Alt+");
-    strcat(out, key);
+    for (unsigned i = 0; i < 4; ++i)                        /* bounded: never past VDS_ACCEL_MAX */
+        for (const char *s = parts[i]; *s && n < VDS_ACCEL_MAX - 1; ++s) out[n++] = *s;
+    out[n] = 0;
 }
 
 /* Label without '&'; *mnemonic gets the display index of the marked char or -1. */
@@ -286,7 +288,7 @@ static uint8_t popup_width(vds_ui *u, unsigned level) {
     const vds_open_menu *om = &u->open[level];
     unsigned width = u->palette && level == 0 ? 4u + VDS_FILTER_MAX : 10;
     for (unsigned i = 0; i < om->count; ++i) {
-        char text[VDS_LABEL_MAX], accel[20] = {0};
+        char text[VDS_LABEL_MAX], accel[VDS_ACCEL_MAX] = {0};
         int m;
         size_t n = display(item_label(u, om->items[i]), text, &m);
         const vds_command *c = om->items[i] < VDS_ITEM_SUBMENU ? command(u, om->items[i]) : 0;
@@ -329,7 +331,7 @@ static void render_popup(vds_ui *u, unsigned level) {
         uint8_t bg = sel ? st->menu_sel_bg : st->menu_bg;
         uint8_t fg = !on ? st->menu_disabled : sel ? st->menu_sel_fg : st->menu_fg;
         vds_fill(v, sid, 0, row, width, 1, ' ', attr(fg, bg));
-        char text[VDS_LABEL_MAX], accel[20] = {0};
+        char text[VDS_LABEL_MAX], accel[VDS_ACCEL_MAX] = {0};
         int m;
         size_t n = display(item_label(u, item), text, &m);
         if (n > (size_t)width - 3) n = (size_t)width - 3;
@@ -430,7 +432,7 @@ static void render_status(vds_ui *u) {
     for (unsigned i = 0; i < VDS_MAX_COMMANDS; ++i) {
         const vds_command *c = &u->commands[i];
         if ((c->flags & (VDS_CMD_USED | VDS_CMD_STATUS)) != (VDS_CMD_USED | VDS_CMD_STATUS)) continue;
-        char accel[20] = {0}, text[VDS_LABEL_MAX];
+        char accel[VDS_ACCEL_MAX] = {0}, text[VDS_LABEL_MAX];
         int m;
         vds_ui_accel_text(c, accel);
         size_t a = strlen(accel), n = display(c->label, text, &m);
@@ -446,6 +448,8 @@ void vds_ui_refresh(vds_ui *u) {
     u->style_seen = v->style.kind;
     int turbo = v->style.kind == VDS_STYLE_TURBO;
     int want_bar = turbo && u->menus[0].used && u->menus[0].count;
+    if (u->depth && u->bar_index != VDS_NONE && (!want_bar || u->bar_index >= u->menus[0].count))
+        close_from(u, 0);                                   /* a bar pulldown cannot outlive its bar entry */
     if (want_bar && !u->bar_shown) {
         vds_surface_init(v, BAR_SURFACE, 80, 1, u->bar_cells, attr(v->style.menu_fg, v->style.menu_bg));
         vds_window_open(v, BAR_WINDOW, BAR_SURFACE, 0, 0, 80, 1, VDS_W_VISIBLE | VDS_W_OVERLAY, "");
@@ -536,11 +540,11 @@ static int menu_key(vds_ui *u, uint8_t ascii, uint8_t modifiers, uint8_t vk) {
     case VDS_VK_DOWN: case VDS_VK_KP_DOWN: move_sel(u, level, 1); return 1;
     case VDS_VK_RIGHT: case VDS_VK_KP_RIGHT:
         if (om->count && om->items[om->sel] >= VDS_ITEM_SUBMENU && om->items[om->sel] != VDS_ITEM_SEPARATOR) activate(u, level);
-        else if (bar) open_bar(u, (u->bar_index + 1u) % u->menus[0].count);
+        else if (bar && u->menus[0].count) open_bar(u, (u->bar_index + 1u) % u->menus[0].count);
         return 1;
     case VDS_VK_LEFT: case VDS_VK_KP_LEFT:
         if (level) close_from(u, level);
-        else if (bar) open_bar(u, (u->bar_index + u->menus[0].count - 1u) % u->menus[0].count);
+        else if (bar && u->menus[0].count) open_bar(u, (u->bar_index + u->menus[0].count - 1u) % u->menus[0].count);
         return 1;
     case VDS_VK_RETURN: case VDS_VK_KP_ENTER: activate(u, level); return 1;
     case VDS_VK_ESCAPE:

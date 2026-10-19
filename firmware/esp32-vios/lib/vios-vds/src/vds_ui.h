@@ -59,6 +59,7 @@ enum { VDS_FROM_MENU = 1, VDS_FROM_ACCELERATOR = 2, VDS_FROM_PALETTE = 3 };
 #define VDS_MENU_DEPTH 3
 #define VDS_POPUP_COLS 28
 #define VDS_FILTER_MAX 15
+#define VDS_ACCEL_MAX 24                /* accelerator text buffer incl. NUL */
 #define VDS_ITEM_SEPARATOR 0xFFFFu
 #define VDS_ITEM_SUBMENU 0xFE00u
 #define VDS_UI_FIRST_WINDOW VDS_PROTO_WINDOWS     /* popups 27..29, status line 30, menu bar 31 */
@@ -86,7 +87,7 @@ typedef struct vds_ui {
     uint8_t depth, bar_index, palette, filter_len;  /* bar_index: VDS_NONE unless a bar pulldown is open */
     char filter[VDS_FILTER_MAX + 1];
     uint8_t bar_shown, status_shown, style_seen;
-    vds_cell popup_cells[VDS_MENU_DEPTH][VDS_MENU_ITEMS * VDS_POPUP_COLS];
+    vds_cell popup_cells[VDS_MENU_DEPTH][(VDS_MENU_ITEMS + 1) * VDS_POPUP_COLS];   /* +1: palette filter row */
     vds_cell bar_cells[80], status_cells[80];
 } vds_ui;
 
@@ -105,7 +106,7 @@ int vds_ui_menu(vds_ui *u, uint8_t menu, const char *title, const uint16_t *item
 int vds_ui_window_menu(vds_ui *u, uint8_t window, uint8_t menu);
 /* Re-render the menu bar, status line and open menus (after style changes). */
 void vds_ui_refresh(vds_ui *u);
-/* Text shown for a command's accelerator, e.g. "Ctrl+S" (out: 20 bytes). */
+/* Text shown for a command's accelerator, e.g. "Ctrl+S"; out holds VDS_ACCEL_MAX bytes. */
 void vds_ui_accel_text(const vds_command *c, char *out);
 
 #ifdef __cplusplus

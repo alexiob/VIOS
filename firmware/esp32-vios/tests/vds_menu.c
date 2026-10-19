@@ -209,6 +209,27 @@ int main(int argc, char **argv) {
         assert(key(0, 0, VDS_VK_ESCAPE));
     }
 
+    /* Regressions from review: the longest accelerator text fits; emptying the
+     * bar under an open pulldown closes it; a full palette fits its buffer. */
+    char accel[VDS_ACCEL_MAX];
+    vds_command longest = {9, VDS_CMD_USED, VDS_VK_RETURN, VDS_MOD_CTRL | VDS_MOD_SHIFT | VDS_MOD_LALT, 0, "x"};
+    memset(accel, 0x55, sizeof accel);
+    vds_ui_accel_text(&longest, accel);
+    assert(!strcmp(accel, "Ctrl+Shift+Alt+Enter"));
+    assert(key(0, 0, VDS_VK_F10) && u.bar_index == 0);
+    assert(vds_ui_menu(&u, 0, "", 0, 0) && u.depth == 0 && u.bar_index == VDS_NONE && !u.bar_shown);
+    assert(!key(0, 0, VDS_VK_RIGHT) && !key(0, 0, VDS_VK_LEFT));
+    assert(vds_ui_menu(&u, 0, "", (const uint16_t[]){VDS_ITEM_SUBMENU | 1, VDS_ITEM_SUBMENU | 2}, 2) && u.bar_shown);
+    for (unsigned id = 20; id < 40; ++id) assert(vds_ui_command(&u, (uint16_t)id, VDS_CMD_ENABLED, 0, 0, 0, "Wide palette entry nnnn"));
+    assert(key(0x0B, VDS_MOD_CTRL, 0) && u.palette && u.open[0].count == VDS_MENU_ITEMS);
+    assert(v.surfaces[11].rows == VDS_MENU_ITEMS + 1 && v.surfaces[11].cols == VDS_POPUP_COLS);
+    /* ASan cannot see an overflow into the next popup inside the same struct. */
+    assert((size_t)v.surfaces[11].rows * v.surfaces[11].cols <= sizeof u.popup_cells[0] / sizeof(vds_cell));
+    matches_full_render();
+    assert(key(0, 0, VDS_VK_ESCAPE) && u.depth == 0);
+    for (unsigned id = 20; id < 40; ++id) assert(vds_ui_command_state(&u, (uint16_t)id, 0));
+    matches_full_render();
+
     /* Reserved ids are refused over the wire. */
     unsigned errors = p.errors;
     uint8_t bad_win[] = {0x52, 31, 0x01, 12, 10, 1, 0x30, 0x58, 28};
