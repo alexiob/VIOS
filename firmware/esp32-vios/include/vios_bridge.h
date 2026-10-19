@@ -87,6 +87,7 @@ static unsigned long link_since,link_esc;
 static uint8_t mos_bytes[32];
 static std::atomic<unsigned> mos_count(0);
 static std::atomic<bool> mos_capturing(false);
+static void link_mos();
 static void mos_capture_start(){mos_count.store(0);mos_capturing.store(true);}
 void vios_mos_capture(uint8_t c){if(!mos_capturing.load())return;unsigned i=mos_count.fetch_add(1);if(i<sizeof mos_bytes)mos_bytes[i]=c;}
 static bool cpu_boot_ready;
@@ -459,6 +460,7 @@ static void control_command(uint16_t sequence,const char *command,size_t length)
         snprintf(reply+n,sizeof reply-n," LCR %02X MCR %02X LSR %02X MSR %02X\r\n",uart[0],uart[1],uart[2],uart[3]);
         control_reply(sequence,reply);return;
     }
+    if(length==2&&command[0]=='M'&&command[1]=='L'){control_reply(sequence,"MOS LINK 384000\r\n");link_mos();return;}
     if(length==2&&command[0]=='M'&&command[1]=='B'){
         unsigned count=mos_count.load(),shown=count<sizeof mos_bytes?count:(unsigned)sizeof mos_bytes;
         size_t n=(size_t)snprintf(reply,sizeof reply,"MOS BYTES %u",count);
@@ -642,13 +644,17 @@ void vios_mos_line_byte(uint8_t c){
     if(mos_line_used&&mos_lines<40){char line[96];snprintf(line,sizeof line,"MOS: %.*s\r\n",(int)mos_line_used,mos_line);bridge_event(line);++mos_lines;}
     mos_line_used=0;
 }
+/* ML (dev, wire attached, after MR): talk to MOS as user mode does. */
+static void link_mos(){
+    vios_vdp_tx_begin();VDPSerial.setHwFlowCtrlMode(HW_FLOWCTRL_DISABLE,64);VDPSerial.flush();VDPSerial.updateBaudRate(VIOS_MOS_BAUD);vios_vdp_tx_end();
+    mos_capture_start();link_state=LINK_MOS;link_esc=millis()-LINK_ESC_MS;
+    bridge_event("BOOT link 384000: sending ESC until MOS answers\r\n");
+}
 static void link_service(){
     if(link_state==LINK_PROBE){
         if(!mos_phase.load()){link_state=LINK_SETTLED;bridge_event("BOOT link: a resident answered at the internal rate\r\n");return;}
         if(millis()-link_since<LINK_PROBE_MS)return;
-        vios_vdp_tx_begin();VDPSerial.setHwFlowCtrlMode(HW_FLOWCTRL_DISABLE,64);VDPSerial.flush();VDPSerial.updateBaudRate(VIOS_MOS_BAUD);vios_vdp_tx_end();
-        mos_capture_start();link_state=LINK_MOS;link_esc=millis()-LINK_ESC_MS;
-        bridge_event("BOOT link 384000: sending ESC until MOS answers\r\n");
+        link_mos();
     }
     if(link_state==LINK_MOS){
         if(mos_count.load()){link_state=LINK_SETTLED;bridge_event("BOOT link: MOS answered\r\n");return;}

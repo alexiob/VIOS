@@ -301,6 +301,8 @@ static void check_mos_probe(){
     assert(regs[0]==0x00445A&&regs[7]==0x0012AB&&!cpu_paused);                          // nothing disturbed, running again
     for(int i=0;i<40;++i)vios_mos_capture((uint8_t)i);
     assert(control_text("MB\n",123).rfind("MOS BYTES 43 17 00 80 00 01",0)==0);
+    incoming("ML\n",124);{auto g=output_frames();assert(g.size()==2&&!memcmp(g[0].payload,"MOS LINK 384000\r\n",17));}assert(VDPSerial.baud==384000&&VDPSerial.flow==HW_FLOWCTRL_DISABLE&&link_state==LINK_MOS);
+    vios_link_rate(1152000);output_frames();
 }
 
 static void check_user_mode(){
