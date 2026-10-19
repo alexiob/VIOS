@@ -81,6 +81,12 @@ TOOLS = [
     tool('memory_write','Write and readback-verify 1..256 RAM bytes below 0xAF000. Trusted systems operation.',
          {'address':{'type':'integer','minimum':0x40000,'maximum':0xAEFFF}, 'hex':{'type':'string','pattern':r'^(?:[0-9a-fA-F]{2}){1,256}$'}}, ['address','hex']),
     tool('resume','Resume existing CPU PC/UART bridge after a debug pause; does not reboot.'),
+    tool('esp_stats','ESP-side counters: glyphs drawn, USB console bytes/writes and microseconds the VDP parser was blocked on USB, parser time. reset=true zeroes them after reading.',
+         {'reset':{'type':'boolean'}}),
+    tool('esp_probe','Key-to-glyph latency probe on the ESP: char arms it for one printable character and clears samples; no argument reports n/min/med/p95/max in microseconds.',
+         {'char':{'type':'string','minLength':1,'maxLength':1}}),
+    tool('esp_inject','Type 1..32 characters at the ESP PS/2 boundary as if on the Agon keyboard (printable, BS, TAB, CR, ESC). Lines typed this way appear in events.',
+         {'text':{'type':'string','minLength':1,'maxLength':32}},['text']),
 ]
 WB_REVISION_SCHEMA={'type':'integer','minimum':0,'maximum':4294967295}
 WB_BOUND_SCHEMA={'type':'integer','minimum':0,'maximum':4096}

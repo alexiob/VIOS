@@ -14,6 +14,7 @@
 #include <freertos/semphr.h>
 #include <freertos/queue.h>
 #include <esp_ota_ops.h>
+#include <esp_timer.h>
 // Arduino would mark a pending image valid before setup(); VIOS confirms it
 // only after the CPU it boots reports healthy (see firmware_confirm).
 extern "C" bool verifyRollbackLater(){return true;}
@@ -74,7 +75,51 @@ static void usb_send(uint8_t channel,uint16_t sequence,const uint8_t *data,size_
         data+=message.length;length-=message.length;
     }while(length);
 }
-void vios_usb_console_write(const uint8_t *data,size_t length) {usb_send(VIOS_CHANNEL_CONSOLE,0,data,length);}
+/* GUI Stage 0 instrumentation. Times are esp_timer microseconds (uint32,
+ * differences only). Producers: VDP task (glyphs, parser, USB console writes,
+ * probe), control task (injection, reset). Readers tolerate torn snapshots. */
+static std::atomic<uint32_t> stat_glyphs(0),stat_console_bytes(0),stat_console_writes(0),stat_injected(0);
+static std::atomic<uint32_t> stat_usb_block_us(0),stat_usb_block_max(0),stat_parser_us(0),stat_parser_max(0);
+static std::atomic<int> probe_char(-1);
+static std::atomic<bool> probe_pending(false);
+static std::atomic<uint32_t> probe_t0(0);
+static const unsigned PROBE_SAMPLES=128;
+static uint32_t probe_samples[PROBE_SAMPLES];
+static std::atomic<unsigned> probe_count(0);
+static uint8_t inject_ring[64];
+static std::atomic<unsigned> inject_head(0),inject_tail(0);
+static uint32_t stage0_us(){return (uint32_t)esp_timer_get_time();}
+static void stat_max(std::atomic<uint32_t> &slot,uint32_t value){uint32_t old=slot.load();while(value>old&&!slot.compare_exchange_weak(old,value)){}}
+bool vios_injected_key(uint8_t *ascii){
+    unsigned tail=inject_tail.load();if(tail==inject_head.load())return false;
+    *ascii=inject_ring[tail%sizeof inject_ring];inject_tail.store(tail+1);stat_injected.fetch_add(1);return true;
+}
+void vios_probe_key(uint8_t ascii){if((int)ascii==probe_char.load()&&!probe_pending.load()){probe_t0.store(stage0_us());probe_pending.store(true);}}
+void vios_probe_glyph(char c){
+    stat_glyphs.fetch_add(1);
+    if(probe_pending.load()&&(int)(uint8_t)c==probe_char.load()){
+        uint32_t latency=stage0_us()-probe_t0.load();unsigned n=probe_count.load();
+        if(n<PROBE_SAMPLES){probe_samples[n]=latency;probe_count.store(n+1);}
+        probe_pending.store(false);
+    }
+}
+void vios_parser_time(uint32_t us){stat_parser_us.fetch_add(us);stat_max(stat_parser_max,us);}
+static void stats_reset(){
+    stat_glyphs=0;stat_console_bytes=0;stat_console_writes=0;stat_injected=0;
+    stat_usb_block_us=0;stat_usb_block_max=0;stat_parser_us=0;stat_parser_max=0;
+}
+static void probe_report(char *line,size_t size){
+    unsigned n=probe_count.load();uint32_t sorted[PROBE_SAMPLES];
+    for(unsigned i=0;i<n;++i)sorted[i]=probe_samples[i];
+    for(unsigned i=1;i<n;++i){uint32_t v=sorted[i];unsigned j=i;while(j&&sorted[j-1]>v){sorted[j]=sorted[j-1];--j;}sorted[j]=v;}
+    if(!n){snprintf(line,size,"PROBE n=0\r\n");return;}
+    snprintf(line,size,"PROBE n=%u min=%lu med=%lu p95=%lu max=%lu\r\n",n,(unsigned long)sorted[0],(unsigned long)sorted[n/2],
+        (unsigned long)sorted[(n*95)/100<n?(n*95)/100:n-1],(unsigned long)sorted[n-1]);
+}
+void vios_usb_console_write(const uint8_t *data,size_t length) {
+    uint32_t start=stage0_us();usb_send(VIOS_CHANNEL_CONSOLE,0,data,length);uint32_t spent=stage0_us()-start;
+    stat_console_bytes.fetch_add((uint32_t)length);stat_console_writes.fetch_add(1);stat_usb_block_us.fetch_add(spent);stat_max(stat_usb_block_max,spent);
+}
 /* Host service requests from the CPU go to the Mac unpaced (small, rare). */
 void vios_usb_host_write(const uint8_t *data,size_t length) {usb_send(VIOS_CHANNEL_HOST,0,data,length);}
 static void control_reply(uint16_t sequence,const char *line) {usb_send(VIOS_CHANNEL_CONTROL,sequence,(const uint8_t *)line,strlen(line));}
@@ -215,6 +260,29 @@ static void control_command(uint16_t sequence,const char *command,size_t length)
     }
     if(length==1&&command[0]=='2'){control_reply(sequence,"ACK 2\r\n");return;}
     if(length==1&&command[0]=='F'){firmware_status(reply,sizeof reply);control_reply(sequence,reply);return;}
+    // Stage 0 instrumentation; safe while the CPU runs.
+    uint32_t stage0_value;
+    if(length==1&&command[0]=='T'){
+        snprintf(reply,sizeof reply,"STATS glyphs=%lu console_bytes=%lu console_writes=%lu usb_block_us=%lu usb_block_max=%lu parser_us=%lu parser_max=%lu injected=%lu\r\n",
+            (unsigned long)stat_glyphs.load(),(unsigned long)stat_console_bytes.load(),(unsigned long)stat_console_writes.load(),
+            (unsigned long)stat_usb_block_us.load(),(unsigned long)stat_usb_block_max.load(),(unsigned long)stat_parser_us.load(),
+            (unsigned long)stat_parser_max.load(),(unsigned long)stat_injected.load());
+        control_reply(sequence,reply);return;
+    }
+    if(length==2&&command[0]=='T'&&command[1]=='0'){stats_reset();control_reply(sequence,"STATS RESET\r\n");return;}
+    if(length==4&&command[0]=='P'&&command[1]=='A'&&parse_hex(command+2,2,&stage0_value)){
+        probe_char.store(-1);probe_pending.store(false);probe_count.store(0);probe_char.store((int)stage0_value);
+        control_reply(sequence,"PROBE ARMED\r\n");return;
+    }
+    if(length==2&&command[0]=='P'&&command[1]=='R'){probe_report(reply,sizeof reply);control_reply(sequence,reply);return;}
+    if(length>=4&&length<=2+2*32&&length%2==0&&command[0]=='K'&&command[1]=='I') {
+        uint8_t keys[32];unsigned count=(unsigned)(length-2)/2;
+        for(unsigned i=0;i<count;++i){if(!parse_hex(command+2+2*i,2,&stage0_value)){control_reply(sequence,"ERR inject hex\r\n");return;}keys[i]=(uint8_t)stage0_value;}
+        unsigned head=inject_head.load();
+        if(head+count-inject_tail.load()>sizeof inject_ring){control_reply(sequence,"ERR inject queue full\r\n");return;}
+        for(unsigned i=0;i<count;++i)inject_ring[(head+i)%sizeof inject_ring]=keys[i];
+        inject_head.store(head+count);control_reply(sequence,"INJECTED\r\n");return;
+    }
     if(length==2&&command[0]=='F'&&command[1]=='R'){control_reply(sequence,"FIRMWARE ROLLBACK\r\n");firmware_trial=true;firmware_fallback("host request");return;}
     if(length==1&&command[0]=='I') {
         snprintf(reply,sizeof reply,"ID %04X REV %02X STAT %02X\r\n",vios_zdi_id(),vios_zdi_revision(),vios_zdi_status());control_reply(sequence,reply);return;

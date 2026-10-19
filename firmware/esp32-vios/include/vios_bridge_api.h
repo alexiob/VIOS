@@ -25,3 +25,10 @@ void vios_vdp_tx_begin();
 void vios_vdp_tx_end();
 
 void vios_bridge_handoff();
+
+/* GUI Stage 0 instrumentation (no behaviour change): key injection at the
+ * PS/2 boundary, key-to-glyph latency probe, parser and USB-blocking time. */
+bool vios_injected_key(uint8_t *ascii);
+void vios_probe_key(uint8_t ascii);
+void vios_probe_glyph(char c);
+void vios_parser_time(uint32_t us);

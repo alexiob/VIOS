@@ -429,6 +429,7 @@ void plotBitmap() {
 // Character plot
 //
 void plotCharacter(char c) {
+	vios_probe_glyph(c);						// VIOS Stage 0 latency probe/counters
 	if (ttxtMode) {
     	ttxt_instance.draw_char(activeCursor->X, activeCursor->Y, c);
   	} else {

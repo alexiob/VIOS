@@ -6,6 +6,7 @@
 #include <cstring>
 #include <deque>
 #include <vector>
+#include <string>
 #include "vios/wire.h"
 #define PROGMEM
 #define INPUT 0
@@ -128,6 +129,7 @@ static void vios_zdi_read_memory(uint32_t address,unsigned n,uint8_t *data){
 }
 struct {bool restarted=false;void restart(){restarted=true;}} ESP;
 #define VIOS_ZDI_EDGE_US 1 // Real transport lives in vios_zdi.h, faked above.
+static int64_t esp_timer_get_time(){return (int64_t)now*1000;}
 #include "vios_bridge.h"
 static void note_usb(unsigned action){assert(usb_tx_mutex&&usb_tx_mutex->held);usb_actions.push_back(action);}
 static std::vector<vios_wire_message> output_frames(){
@@ -200,6 +202,29 @@ static void check_firmware_ab(){
     incoming("FR\n",62);f=output_frames();
     assert(ota_rollbacks==2&&ota_word(1,24)==ESP_OTA_IMG_VALID&&!firmware_trial&&saw_event(f,"ERR FIRMWARE no other valid slot; trial ended, use esptool\r\n"));
     ota_other_valid=true;memset(otadata_flash,0xFF,sizeof otadata_flash);running_partition=esp_partition_t{"app0",0x10};
+}
+static std::string control_text(const char *command,uint16_t sequence){
+    incoming(command,sequence);auto f=output_frames();assert(f.size()==1&&f[0].channel==2);return std::string((const char*)f[0].payload,f[0].length);
+}
+static void check_stage0_instrumentation(){
+    assert(control_text("T0\n",70)=="STATS RESET\r\n");
+    // Injection: FIFO order, bounded queue, hex validated; works while the CPU runs.
+    assert(control_text("KI4142\n",71)=="INJECTED\r\n");uint8_t key=0;
+    assert(vios_injected_key(&key)&&key==0x41&&vios_injected_key(&key)&&key==0x42&&!vios_injected_key(&key));
+    assert(control_text("KI4G\n",72)=="ERR inject hex\r\n");
+    char big[80]="KI";for(unsigned i=0;i<32;++i)strcat(big,"61");strcat(big,"\n");
+    assert(control_text(big,73)=="INJECTED\r\n"&&control_text(big,74)=="INJECTED\r\n");
+    assert(control_text("KI61\n",75)=="ERR inject queue full\r\n");while(vios_injected_key(&key)){}
+    // Probe: only the armed character, one pending sample at a time, key -> first matching glyph.
+    assert(control_text("PR\n",76)=="PROBE n=0\r\n");assert(control_text("PA41\n",77)=="PROBE ARMED\r\n");
+    for(unsigned i=1;i<=20;++i){vios_probe_glyph('A');vios_probe_key('B');vios_probe_key('A');now+=i;vios_probe_key('A');vios_probe_glyph('x');vios_probe_glyph('A');vios_probe_glyph('A');}
+    assert(control_text("PR\n",78)=="PROBE n=20 min=1000 med=11000 p95=20000 max=20000\r\n");
+    std::string stats=control_text("T\n",79);
+    assert(stats.rfind("STATS glyphs=80 ",0)==0&&stats.find(" injected=66\r\n")!=std::string::npos);
+    vios_usb_console_write((const uint8_t*)"abc",3);output_frames();stats=control_text("T\n",80);
+    assert(stats.find("console_bytes=3 console_writes=1 ")!=std::string::npos);
+    assert(control_text("T0\n",81)=="STATS RESET\r\n"&&control_text("T\n",82).rfind("STATS glyphs=0 console_bytes=0",0)==0);
+    probe_char.store(-1);
 }
 int main(int argc,char **argv){
     if(argc==4&&!strcmp(argv[1],"--control-frame")){
@@ -324,5 +349,6 @@ int main(int argc,char **argv){
     std::thread second([]{for(unsigned i=0;i<30;++i)vios_usb_console_write((const uint8_t*)"console",7);});
     first.join();second.join();assert(output_frames().size()==60);
     check_firmware_ab();
+    check_stage0_instrumentation();
     puts("bridge boot/control/ranges/CRC/fragment sequences/health checks passed");
 }

@@ -245,3 +245,34 @@ class ResidentBoard(ViosBoard):
             self.receive_buffer.clear()
             self._attach_pending = False
             return result
+
+    # GUI Stage 0 instrumentation on the ESP (control channel; the CPU keeps running).
+    def _esp(self, command):
+        with self.lock:
+            if not self.deployed:
+                raise RuntimeError('No active board session; call connect first')
+            return self.session.control(command, timeout=5).decode('ascii').strip()
+
+    def esp_stats(self, reset=False):
+        """ESP counters: glyphs drawn, USB console bytes/writes and blocking, parser time (us)."""
+        line = self._esp(b'T')
+        stats = {key: int(value) for key, value in (item.split('=') for item in line.split()[1:])}
+        if reset:
+            self._esp(b'T0')
+        return stats
+
+    def esp_probe(self, char=None):
+        """Arm the key-to-glyph probe for one character, or report its samples (us)."""
+        if char is not None:
+            if len(char) != 1 or not 32 <= ord(char) < 127:
+                raise ValueError('probe character must be one printable ASCII character')
+            return {'armed': char, 'reply': self._esp(b'PA%02X' % ord(char))}
+        line = self._esp(b'PR')
+        return {key: int(value) for key, value in (item.split('=') for item in line.split()[1:])}
+
+    def esp_inject(self, text):
+        """Type up to 32 ASCII characters at the PS/2 boundary, as if on the Agon keyboard."""
+        data = text.encode('ascii')
+        if not 1 <= len(data) <= 32 or any(b not in (8, 9, 13, 27) and not 32 <= b < 127 for b in data):
+            raise ValueError('inject 1..32 printable characters (or BS, TAB, CR, ESC)')
+        return {'reply': self._esp(b'KI' + data.hex().upper().encode())}

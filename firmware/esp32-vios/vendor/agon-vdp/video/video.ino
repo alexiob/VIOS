@@ -141,7 +141,9 @@ void loop() {
 				do_cursor();
 			}
 			vios_vdp_parser_busy(true);
+			uint32_t parse_start = (uint32_t)esp_timer_get_time();
 			processor->processNext();
+			vios_parser_time((uint32_t)esp_timer_get_time() - parse_start);
 			vios_vdp_parser_busy(false);
 		}
 		count++;
@@ -170,7 +172,15 @@ void do_keyboard() {
 			vk,
 			down,
 		};
+		if (down) vios_probe_key(keycode);
 		processor->send_packet(PACKET_KEYCODE, sizeof packet, packet);
+	}
+	else if (vios_injected_key(&keycode)) {
+		// VIOS Stage 0: host-injected key at the PS/2 boundary (down then up).
+		uint8_t press[] = { keycode, 0, 0, 1 }, release[] = { keycode, 0, 0, 0 };
+		vios_probe_key(keycode);
+		processor->send_packet(PACKET_KEYCODE, sizeof press, press);
+		processor->send_packet(PACKET_KEYCODE, sizeof release, release);
 	}
 }
 

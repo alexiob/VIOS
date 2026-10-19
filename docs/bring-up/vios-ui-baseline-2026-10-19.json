@@ -1,0 +1,78 @@
+{
+  "status": "measured",
+  "B1_console_flood": {
+    "lines": 1000,
+    "repl_seconds": 0.567,
+    "display_settled_seconds": 1.135,
+    "stats": {
+      "glyphs": 493,
+      "console_bytes": 3944,
+      "console_writes": 36,
+      "usb_block_us": 405201,
+      "usb_block_max": 13479,
+      "parser_us": 576423,
+      "parser_max": 18290,
+      "injected": 0
+    },
+    "glyphs_per_s": 434,
+    "usb_console_bytes_per_s": 3474,
+    "parser_blocked_on_usb_share": 0.357,
+    "parser_busy_share": 0.508
+  },
+  "B2_typing_idle": {
+    "20cps": {
+      "n": 40,
+      "min": 4044,
+      "med": 4472,
+      "p95": 5480,
+      "max": 5481
+    },
+    "100cps": {
+      "n": 40,
+      "min": 4043,
+      "med": 4448,
+      "p95": 5480,
+      "max": 5483
+    }
+  },
+  "B2_stats": {
+    "glyphs": 322,
+    "console_bytes": 320,
+    "console_writes": 160,
+    "usb_block_us": 326185,
+    "usb_block_max": 2545,
+    "parser_us": 436087,
+    "parser_max": 2763,
+    "injected": 160
+  },
+  "B3_typing_two_tasks": {
+    "20cps": {
+      "n": 40,
+      "min": 21050,
+      "med": 30454,
+      "p95": 38481,
+      "max": 39452
+    },
+    "100cps": {
+      "n": 39,
+      "min": 4099,
+      "med": 11122,
+      "p95": 17068,
+      "max": 27468
+    }
+  },
+  "events_after": {
+    "ok": true,
+    "events": [
+      {
+        "time": 1792396981.067,
+        "text": "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \bqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b"
+      },
+      {
+        "time": 1792396987.958,
+        "text": "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq\b\b\b   \b\b\b\b\b\b   \b\b\b\b\b  \b\b\b\b\b   \b\b\b\b\b\b   \b\b\b\b\b  \b\b\b\b\b   \b\b\b\b\b\b   \b\b\b\b\b  \b\b\b\b\b   \b\b\b\b\b\b   \b\b\b\b\b  \b\b\b\b\b   \b\b\b\b\b\b   \b\b\b\b\b  \b\bqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq\b\b\b   \b\b\b\b\b  \b\b\b\b\b   \b\b\b\b\b\b   \b\b\b\b\b\b   \b\b\b\b\b  \b\b\b\b\b   \b\b\b\b\b\b   \b\b\b\b\b  \b\b\b\b\b   \b\b\b\b\b\b   \b\b\b\b\b  \b\b\b\b\b   \b\b\b\b\b\b   \b\b\b\b\b  \b\b"
+      }
+    ]
+  },
+  "handles_after": []
+}

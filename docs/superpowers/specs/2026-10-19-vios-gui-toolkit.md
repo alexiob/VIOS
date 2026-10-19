@@ -527,3 +527,25 @@ Overlapping windows managed by a Forth window manager; per-app tasks consuming `
 - `firmware/esp32-vios/vendor/agon-vdp/video/vdu_sys.h` and `video.ino`, plus `firmware/esp32-vios/include/vios_bridge.h`: `VIOS_VDU_UI` hook, VDS service in `loop()`, USB console drain moved to the control task.
 - `kernel/vios_handles.c`: `/dev/win/*` and `/dev/ui/tree` built-in devices (Stage 3).
 - New: `firmware/esp32-vios/lib/vios-vds/` (portable VDS core plus host tests in `firmware/esp32-vios/tests/vds.cpp`), `drivers/agon-vdp/vds.c`, `kernel/vios_ui.c`, `tools/vios_ui_bench.py`.
+
+---
+
+## Stage 0 results (measured on the board, 2026-10-19)
+
+Firmware `backups/app0-2026-10-18/firmware-gui-stage0.bin` (A/B trial, confirmed).
+New ESP control commands, safe while the CPU runs: `T`/`T0` counters, `PA<hh>`/`PR`
+key-to-glyph probe, `KI<hex>` key injection at the PS/2 boundary. Harness tools:
+`esp_stats`, `esp_probe`, `esp_inject`. Benchmark: `tools/vios_ui_bench.py`.
+Data: `docs/bring-up/vios-ui-baseline-2026-10-19.json`.
+
+| Measure | Result | Reading |
+| --- | --- | --- |
+| B1 flood, 1000 numbers (3944 B console output) | REPL done 0.57 s; VGA settled 1.14 s; **493 glyphs drawn** | The VGA console view shows ~1/8 of a flood. D3 (CPU tap ring, 512 B) dominates throughput. |
+| B1 VDP parser blocked in USB console writes | **36 % of wall time** (57 % on a 300-line run), max 13.5 ms per write | D2 confirmed: glyph drawing waits for the USB drain. |
+| B2 typing, idle CPU, key-to-glyph | median 4.4 ms, p95 5.5 ms (20 and 100 cps) | Already under the Stage 1 target (≤10 ms). |
+| B3 typing with two busy tasks | 20 cps: median 30 ms, p95 38 ms; 100 cps: median 11 ms, p95 17 ms | Over the Stage 1 target (≤30 ms p95) at low rates: the key waits for CPU slices (D4). |
+
+**Exit note:** D2 and D3 dominate. Stage 1a (USB drain off the parser) and
+1c (console terminal on the ESP) give the visible gains. Idle typing latency
+is not the problem; typing under load is, which Stage 2 (ESP line editing)
+fixes and Stage 1c improves.
