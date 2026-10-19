@@ -747,3 +747,34 @@ writes a JSON report next to the backup.
 4. Boot checks with the wire (VIOS over ZDI; MOS 3 under `MR`/`MX`), then
    wire-off cold boots.
 
+### 16.7 MOS 3.0.2 written to the eZ80 flash (2026-10-19, owner-approved)
+
+1. **First `MF` attempt: failed, stage derailed.**
+   - The flasher started, but the ESP's done-flag poll read memory through
+     ZDI, which moves PC. So the stage resumed at the flag's address and
+     never finished ("did not finish in 60 s").
+   - The flash was left part-erased (CRC `95C7B7B2`). VIOS still loaded over
+     ZDI, with internal RAM at its reset address `FFE000`.
+   - Fixed in `e43fd3c`: PC is saved and restored around the poll, and the
+     fake stage now needs several resumes and derails on a wrong PC.
+2. **Second `MF` attempt (`firmware-ez80flash-2`): succeeded.**
+   - `MF OK 12610 ms FLASH 15BD0583 REST erased`: the readback CRC equals
+     MOS 3.0.2's, and the rest of the flash is erased. Report:
+     `docs/bring-up/vios-ez80-flash-mos302-2026-10-19.json`.
+3. **VIOS over ZDI still works:** internal RAM is back at `B7E000` (set by
+   MOS 3), `VIOREADY` and health 1 arrive, and `BOOT READY`.
+4. **MOS 3 under `MR`, with the wire and the link at 1,152,000:**
+   - MOS sends `&80` (poll), `&F8` (feature flag), `&99`, `&86` (mode),
+     `&94`, then its banner `Agon Platform MOS Version 3.0.2 Arthur`.
+   - Only `&80` and `&86` are answered (`TX 2`).
+   - It then stops with `RST $38 panic`: PC `0BFF30`, which equals IY and
+     points into the stack area.
+   - The unanswered commands are exactly the §3.3 backport list of the VDP
+     2.16 evaluation (`claude/wonderful-colden-a77701`). Whether one of them
+     causes the panic, or something later in the boot does, is the next thing
+     to establish.
+
+**Next:** backport `&F8`/`&F9`, `&99` and `&94` (with 2.16.0's reply formats),
+then repeat `MR`/`MX`. Then comes the wire-off boot: `autoexec.txt`, then
+`viosboot`.
+
