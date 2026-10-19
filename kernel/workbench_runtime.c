@@ -35,15 +35,16 @@ static void status(void){
 }
 static int display_reset(void){
  static const unsigned char mode[]={23,0,VIOS_VDU_DISPLAY,0},query[]={23,0,0x86};
- unsigned char info[8];unsigned actual=0;platform_vdp_send(mode,sizeof mode);
+ /* Under the GUI the ESP owns the mode: no transition, no clear (VIOS_GUI=1). */
+ unsigned char info[8];unsigned actual=0;if(!vios_text_owns_display())platform_vdp_send(mode,sizeof mode);
  if(!platform_vdp_request(query,sizeof query,0x86,info,sizeof info,&actual)||actual!=8||info[4]!=80||info[5]!=60||info[6]!=16||info[7]!=0){
-  vios_workbench_close();platform_keyboard_route(0);error("workbench requires mode 0 (80x60, 16 colours)");return 0;
+  vios_workbench_close();vios_text_hide();platform_keyboard_route(0);error("workbench requires mode 0 (80x60, 16 colours)");return 0;
  }
  /* VIOS display (VDU 23,0,E6,0): mode 0, 16 colours, with 0-3 pinned to the
   * mode 1 black/red/yellow/white so existing attrs keep their look. The ESP
   * keeps its hardware palette and cached RGB lookup in agreement (CHAR@). */
  static const unsigned char setup[]={17,3,17,128,12,23,1,0};
- platform_vdp_send(setup,sizeof setup);vios_text_reset();paint_failed=0;vios_workbench_note_error("");return 1;
+ if(!vios_text_owns_display())platform_vdp_send(setup,sizeof setup);vios_text_reset();paint_failed=0;vios_workbench_note_error("");return 1;
 }
 static int display_repaint(void){
  /* Repainting an owned mode needs no VGA mode transition. Explicit REDRAW
@@ -51,7 +52,7 @@ static int display_repaint(void){
  static const unsigned char query[]={23,0,0x86};unsigned char info[8];unsigned actual=0;
  if(!platform_vdp_request(query,sizeof query,0x86,info,sizeof info,&actual)||actual!=8||info[4]!=80||info[5]!=60||info[6]!=16||info[7]!=0)return display_reset();
  static const unsigned char setup[]={26,17,3,17,128,12,23,1,0};
- platform_vdp_send(setup,sizeof setup);vios_text_reset();paint_failed=0;vios_workbench_note_error("");return 1;
+ if(!vios_text_owns_display())platform_vdp_send(setup,sizeof setup);vios_text_reset();paint_failed=0;vios_workbench_note_error("");return 1;
 }
 static int paint(void){
  struct vios_text_stats before,after;vios_text_stats(&before);unsigned short start=platform_timer_read();
@@ -95,23 +96,24 @@ static void con_view(unsigned char op){
 }
 /* Shows the console; the ESP redraws everything it has captured so far. */
 int vios_console_open(void){
- if(con_open)con_view(0); /* Nothing is drawn across the screen reset. */
+ if(con_open&&!vios_text_owns_display())con_view(0); /* Nothing is drawn across the screen reset. */
  /* Same mode for both views: clear and repaint without a VGA mode change
-  * (display_repaint falls back to a full reset if the mode is not ours). */
- if(!display_repaint()){con_open=0;return 0;}
- if(vios_workbench_active())vios_workbench_close();
- if(!con_home)con_view(2); /* The first view starts empty, like a fresh terminal. */
+  * (display_repaint falls back to a full reset if the mode is not ours).
+  * Under the GUI the console is its own window: no repaint, nothing cleared. */
+ if(!vios_text_owns_display()&&!display_repaint()){con_open=0;return 0;}
+ if(vios_workbench_active()){vios_workbench_close();vios_text_hide();}
+ if(!con_home&&!vios_text_owns_display())con_view(2); /* The first view starts empty, like a fresh terminal. */
  con_open=con_home=1;con_view(1);
  platform_keyboard_route(0);return 1;
 }
 static void con_close(void){if(con_open)con_view(0);con_open=0;}
 static void console_idle(void){
- if(platform_keyboard_hotkey()){con_close();if(display_repaint()){vios_workbench_open();platform_keyboard_route(1);vios_workbench_compose();}platform_input_resume();return;}
+ if(platform_keyboard_hotkey()){con_close();if(display_repaint()){vios_text_show();vios_workbench_open();platform_keyboard_route(1);vios_workbench_compose();}platform_input_resume();return;}
  if(!paint_failed&&vios_text_pending())paint();
  platform_input_resume();
 }
 /* Once opened, the console is the home view the editor returns to. */
-static void close(void){int home=con_home;con_close();vios_workbench_close();platform_keyboard_route(0);if(home)(void)vios_console_open();}
+static void close(void){int home=con_home;con_close();vios_workbench_close();vios_text_hide();platform_keyboard_route(0);if(home)(void)vios_console_open();}
 static int key(unsigned code,unsigned modifiers){
  enum vios_workbench_request request=vios_workbench_key(code,modifiers);struct vios_workbench_status s;vios_workbench_status(&s);
  if(request==VIOS_WB_STAGE){if(!vios_workbench_stage(s.revision))return error(vios_workbench_error());}
@@ -158,10 +160,10 @@ int vios_workbench_command(const char *word,const char **rest){
  if(vios_same(word,"WB-CONSOLE")){if(!vios_console_open())return -1;vios_out("WB-CONSOLE open 1\r\n");return 1;}
  if(vios_same(word,"WB-CONSOLE-CLEAR")){con_view(2);vios_out("WB-CONSOLE cleared\r\n");return 1;}
  if(vios_same(word,"WB-CONSOLE?")){field("WB-CONSOLE open ",(unsigned)con_open);field(" home ",(unsigned)con_home);vios_out(" renderer esp\r\n");return 1;}
- if(vios_same(word,"WB-OPEN")){con_close();if(!display_repaint())return -1;vios_workbench_open();platform_keyboard_route(1);}
+ if(vios_same(word,"WB-OPEN")){con_close();if(!display_repaint())return -1;vios_text_show();vios_workbench_open();platform_keyboard_route(1);}
  else if(vios_same(word,"WB-CLOSE"))close();
  else if(vios_same(word,"WB-STATUS")){}
- else if(vios_same(word,"WB-REDRAW")){if(!display_reset())return -1;}
+ else if(vios_same(word,"WB-REDRAW")){if(!display_reset())return -1;if(vios_workbench_active())vios_text_show();}
  else if(vios_same(word,"WB-REPAINT")){if(!display_repaint())return -1;}
  else if(vios_same(word,"WB-ZOOM")){if(!number(rest,&x))return -1;if(x>1)return error("zoom must be 0 or 1");vios_workbench_zoom((int)x);}
  else if(vios_same(word,"WB-ZOOM?")){field("WB-ZOOM enabled ",(unsigned)vios_workbench_zoomed());vios_out("\r\n");return 1;}

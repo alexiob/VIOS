@@ -121,7 +121,10 @@ void vios_console_feed(const uint8_t *data, size_t length) {
     vios_display_unlock();
     if (small) vios_frame_kick(); // typing echo: draw now, not at the next vblank
 }
+bool vios_gui_console_view(uint8_t op);
+bool vios_gui_owns_display();
 void vios_console_view(uint8_t op) {
+    if (vios_gui_console_view(op)) return;   // the console is a GUI window
     vios_display_lock();
     switch (op) {
         case 0: vios_console_terminal.hide(); break;
@@ -147,6 +150,7 @@ unsigned vios_console_row(unsigned y, char *out, unsigned capacity) {
  * existing attr (fg | bg<<4, 0-3) keeps its look; theme roles use 4-15. The
  * VDP's palette[] (used to resolve COLOUR) and the controller stay in step. */
 void vios_display_mode0() {
+    if (vios_gui_owns_display()) return;      // already mode 0 under the GUI: never reallocate it
     vios_display_lock();
     canvas->waitCompletion();
     set_mode(0);

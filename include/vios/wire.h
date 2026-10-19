@@ -16,6 +16,8 @@ extern "C" {
 /* Host service: CPU request (VDU 23,0,E3,len,payload) -> USB channel 4;
  * USB channel 4 reply -> CPU packet FC,len,payload. One request in flight. */
 #define VIOS_VDU_HOST 0xE3
+/* GUI display-server batch: VDU 23,0,E4,len,ops (firmware/esp32-vios/lib/vios-vds). */
+#define VIOS_VDU_GUI 0xE4
 /* Console view on the ESP terminal: op 0 hide, 1 show (redraw), 2 clear. */
 #define VIOS_VDU_CONSOLE_VIEW 0xE5
 /* VIOS display setup: op 0 selects 640x480 16 colours (VDP mode 0) with logical

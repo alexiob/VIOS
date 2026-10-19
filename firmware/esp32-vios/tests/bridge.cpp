@@ -136,6 +136,10 @@ static bool vios_g0_busy(){return g0_fake_busy;}
 static void vios_g0_reset_gap(){}
 static uint32_t vios_g0_gap(){return 0;}
 static void vios_frame_stats(uint32_t *f,uint32_t *s,uint32_t *w){*f=*s=*w=0;}
+static unsigned gui_keys;
+unsigned vios_gui_status(char *out,unsigned capacity){return (unsigned)snprintf(out,capacity,"GUI on windows 1 fake");}
+bool vios_gui_key(uint8_t,uint8_t,uint8_t vk,uint8_t){++gui_keys;return vk==168;}
+int vios_gui_pixel(unsigned x,unsigned y){return x<640&&y<480?(int)((x+y)&15):-1;}
 static void vios_frame_stats_reset(){}
 static const char *vios_g0_line(unsigned n){return n==0?"G0 mode 0 fake":"";}
 static unsigned vios_console_row(unsigned y,char *out,unsigned capacity){return (unsigned)snprintf(out,capacity,"row %u",y);}
@@ -242,6 +246,10 @@ static void check_stage0_instrumentation(){
     assert(control_text("G0R0\n",87)=="G0 BUSY\r\n");g0_fake_busy=false;
     assert(control_text("G0R0\n",88)=="G0R G0 mode 0 fake\r\n"&&control_text("G0Z\n",89)=="G0 GAP RESET\r\n");
     assert(control_text("CR05\n",83)=="CROW 05 row 5\r\n"&&control_text("CR3B\n",84).rfind("ERR",0)==0);
+    assert(control_text("GS\n",85)=="GUI on windows 1 fake\r\n");
+    assert(control_text("GK0000A801\n",86)=="GK used\r\n"&&control_text("GK00009F01\n",87)=="GK unused\r\n"&&gui_keys==2);
+    assert(control_text("GKZZ\n",88).rfind("ERR",0)==0&&control_text("GK000QA801\n",89).rfind("ERR",0)==0);
+    assert(control_text("GP00A014\n",90)=="GP 14\r\n"&&control_text("GP280014\n",91)=="GP -1\r\n");
     probe_char.store(-1);
 }
 int main(int argc,char **argv){

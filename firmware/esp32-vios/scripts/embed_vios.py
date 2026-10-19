@@ -15,6 +15,15 @@ rate_path=image.with_suffix('.baud')
 if not rate_path.exists() or rate_path.read_text().strip()!=str(baud):
     raise RuntimeError('Resident/ESP internal baud mismatch; rebuild resident with VIOS_INTERNAL_BAUD='+str(baud)+' and preserve its .baud sidecar')
 env.Append(CPPDEFINES=[('VIOS_INTERNAL_BAUD',baud)])
+# GUI pairing: a GUI-booting VDP needs a resident built with VIOS_GUI=1 (its
+# workbench draws through the display server) and the text VDP the opposite.
+gui=os.environ.get('VIOS_GUI','1')
+if gui not in ('0','1'):
+    raise RuntimeError('VIOS_GUI must be 0 or 1')
+gui_path=image.with_suffix('.gui')
+if not gui_path.exists() or gui_path.read_text().strip()!=gui:
+    raise RuntimeError('Resident/ESP GUI mismatch; rebuild resident with VIOS_GUI='+gui+' and preserve its .gui sidecar')
+env.Append(CPPDEFINES=[('VIOS_GUI_BOOT',int(gui))])
 data=image.read_bytes()
 if not data or len(data)>0x6F000 or data[64:69]!=b'MOS\0\1':
     raise RuntimeError('Build a valid bounded resident image before the VDP image: '+str(image))
@@ -27,7 +36,7 @@ content+='static const uint8_t vios_image[] PROGMEM = {\n'
 content+='\n'.join(','.join(f'0x{x:02x}' for x in data[i:i+24])+',' for i in range(0,len(data),24))+'\n};\n'
 if not out.exists() or out.read_text()!=content:out.write_text(content)
 env.Append(CPPPATH=[str(root/'include')])
-embedded={'path':str(image.relative_to(root)) if image.is_relative_to(root) else str(image),'size':len(data),'sha256':hashlib.sha256(data).hexdigest(),'crc32':f'{zlib.crc32(data):08x}','internal_baud':baud}
+embedded={'path':str(image.relative_to(root)) if image.is_relative_to(root) else str(image),'size':len(data),'sha256':hashlib.sha256(data).hexdigest(),'crc32':f'{zlib.crc32(data):08x}','internal_baud':baud,'gui':int(gui)}
 (project/'include/vios_image.json').write_text(json.dumps(embedded,indent=2)+'\n')
 
 stage_path=root/'build/agon-stage0.bin'

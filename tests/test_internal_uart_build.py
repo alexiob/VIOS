@@ -27,11 +27,12 @@ class InternalRateBuildTests(unittest.TestCase):
             uart=BankedUART({0xdb:255,0xa3:0,0xa4:255,0xa5:0});uart.execute(binary.read_bytes())
             self.assertEqual((uart.dll,uart.dlm),(10,0))
 
-    def run_embed(self, root, requested, embedded):
+    def run_embed(self, root, requested, embedded, gui='1', embedded_gui='1'):
         project=root/'firmware/esp32-vios';(project/'include').mkdir(parents=True,exist_ok=True)
         (root/'build').mkdir(exist_ok=True)
         (root/'build/vios-resident.bin').write_bytes(b'\0'*64+b'MOS\0\1')
         (root/'build/vios-resident.baud').write_text(str(embedded)+'\n')
+        (root/'build/vios-resident.gui').write_text(embedded_gui+'\n')
         (root/'build/agon-stage0.bin').write_bytes(b'\xf3')
         (root/'build/agon-crc.bin').write_bytes(b'\x18\xfe')
         class Env:
@@ -39,7 +40,7 @@ class InternalRateBuildTests(unittest.TestCase):
             def subst(self,text):return str(project) if text=='$PROJECT_DIR' else text
             def Append(self,**kwargs):self.definitions.extend(kwargs.get('CPPDEFINES',[]))
         env=Env();env.definitions=[]
-        with patch.dict(os.environ,{'VIOS_INTERNAL_BAUD':str(requested),'VIOS_IMAGE':str(root/'build/vios-resident.bin')}):
+        with patch.dict(os.environ,{'VIOS_INTERNAL_BAUD':str(requested),'VIOS_IMAGE':str(root/'build/vios-resident.bin'),'VIOS_GUI':gui}):
             runpy.run_path(str(ROOT/'firmware/esp32-vios/scripts/embed_vios.py'),init_globals={'env':env,'Import':lambda _:None})
         return env,project
 
@@ -54,5 +55,18 @@ class InternalRateBuildTests(unittest.TestCase):
             env,project=self.run_embed(Path(temp),384000,384000)
             self.assertIn(('VIOS_INTERNAL_BAUD',384000),env.definitions)
             self.assertEqual(json.loads((project/'include/vios_image.json').read_text())['internal_baud'],384000)
+
+    def test_esp_prebuild_rejects_a_gui_mismatch_and_passes_the_gui_flag(self):
+        import json
+        with tempfile.TemporaryDirectory() as temp:
+            with self.assertRaisesRegex(RuntimeError,'GUI mismatch'):
+                self.run_embed(Path(temp),1152000,1152000,gui='1',embedded_gui='0')
+        with tempfile.TemporaryDirectory() as temp:
+            env,project=self.run_embed(Path(temp),1152000,1152000,gui='0',embedded_gui='0')
+            self.assertIn(('VIOS_GUI_BOOT',0),env.definitions)
+        with tempfile.TemporaryDirectory() as temp:
+            env,project=self.run_embed(Path(temp),1152000,1152000)
+            self.assertIn(('VIOS_GUI_BOOT',1),env.definitions)
+            self.assertEqual(json.loads((project/'include/vios_image.json').read_text())['gui'],1)
 
 if __name__=='__main__':unittest.main()

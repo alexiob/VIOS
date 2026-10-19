@@ -62,3 +62,9 @@ void vios_display_unlock();
 void vios_frame_start();
 void vios_frame_stats(uint32_t *frames,uint32_t *start_max_us,uint32_t *work_max_us);
 void vios_frame_stats_reset();
+/* GUI display server (vios_gui.h): status line, a key with modifiers for the
+ * window manager (true if used), and one framebuffer pixel's colour index. */
+unsigned vios_gui_status(char *out,unsigned capacity);
+bool vios_gui_key(uint8_t ascii,uint8_t modifiers,uint8_t vk,uint8_t down);
+int vios_gui_pixel(unsigned x,unsigned y);
+void vios_gui_batch(const uint8_t *payload,size_t length);

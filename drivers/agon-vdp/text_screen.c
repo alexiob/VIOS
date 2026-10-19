@@ -22,6 +22,9 @@ uint32_t vios_text_generation(void) {return generation;}
 static int dirty(unsigned index) {
  return desired[index].ch!=painted[index].ch||desired[index].attr!=painted[index].attr;
 }
+int vios_text_owns_display(void) {return 0;}
+void vios_text_show(void) {}
+void vios_text_hide(void) {}
 void vios_text_stats_reset(void) {stats.cells=stats.spans=stats.batches=stats.bytes=0;}
 /* Count painted cells that differ from the blank cell (' ', attr 3). A
  * pointer walk keeps the eZ80 loop in registers instead of IX spill slots. */

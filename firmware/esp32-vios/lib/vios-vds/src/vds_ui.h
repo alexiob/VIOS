@@ -110,7 +110,7 @@ typedef struct vds_ui {
     uint8_t wm_mode;                        /* keyboard move/resize in progress */
     uint8_t held, held_vk, held_ascii;      /* key whose press an intrinsic consumed */
     vds_geometry wm_saved;
-    uint32_t zoomed;                        /* bit per window id */
+    uint64_t zoomed;                        /* bit per window id */
     vds_geometry zoom_saved[VDS_MAX_WINDOWS];
     vds_command commands[VDS_MAX_COMMANDS];
     vds_menu menus[VDS_MAX_MENUS];

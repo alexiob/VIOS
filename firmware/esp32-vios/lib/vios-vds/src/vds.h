@@ -19,8 +19,11 @@ extern "C" {
 #endif
 
 #define VDS_MAX_WIDTH 640
-#define VDS_MAX_WINDOWS 32
-#define VDS_MAX_SURFACES 16
+#define VDS_MAX_WINDOWS 33
+#define VDS_MAX_SURFACES 17
+/* Server-owned ids beyond the CPU's and the intrinsics': the console. */
+#define VDS_CONSOLE_WINDOW 32
+#define VDS_CONSOLE_SURFACE 16
 #define VDS_MAX_DAMAGE 32
 #define VDS_TITLE_MAX 32
 #define VDS_LUT_SLOTS 8

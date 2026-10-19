@@ -113,9 +113,10 @@ build/storage-probe.bin: build/storage-probe.elf
 	$(EZOBJCOPY) -O binary $< $@
 -include $(STORAGE_OBJECTS:.o=.d)
 
-# VIOS_GUI=1: the workbench screen lives in the ESP display server (no CPU screen
-# planes, 19 KB less BSS); needs ESP firmware running vios-vds. Default: VDU text.
-VIOS_GUI ?= 0
+# VIOS_GUI=1 (default): the workbench screen lives in the ESP display server
+# (no CPU screen planes, ~22 KB less BSS) and the paired ESP firmware boots into
+# the GUI; build both ends with the same VIOS_GUI. 0: the VDU text screen.
+VIOS_GUI ?= 1
 RESIDENT_SCREEN := $(if $(filter 1,$(VIOS_GUI)),drivers/agon-vdp/text_screen_vds.c,drivers/agon-vdp/text_screen.c)
 RESIDENT_C_SOURCES := kernel/workbench_runtime.c kernel/workbench.c $(RESIDENT_SCREEN) kernel/resident_main.c forth/system.c forth/modules.c forth/vm_reference.c forth/vm_memory.c boards/agon-light-2/platform_resident.c drivers/agon-vdp/transport.c kernel/vios_runtime.c kernel/vios_services.c kernel/vios_prelude.c kernel/vios_handles.c kernel/vios_ui.c kernel/vios_modules.c kernel/vios_boot.c bench/forth_bench.c $(STORAGE_C_SOURCES)
 RESIDENT_UART_OBJECT := build/resident/arch/ez80/uart0_raw-$(VIOS_INTERNAL_BAUD).o

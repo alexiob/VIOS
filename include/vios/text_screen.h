@@ -30,4 +30,11 @@ int vios_text_pending(void);
 int vios_text_cell(unsigned x,unsigned y,struct vios_text_cell *out);
 void vios_text_stats(struct vios_text_stats *out);
 void vios_text_stats_reset(void);
+/* 1 when the screen belongs to the GUI display server (text_screen_vds.c):
+ * the runtime then sends no mode changes, clears or legacy VDU setup. */
+int vios_text_owns_display(void);
+/* The workbench view opened / closed: the GUI shows or hides its window
+ * (no-ops on VDU). */
+void vios_text_show(void);
+void vios_text_hide(void);
 #endif

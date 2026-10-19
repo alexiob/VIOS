@@ -146,6 +146,13 @@ void VDUStreamProcessor::vdu_sys_video() {
             auto op=readByte_t();if(op==0)vios_display_mode0();
             sendModeInformation();
         } break;
+        case VIOS_VDU_GUI: {
+            auto length=readByte_t();
+            uint8_t payload[255];
+            if(length<0)return;
+            for(int i=0;i<length;++i){auto value=readByte_t();if(value<0)return;payload[i]=(uint8_t)value;}
+            vios_gui_batch(payload,(size_t)length);
+        } break;
         case VIOS_VDU_CONSOLE_VIEW: {
             auto op=readByte_t();if(op>=0)vios_console_view((uint8_t)op);
         } break;

@@ -298,6 +298,19 @@ static void control_command(uint16_t sequence,const char *command,size_t length)
         control_reply(sequence,reply);return;
     }
     if(length==2&&command[0]=='T'&&command[1]=='0'){stats_reset();control_reply(sequence,"STATS RESET\r\n");return;}
+    /* GUI: GS status; GK<ascii><mods><vk><down> a key for the window manager;
+     * GP<x:3><y:3> a framebuffer pixel's colour index (all hex). */
+    if(length==2&&command[0]=='G'&&command[1]=='S'){
+        char text[160];vios_gui_status(text,sizeof text);snprintf(reply,sizeof reply,"%s\r\n",text);control_reply(sequence,reply);return;
+    }
+    if(length==10&&command[0]=='G'&&command[1]=='K'){
+        uint32_t k[4];for(unsigned i=0;i<4;++i)if(!parse_hex(command+2+2*i,2,&k[i])){control_reply(sequence,"ERR GK hex\r\n");return;}
+        control_reply(sequence,vios_gui_key((uint8_t)k[0],(uint8_t)k[1],(uint8_t)k[2],(uint8_t)k[3])?"GK used\r\n":"GK unused\r\n");return;
+    }
+    if(length==8&&command[0]=='G'&&command[1]=='P'){
+        uint32_t x,y;if(!parse_hex(command+2,3,&x)||!parse_hex(command+5,3,&y)){control_reply(sequence,"ERR GP hex\r\n");return;}
+        snprintf(reply,sizeof reply,"GP %d\r\n",vios_gui_pixel((unsigned)x,(unsigned)y));control_reply(sequence,reply);return;
+    }
     if(length==4&&command[0]=='P'&&command[1]=='A'&&parse_hex(command+2,2,&stage0_value)){
         probe_char.store(-1);probe_pending.store(false);probe_count.store(0);probe_char.store((int)stage0_value);
         control_reply(sequence,"PROBE ARMED\r\n");return;

@@ -80,6 +80,7 @@ VDUStreamProcessor *	processor;				// VDU Stream Processor
 #include "vios_zdi.h"
 #include "vios_bridge.h"
 #include "vios_console_vdp.h"
+#include "vios_gui.h"
 #include "vios_g0_probe.h"
 #include "vios_frame.h"
 
@@ -103,10 +104,15 @@ void setup() {
 	setupKeyboardAndMouse();
 	init_audio();
 	copy_font();
-	set_mode(1);
 	// VIOS requests mode information explicitly after its UART initialization.
 	// An unsolicited packet here could wait on an old/halted CPU RTS forever.
+	#if VIOS_GUI_BOOT
+	vios_display_mode0();					// GUI first: desktop before the CPU loads
+	if (!vios_gui_start()) { set_mode(1); boot_screen(); }
+	#else
+	set_mode(1);
 	boot_screen();
+	#endif
 	vios_bridge_boot();
 	vios_bridge_handoff();
 }
@@ -172,6 +178,7 @@ void do_keyboard() {
 	uint8_t vk;
 	uint8_t down;
 	if (getKeyboardKey(&keycode, &modifiers, &vk, &down)) {
+		if (vios_gui_key(keycode, modifiers, vk, down)) return;	// window manager, menus, widgets
 		// Handle some control keys
 		//
 		switch (keycode) {
@@ -192,6 +199,9 @@ void do_keyboard() {
 	else if (vios_injected_key(&keycode)) {
 		// VIOS Stage 0: host-injected key at the PS/2 boundary (down then up).
 		uint8_t press[] = { keycode, 0, 0, 1 }, release[] = { keycode, 0, 0, 0 };
+		bool used = vios_gui_key(keycode, 0, 0, 1);
+		vios_gui_key(keycode, 0, 0, 0);
+		if (used) return;
 		vios_probe_key(keycode);
 		processor->send_packet(PACKET_KEYCODE, sizeof press, press);
 		processor->send_packet(PACKET_KEYCODE, sizeof release, release);

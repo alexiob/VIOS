@@ -66,7 +66,7 @@ void vds_ui_forget(vds_ui *u, uint8_t id) {
     if (id >= VDS_MAX_WINDOWS) return;
     vds_ui_widgets_forget(u, id);
     if (u->focus == id) { u->focus = VDS_NONE; u->wm_mode = 0; }
-    u->zoomed &= ~(1ul << id);
+    u->zoomed &= ~((uint64_t)1 << id);
     u->window_menu[id] = VDS_NONE;
 }
 
@@ -109,9 +109,9 @@ static int cycle(vds_ui *u, int backwards) {
 static void zoom(vds_ui *u) {
     vds *v = core(u);
     uint8_t id = u->focus;
-    if (u->zoomed & (1ul << id)) {
+    if (u->zoomed & ((uint64_t)1 << id)) {
         apply(u, id, u->zoom_saved[id]);
-        u->zoomed &= ~(1ul << id);
+        u->zoomed &= ~((uint64_t)1 << id);
         win_event(u, VDS_WIN_RESTORED, id);
         return;
     }
@@ -120,7 +120,7 @@ static void zoom(vds_ui *u) {
     int top = (turbo ? 8 : 12) + (u->bar_shown ? 8 : 0), bottom = (turbo ? 8 : 2) + (u->status_shown ? 8 : 0);
     vds_geometry g = {8, (int16_t)top, (uint8_t)((v->width - 16) / 8), (uint8_t)((v->height - top - bottom) / 8)};
     apply(u, id, g);
-    u->zoomed |= 1ul << id;
+    u->zoomed |= (uint64_t)1 << id;
     win_event(u, VDS_WIN_ZOOMED, id);
 }
 

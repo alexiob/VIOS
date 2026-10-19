@@ -37,6 +37,25 @@ static void fill(unsigned x, unsigned y, unsigned w, unsigned h, unsigned char c
 }
 
 void vios_text_stats_reset(void) { stats.cells = stats.spans = stats.batches = stats.bytes = 0; }
+int vios_text_owns_display(void) { return 1; }
+
+/* The workbench is a full-screen window over the desktop showing the screen
+ * surface; F6 and the window manager reach the other windows. */
+#define WINDOW (VIOS_UI_WINDOWS - 1)
+static void window(int open) {
+    unsigned char close[2] = {0x57, WINDOW};
+    unsigned char show[10] = {0x50, WINDOW, VIOS_GUI_SCREEN_SURFACE, 0, 0, 0, 0, VIOS_TEXT_COLUMNS, VIOS_TEXT_ROWS, 1};
+    op(close, sizeof close);                /* refused (and harmless) when it is not open */
+    if (open) op(show, sizeof show);
+}
+void vios_text_show(void) {
+    window(1);
+    while (queued) if (!send(255 + 4)) break;
+}
+void vios_text_hide(void) {
+    window(0);
+    while (queued) if (!send(255 + 4)) break;
+}
 void vios_text_stats(struct vios_text_stats *out) { *out = stats; }
 uint32_t vios_text_generation(void) { return generation; }
 int vios_text_pending(void) { return queued != 0; }
@@ -90,7 +109,8 @@ static unsigned send(unsigned budget) {
     unsigned room = budget - 4 > 255 ? 255 : budget - 4, take = 0;
     while (take < queued) {                 /* op boundaries: sizes as in vds_proto.c */
         unsigned char c = queue[take];
-        unsigned n = c == 0x10 ? 6u + queue[take + 5] : c == 0x13 || c == 0x16 ? 8u : c == 0x01 ? 5u : 1u;
+        unsigned n = c == 0x10 ? 6u + queue[take + 5] : c == 0x13 || c == 0x16 ? 8u : c == 0x01 ? 5u :
+                     c == 0x50 ? 10u : c == 0x57 ? 2u : 1u;
         if (take + n > room) break;
         take += n;
     }
