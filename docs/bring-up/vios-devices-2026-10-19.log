@@ -1,0 +1,5 @@
+connected True
+'SLURP CR DVT @ . DVH @ CLOSE .\r\n1 4 9 16 25 36 49 \r\n18 0 \r\nok\r\nvios> '
+sink got 25 
+{'output': 'HANDLES\r\ndevice /dev/squares xt 139\r\ndevice /dev/sink xt 142\r\nio-error -\r\n\r\nok\r\nvios> ', 'ok': True, 'compiling': False, 'pending': False, 'handles': [], 'last_error': None}
+vdp width 640 height 480 colours 4 mode 1 console-dropped 0

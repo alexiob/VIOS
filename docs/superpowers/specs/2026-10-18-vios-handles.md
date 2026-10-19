@@ -93,3 +93,13 @@ shown corrupted the echo (line is redisplayed on a fresh row); the VGA
 view's backspace now crosses a row wrap. Known and accepted: handle numbers
 carry no generation, so a task's stdout handle closed by the foreground and
 reused by a later OPEN would redirect into the new object.
+
+## User-space devices (slice 3, 2026-10-19)
+
+`addr u xt DEVICE` registers `/dev/NAME` (4 entries, name <= 11 bytes;
+`xt 0` removes it). `OPEN` of a registered name creates a pipe, starts the
+word as a background task (`forth_task_start`, no Forth runs inside OPEN)
+with the far end as its stdout (read mode) or stdin (write mode), and
+returns the near end. Each end is owned by its user, so the server's exit
+gives the reader EOF and the writer's CLOSE gives the server EOF. HANDLES
+lists registered devices.

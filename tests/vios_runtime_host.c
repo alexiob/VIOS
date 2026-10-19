@@ -179,6 +179,17 @@ int main(int argc,char **argv){
   console_used=0;eval(cmd);assert(strstr(console_capture,"get -"));eval("SVH @ CLOSE DROP");
   console_used=0;eval("DIR /VIOS");assert(strstr(console_capture,"entry SVC.TXT size 5 dir 0"));
   assert(!forth_eval("HANDLE-GET 99 4")&&strstr(forth_last_error(),"bad handle"));}
+ /* User-space devices: a Forth word serves /dev/NAME through a pipe. */
+ {eval("CREATE DVB 16 ALLOT VARIABLE DVH : COUNTER 5 0 DO I 48 + EMIT LOOP ; S\" count\" ' COUNTER DEVICE");
+  eval("S\" /dev/count\" 1 OPEN DVH !");assert((eval("DVH @"),fvm_pop())>=1);
+  fcell total=0,n;char first=0;while((n=(eval("DVB 16 DVH @ READ-WAIT"),fvm_pop()))&&n<0x800000){if(!total)first=(char)(eval("DVB C@"),fvm_pop());total+=n;}
+  assert(total==5&&first=='0'&&"read device delivered the server's output then EOF");eval("DVH @ CLOSE DROP");
+  eval("VARIABLE SINKN : SINK 0 SINKN ! BEGIN KEY -1 <> WHILE 1 SINKN +! REPEAT ; S\" sink\" ' SINK DEVICE");
+  eval("S\" /dev/sink\" 2 OPEN DVH ! S\" hello\" DVH @ WRITE-ALL DROP DVH @ CLOSE DROP");
+  for(int i=0;i<50&&forth_tasks_run();++i){}
+  assert((eval("SINKN @"),fvm_pop())==5&&"write device consumed bytes until EOF");
+  console_used=0;eval("HANDLES");assert(strstr(console_capture,"device /dev/count")&&!strstr(console_capture,"handle "));
+  eval("S\" count\" 0 DEVICE");assert((eval("S\" /dev/count\" 1 OPEN"),fvm_pop())==((fcell)-5&FVM_MASK));}
  /* Handles: files, pipes between tasks, devices, ownership cleanup. */
  reset();
  #define VALUE(s) (eval(s),fvm_pop())

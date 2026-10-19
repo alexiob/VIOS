@@ -36,6 +36,7 @@ COMMANDS = {
     'LAST-ERROR': 'Show the last runtime failure: word, offset, caller frames and stacks before unwind.',
     'DIR': 'DIR path: list an SD directory.', 'HANDLE-PUT': 'HANDLE-PUT h HEX: write bytes to a handle.',
     'HANDLE-GET': 'HANDLE-GET h n: read up to 64 bytes from a handle as hex.',
+    'DEVICE': 'addr u xt DEVICE: serve /dev/NAME with a Forth word (0 removes).',
     'HANDLES': 'List open handles (files, pipes, /dev endpoints) and the last I/O error.',
     'WB-OPEN': 'Open the text workbench.',
     'WB-CONSOLE': 'Show the REPL console on VGA (home view; F1 toggles with the editor).',

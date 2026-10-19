@@ -13,6 +13,9 @@ static struct {unsigned char kind,mode,owner,slot;uint32_t moved;char path[24];}
 static struct {unsigned char data[PIPE_BYTES];unsigned short head,count;unsigned char readers,writers,used;} pipes[PIPES];
 static char snapshot[SNAPSHOT];static unsigned short snapshot_length,snapshot_offset;static int snapshot_owner=-1;
 static char last_error[48];
+/* User-space devices: /dev/NAME served by a Forth word (Plan 9 style). */
+#define DEVICES 4
+static struct {char name[12];fcell xt;} devices[DEVICES];
 static void note(const char *s){unsigned i=0;while(s[i]&&i+1<sizeof last_error){last_error[i]=s[i];++i;}last_error[i]=0;}
 static fcell code(int n,const char *message){note(message);return (fcell)(-n)&FVM_MASK;}
 static int push(fcell n){return fvm_push(n)?1:forth_error("data stack overflow");}
@@ -59,6 +62,18 @@ static int open_native(void){
   if(same(d,"tasks")){
    if(mode!=1)return push(code(E_MODE,"/dev/tasks is read only"));if(snapshot_owner>=0)return push(code(E_FULL,"snapshot device busy"));
    render_tasks();snapshot_owner=i;claim(i,H_SNAPSHOT,1,0,path);return push((fcell)(i+1));
+  }
+  for(unsigned k=0;k<DEVICES;++k)if(devices[k].xt&&same(d,devices[k].name)){
+   /* Pipe between caller and a fresh server task; each end is owned by its user. */
+   unsigned p=PIPES;for(unsigned q=0;q<PIPES;++q)if(!pipes[q].used){p=q;break;}
+   handles[i].kind=H_PIPE;int other=slot();handles[i].kind=H_FREE;
+   if(p==PIPES||other<0)return push(code(E_FULL,"no free pipe for device"));
+   pipes[p].used=1;pipes[p].head=pipes[p].count=0;pipes[p].readers=pipes[p].writers=1;
+   unsigned char near=(unsigned char)mode,far=(unsigned char)(mode==1?2:1);
+   claim(i,H_PIPE,near,(unsigned char)p,path);claim(other,H_PIPE,far,(unsigned char)p,path);
+   unsigned id=forth_task_start(devices[k].xt,far==1?(unsigned)other+1:0,far==2?(unsigned)other+1:0);
+   if(!id){release(other);release(i);return push(code(E_FULL,"no free task for device"));}
+   handles[other].owner=(unsigned char)id;return push((fcell)(i+1));
   }
   return push(code(E_PATH,"no such device"));
  }
@@ -138,6 +153,15 @@ static int io_read(unsigned h,unsigned char *c){
  return -1; /* null: EOF */
 }
 static int io_give(unsigned h,unsigned task){int i=handle(h);if(i<0)return 0;handles[i].owner=(unsigned char)task;return 1;}
+/* ( addr u xt -- ) register or replace /dev/NAME; xt 0 removes it. */
+static int device_native(void){
+ fcell xt=fvm_pop(),length=fvm_pop(),address=fvm_pop();if(fvm_error)return forth_error("data stack underflow");
+ char name[12];if(!path_copy(address,length,name,sizeof name)){fvm_error=0;return forth_error("device name is 1..11 printable bytes");}
+ int free_slot=-1;
+ for(unsigned k=0;k<DEVICES;++k){if(devices[k].xt&&same(devices[k].name,name)){devices[k].xt=xt;if(!xt)devices[k].name[0]=0;return 1;}if(!devices[k].xt&&free_slot<0)free_slot=(int)k;}
+ if(!xt)return 1;if(free_slot<0)return forth_error("device table full");
+ unsigned n=0;while(name[n]){devices[free_slot].name[n]=name[n];++n;}devices[free_slot].name[n]=0;devices[free_slot].xt=xt;return 1;
+}
 static void task_exit(unsigned id){for(int i=0;i<HANDLES;++i)if(handles[i].kind!=H_FREE&&handles[i].owner==id)release(i);}
 static void list_entry(const char *name,unsigned long size,int directory,void *ctx){
  (void)ctx;vios_out("entry ");vios_out(name);vios_out(" size ");vios_uint((uint32_t)size);vios_out(directory?" dir 1\r\n":" dir 0\r\n");
@@ -176,13 +200,15 @@ void vios_handles_report(void){
   vios_out(" owner ");vios_uint(handles[i].owner);vios_out(" bytes ");vios_uint(handles[i].moved);
   if(handles[i].kind==H_PIPE){vios_out(" buffered ");vios_uint(pipes[handles[i].slot].count);}
   vios_out(" path ");vios_out(handles[i].path);vios_out("\r\n");}
+ for(unsigned k=0;k<DEVICES;++k)if(devices[k].xt){vios_out("device /dev/");vios_out(devices[k].name);vios_out(" xt ");vios_uint((uint32_t)devices[k].xt);vios_out("\r\n");}
  vios_out("io-error ");vios_out(last_error[0]?last_error:"-");vios_out("\r\n");
 }
 int vios_handles_init(void){
  for(int i=0;i<HANDLES;++i){if(handles[i].kind==H_FILE)storage_stream_close(handles[i].slot);handles[i].kind=H_FREE;}
  for(unsigned p=0;p<PIPES;++p)pipes[p].used=0;snapshot_owner=-1;last_error[0]=0;
+ for(unsigned k=0;k<DEVICES;++k){devices[k].xt=0;devices[k].name[0]=0;}
  forth_register_task_exit(task_exit);forth_register_task_io(io_write,io_read,io_give);
- static const struct {const char *name;int (*fn)(void);} natives[]={{"OPEN",open_native},{"CLOSE",close_native},{"READ",read_native},{"WRITE",write_native},{"PIPE",pipe_native}};
+ static const struct {const char *name;int (*fn)(void);} natives[]={{"OPEN",open_native},{"CLOSE",close_native},{"READ",read_native},{"WRITE",write_native},{"PIPE",pipe_native},{"DEVICE",device_native}};
  for(unsigned k=0;k<sizeof natives/sizeof natives[0];++k)if(!forth_register_native(natives[k].name,natives[k].fn,FORTH_NATIVE_TASK))return 0;
  /* Blocking is replaceable Forth policy over the non-blocking primitives. */
  return forth_eval(": READ-WAIT >R BEGIN 2DUP R@ READ DUP -1 = WHILE DROP PAUSE REPEAT R> DROP >R 2DROP R> ; "

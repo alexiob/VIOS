@@ -429,19 +429,26 @@ int forth_task_info(unsigned id,struct forth_task_info *o) {
 static int task_id(fcell id){if(!id||id>FORTH_TASKS_MAX)return fail("invalid task id");return 1;}
 /* console=1 sends the task's EMIT/./CR output to the shared console (and the
  * VGA view) instead of its ring: for applications such as AUTORUN. */
-static int spawn(int console) {
- fcell xt=fvm_pop();if(fvm_error)return fail(vm_message());
- if(observer_active||transaction_active)return fail("SPAWN unavailable here");
- if(!xt||xt>count)return fail("invalid execution token");
+/* Prepare a free slot without running Forth; returns 1..N or 0. */
+static unsigned task_start(fcell xt,int console,unsigned in_handle,unsigned out_handle) {
+ if(observer_active||transaction_active||!xt||xt>count)return 0;
  for(unsigned i=0;i<FORTH_TASKS_MAX;++i) {
   struct task *t=&tasks[i];
   if(t->state==TS_READY||t->state==TS_SLEEPING||(int)i==running)continue;
   t->xt=xt;t->depth=t->rdepth=t->ldepth=0;t->ip=entry_ip((unsigned)(xt-1));t->ds_peak=t->rs_peak=0;
   t->wake=t->slices=t->steps=0;t->out_head=t->out_count=0;t->out_dropped=0;t->error[0]=0;t->console=(unsigned char)console;
-  t->in_handle=t->out_handle=t->finishing=0;t->state=TS_READY;
-  return fvm_push((fcell)(i+1))?1:fail(vm_message());
+  t->in_handle=(unsigned char)in_handle;t->out_handle=(unsigned char)out_handle;t->finishing=0;t->state=TS_READY;
+  return i+1;
  }
- return fail("no free task slot");
+ return 0;
+}
+unsigned forth_task_start(fcell xt,unsigned in_handle,unsigned out_handle){return task_start(xt,0,in_handle,out_handle);}
+static int spawn(int console) {
+ fcell xt=fvm_pop();if(fvm_error)return fail(vm_message());
+ if(observer_active||transaction_active)return fail("SPAWN unavailable here");
+ if(!xt||xt>count)return fail("invalid execution token");
+ unsigned id=task_start(xt,console,0,0);if(!id)return fail("no free task slot");
+ return fvm_push((fcell)id)?1:fail(vm_message());
 }
 static int native_spawn(void){return spawn(0);}
 /* Memory and output helpers through checked VM accessors. */

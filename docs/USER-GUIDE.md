@@ -56,7 +56,15 @@ DIR /VIOS                                  \ list a directory
 LOAD /VIOS/APP.FTH                         \ run a source file
 ```
 
-Devices: `/dev/null`, `/dev/cons` (write), `/dev/tasks` (read). `HANDLES`
+Devices: `/dev/null`, `/dev/cons` (write), `/dev/tasks` (read). Any Forth
+word can serve a device of your own, Plan 9 style:
+
+```forth
+: COUNTER 10 0 DO I . LOOP ;
+S" count" ' COUNTER DEVICE       \ reading /dev/count runs COUNTER
+: SINK BEGIN KEY DUP -1 <> WHILE EMIT REPEAT DROP ;
+S" sink" ' SINK DEVICE           \ writing /dev/sink feeds SINK's KEY
+``` `HANDLES`
 lists open handles and the last I/O error.
 
 ## When something goes wrong

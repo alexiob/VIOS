@@ -45,6 +45,9 @@ struct forth_task_info {
  uint32_t slices,steps;unsigned output_bytes,output_dropped;
 };
 int forth_task_info(unsigned id,struct forth_task_info *out);
+/* Start xt as a background task with handles as stdin/stdout (0 = none),
+ * without running Forth now; returns its id or 0 (no slot / not allowed). */
+unsigned forth_task_start(fcell xt,unsigned in_handle,unsigned out_handle);
 int forth_error(const char *message);
 fcell forth_find_xt(const char *name);
 const char *forth_xt_name(fcell xt);
