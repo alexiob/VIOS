@@ -108,7 +108,9 @@ void setup() {
 	// An unsolicited packet here could wait on an old/halted CPU RTS forever.
 	#if VIOS_GUI_BOOT
 	vios_display_mode0();					// GUI first: desktop before the CPU loads
-	if (!vios_gui_start()) { set_mode(1); boot_screen(); }
+	if (!vios_gui_start()) {				// no server: the full-screen console in mode 0
+		if (videoMode == 0) vios_console_view(1); else { set_mode(1); boot_screen(); }
+	}
 	#else
 	set_mode(1);
 	boot_screen();

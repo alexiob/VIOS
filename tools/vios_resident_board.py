@@ -289,6 +289,23 @@ class ResidentBoard(ViosBoard):
             lines.append(line[8:])
         return {'rows': lines}
 
+    def esp_gui(self, vk=None, ascii=0, mods=0, pixels=()):
+        """GUI display server on the ESP: its status line; with vk, press and release
+        one key through the window manager (used or not; never forwarded to the CPU); with
+        pixels, the framebuffer colour index at each [x, y]."""
+        result = {'status': self._esp(b'GS')}
+        if vk is not None:
+            if not all(type(n) is int and 0 <= n <= 255 for n in (vk, ascii, mods)):
+                raise ValueError('vk, ascii and mods must be 0..255')
+            used = [self._esp(b'GK%02X%02X%02X%02X' % (ascii, mods, vk, down)) for down in (1, 0)]
+            result['used'] = used[0] == 'GK used'
+            result['status'] = self._esp(b'GS')
+        if pixels:
+            if len(pixels) > 64 or not all(len(p) == 2 and 0 <= p[0] < 640 and 0 <= p[1] < 480 for p in pixels):
+                raise ValueError('up to 64 [x, y] pairs inside 640x480')
+            result['pixels'] = [int(self._esp(b'GP%03X%03X' % (x, y)).split()[1]) for x, y in pixels]
+        return result
+
     def esp_g0(self, mode=None, reset_gap=False):
         """GUI gate G0 probe on the ESP: run it for VDP mode `mode` and return its lines,
         or with reset_gap restart the VDP loop-gap maximum."""

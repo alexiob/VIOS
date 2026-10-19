@@ -1,7 +1,7 @@
 {
   "firmware": "firmware/esp32-vios/.pio/build/esp32-vios/firmware.bin",
-  "size": 767296,
-  "sha256": "512c92aaf60a8cdf50a03933c41bc7fdb73476451606c026c7e6da465ce21325",
+  "size": 767328,
+  "sha256": "4ea54cceb715979b7e2582902c11a0da899d1d5e446674e6ecd61964a9cc1579",
   "app0_offset": 65536,
   "app0_limit": 1310720,
   "embedded_vios": {
@@ -60,7 +60,7 @@
     "firmware/esp32-vios/include/vios_zdi.h": "bd96b014827acc591db586c3fbf43980d87cacbba907cf228c9e7c2d7c9baff6",
     "firmware/esp32-vios/include/vios_console_vdp.h": "ce9e73ba102179c6b2b3d7a5cad37328eb51aa05ff1ad8fbd39dd47e1a4f50d1",
     "firmware/esp32-vios/include/vios_image.h": "e5a4c016cfc62d8eaf02b1ec2b4387db5eae32bd12ade64d10496a25ca725bda",
-    "firmware/esp32-vios/include/vios_gui.h": "85bc3595f52b441b219ba21efb5950388d74774b7b984085b0f9bfda35b219b6",
+    "firmware/esp32-vios/include/vios_gui.h": "c3a4826fadd8151d6478df08af4a643f28e8948274f57c018af98cd6b5bcaaa9",
     "firmware/esp32-vios/include/vios_bridge_api.h": "8d29e019deb9c3b07b317a4671a29efa65fcbb8a61b04d919940445765e8cdd5",
     "firmware/esp32-vios/include/vios_console_vds.h": "2f2fb257e3beb7526d06050e5ef960ca96b6dad4a3a2929d07aaab98c7f80125",
     "firmware/esp32-vios/vendor/agon-vdp/video/vdu_buffered.h": "3688b5a08f60612ec054b4bdc1744e6ca9f6b467519999e2fd772f1ec2c76662",
@@ -74,7 +74,7 @@
     "firmware/esp32-vios/vendor/agon-vdp/video/vdu.h": "6f817a09abcc07711e2081cadc31598951e4b5e157edeeb864252b62393e9160",
     "firmware/esp32-vios/vendor/agon-vdp/video/viewport.h": "ce64e2eb1c8d4f59bd1da241ec4477951336d66b8bd6b224c0f319b7eb5b45ea",
     "firmware/esp32-vios/vendor/agon-vdp/video/multi_buffer_stream.h": "e13772b9ca486416039531533d9e80d2411b2c635aca0ec287204425af01e829",
-    "firmware/esp32-vios/vendor/agon-vdp/video/video.ino": "5ef916a2c643a4aedf4eca09b92c5aaa5e03ca9dbbfa930977b1e16e55e1c530",
+    "firmware/esp32-vios/vendor/agon-vdp/video/video.ino": "2ca87b4e5cb09f3098d074a5712360f2411055c2be05b89f078ae990d2f464cb",
     "firmware/esp32-vios/vendor/agon-vdp/video/vdu_sys.h": "f8958eb9627d08b12e1304f2141e6d04ae88b634d0e8fc359ed1e2ec7faf94ca",
     "firmware/esp32-vios/vendor/agon-vdp/video/OneWire_direct_gpio.h": "e95adb8fd2c0e5e1b7134b1bd9abe045264c51282fb4c00174c5519a820df8f4",
     "firmware/esp32-vios/vendor/agon-vdp/video/agon_fonts.h": "7032c2fb92a7c38f7c12e875648500aca87ea4c96f58a199304adc5fc6526d1b",

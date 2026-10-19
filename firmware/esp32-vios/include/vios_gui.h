@@ -26,6 +26,7 @@ void vios_display_lock();
 void vios_display_unlock();
 void vios_frame_kick();
 
+static const uint8_t VIOS_GUI_SCREEN_WINDOW = 26;   // text_screen_vds.c: the workbench
 static vds vios_gui_vds;
 static vds_proto *vios_gui_proto;
 static vds_ui *vios_gui_ui;
@@ -126,6 +127,10 @@ bool vios_gui_key(uint8_t ascii, uint8_t modifiers, uint8_t vk, uint8_t down) {
         return true;
     }
     if (!vios_gui_on) return false;
+    /* The CPU's full-screen workbench window owns the keyboard while open: its
+     * F5/F6/F10 are stage/activate/close, not zoom/focus/menu. */
+    const vds_window *screen = &vios_gui_vds.windows[VIOS_GUI_SCREEN_WINDOW];
+    if (screen->used && (screen->flags & VDS_W_VISIBLE)) return false;
     vios_display_lock();
     bool used = vds_ui_key(vios_gui_ui, ascii, modifiers, vk, down);
     vios_display_unlock();

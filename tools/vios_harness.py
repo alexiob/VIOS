@@ -89,6 +89,9 @@ TOOLS = [
          {'rows':{'type':'integer','minimum':1,'maximum':59}}),
     tool('esp_g0','GUI windows gate G0 probe on the ESP: heap with compositor pools after a mode change (0, 1 or 129), and in mode 0 a 4 bpp blitter benchmark, the scanline map and a beam tear test. Draws probe glyphs, then restores mode 1 and the console. reset_gap=true restarts the VDP loop-gap maximum.',
          {'mode':{'type':'integer','enum':[0,1,129]},'reset_gap':{'type':'boolean'}}),
+    tool('esp_gui','GUI display server on the ESP: status line (windows, frames, rows, errors, style); vk presses and releases one key (ascii, mods as on the wire) through the window manager (Ctrl+Alt+F1 toggles the GUI; unused keys are not forwarded to the CPU); pixels returns framebuffer colour indices at up to 64 [x,y] points.',
+         {'vk':{'type':'integer','minimum':0,'maximum':255},'ascii':{'type':'integer','minimum':0,'maximum':255},'mods':{'type':'integer','minimum':0,'maximum':255},
+          'pixels':{'type':'array','maxItems':64,'items':{'type':'array','minItems':2,'maxItems':2,'items':{'type':'integer','minimum':0}}}}),
     tool('esp_inject','Type 1..32 characters at the ESP PS/2 boundary as if on the Agon keyboard (printable, BS, TAB, CR, ESC). Lines typed this way appear in events.',
          {'text':{'type':'string','minLength':1,'maxLength':32}},['text']),
 ]

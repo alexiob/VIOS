@@ -87,6 +87,11 @@ int main(int argc, char **argv) {
     agree(t);
     assert(cells[0].attr == 0x42 || cells[0].ch == ' ');
     matches_full_render();
+    /* The workbench window (26, full screen, opened later) stacks above the console. */
+    static vds_cell screen[80 * 60];
+    assert(vds_surface_init(&v, 10, 80, 60, screen, 0x30));
+    assert(vds_window_open(&v, 26, 10, 0, 0, 80, 60, VDS_W_VISIBLE, ""));
+    assert(v.order[v.count - 1] == 26 && vds_hit(&v, 320, 300, nullptr) == 26);
     printf("console on vds checks passed\n");
     return 0;
 }
