@@ -102,6 +102,20 @@ handled by beam-ordered composition (§5.5). **Fallback:** mode 129 (4 colours,
 double buffered) if G0 shows tearing that cannot be fixed. **Last resort:** mode 1
 with a 4-colour theme.
 
+**Palette compatibility (mode 0):** on entering mode 0, VIOS pins palette
+entries 0–3 to today's mode 1 colours (black, red, yellow, white). Every existing
+`attr` value then keeps its meaning:
+
+- `text_screen.c`'s default `attr=3`;
+- the workbench styles;
+- custom `WB-PAINT` painters;
+- the Stage 1c console renderer.
+
+Theme roles use indices 4–15. Tools and tests that assert `colours 4 mode 1` must
+be updated in G1: `tools/vios_resident_acceptance.py` ("Pinned nonlegacy mode 1"),
+the `VDP-INFO` fixture in `tests/test_vios_resident_acceptance.py`, and the
+fast-display and console acceptance tools.
+
 **Gate G0:** nobody has measured the ESP's free internal heap after a mode change.
 The pio report gives only the static use, *measured* at 44,332 B of 327,680 B. G0
 reads the free heap and the largest free block (`heap_caps_*`, already planned for
@@ -158,7 +172,9 @@ event is lost, which is acceptable.
   a surface or canvas, with a scroll offset. Pools are fixed at init, starting at
   32 windows.
 - **Surface:** a `cols×rows` cell grid `(ch, attr)` in PSRAM with per-row dirty
-  spans, as in the existing §6. `attr` grows to `fg4 | bg4` for 16 colours.
+  spans, as in the existing §6. The `attr` layout is unchanged (`fg | bg<<4`
+  palette indices, already 16-colour-capable); indices 4–15 become meaningful in
+  mode 0.
 - **Canvas:** a retained display list (lines, rects, fills, ellipses, text, bitmap
   refs). An optional pixel backing store takes 4 bpp × w × h in PSRAM.
 - **Overlays:** menus, tooltips, the drag outline and the pointer. These are
@@ -187,7 +203,8 @@ cell-aligned glyph row is one 32-bit store.
 - The damage list is bounded at 32 rects. On overflow, the closest pair merges
   into its bounding box, so the list never grows without bound.
 - Each window keeps a **visible region**: its rect minus the opaque rects above
-  it, as a short rect list. It is recomputed only when geometry or z-order changes
+  it (a window's shadow band is translucent, so it is never part of the opaque
+  rect, but it is part of the window's move damage), as a short rect list. It is recomputed only when geometry or z-order changes
   (O(windows²), with ≤32 windows).
 - Composition intersects each damage rect with each window's visible region,
   top-down, and rasterises only those pieces. Each pixel is written once per frame.
@@ -204,6 +221,9 @@ cell-aligned glyph row is one 32-bit store.
 - At 4 bpp, each `(fg, bg)` pair gets a lookup table of 256 entries × u32 (1 KB),
   mapping one font byte to 8 pixels. Eight cached pairs take 8 KB of internal RAM.
 - One cell is then 8 × (font-byte load → table lookup → aligned 32-bit store).
+  The VGA16 row layout is plain bytes with the high nibble as the left pixel
+  (`VGA16_SETPIXELINROW` in `vga16controller.cpp`) and no word swap. On the
+  little-endian ESP32, table entry byte 0 therefore holds pixels 0 and 1.
 - *Estimate:* about 100 cycles per cell at 240 MHz. A full 4800-cell screen
   would take about 2 ms, and a 40×20-cell window move (old plus new rect, about
   1600 cells) under 1 ms.
@@ -227,6 +247,16 @@ cell-aligned glyph row is one 32-bit store.
 - **Double-buffered (mode 129 fallback):** compose into the back buffer, then
   `swapBuffers` at vertical blank. The back buffer is two frames stale, so it must
   also receive the previous frame's damage (buffer age 2).
+- **How the compositor gets control:** the existing design runs VDS inside the
+  VDP task's `loop()`. Here the paletted controller's vertical-blank interrupt
+  sets a flag or gives a semaphore, and the VDP task starts the frame at its next
+  check between VDU commands.
+  - That start latency is bounded by the longest VDU primitive in flight.
+  - Legacy primitives may also execute at blank (`setProcessPrimitivesOnBlank`),
+    competing for the same window.
+  - The paletted ISR converts framebuffer lines into DMA line buffers a few lines
+    ahead of scanout, so "ahead of the beam" means ahead of that conversion lead.
+  - G0 measures both the vertical-blank → compositor-start latency and the lead.
 - **Budget:** at most 4 ms of compositing per 16.7 ms frame, so UART parsing and
   the VDP task are never starved.
 - **Exit test (G0):** a scripted window drag must show zero torn frames, checked
@@ -364,9 +394,10 @@ with hit testing on the ESP.
 - fabgl's mouse is a PS/2 device on ESP **GPIO26/27**. On this board those pins
   carry the **ZDI recovery wires**: a "USB mouse" here means a PS/2 mouse on
   those pins.
-- The other free header pins seen in `docs/research/hardware.md` include GPIO35
-  and GPIO36. On the ESP32 those are **input-only**, so they can drive neither
-  ZDI nor PS/2's bidirectional clock and data lines.
+- The expansion header (Rev. B, `docs/research/hardware.md`) exposes ESP GPIO26,
+  27, 35, 36, 37, 38 and 39. GPIO34–39 are **input-only** on the ESP32, so
+  **26/27 are the only exposed output-capable ESP pins**. ZDI cannot move
+  elsewhere, and neither can PS/2's bidirectional clock and data.
 - **Enabling the mouse therefore removes the independent ESP→eZ80 recovery
   route** that the handoff relies on (forced reboot of a wedged CPU, register and
   memory inspection).
@@ -433,7 +464,9 @@ gains the window id and window-local coordinates.
 
 Baselines *measured* on the board on 2026-10-19:
 
-- full workbench compose on the CPU: 39.0 ms (it was 125.7 ms on Oct 16);
+- full workbench compose on the CPU: 39.0 ms (it was 125.7 ms on Oct 16). Same
+  method (`WB-REPAINT WB-COMPOSE`) and a similar 1969-byte fixture (WBM1P), not
+  the benchmark's `WBFAST`/MODULES scene;
 - idle key-to-glyph: 1.0 / 1.3 ms (median/p95, Stage 1c);
 - console flood: 7058 glyphs/s.
 
@@ -463,8 +496,8 @@ Effort figures are rough, for one focused developer-agent.
 
 | Stage | Work | Accept | Effort |
 |---|---|---|---|
-| **G0: gates** | Heap after mode 0/129/1 with pools; 4 bpp blitter microbenchmark; vertical-blank hook prototype racing the beam | Heap ≥ 24 KB free in the chosen mode; blitter cells/ms measured; tear test passes or the fallback is chosen | 1–2 days |
-| **G1: compositor core** (replaces old 1b) | Windows plus cell surfaces, dirty rects, occlusion, shade table, pixel frames, 60 Hz frame loop; console and editor become two windows; `RAW` hand-back kept | B4 parity or better; B12; console acceptance unchanged | 1–2 weeks |
+| **G0: gates** | Heap after mode 0/129/1 with pools; 4 bpp blitter microbenchmark; vertical-blank hook prototype racing the beam; vertical-blank → compositor-start latency and ISR line lead | Heap ≥ 24 KB free in the chosen mode; blitter cells/ms measured; tear test passes or the fallback is chosen | 1–2 days |
+| **G1: compositor core** (replaces old 1b) | Mode 0 with palette 0–3 pinned; acceptance tools updated for 16 colours; windows plus cell surfaces, dirty rects, occlusion, shade table, pixel frames, 60 Hz frame loop; console and editor become two windows; `RAW` hand-back kept | B4 parity or better; B12; console acceptance unchanged | 1–2 weeks |
 | **G2: window manager** | Decorations, move/resize/raise/min/max, keyboard WM mode, focus cycling, modal dialogs, `WIN` events, geometry in `UI-SNAPSHOT` | B10; all §8 window keys | 1–2 weeks |
 | **G3: commands and menus** | Command table, menu bar, pulldowns, context menu, accelerators, mnemonics, palette, status line; workbench actions exposed as commands | B11; every workbench action reachable by menu, accelerator and palette | 1–2 weeks |
 | **G4: widgets and client** | Widget set and layout (§7); `kernel/vios_ui.c`; `UI` vocabulary; `/dev/win`; workbench panes ported (old Stage 3) | B7 and B14; CPU RAM reclaim per §11 | 2–3 weeks |
