@@ -50,9 +50,12 @@ typedef struct {
     uint8_t title_fg, title_fg_inactive, tab, tab_inactive;
 } vds_style;
 
+enum { VDS_CURSOR_OFF = 0, VDS_CURSOR_BLOCK = 1, VDS_CURSOR_UNDERLINE = 2, VDS_CURSOR_BAR = 3 };
+
 typedef struct {
     uint8_t cols, rows;
     vds_cell *cells;            /* cols * rows, owned by the adapter */
+    uint8_t cur_col, cur_row, cur_shape, cur_blink;     /* text caret, blinked locally */
 } vds_surface;
 
 typedef struct {
@@ -90,6 +93,8 @@ typedef struct vds {
     struct { uint8_t attr, valid; uint32_t px[256]; } lut[VDS_LUT_SLOTS];
     uint8_t lut_next;
     vds_stats stats;
+    uint32_t blink_ms;          /* time since the last blink phase change */
+    uint8_t blink_on;
     void (*row_written)(void *ctx, int16_t y);  /* optional probe hook */
     void *row_ctx;
 } vds;
@@ -105,6 +110,10 @@ int vds_surface_init(vds *v, uint8_t id, uint8_t cols, uint8_t rows, vds_cell *c
 int vds_put(vds *v, uint8_t id, uint8_t col, uint8_t row, uint8_t attr, const char *text, size_t n);
 int vds_fill(vds *v, uint8_t id, uint8_t col, uint8_t row, uint8_t w, uint8_t h, uint8_t ch, uint8_t attr);
 int vds_scroll(vds *v, uint8_t id, int dy, uint8_t attr);  /* whole surface; dy > 0 moves up */
+int vds_cursor(vds *v, uint8_t id, uint8_t col, uint8_t row, uint8_t shape, uint8_t blink);
+/* Advance local time: blinking carets change phase every VDS_BLINK_MS. */
+#define VDS_BLINK_MS 500
+void vds_tick(vds *v, uint32_t ms);
 
 /* Windows. x, y is the client origin; x snaps unless VDS_W_FREE_X or snap 1. */
 int vds_window_open(vds *v, uint8_t id, uint8_t surface, int16_t x, int16_t y,
@@ -115,6 +124,7 @@ int vds_window_raise(vds *v, uint8_t id);
 int vds_window_flags(vds *v, uint8_t id, uint8_t flags);
 int vds_window_scroll(vds *v, uint8_t id, uint8_t col, uint8_t row);
 int vds_window_title(vds *v, uint8_t id, const char *title);
+int vds_window_surface(vds *v, uint8_t id, uint8_t surface);
 int vds_window_close(vds *v, uint8_t id);
 vds_rect vds_window_outer(const vds *v, uint8_t id);    /* incl. title tab and shadow */
 

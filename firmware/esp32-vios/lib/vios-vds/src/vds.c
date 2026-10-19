@@ -189,8 +189,18 @@ static void client_row(vds *v, const vds_window *w, int y, int x0, int x1) {
     for (int c = first; c < last; ++c) {
         int sc = c + w->scroll_col;
         vds_cell cell = {' ', blank};
-        if (s && s->cells && srow < s->rows && sc < s->cols) cell = s->cells[srow * s->cols + sc];
-        glyph(v, w->x + c * 8, v->font[cell.ch * 8 + grow], cell.attr, x0, x1);
+        uint8_t bits;
+        if (s && s->cells && srow < s->rows && sc < s->cols) {
+            cell = s->cells[srow * s->cols + sc];
+            bits = v->font[cell.ch * 8 + grow];
+            if (s->cur_shape && sc == s->cur_col && srow == s->cur_row && (!s->cur_blink || v->blink_on)) {
+                if (s->cur_shape == VDS_CURSOR_BLOCK) cell.attr = (uint8_t)(cell.attr >> 4 | cell.attr << 4);
+                else if (s->cur_shape == VDS_CURSOR_UNDERLINE && grow >= 6) bits = 0xFF;
+                else if (s->cur_shape == VDS_CURSOR_BAR) bits |= 0xC0;
+            }
+        } else
+            bits = v->font[cell.ch * 8 + grow];
+        glyph(v, w->x + c * 8, bits, cell.attr, x0, x1);
     }
 }
 
@@ -343,6 +353,7 @@ int vds_init(vds *v, uint8_t **rows, int16_t width, int16_t height, const uint8_
     v->height = height;
     v->font = font;
     v->snap_x = 8;
+    v->blink_on = 1;
     v->style = STYLES[VDS_STYLE_SMALLTALK];
     vds_damage_all(v);
     return 1;
@@ -369,6 +380,8 @@ int vds_surface_init(vds *v, uint8_t id, uint8_t cols, uint8_t rows, vds_cell *c
     s->cols = cols;
     s->rows = rows;
     s->cells = cells;
+    s->cur_shape = VDS_CURSOR_OFF;
+    s->cur_col = s->cur_row = 0;
     for (unsigned i = 0; i < (unsigned)cols * rows; ++i) { cells[i].ch = ' '; cells[i].attr = attr; }
     damage_surface(v, id, 0, 0, cols, rows);
     return 1;
@@ -414,6 +427,29 @@ int vds_scroll(vds *v, uint8_t id, int dy, uint8_t attr) {
         for (int x = 0; x < cols; ++x) { sf->cells[y * cols + x].ch = ' '; sf->cells[y * cols + x].attr = attr; }
     damage_surface(v, id, 0, 0, cols, rows);
     return 1;
+}
+
+int vds_cursor(vds *v, uint8_t id, uint8_t col, uint8_t row, uint8_t shape, uint8_t blink) {
+    vds_surface *sf = surface(v, id);
+    if (!sf || shape > VDS_CURSOR_BAR || col >= sf->cols || row >= sf->rows) return 0;
+    if (sf->cur_shape) damage_surface(v, id, sf->cur_col, sf->cur_row, 1, 1);
+    sf->cur_col = col;
+    sf->cur_row = row;
+    sf->cur_shape = shape;
+    sf->cur_blink = blink != 0;        /* the blink phase is shared; never reset it here */
+    if (shape) damage_surface(v, id, col, row, 1, 1);
+    return 1;
+}
+
+void vds_tick(vds *v, uint32_t ms) {
+    v->blink_ms += ms;
+    if (v->blink_ms < VDS_BLINK_MS) return;
+    v->blink_ms %= VDS_BLINK_MS;
+    v->blink_on ^= 1;
+    for (uint8_t id = 0; id < VDS_MAX_SURFACES; ++id) {
+        const vds_surface *sf = &v->surfaces[id];
+        if (sf->cells && sf->cur_shape && sf->cur_blink) damage_surface(v, id, sf->cur_col, sf->cur_row, 1, 1);
+    }
 }
 
 /* ------------------------------------------------------------ windows */
@@ -494,6 +530,14 @@ int vds_window_scroll(vds *v, uint8_t id, uint8_t col, uint8_t row) {
     if (!w) return 0;
     w->scroll_col = col;
     w->scroll_row = row;
+    if (w->flags & VDS_W_VISIBLE) vds_damage(v, rect(w->x, w->y, w->cols * 8, w->rows * 8));
+    return 1;
+}
+
+int vds_window_surface(vds *v, uint8_t id, uint8_t surface_id) {
+    vds_window *w = window(v, id);
+    if (!w || (surface_id != VDS_NONE && surface_id >= VDS_MAX_SURFACES)) return 0;
+    w->surface = surface_id;
     if (w->flags & VDS_W_VISIBLE) vds_damage(v, rect(w->x, w->y, w->cols * 8, w->rows * 8));
     return 1;
 }

@@ -176,6 +176,25 @@ int main(int argc, char **argv) {
     assert(vds_sprite_undefine(&v, 3));
     matches_full_render();
 
+    /* Text caret: block inverts the cell, blinking is local time only. */
+    vds_sprite_show(&v, VDS_CURSOR_SPRITE, 0);
+    assert(!vds_cursor(&v, 0, 80, 0, 1, 0) && !vds_cursor(&v, 0, 0, 0, 4, 0));
+    assert(vds_window_open(&v, 3, 0, 400, 300, 10, 4, VDS_W_VISIBLE, ""));
+    assert(vds_cursor(&v, 0, 0, 0, VDS_CURSOR_BLOCK, 1));
+    finish();
+    for (int r = 0; r < 8; ++r)
+        for (int c = 0; c < 8; ++c) assert(px(400 + c, 300 + r) == glyph_px('H', r, c, (uint8_t)(ink >> 4 | ink << 4)));
+    vds_tick(&v, VDS_BLINK_MS);                                             /* off phase: plain glyph */
+    finish();
+    assert(px(400, 300) == glyph_px('H', 0, 0, ink));
+    matches_full_render();
+    vds_tick(&v, VDS_BLINK_MS);
+    assert(vds_cursor(&v, 0, 2, 0, VDS_CURSOR_UNDERLINE, 0));
+    finish();
+    assert(px(416, 306) == (ink & 15) && px(416, 307) == (ink & 15));
+    matches_full_render();
+    assert(vds_window_close(&v, 3) && vds_cursor(&v, 0, 0, 0, VDS_CURSOR_OFF, 0));
+
     /* Random operations, partial frames and style switches. */
     static const char *words[] = {"DUP", "SWAP", ": SQUARE DUP * ;", "LOOP", "VIOS", "ok"};
     static const unsigned seeds[] = {12345, 7, 2024};
@@ -184,7 +203,7 @@ int main(int argc, char **argv) {
     uint32_t carried_before = v.stats.carried;
     for (int step = 0; step < 3000; ++step) {
         uint8_t id = (uint8_t)(1 + rnd(5)), sid = (uint8_t)rnd(4);
-        switch (rnd(15)) {
+        switch (rnd(16)) {
         case 0: case 1: {
             const char *w = words[rnd(6)];
             vds_put(&v, sid, (uint8_t)rnd(80), (uint8_t)rnd(60), (uint8_t)(rnd(16) | rnd(16) << 4), w, strlen(w));
@@ -203,6 +222,7 @@ int main(int argc, char **argv) {
         case 9: vds_window_flags(&v, id, (uint8_t)rnd(32)); break;
         case 10: vds_window_scroll(&v, id, (uint8_t)rnd(20), (uint8_t)rnd(20)); break;
         case 11: if (!rnd(4)) vds_window_close(&v, id); else vds_window_title(&v, id, words[rnd(6)]); break;
+        case 14: if (rnd(2)) vds_cursor(&v, sid, (uint8_t)rnd(80), (uint8_t)rnd(60), (uint8_t)rnd(4), (uint8_t)rnd(2)); else vds_tick(&v, rnd(700)); break;
         case 13: if (rnd(2)) vds_sprite_move(&v, VDS_CURSOR_SPRITE, (int16_t)(rnd(660) - 10), (int16_t)(rnd(500) - 10)); else vds_sprite_show(&v, VDS_CURSOR_SPRITE, (int)rnd(2)); break;
         case 12: if (!rnd(20)) vds_set_style(&v, (uint8_t)rnd(VDS_STYLE_COUNT)); else vds_set_snap(&v, rnd(2) ? 8 : 1); break;
         default: frame(rnd(3) ? (uint32_t)(1 + rnd(40000)) : UINT32_MAX); break;
