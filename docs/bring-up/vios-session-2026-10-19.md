@@ -66,3 +66,22 @@ dictionary and have no locks; transactions are foreground-only. Pipelines
 move ~2 KB/s (per-byte trap cost). Source maps hold 640 entries; later code
 is unmapped. Physical cursor/editing/history checks and long power-cycle
 qualification are not done.
+
+## Black bars at the top of the GUI (diagnosed 2026-10-19)
+
+Probes on the board (image gui-boot-12): `esp_stats` `vga_isr_gap_max_us`,
+`vga_isr_late` (VGA16 line-ISR timing) and `top_black_frames` (GUI frames
+with colour 0 in the top 32 rows, where the desktop is colour 5).
+Data: `vios-vga-isr-2026-10-19.json`, `vios-top-black-2026-10-19.json`.
+
+- Line interrupts are never late: the longest gap is the vertical blank
+  itself (1,477-1,486 us) in every workload, flood included.
+- No black reaches the top rows when idle, in a 10,000-number console flood,
+  or with ordinary window open/move/close (0 frames).
+- Black appears only while the workbench opens and closes (21 of 129 frames).
+  The workbench is a full-screen window whose blank background is black; the
+  compositor's 3 ms frame budget repaints it top to bottom over ~13 frames
+  (~0.2 s), so a black band sweeps down. The soak opens and closes the
+  workbench every iteration, which is what was seen during the soak.
+Possible improvement (not done): paint the workbench surface before showing
+its window, or give a full-screen opaque window a larger one-off budget.

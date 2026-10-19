@@ -1,0 +1,30 @@
+{
+ "idle": {
+  "frames": 271,
+  "top_black_frames": 0,
+  "vga_isr_gap_max_us": 1481,
+  "frame_work_max": 118,
+  "vblank_start_max": 87
+ },
+ "flood_5x2000": {
+  "frames": 404,
+  "top_black_frames": 0,
+  "vga_isr_gap_max_us": 1478,
+  "frame_work_max": 4041,
+  "vblank_start_max": 107
+ },
+ "wb_cycles": {
+  "frames": 129,
+  "top_black_frames": 21,
+  "vga_isr_gap_max_us": 1477,
+  "frame_work_max": 4158,
+  "vblank_start_max": 87
+ },
+ "gui_accept_ops": {
+  "frames": 97,
+  "top_black_frames": 0,
+  "vga_isr_gap_max_us": 1477,
+  "frame_work_max": 3040,
+  "vblank_start_max": 87
+ }
+}

@@ -1,0 +1,42 @@
+{
+ "idle": {
+  "vga_isr_gap_max_us": 1477,
+  "vga_isr_late": 271,
+  "frames": 270,
+  "vblank_start_max": 87,
+  "frame_work_max": 116,
+  "parser_max": 0
+ },
+ "flood_3x2000": {
+  "vga_isr_gap_max_us": 1486,
+  "vga_isr_late": 268,
+  "frames": 287,
+  "vblank_start_max": 109,
+  "frame_work_max": 4363,
+  "parser_max": 15340
+ },
+ "wb_open_close": {
+  "vga_isr_gap_max_us": 1476,
+  "vga_isr_late": 99,
+  "frames": 100,
+  "vblank_start_max": 87,
+  "frame_work_max": 3137,
+  "parser_max": 13968
+ },
+ "typing": {
+  "vga_isr_gap_max_us": 1477,
+  "vga_isr_late": 99,
+  "frames": 119,
+  "vblank_start_max": 92,
+  "frame_work_max": 1707,
+  "parser_max": 1169
+ },
+ "text_console_flood": {
+  "vga_isr_gap_max_us": 1477,
+  "vga_isr_late": 125,
+  "frames": 126,
+  "vblank_start_max": 88,
+  "frame_work_max": 3701,
+  "parser_max": 6244
+ }
+}

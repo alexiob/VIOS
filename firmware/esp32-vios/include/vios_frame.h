@@ -21,6 +21,18 @@ static TaskHandle_t vios_frame_handle;
 static volatile uint32_t vios_vblank_stamp;
 static volatile bool vios_vblank_pending;
 static std::atomic<uint32_t> vios_frames(0), vios_frame_start_max(0), vios_frame_work_max(0);
+/* Black-bar probe: after each GUI frame, 40 framebuffer points in the top 32
+ * rows (the desktop there is never colour 0); count frames where any is 0. */
+static std::atomic<uint32_t> vios_top_black_frames(0);
+static void vios_top_black_probe() {
+    if (!vios_gui_owns_display()) return;
+    static const uint16_t xs[5] = {8, 160, 320, 480, 632};
+    for (unsigned y = 0; y < 32; y += 4)
+        for (unsigned i = 0; i < 5; ++i) {
+            uint8_t b = VdpRows::row(y)[xs[i] / 2];
+            if (((xs[i] & 1) ? b & 15 : b >> 4) == 0) { ++vios_top_black_frames; return; }
+        }
+}
 static const unsigned VIOS_FRAME_CELLS = 2800; // ~4 ms at the measured 719 cells/ms
 static const uint32_t VIOS_GUI_FRAME_US = 3000;  // compositor time per frame (stops after the row that passes it); with the console service a flood frame stays within 4 ms
 
@@ -53,7 +65,8 @@ static void vios_frame_task(void *) {
         if (!vios_gui_hold_console()) vios_console_terminal.service(vios_console_renderer.budget() > 40 ? VIOS_FRAME_CELLS : 40);
         uint32_t now_ms = millis();
         if (now_ms - last_blink >= 50) { last_blink = now_ms; vios_console_terminal.tick(now_ms); }
-        vios_gui_frame(UINT32_MAX, VIOS_GUI_FRAME_US);   // the display server, when it owns the screen: by time, robust to rate changes
+        vios_gui_frame(UINT32_MAX, VIOS_GUI_FRAME_US);
+        vios_top_black_probe();   // the display server, when it owns the screen: by time, robust to rate changes
         vios_display_unlock();
         vios_frame_raise(vios_frame_work_max, (uint32_t)esp_timer_get_time() - start);
         ++vios_frames;
@@ -72,4 +85,5 @@ void vios_frame_start() {
 void vios_frame_stats(uint32_t *frames, uint32_t *start_max_us, uint32_t *work_max_us) {
     *frames = vios_frames.load(); *start_max_us = vios_frame_start_max.load(); *work_max_us = vios_frame_work_max.load();
 }
-void vios_frame_stats_reset() { vios_frames = 0; vios_frame_start_max = 0; vios_frame_work_max = 0; }
+void vios_frame_stats_reset() { vios_frames = 0; vios_frame_start_max = 0; vios_frame_work_max = 0; vios_top_black_frames = 0; }
+uint32_t vios_frame_top_black() { return vios_top_black_frames.load(); }
