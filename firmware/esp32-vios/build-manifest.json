@@ -1,7 +1,7 @@
 {
   "firmware": "firmware/esp32-vios/.pio/build/esp32-vios/firmware.bin",
-  "size": 777296,
-  "sha256": "1ed8047dec5fafb2b4cccbcf6d678fe96126b56e091107b1b89762e2f59d79ac",
+  "size": 777312,
+  "sha256": "5d7544492ff233a037924c6e9f088458892a78f6e530a332f8be152d6931b1a9",
   "app0_offset": 65536,
   "app0_limit": 1310720,
   "embedded_vios": {
@@ -53,7 +53,7 @@
     "arch/ez80/agon_stage0.s": "1ba56634bd0abe98c98a6e48e43df58cef409cf501fe030d5e0e654f3b2cd4e9",
     "arch/ez80/agon_crc.s": "a134c06ffebaf29548cdd6465854e2c752b481c5e641850029265f7e531cdb3b",
     "firmware/esp32-vios/include/vios_g0_probe.h": "a69648d2b931913fcba50f5af077622375b313a1987ae856c24f6d580f5f4501",
-    "firmware/esp32-vios/include/vios_bridge.h": "f77880e70be4c56db92e5506e101322ffcb19c90df6348016749afff8ab03adb",
+    "firmware/esp32-vios/include/vios_bridge.h": "73ea45526801a89ec68dabd1345309dc458396680f261e6b80ceacbde7894432",
     "firmware/esp32-vios/include/vios_bootserve.h": "2bfb47555ccd72d973557fe1bbb006a97a3746cdef74424d375ae75f187d9a4d",
     "firmware/esp32-vios/include/vios_console.h": "bc6199b7beeb807429699205f253bb580b0c9067e20114202f0a4030f5b844fb",
     "firmware/esp32-vios/include/vios_frame.h": "4aafb5cc359dbf874cb085bbfe06bab5241e1a82f0b21ba361f9068a27c4e9ad",

@@ -367,7 +367,10 @@ static void flash_command(bool write,uint32_t length,uint32_t crc,uint16_t seque
     unsigned long start=millis();bool done=false;
     while(!done&&millis()-start<60000){
         delay(200);if(!cpu_halt())continue;
-        uint8_t flag;vios_zdi_read_memory(FLASH_DONE,1,&flag);done=flag==1;
+        /* A ZDI memory read moves PC: keep the stage's PC (first board run
+         * derailed the stage here and left the flash half-written). */
+        uint32_t at=vios_zdi_cpu_read(REG_PC);uint8_t flag;
+        vios_zdi_read_memory(FLASH_DONE,1,&flag);vios_zdi_cpu_write(REG_PC,at);done=flag==1;
         if(!done){vios_zdi_write_register(ZDI_BRK_CTL,0);cpu_paused=false;}
     }
     if(!done){cpu_halt();control_reply(sequence,"ERR MF stage did not finish in 60 s; flash state unknown, retry MF\r\n");return;}

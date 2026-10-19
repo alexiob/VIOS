@@ -102,13 +102,18 @@ static void native_crc(){
     regs[7]=start+vios_crc_stage_size-2;
 }
 static void inject(unsigned,uint8_t);
-static unsigned zdi_resets,flash_runs;static bool flash_hangs,flash_corrupts;
+static unsigned zdi_resets,flash_runs,flash_resumes;static bool flash_hangs,flash_corrupts,flash_derailed;
 static void vios_zdi_write_register(unsigned r,uint8_t value){
     if(r==ZDI_MASTER_CTL){assert(value==0x80);++zdi_resets;regs[7]=0;status=0x18;return;}   // a real CPU reset: MOS at 0
+    if(r==0x10&&!value&&flash_resumes&&!(regs[7]>=0x40000&&regs[7]<0x40000+vios_flash_stage_size)){flash_resumes=0;flash_derailed=true;return;}
+    if(r==0x10&&!value&&flash_resumes){   // the stage resumed where it was halted: it needs a few slices
+        if(++flash_resumes<4){regs[7]=0x40000+0x2B;return;}                   // still erasing (the PGCTL poll)
+        flash_resumes=0;uint32_t n=memory[0x70000]|memory[0x70001]<<8|memory[0x70002]<<16;
+        memset(memory,0xFF,0x20000);memcpy(memory,memory+0x50000,n);if(flash_corrupts)memory[n/2]^=1;memory[0x70003]=1;regs[7]=0x40000+0x56;return;
+    }
     if(r==0x10&&!value&&regs[7]==0x40000&&!memcmp(memory+0x40000,vios_flash_stage,vios_flash_stage_size)){   // the flash stage
         ++flash_runs;if(flash_hangs)return;
-        uint32_t n=memory[0x70000]|memory[0x70001]<<8|memory[0x70002]<<16;
-        memset(memory,0xFF,0x20000);memcpy(memory,memory+0x50000,n);if(flash_corrupts)memory[n/2]^=1;memory[0x70003]=1;return;
+        memset(memory,0xFF,0x20000);flash_resumes=1;regs[7]=0x40000+0x2B;return;  // mass erase begins
     }
     if(r==0x10){status=value?0x98:0x18;
         bool crc_loaded=!memcmp(memory+internal_base(),vios_crc_stage,vios_crc_stage_size);
@@ -333,7 +338,7 @@ static void check_flash_update(){
     incoming(cmd,133);auto f=output_frames();
     assert(flash_runs==1&&saw_event(f,"FLASH writing the eZ80 flash: do not reset or unplug\r\n"));
     std::string reply;for(auto &x:f)if(x.channel==2)reply.assign((const char*)x.payload,x.length);
-    assert(reply.rfind("MF OK ",0)==0&&reply.find("REST erased")!=std::string::npos&&!memcmp(memory,memory+0x50000,n));
+    assert(reply.rfind("MF OK ",0)==0&&reply.find("REST erased")!=std::string::npos&&!memcmp(memory,memory+0x50000,n)&&!flash_derailed);
     flash_corrupts=true;incoming(cmd,134);f=output_frames();flash_corrupts=false;                   // a bad write is reported
     for(auto &x:f)if(x.channel==2)reply.assign((const char*)x.payload,x.length);
     assert(reply.rfind("ERR MF verify",0)==0);
