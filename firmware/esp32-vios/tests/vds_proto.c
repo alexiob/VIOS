@@ -1,0 +1,185 @@
+/* Host test of the VDS wire protocol (lib/vios-vds/src/vds_proto.c): E4
+ * batches build the same screen as direct API calls; malformed batches are
+ * rejected without side effects; replies, events, hold/commit, raw mode,
+ * reset and sprite upload; random batches never crash. Usage: vds_proto FONT.bin */
+#include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "vds_proto.h"
+
+#define W 640
+#define H 480
+static uint8_t fb_a[H][W / 2], fb_b[H][W / 2], *rows_a[H], *rows_b[H];
+static uint8_t font[256 * 8];
+static vds_cell cells_a[VDS_MAX_SURFACES][80 * 60], cells_b[VDS_MAX_SURFACES][80 * 60];
+static vds va, vb;
+static vds_proto p;
+
+static vds_cell *cells(void *ctx, uint8_t id, uint16_t count) {
+    (void)ctx;
+    return id < VDS_MAX_SURFACES && count <= 80 * 60 ? cells_a[id] : 0;
+}
+
+static uint8_t last_code, last[32], last_n;
+static unsigned events, replies, error_events;
+static void send(void *ctx, uint8_t code, const uint8_t *data, uint8_t n) {
+    (void)ctx;
+    assert(n <= 30);                      /* fits the CPU's 32-byte packet slots */
+    last_code = code; last_n = n; memcpy(last, data, n);
+    if (code == VDS_PACKET_EVENT) { ++events; if (data[1] == VDS_EVENT_ERROR) ++error_events; }
+    else ++replies;
+}
+
+static void finish(vds *v) { for (int i = 0; i < 1000; ++i) if (vds_frame(v, UINT32_MAX)) return; assert(0); }
+static void same_screen(void) {
+    finish(&va); finish(&vb);
+    for (int y = 0; y < H; ++y)
+        if (memcmp(fb_a[y], fb_b[y], W / 2)) { fprintf(stderr, "protocol and API screens differ on row %d\n", y); abort(); }
+}
+
+/* Batch builder. */
+static uint8_t batch[255];
+static size_t blen;
+static void begin(void) { blen = 0; }
+static void bytes(const void *d, size_t n) { assert(blen + n <= sizeof batch); memcpy(batch + blen, d, n); blen += n; }
+static void b8(unsigned x) { uint8_t c = (uint8_t)x; bytes(&c, 1); }
+static void b16(int x) { b8((unsigned)x & 255); b8(((unsigned)x >> 8) & 255); }
+static int send_batch(void) { return vds_proto_batch(&p, batch, blen); }
+
+static unsigned seed = 99;
+static unsigned rnd(unsigned n) { seed = seed * 1103515245u + 12345u; return (seed >> 16) % n; }
+
+int main(int argc, char **argv) {
+    assert(argc >= 2);
+    FILE *f = fopen(argv[1], "rb");
+    assert(f && fread(font, 1, sizeof font, f) == sizeof font);
+    fclose(f);
+    for (int y = 0; y < H; ++y) { rows_a[y] = fb_a[y]; rows_b[y] = fb_b[y]; }
+    assert(vds_init(&va, rows_a, W, H, font) && vds_init(&vb, rows_b, W, H, font));
+    vds_proto_init(&p, &va, cells, send, 0);
+
+    /* One scene through E4 batches ... */
+    begin();
+    b8(0x01); b8(0); b8(40); b8(12); b8(0x30);                       /* surface 0: 40x12, ink 0 on 3 */
+    b8(0x10); b8(0); b8(1); b8(1); b8(0x30); b8(5); bytes("HELLO", 5);
+    b8(0x11); b8(0x03); b8(6); bytes(" WORLD", 6);                   /* MORE: inverted run continues */
+    b8(0x12); b8(0); b8(1); b8(3); b8(2); b8('O'); b8(0x31); b8('K'); b8(0x13);
+    b8(0x13); b8(0); b8(0); b8(5); b8(10); b8(2); b8('.'); b8(0x30);
+    b8(0x15); b8(0); b8(2); b8(3); b8(VDS_CURSOR_BLOCK); b8(0);
+    b8(0x50); b8(1); b8(0); b16(61); b16(50); b8(40); b8(12); b8(VDS_W_VISIBLE | VDS_W_DECOR | VDS_W_SHADOW | VDS_W_ACTIVE);
+    b8(0x54); b8(1); b8(7); bytes("Browser", 7);
+    b8(0x7A); b8(VDS_CURSOR_SPRITE); b8(0x78); b8(VDS_CURSOR_SPRITE); b16(100); b16(70); b8(0x79); b8(VDS_CURSOR_SPRITE); b8(1);
+    b8(0x30);
+    assert(send_batch() && !error_events);
+    /* ... and through the API. */
+    assert(vds_surface_init(&vb, 0, 40, 12, cells_b[0], 0x30));
+    vds_put(&vb, 0, 1, 1, 0x30, "HELLO", 5);
+    vds_put(&vb, 0, 6, 1, 0x03, " WORLD", 6);
+    vds_put(&vb, 0, 1, 3, 0x31, "O", 1); vds_put(&vb, 0, 2, 3, 0x13, "K", 1);
+    vds_fill(&vb, 0, 0, 5, 10, 2, '.', 0x30);
+    vds_cursor(&vb, 0, 2, 3, VDS_CURSOR_BLOCK, 0);
+    vds_window_open(&vb, 1, 0, 61, 50, 40, 12, VDS_W_VISIBLE | VDS_W_DECOR | VDS_W_SHADOW | VDS_W_ACTIVE, "Browser");
+    vds_sprite_define(&vb, VDS_CURSOR_SPRITE, VDS_ARROW_W, VDS_ARROW_H, 0, 0, VDS_ARROW_TRANSPARENT, vds_arrow_cursor);
+    vds_sprite_move(&vb, VDS_CURSOR_SPRITE, 100, 70);
+    vds_sprite_show(&vb, VDS_CURSOR_SPRITE, 1);
+    assert(vds_proto_frame(&p, 16, UINT32_MAX));
+    same_screen();
+
+    /* Replies: SYNC, GET, STATS. */
+    begin(); b8(0x31); b8(7); assert(send_batch());
+    assert(last_code == VDS_PACKET_REPLY && last[0] == 0x31 && last[1] == 7 && last[6] == 0 && last[7] == 0 && last[8] == 0);
+    uint16_t gen = (uint16_t)(last[4] | last[5] << 8);
+    begin(); b8(0x32); b8(0); b8(1); b8(1); b8(5); assert(send_batch());
+    assert(last[0] == 0x32 && last[1] == 5 && last_n == 12 && !memcmp((char[]){'H', 0x30, 'E', 0x30, 'L', 0x30, 'L', 0x30, 'O', 0x30}, last + 2, 10));
+    begin(); b8(0x33); b8(2); assert(send_batch());
+    assert(last[0] == 0x33 && last_n == 10 && last[7] == 1 && last[8] == 1);   /* 1 window, 1 sprite */
+
+    /* Malformed batches change nothing and report a desync. */
+    uint8_t before[H][W / 2];
+    memcpy(before, fb_a, sizeof before);
+    unsigned errs = error_events;
+    begin(); b8(0x13); b8(0); b8(0); b8(0); b8(5); b8(5); b8('#'); b8(0x30); b8(0x10); b8(0); b8(0); b8(0); b8(0x30); b8(9); bytes("SHORT", 5);
+    assert(!send_batch() && error_events == errs + 1);
+    begin(); b8(0x13); b8(0); b8(0); b8(0); b8(5); b8(5); b8('#'); b8(0x30); b8(0xEE);
+    assert(!send_batch() && error_events == errs + 2);
+    assert(vds_proto_frame(&p, 40, UINT32_MAX));
+    assert(!memcmp(before, fb_a, sizeof before));
+    begin(); b8(0x31); b8(8); assert(send_batch());
+    assert(last[7] == 1 && (uint16_t)(last[4] | last[5] << 8) == gen + 3);    /* desync seen; GET/STATS batches counted */
+    begin(); b8(0x31); b8(9); assert(send_batch()); assert(last[7] == 0);    /* cleared once reported */
+
+    /* A well-formed op on something absent is skipped; the rest applies. */
+    errs = error_events;
+    begin(); b8(0x52); b8(9); b8(0x10); b8(0); b8(1); b8(7); b8(0x30); b8(2); bytes("OK", 2); b8(0x30);
+    assert(send_batch() && error_events == errs + 1);
+    vds_put(&vb, 0, 1, 7, 0x30, "OK", 2);
+    assert(vds_proto_frame(&p, 16, UINT32_MAX));
+    same_screen();
+
+    /* Hold: nothing shows before COMMIT, unless the client stalls 33 ms. */
+    memcpy(before, fb_a, sizeof before);
+    begin(); b8(0x10); b8(0); b8(1); b8(9); b8(0x30); b8(4); bytes("HOLD", 4); assert(send_batch());
+    vds_put(&vb, 0, 1, 9, 0x30, "HOLD", 4);
+    assert(!vds_proto_frame(&p, 16, UINT32_MAX) && !memcmp(before, fb_a, sizeof before));
+    assert(vds_proto_frame(&p, 20, UINT32_MAX));                              /* 36 ms: shown anyway */
+    same_screen();
+    begin(); b8(0x10); b8(0); b8(10); b8(9); b8(0x30); b8(1); b8('!'); b8(0x30); assert(send_batch());
+    vds_put(&vb, 0, 10, 9, 0x30, "!", 1);
+    assert(vds_proto_frame(&p, 1, UINT32_MAX));                               /* committed: shown at once */
+    same_screen();
+
+    /* Raw mode: the compositor leaves the framebuffer alone, then repaints. */
+    begin(); b8(0x35); b8(1); b8(0x56); b8(1); b8(0); b8(1); b8(0x30); assert(send_batch());
+    memcpy(before, fb_a, sizeof before);
+    assert(vds_proto_frame(&p, 16, UINT32_MAX) && !memcmp(before, fb_a, sizeof before));
+    memset(fb_a, 0x77, sizeof fb_a);                                          /* legacy VDU scribbles */
+    begin(); b8(0x35); b8(0); b8(0x30); assert(send_batch());
+    vds_window_scroll(&vb, 1, 0, 1);
+    assert(vds_proto_frame(&p, 16, UINT32_MAX));
+    same_screen();
+
+    /* Sprite upload: define, pixels, move, show; config: style and snap. */
+    begin(); b8(0x76); b8(2); b8(4); b8(2); b8(0); b8(0); b8(15);
+    b8(0x77); b8(2); b16(0); b8(4); b8(0x12); b8(0x3F); b8(0xF4); b8(0x56);
+    b8(0x78); b8(2); b16(300); b16(200); b8(0x79); b8(2); b8(1);
+    b8(0x74); b8(2); b16(VDS_STYLE_TURBO); b8(0x74); b8(1); b16(1); b8(0x30);
+    assert(send_batch() && error_events == errs + 1);
+    static const uint8_t px2[4] = {0x12, 0x3F, 0xF4, 0x56};
+    vds_sprite_define(&vb, 2, 4, 2, 0, 0, 15, px2);
+    vds_sprite_move(&vb, 2, 300, 200); vds_sprite_show(&vb, 2, 1);
+    vds_set_style(&vb, VDS_STYLE_TURBO); vds_set_snap(&vb, 1);
+    assert(vds_proto_frame(&p, 16, UINT32_MAX));
+    same_screen();
+    errs = error_events;
+    begin(); b8(0x77); b8(2); b16(3); b8(2); b8(0); b8(0); assert(send_batch() && error_events == errs + 1);  /* past the end */
+    begin(); b8(0x74); b8(1); b16(4); assert(send_batch() && error_events == errs + 2);                    /* bad snap */
+
+    /* Reset drops everything and bumps the epoch. */
+    begin(); b8(0x31); b8(1); assert(send_batch());
+    uint16_t epoch = (uint16_t)(last[2] | last[3] << 8);
+    begin(); b8(0x34); b8(0x30); assert(send_batch());
+    assert(!va.count && !va.sprites[2].used && !va.surfaces[0].cells && va.style.kind == VDS_STYLE_SMALLTALK);
+    begin(); b8(0x31); b8(2); assert(send_batch());
+    assert((uint16_t)(last[2] | last[3] << 8) == epoch + 1);
+
+    /* Random batches: valid opcodes with random arguments, plus junk. */
+    static const uint8_t ops[] = {0x01, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x30, 0x31, 0x32, 0x33, 0x35, 0x50, 0x51,
+                                  0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x74, 0x76, 0x77, 0x78, 0x79, 0x7A, 0x34};
+    unsigned applied = 0;
+    for (int i = 0; i < 20000; ++i) {
+        begin();
+        unsigned nops = 1 + rnd(6);
+        for (unsigned k = 0; k < nops && blen < 200; ++k) {
+            b8(rnd(50) ? ops[rnd(sizeof ops - (rnd(40) ? 1 : 0))] : rnd(256));
+            unsigned args = rnd(12);
+            for (unsigned a = 0; a < args && blen < 254; ++a) b8(rnd(4) ? rnd(64) : rnd(256));
+        }
+        applied += (unsigned)vds_proto_batch(&p, batch, blen);
+        vds_proto_frame(&p, rnd(40), rnd(3) ? 1 + rnd(50000) : UINT32_MAX);
+        assert(va.ndamage <= VDS_MAX_DAMAGE && va.count <= VDS_MAX_WINDOWS && p.pool_used <= VDS_PROTO_POOL);
+    }
+    assert(applied > 100);
+    printf("vds protocol checks passed: %u replies, %u events, %u random batches applied\n", replies, events, applied);
+    return 0;
+}
