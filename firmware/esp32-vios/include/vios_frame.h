@@ -50,7 +50,7 @@ static void vios_frame_task(void *) {
         uint32_t start = (uint32_t)esp_timer_get_time();
         if (vblank) { vios_frame_raise(vios_frame_start_max, start - vios_vblank_stamp); vios_vblank_pending = false; }
         vios_display_lock();
-        vios_console_terminal.service(vios_console_renderer.budget() > 40 ? VIOS_FRAME_CELLS : 40);
+        if (!vios_gui_hold_console()) vios_console_terminal.service(vios_console_renderer.budget() > 40 ? VIOS_FRAME_CELLS : 40);
         uint32_t now_ms = millis();
         if (now_ms - last_blink >= 50) { last_blink = now_ms; vios_console_terminal.tick(now_ms); }
         vios_gui_frame(VIOS_GUI_FRAME_PIXELS);   // the display server, when it owns the screen

@@ -209,6 +209,44 @@ int main(int argc, char **argv) {
     matches_full_render();
     assert(vds_window_close(&v, 3) && vds_cursor(&v, 0, 0, 0, VDS_CURSOR_OFF, 0));
 
+    /* A console-like scroll in an unobscured window is a pixel row copy: only
+     * the exposed rows are composed, the result is exact, and an overlapping
+     * window or sprite makes it recompose instead. */
+    {
+        vds_window_close(&v, 1); vds_window_close(&v, 2);
+        assert(vds_window_open(&v, 3, 0, 16, 228, 74, 28, VDS_W_VISIBLE | VDS_W_DECOR | VDS_W_SHADOW, "Console"));
+        finish();
+        uint32_t blits = v.stats.blits, pixels = v.stats.pixels;
+        for (int i = 0; i < 50; ++i) {
+            char line[16]; snprintf(line, sizeof line, "line %d", i);
+            assert(vds_scroll_rect(&v, 0, 0, 0, 74, 28, 1, 0x30) && vds_put(&v, 0, 0, 27, 0x30, line, strlen(line)));
+            finish();
+        }
+        assert(v.stats.blits == blits + 50);
+        assert(v.stats.pixels - pixels <= 50u * 74 * 8 * 8 * 2);           /* exposed and new rows only */
+        matches_full_render();
+        assert(vds_window_open(&v, 4, VDS_NONE, 100, 300, 10, 4, VDS_W_VISIBLE | VDS_W_DECOR, "Over"));
+        finish(); blits = v.stats.blits;
+        assert(vds_scroll_rect(&v, 0, 0, 0, 74, 28, 2, 0x30) && v.stats.blits == blits);   /* covered: recomposed */
+        matches_full_render();
+        assert(vds_window_close(&v, 4));
+        vds_sprite_show(&v, VDS_CURSOR_SPRITE, 1); vds_sprite_move(&v, VDS_CURSOR_SPRITE, 200, 300); finish(); blits = v.stats.blits;
+        assert(vds_scroll_rect(&v, 0, 0, 0, 74, 28, -3, 0x30) && v.stats.blits == blits);
+        matches_full_render();
+        vds_sprite_show(&v, VDS_CURSOR_SPRITE, 0);
+        assert(vds_scroll_rect(&v, 0, 0, 0, 74, 28, 1, 0x30));            /* mid-frame: pending damage moves too */
+        assert(vds_put(&v, 0, 5, 10, 0x30, "pending", 7) && frame(3000) == 0);
+        assert(vds_scroll_rect(&v, 0, 0, 0, 74, 28, 3, 0x30) && vds_scroll_rect(&v, 0, 0, 0, 74, 28, -1, 0x30));
+        matches_full_render();
+        /* The caret's pixels move with the copy; its cell does not. */
+        assert(vds_cursor(&v, 0, 3, 10, VDS_CURSOR_BLOCK, 0));
+        finish();
+        assert(vds_scroll_rect(&v, 0, 0, 0, 74, 28, 1, 0x30));
+        matches_full_render();
+        assert(vds_cursor(&v, 0, 0, 0, VDS_CURSOR_OFF, 0));
+        assert(vds_window_close(&v, 3));
+    }
+
     /* Random operations, partial frames and style switches. */
     static const char *words[] = {"DUP", "SWAP", ": SQUARE DUP * ;", "LOOP", "VIOS", "ok"};
     static const unsigned seeds[] = {12345, 7, 2024};
@@ -249,6 +287,44 @@ int main(int argc, char **argv) {
     }
     matches_full_render();
     assert(v.stats.carried > carried_before + 50);    /* partial frames really carried damage */
+    }
+
+    /* Console stress: frequent scrolls (pixel copies) mixed with text, partial
+     * frames, an overlapping window, the sprite, window scrolls and modal dim. */
+    {
+        for (uint8_t id = 1; id <= 5; ++id) vds_window_close(&v, id);
+        vds_set_snap(&v, 8);
+        seed = 99;
+        assert(vds_window_open(&v, 3, 0, 16, 228, 74, 28, VDS_W_VISIBLE | VDS_W_DECOR | VDS_W_SHADOW, "Console"));
+        uint32_t blits_before = v.stats.blits;
+        for (int step = 0; step < 4000; ++step) {
+            switch (rnd(20)) {
+            case 0: case 1: case 2: case 3: case 4: case 5:
+                vds_scroll_rect(&v, 0, (uint8_t)rnd(10), (uint8_t)rnd(20), (uint8_t)(60 + rnd(20)), (uint8_t)(10 + rnd(40)), (int)rnd(7) - 3, (uint8_t)rnd(256));
+                break;
+            case 6: case 7: case 8: {
+                char line[16]; snprintf(line, sizeof line, "row %d", step);
+                vds_put(&v, 0, (uint8_t)rnd(70), (uint8_t)rnd(60), (uint8_t)(rnd(16) | rnd(16) << 4), line, strlen(line));
+                break;
+            }
+            case 9: case 10: case 11: case 12: frame((uint32_t)(1 + rnd(30000))); break;
+            case 13:
+                if (v.windows[4].used) vds_window_close(&v, 4);
+                else vds_window_open(&v, 4, rnd(2) ? 1 : VDS_NONE, (int16_t)rnd(600), (int16_t)rnd(460), (uint8_t)(1 + rnd(20)), (uint8_t)(1 + rnd(8)), (uint8_t)(VDS_W_VISIBLE | rnd(32)), "Over");
+                break;
+            case 14: if (v.windows[4].used) vds_window_move(&v, 4, (int16_t)rnd(600), (int16_t)rnd(460)); break;
+            case 15: vds_sprite_show(&v, VDS_CURSOR_SPRITE, !rnd(3)); vds_sprite_move(&v, VDS_CURSOR_SPRITE, (int16_t)rnd(640), (int16_t)rnd(480)); break;
+            case 16: vds_window_scroll(&v, 3, 0, (uint8_t)rnd(32)); break;
+            case 17: if (v.windows[4].used) vds_window_flags(&v, 4, (uint8_t)(VDS_W_VISIBLE | (rnd(2) ? VDS_W_MODAL : 0))); break;
+            case 18: vds_window_raise(&v, rnd(2) ? 3 : 4); break;
+            default: if (rnd(2)) vds_cursor(&v, 0, (uint8_t)rnd(74), (uint8_t)rnd(60), (uint8_t)rnd(4), (uint8_t)rnd(2)); else vds_tick(&v, rnd(700)); break;
+            }
+            if (step % 100 == 99) matches_full_render();
+        }
+        matches_full_render();
+        assert(v.stats.blits > blits_before + 500);       /* the pixel copy path really ran */
+        vds_window_close(&v, 3); vds_window_close(&v, 4); vds_sprite_show(&v, VDS_CURSOR_SPRITE, 0);
+        vds_cursor(&v, 0, 0, 0, VDS_CURSOR_OFF, 0);
     }
 
     /* Turbo Vision: blue dither, double frame at insets 2 and 5. */

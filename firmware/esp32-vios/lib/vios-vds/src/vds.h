@@ -84,7 +84,7 @@ typedef struct {
 } vds_sprite;
 
 typedef struct {
-    uint32_t frames, rows, spans, pixels, carried, lut_misses;
+    uint32_t frames, rows, spans, pixels, carried, lut_misses, blits;   /* blits: scrolls done as pixel row copies */
 } vds_stats;
 
 typedef struct vds {

@@ -468,6 +468,40 @@ int vds_scroll(vds *v, uint8_t id, int dy, uint8_t attr) {
     return 1;
 }
 
+/* Scroll the composited pixels of r (a window's client area, at order
+ * position `at`) by `shift` pixel rows (> 0: up) instead of recomposing them:
+ * a console scroll then costs a row copy and the exposed rows, not the whole
+ * window. Only where nothing is drawn over r (no window above, its shadow or
+ * tab included, no sprite) and r is byte aligned; a modal dim below or above
+ * is uniform over r, so it moves consistently. Pending damage inside r moves
+ * with the pixels. Returns 0 when r must be recomposed instead. */
+static int blit_scroll(vds *v, unsigned at, vds_rect r, int shift) {
+    if ((r.x & 1) || (r.w & 1)) return 0;
+    for (unsigned i = at + 1; i < v->count; ++i) {
+        uint8_t id = v->order[i];
+        if ((v->windows[id].flags & VDS_W_VISIBLE) && !empty(intersect(vds_window_outer(v, id), r))) return 0;
+    }
+    for (uint8_t s = 0; s < VDS_MAX_SPRITES; ++s)
+        if (v->sprites[s].used && v->sprites[s].visible && !empty(intersect(vds_sprite_rect(v, s), r))) return 0;
+    int n = shift > 0 ? shift : -shift;
+    if (n >= r.h) return 0;
+    unsigned pending = v->ndamage;                           /* stale pixels travel with the blit */
+    for (unsigned i = 0; i < pending; ++i) {
+        vds_rect d = intersect(v->damage[i], r);
+        if (empty(d)) continue;
+        d.y = (int16_t)(d.y - shift);
+        vds_damage(v, intersect(d, r));
+    }
+    size_t bytes = (size_t)r.w >> 1, x = (size_t)r.x >> 1;
+    if (shift > 0)
+        for (int y = r.y; y < r.y + r.h - n; ++y) memcpy(v->rows[y] + x, v->rows[y + n] + x, bytes);
+    else
+        for (int y = r.y + r.h - 1; y >= r.y + n; --y) memcpy(v->rows[y] + x, v->rows[y - n] + x, bytes);
+    vds_damage(v, shift > 0 ? rect(r.x, r.y + r.h - n, r.w, n) : rect(r.x, r.y, r.w, n));   /* exposed rows */
+    ++v->stats.blits;
+    return 1;
+}
+
 int vds_scroll_rect(vds *v, uint8_t id, uint8_t col, uint8_t row, uint8_t w, uint8_t h, int dy, uint8_t attr) {
     vds_surface *sf = surface(v, id);
     if (!sf || row >= sf->rows || col >= sf->cols || !w || !h) return 0;
@@ -482,7 +516,18 @@ int vds_scroll_rect(vds *v, uint8_t id, uint8_t col, uint8_t row, uint8_t w, uin
     int from = dy > 0 ? row + h - dy : row, count = dy > 0 ? dy : -dy;
     for (int y = from; y < from + count; ++y)
         for (int x = col; x < col + w; ++x) { sf->cells[y * cols + x].ch = ' '; sf->cells[y * cols + x].attr = attr; }
-    if (dy) damage_surface(v, id, col, row, w, h);
+    if (!dy) return 1;
+    for (unsigned i = 0; i < v->count; ++i) {
+        const vds_window *win = &v->windows[v->order[i]];
+        if (win->surface != id || !(win->flags & VDS_W_VISIBLE)) continue;
+        vds_rect cells = rect(win->x + (col - win->scroll_col) * 8, win->y + (row - win->scroll_row) * 8, w * 8, h * 8);
+        vds_rect r = intersect(intersect(cells, rect(win->x, win->y, win->cols * 8, win->rows * 8)), rect(0, 0, v->width, v->height));
+        if (!empty(r) && !blit_scroll(v, i, r, dy * 8)) vds_damage(v, r);
+    }
+    if (sf->cur_shape) {   /* the caret's pixels moved with the copy; its cell did not */
+        damage_surface(v, id, sf->cur_col, sf->cur_row - dy, 1, 1);
+        damage_surface(v, id, sf->cur_col, sf->cur_row, 1, 1);
+    }
     return 1;
 }
 
@@ -610,9 +655,15 @@ int vds_window_flags(vds *v, uint8_t id, uint8_t flags) {
 int vds_window_scroll(vds *v, uint8_t id, uint8_t col, uint8_t row) {
     vds_window *w = window(v, id);
     if (!w) return 0;
+    int dy = row - w->scroll_row, same_col = col == w->scroll_col;
     w->scroll_col = col;
     w->scroll_row = row;
-    if (w->flags & VDS_W_VISIBLE) vds_damage(v, rect(w->x, w->y, w->cols * 8, w->rows * 8));
+    if (!(w->flags & VDS_W_VISIBLE) || (same_col && !dy)) return 1;
+    vds_rect r = intersect(rect(w->x, w->y, w->cols * 8, w->rows * 8), rect(0, 0, v->width, v->height));
+    unsigned at = 0;
+    while (at < v->count && v->order[at] != id) ++at;
+    /* A vertical scroll moves the client's pixels, caret included. */
+    if (empty(r) || !same_col || !blit_scroll(v, at, r, dy * 8)) vds_damage(v, r);
     return 1;
 }
 

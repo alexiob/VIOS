@@ -157,6 +157,19 @@ bool vios_gui_console_view(uint8_t op) {
     return true;
 }
 
+/* Console backpressure (frame task, display lock held): while the compositor
+ * still carries damage from earlier frames, new console output waits in the
+ * terminal's shadow (scrolls coalesce) instead of churning a half-drawn
+ * window; at most VIOS_GUI_HOLD_FRAMES in a row, so animations cannot starve
+ * the console. */
+static const unsigned VIOS_GUI_HOLD_FRAMES = 4;
+static unsigned vios_gui_held;
+bool vios_gui_hold_console() {
+    if (!vios_gui_on || !vios_gui_vds.ndamage || vios_gui_held >= VIOS_GUI_HOLD_FRAMES) { vios_gui_held = 0; return false; }
+    ++vios_gui_held;
+    return true;
+}
+
 /* Each frame (frame task, display lock held): compose within the budget. */
 void vios_gui_frame(uint32_t budget_pixels) {
     if (!vios_gui_on) return;
