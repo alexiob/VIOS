@@ -6,6 +6,10 @@
 #pragma once
 #include "vios_bridge_api.h"
 #include "vios_image.h"
+#include "vios_bootserve.h"
+#ifndef VIOS_GUI_BOOT
+#define VIOS_GUI_BOOT 0
+#endif
 #include "vios_line.h"
 #include "vios_stage0.h"
 #include "vios/internal_uart.h"
@@ -55,6 +59,14 @@ static std::atomic<bool> cpu_paused(false);
 static bool ram_ready;
 static uint8_t native_ram_map[4];
 static bool boot_deadline_armed;
+/* User mode: no ZDI wire, MOS boots the eZ80 and its stub loads the resident
+ * from this firmware (E8). The ESP can neither halt nor reset the CPU. */
+static bool boot_user_mode;
+static std::atomic<bool> mos_phase(true);
+bool vios_boot_user_mode(){return boot_user_mode;}
+bool vios_mos_phase(){return mos_phase.load();}
+void vios_mos_phase_end(){mos_phase.store(false);}
+void vios_mos_phase_begin(){mos_phase.store(true);}
 static bool cpu_boot_ready;
 static unsigned long boot_started,boot_paused_at;
 static std::atomic<unsigned> boot_failures(0);
@@ -207,6 +219,29 @@ static void firmware_status(char *line,size_t size){
     if(!running||esp_ota_get_state_partition(running,&state)!=ESP_OK)state=ESP_OTA_IMG_UNDEFINED;
     snprintf(line,size,"FIRMWARE %s %s%s\r\n",running?running->label:"?",firmware_state_name(state),firmware_trial?" trial":"");
 }
+static void firmware_fallback(const char *reason);
+/* A trial image that crashes before its CPU can report health (a fault in
+ * setup, a panic or watchdog loop) never reaches the deadline checks above:
+ * count its unexpected restarts in RTC memory, keyed by its otadata entry, and
+ * fall back on the FIRMWARE_TRIAL_CRASHES-th. Power-on and deliberate restarts
+ * neither count nor clear; confirming clears. Runs first in setup. */
+static const unsigned FIRMWARE_TRIAL_CRASHES=3;
+RTC_NOINIT_ATTR static uint32_t trial_magic,trial_seq,trial_crashes,trial_inverse;
+static const uint32_t trial_signature=0x5654524C;
+static void trial_record(uint32_t seq,uint32_t crashes){trial_seq=seq;trial_crashes=crashes;trial_inverse=~(seq^crashes);trial_magic=trial_signature;}
+static bool reset_was_crash(int reason){
+    return reason==ESP_RST_PANIC||reason==ESP_RST_INT_WDT||reason==ESP_RST_TASK_WDT||reason==ESP_RST_WDT||reason==ESP_RST_BROWNOUT;
+}
+static void firmware_trial_start(uint32_t seq){
+    bool kept=trial_magic==trial_signature&&trial_seq==seq&&trial_inverse==~(seq^trial_crashes);
+    uint32_t crashes=kept?trial_crashes:0;
+    if(reset_was_crash(esp_reset_reason()))++crashes;
+    trial_record(seq,crashes);
+    if(crashes>=FIRMWARE_TRIAL_CRASHES){
+        char reason[64];snprintf(reason,sizeof reason,"trial restarted %u times by crashes",(unsigned)crashes);
+        trial_record(seq,0);firmware_fallback(reason);
+    }
+}
 static void firmware_init(){
     firmware_trial=false;firmware_trial_sector=-1;
     const esp_partition_t *running=esp_ota_get_running_partition();
@@ -218,6 +253,7 @@ static void firmware_init(){
     const OtaEntry &e=entries[active];
     if(!memcmp(e.label,firmware_trial_label,sizeof firmware_trial_label-1)){firmware_trial=true;firmware_trial_sector=active;}
     else firmware_trial=e.state==ESP_OTA_IMG_NEW||e.state==ESP_OTA_IMG_PENDING_VERIFY;
+    if(firmware_trial)firmware_trial_start(e.seq);
 }
 static void firmware_confirm(){
     if(!firmware_trial)return;
@@ -227,7 +263,7 @@ static void firmware_confirm(){
         if(ok){memset(e.label,0xFF,sizeof e.label);e.state=ESP_OTA_IMG_VALID;ok=otadata_write((unsigned)firmware_trial_sector,&e);}
     }else ok=esp_ota_mark_app_valid_cancel_rollback()==ESP_OK;
     if(!ok){bridge_event("ERR FIRMWARE confirm failed\r\n");return;}
-    firmware_trial=false;firmware_trial_sector=-1;char line[64];firmware_status(line,sizeof line);bridge_event("FIRMWARE confirmed\r\n");bridge_event(line);
+    trial_magic=0;firmware_trial=false;firmware_trial_sector=-1;char line[64];firmware_status(line,sizeof line);bridge_event("FIRMWARE confirmed\r\n");bridge_event(line);
 }
 static void firmware_fallback(const char *reason){
     char line[96];snprintf(line,sizeof line,"FIRMWARE rollback: %s\r\n",reason);bridge_event(line);DBGSerial.flush();delay(50);
@@ -366,7 +402,8 @@ static void control_command(uint16_t sequence,const char *command,size_t length)
         snprintf(reply,sizeof reply,"ID %04X REV %02X STAT %02X\r\n",vios_zdi_id(),vios_zdi_revision(),vios_zdi_status());control_reply(sequence,reply);return;
     }
     if(length==1&&command[0]=='B') {
-        control_reply(sequence,cpu_paused||(!cpu_boot_ready&&!boot_deadline_armed)?"BOOT HALTED\r\n":boot_deadline_armed?"BOOT STARTING\r\n":"BOOT READY\r\n");return;
+        control_reply(sequence,boot_user_mode&&!cpu_paused&&!cpu_boot_ready&&!boot_deadline_armed?"BOOT USER waiting for the MOS stub\r\n":
+            cpu_paused||(!cpu_boot_ready&&!boot_deadline_armed)?"BOOT HALTED\r\n":boot_deadline_armed?"BOOT STARTING\r\n":"BOOT READY\r\n");return;
     }
     if(length==1&&command[0]=='H') {
         if(source_used){line_reply(source_sequence,"LINE ERR halted\r\n");source_used=0;}
@@ -532,7 +569,12 @@ void vios_bridge_poll() {
         else {boot_deadline_armed=false;cpu_boot_ready=true;boot_failures=0;retain_failures(0);firmware_confirm();}
     }
     if(boot_deadline_armed&&!cpu_paused&&millis()-boot_started>=30000) {
-        boot_deadline_armed=false;cpu_boot_ready=false;++boot_failures;retain_failures(boot_failures);
+        boot_deadline_armed=false;cpu_boot_ready=false;
+        if(boot_user_mode){   // the ESP cannot reload the CPU: report, or leave a trial image
+            if(firmware_trial){firmware_fallback("CPU boot deadline");return;}
+            bridge_event("ERR CPU boot deadline in user mode; reset the board\r\n");return;
+        }
+        ++boot_failures;retain_failures(boot_failures);
         bool halted=cpu_halt();
         if(firmware_trial){firmware_fallback("CPU boot deadline");return;}
         if(boot_failures>=3)bridge_event(halted?"ERR three failed CPU boots; halted, USB recovery available\r\n":"ERR three failed CPU boots; halt failed, use Z\r\n");
@@ -617,6 +659,11 @@ static bool boot_crc_check(uint32_t internal,unsigned blocks,uint32_t expected){
     }
     return true;
 }
+unsigned vios_boot_manifest_reply(uint8_t *out){
+    if(boot_user_mode&&!boot_deadline_armed){cpu_boot_ready=false;boot_started=millis();boot_deadline_armed=true;bridge_event("BOOT stub loading the resident over the UART\r\n");}
+    return vios_boot_manifest(out,vios_image_size,vios_image_crc,VIOS_GUI_BOOT,VIOS_INTERNAL_BAUD);
+}
+unsigned vios_boot_block_reply(unsigned index,uint8_t *out){return vios_boot_block(out,vios_image,vios_image_size,index);}
 void vios_bridge_boot() {
     cpu_boot_ready=false;boot_deadline_armed=false;
     ram_ready=false;memset(native_ram_map,0,sizeof native_ram_map);
@@ -624,7 +671,12 @@ void vios_bridge_boot() {
     {char boot_event[48];snprintf(boot_event,sizeof boot_event,"BOOT VIOS VDP 1.04 mux-v1 zdi-edge %uus\r\n",(unsigned)VIOS_ZDI_EDGE_US);bridge_event(boot_event);}
     char retry_event[48];snprintf(retry_event,sizeof retry_event,"BOOT retained failures %u\r\n",boot_failures.load());bridge_event(retry_event);
     firmware_status(retry_event,sizeof retry_event);bridge_event(retry_event);
-    if(vios_zdi_id()!=0x0007||vios_zdi_revision()!=0xAA||!cpu_halt()){bridge_event("ERR CPU identity/halt; recovery control available\r\n");return;}
+    if(vios_zdi_id()!=0x0007||vios_zdi_revision()!=0xAA){   // no wire: user mode
+        boot_user_mode=true;pinMode(ZDI_TCK,INPUT);pinMode(ZDI_TDI,INPUT);
+        bridge_event("BOOT user mode: no ZDI; MOS and its stub load the resident\r\n");return;
+    }
+    boot_user_mode=false;
+    if(!cpu_halt()){bridge_event("ERR CPU identity/halt; recovery control available\r\n");return;}
     if(boot_failures>=3){bridge_event("ERR retained boot failure limit; halted, use Z\r\n");return;}
     vios_zdi_cpu_read(SET_ADL);vios_zdi_di();
     // F92 hardware: the first IN0 after a port/opcode change returns prior A.

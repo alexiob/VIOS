@@ -35,7 +35,8 @@ static std::vector<unsigned> usb_actions;
 static void note_usb(unsigned action);
 static unsigned long millis(){return now;}
 static void delay(unsigned value){if(trace_usb)note_usb(0x10000+value);now+=value;}
-static void pinMode(int,int){}
+static int pin_modes[40];
+static void pinMode(int pin,int mode){if(pin>=0&&pin<40)pin_modes[pin]=mode;}
 static void digitalWrite(int,int){}
 #define memcpy_P memcpy
 #include "runtime.h"
@@ -102,7 +103,8 @@ static void vios_zdi_write_register(unsigned r,uint8_t value){
 }
 static uint8_t vios_zdi_status(){return status;}
 static unsigned identity_reads;
-static uint16_t vios_zdi_id(){++identity_reads;return 7;}
+static bool zdi_wire=true; // false: no ZDI jumpers, the ID reads as floating lines
+static uint16_t vios_zdi_id(){++identity_reads;return zdi_wire?7:0xFFFF;}
 static uint8_t vios_zdi_revision(){return 0xAA;}
 static uint32_t vios_zdi_cpu_read(unsigned r){return r<8?regs[r]:0;}
 static void vios_zdi_cpu_write(unsigned r,uint32_t value){assert(r<8);regs[r]=value;}
@@ -211,6 +213,20 @@ static void check_firmware_ab(){
     ota_entry_at(1,4,ESP_OTA_IMG_VALID,"VIOS-TRIAL");now=1000;assert(vios_bridge_init()&&firmware_trial);vios_bridge_handoff();cpu_boot_ready=false;boot_deadline_armed=false;
     vios_bridge_poll();assert(ota_rollbacks==1);now=FIRMWARE_TRIAL_MS;vios_bridge_poll();f=output_frames();
     assert(ota_rollbacks==2&&saw_event(f,"FIRMWARE rollback: no CPU health\r\n"));
+    // A trial that crashes during start-up (no health ever) falls back on its third crash restart;
+    // power-on and deliberate restarts neither count nor clear, a new install starts from zero.
+    ota_entry_at(1,8,ESP_OTA_IMG_VALID,"VIOS-TRIAL");now=1000;unsigned before=ota_rollbacks;
+    reset_reason=0;assert(vios_bridge_init()&&firmware_trial&&trial_crashes==0);
+    reset_reason=ESP_RST_PANIC;assert(vios_bridge_init()&&trial_crashes==1);
+    reset_reason=ESP_RST_SW;assert(vios_bridge_init()&&trial_crashes==1);
+    reset_reason=ESP_RST_TASK_WDT;assert(vios_bridge_init()&&trial_crashes==2&&ota_rollbacks==before);output_frames();
+    reset_reason=ESP_RST_PANIC;assert(vios_bridge_init());f=output_frames();
+    assert(ota_rollbacks==before+1&&ota_word(1,24)==ESP_OTA_IMG_INVALID&&trial_crashes==0&&saw_event(f,"FIRMWARE rollback: trial restarted 3 times by crashes\r\n"));
+    ota_entry_at(1,10,ESP_OTA_IMG_VALID,"VIOS-TRIAL");trial_record(8,2);reset_reason=ESP_RST_PANIC;
+    assert(vios_bridge_init()&&firmware_trial&&trial_crashes==1&&ota_rollbacks==before+1);   // another install: its own count
+    vios_bridge_handoff();cpu_paused=false;vios_boot_health(1);vios_bridge_poll();output_frames();
+    assert(!firmware_trial&&trial_magic==0);                                                 // confirmed: the record is cleared
+    reset_reason=0;ota_rollbacks=before;
     // A standard NEW entry (working rollback bootloader) is a trial confirmed through the IDF call.
     ota_entry_at(1,6,ESP_OTA_IMG_NEW,nullptr);now=1000;assert(vios_bridge_init()&&firmware_trial&&firmware_trial_sector<0);vios_bridge_handoff();
     vios_boot_health(1);vios_bridge_poll();output_frames();assert(!firmware_trial&&ota_word(1,24)==ESP_OTA_IMG_VALID);
@@ -254,6 +270,35 @@ static void check_stage0_instrumentation(){
     assert(control_text("GP00A014\n",90)=="GP 14\r\n"&&control_text("GP280014\n",91)=="GP -1\r\n");
     probe_char.store(-1);
 }
+/* No ZDI wire: user mode. MOS boots the CPU, its stub pulls the resident (E8);
+ * the ESP never halts the CPU, a missed deadline is reported (no restart loop),
+ * a trial image still falls back. */
+static void check_user_mode(){
+    memset(otadata_flash,0xFF,sizeof otadata_flash);running_partition=esp_partition_t{"app0",0x10};reset_reason=0;
+    now=1000;zdi_wire=false;ESP.restarted=false;cpu_paused=false;mos_phase.store(true);
+    assert(vios_bridge_init());unsigned runs=native_runs;vios_bridge_boot();vios_bridge_handoff();
+    auto f=output_frames();
+    assert(boot_user_mode&&vios_boot_user_mode()&&!cpu_paused&&!ram_ready&&!boot_deadline_armed&&native_runs==runs);
+    assert(pin_modes[ZDI_TCK]==INPUT&&pin_modes[ZDI_TDI]==INPUT&&saw_event(f,"BOOT user mode: no ZDI; MOS and its stub load the resident\r\n"));
+    incoming("B\n",95);f=output_frames();assert(f.size()==1&&!memcmp(f[0].payload,"BOOT USER waiting for the MOS stub\r\n",36));
+    uint8_t reply[3+VIOS_BOOT_BLOCK+4];
+    assert(vios_boot_manifest_reply(reply)==16&&reply[0]=='M'&&boot_deadline_armed);    // the stub started: deadline armed
+    assert(vios_boot_block_reply(0,reply)==3+VIOS_BOOT_BLOCK+4&&!memcmp(reply+3,vios_image,VIOS_BOOT_BLOCK));
+    f=output_frames();assert(saw_event(f,"BOOT stub loading the resident over the UART\r\n"));
+    now+=30001;vios_bridge_poll();f=output_frames();
+    assert(!boot_deadline_armed&&!ESP.restarted&&!cpu_paused&&boot_failures==0&&saw_event(f,"ERR CPU boot deadline in user mode; reset the board\r\n"));
+    vios_boot_manifest_reply(reply);vios_boot_health(1);vios_bridge_poll();output_frames();assert(cpu_boot_ready&&!boot_deadline_armed);
+    // A trial image in user mode whose CPU never reports falls back.
+    ota_entry_at(1,12,ESP_OTA_IMG_VALID,"VIOS-TRIAL");running_partition=esp_partition_t{"app1",0x11};unsigned before=ota_rollbacks;
+    assert(vios_bridge_init()&&firmware_trial);vios_bridge_boot();vios_bridge_handoff();output_frames();
+    vios_boot_manifest_reply(reply);now+=30001;vios_bridge_poll();f=output_frames();
+    assert(ota_rollbacks==before+1&&saw_event(f,"FIRMWARE rollback: CPU boot deadline\r\n"));
+    // The wire back: dev mode again.
+    zdi_wire=true;ota_rollbacks=before;memset(otadata_flash,0xFF,sizeof otadata_flash);running_partition=esp_partition_t{"app0",0x10};
+    assert(vios_bridge_init());vios_bridge_boot();vios_bridge_handoff();output_frames();assert(!boot_user_mode&&ram_ready);
+    vios_mos_phase_end();assert(!vios_mos_phase());vios_mos_phase_begin();assert(vios_mos_phase());   // a restart through 0
+}
+
 static void check_line_editing(){
     bool was_paused=cpu_paused.load();cpu_paused=false;
     console_host_open=false; // earlier raw console bytes left a host line open
@@ -402,5 +447,6 @@ int main(int argc,char **argv){
     check_firmware_ab();
     check_stage0_instrumentation();
     check_line_editing();
+    check_user_mode();
     puts("bridge boot/control/ranges/CRC/fragment sequences/health checks passed");
 }

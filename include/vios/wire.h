@@ -27,6 +27,11 @@ extern "C" {
  * line (REPL line mode), bit 1 = keys are routed raw to a CPU application
  * (workbench). The ESP edits only when bit 0 is set and bit 1 is clear. */
 #define VIOS_VDU_LINE_MODE 0xE7
+/* Untethered boot (firmware/esp32-vios/include/vios_bootserve.h): the MOS-loaded
+ * stub asks for the embedded resident: op 0 manifest, op 1 index:u16 count blocks.
+ * Replies are packets FB ('M' manifest, 'B' block, 'E' no such block). */
+#define VIOS_VDU_BOOT 0xE8
+#define VIOS_PACKET_BOOT 0xFB
 #define VIOS_PACKET_CONSOLE 0xFE
 #define VIOS_PACKET_CLOCK 0xFD
 #define VIOS_PACKET_HOST 0xFC
