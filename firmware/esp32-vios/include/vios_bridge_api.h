@@ -20,7 +20,8 @@ bool vios_boot_user_mode();
 bool vios_mos_phase();
 void vios_mos_phase_end();
 void vios_mos_phase_begin();   // MOS's general poll: a restart through 0 is booting MOS again
-void vios_gui_cpu_reset();     // drop the GUI state a previous resident created (vios_gui.h)
+void vios_gui_cpu_reset();
+void vios_mos_capture(uint8_t c);  // MOS diagnostics: bytes the CPU sends after MR     // drop the GUI state a previous resident created (vios_gui.h)
 
 bool vios_cpu_is_paused();
 void vios_unsupported(const char *feature);

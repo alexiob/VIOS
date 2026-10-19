@@ -532,3 +532,53 @@ options are `--resident` (default `build/vios-resident.bin` with its
    depend on MOS at all. It is also a flash write, needs approval, and reuses
    the E8 protocol and the stub's code.
 
+## 15. Option 1 result: why the board's MOS is silent (2026-10-19, no flash writes)
+
+- **Probe:** `firmware-mos-probe-1` (`dca5ee0`), with ESP control commands `MR`,
+  `MS<n>` and `MB`, was installed into app0 and confirmed. `MR` resets the eZ80
+  through ZDI, and MOS then runs untouched. Log:
+  `docs/bring-up/vios-mos-probe-2026-10-19.jsonl`.
+- **Observed:**
+  - MOS sent 0 bytes in 15 s.
+  - All 16 PC samples, taken 3 s and 15 s after the reset, fall in
+    `0x9F45`–`0x9F97` of the flash.
+- **Disassembly of the flash backup** (`backups/ez80/original-2026-10-16.bin`):
+  - `0x9F26` is a UART0 receive loop. It polls LSR (`IN0 A,(0xC5)`), maps the
+    break, framing, parity and overrun bits to error codes, and stores each
+    byte as it arrives until it has the requested count. It has no timeout.
+  - `0x9FD1` reads one byte through it.
+  - `0x098C` loops on `0x9FD1` until it gets `0x1B` (ESC).
+  - MOS's main (`0x09ED`):
+    1. builds the UART parameters `LD BC,0x05DC00`, i.e. **384,000 baud**,
+       8N1;
+    2. initialises UART0 (`0x9E1D`);
+    3. then, unless a RAM flag at `0x0BC461` is positive, **waits for ESC
+       from the VDP** (`0x0A46` calls `0x098C`), the handshake of the first
+       Agon VDP releases;
+    4. only after that does it print, mount the SD card and run
+       `autoexec.txt`.
+- **Cause:** the VIOS ESP firmware, like stock VDP 1.04, runs the link at
+  1,152,000 baud and never sends ESC. This MOS therefore waits forever. That
+  matches the 2026-10-16 finding of no UART traffic at any rate.
+- **Caveat:** the injected `IN0` port reads in `MS` (LCR, MCR, LSR, MSR) are
+  not trusted, because of the F92's first-`IN0` quirk noted in the boot code.
+  The PCs and the code are the evidence.
+
+**Fix (path B kept, no eZ80 flash write):**
+1. **ESP, user mode after a power-on or external reset** (both chips fresh):
+   open the CPU link at 384,000 baud, then send ESC once the ESP is ready. MOS
+   waits for it, so timing does not matter. After a software restart only,
+   VIOS may be running, so the link stays at the internal rate and `FA` is
+   sent as now.
+2. **New `E8` op 2, a rate switch.** The stub sends it at 384,000 first. The
+   ESP acknowledges (`'R'` packet), drains, and switches to
+   `VIOS_INTERNAL_BAUD`. The stub then sets the UART0 divisor for 1,152,000
+   (divisor 1 at 18.432 MHz) and loads the image at full rate. VIOS starts at
+   the rate it expects.
+3. **The stub keeps the 384,000 path if the switch is not acknowledged.** The
+   load is then about 4 s slower, the resident's own UART set-up still selects
+   1,152,000, and the ESP switches when the first `E8` block request at the
+   new rate fails to arrive. To be designed in detail.
+4. **Tests:** ESP rate and ESC selection by reset reason, the op-2 handshake,
+   and the stub's divisor switch on the interpreter.
+
