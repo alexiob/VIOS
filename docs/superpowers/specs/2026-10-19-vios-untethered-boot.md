@@ -643,3 +643,107 @@ Both are flash writes that need the owner's approval. The ESP side is ready
 for either: user mode, ESC at 384,000, `E8` with its rate switch, and the
 diagnostics `MR`/`ML`/`MS`/`MB`/`MX`.
 
+## 16. Plan: update the eZ80 to Agon MOS 3.0.2 (option 2, owner-approved direction, nothing written yet)
+
+### 16.1 Versions (AgonPlatform release pages, checked 2026-10-19)
+
+- **MOS:** the latest is **3.0.2 "Arthur"**. Its minimum is VDP 1.04; it
+  works best with VDP 2.14.1 or later. Some features need a newer VDP:
+  shift-to-skip-boot needs VDP 2.11, temporary paged mode needs 2.14. The
+  boot file order is `!boot.obey`, then `autoexec.obey`, then
+  `autoexec.txt`, and moslets still run from `/mos/`.
+- **VDP:** the latest is **2.16.0 "Bistromathics"**, which works with any MOS
+  from 1.04 on, MOS 3.0.1 or later recommended. Ours is a heavily modified
+  **VDP 1.04**: the VIOS bridge, GUI, frame task, vdp-gl patches and E0–E8.
+- **`agon-flash`** (the usual in-system updater) needs a working MOS 1.03 or
+  later, so it can't be used here. **`envenomator/agon-recovery`** (MIT) is
+  the matching ZDI route: an ESP32 drives the eZ80 over the same two GPIO wires,
+  loads `MOS.bin` plus a small `flash.bin` into RAM, runs it, and checks CRCs
+  after the RAM write and after the flash write.
+
+### 16.2 What VDP 2.16 means for us
+
+- **MOS 3.0.2 runs on a 1.04-level VDP.** The base protocol (1,152,000 baud,
+  general poll `&80`, mode `&86`, RTC, keyboard packets) is what our firmware
+  already answers. Updating MOS does **not** require a new VDP.
+- **Rebasing VIOS onto VDP 2.16 is a separate, large project:**
+  - About 20 vendored files carry VIOS changes: `video.ino`, `vdu_sys.h`,
+    `vdu.h`, `vdu_stream_processor.h`, vdp-gl's VGA16 controller and memory
+    reserve.
+  - Upstream gives us MOS-side niceties: full-duplex flow control, OTA
+    `agon-flash`, the newer VDU features, and hardware sprites (which
+    VIOS's own compositor doesn't use).
+  - It also means a newer arduino-esp32 and vdp-gl, and re-validating the
+    frame budget, the 60 fps vblank task and the console blitter on the
+    board.
+  - Recommended as a follow-up evaluation, not a prerequisite.
+- **To keep in mind:** MOS 3 enables extended VDP features only when the VDP
+  reports them. Against our 1.04-level VDP it falls back cleanly; that is the
+  compatibility the release notes promise.
+
+### 16.3 ESP changes for MOS 3
+
+The user-mode link (§15.1) was built for MOS 1.02: 384,000 baud and ESC.
+MOS 1.03 and later run at 1,152,000 and start with the VDP general poll. So:
+
+1. **Probe order:** after `FA`, **listen at the internal rate for MOS's `&80`
+   poll** for about 3 s. Only then fall back to 384,000 plus ESC (kept for an
+   old MOS, and harmless).
+2. **The stub's `E8` op 2** then finds both ends already at 1,152,000. The
+   `'R'` reply is a no-op switch, so the stub needs no change.
+3. **Flow control:** check whether MOS 3 drives RTS. Full-duplex flow
+   control arrived with VDP 2.11, so against 1.04 MOS 3 may not. Keep RTS-only
+   until the stub switches, as now.
+
+### 16.4 How the flash gets written
+
+Keep our proven ZDI path and borrow only the eZ80-side flasher:
+
+1. **Host stages files:** `MOS.bin` 3.0.2 (from the release assets, sha256
+   recorded) and `flash.bin` (built from agon-recovery `src_flash`, MIT,
+   notice kept) into `backups/ez80/`.
+2. **With the wire, the ESP halts the CPU** and uploads both into external RAM
+   (`MOS.bin` at a staging address, `flash.bin` where it expects to run). It
+   uses the existing CRC'd RAM-write path (`W`), and the CPU's own CRC32 stage
+   verifies the RAM copy.
+3. **The ESP runs `flash.bin` through ZDI** and waits for its completion flag.
+   The flash is unlocked, erased by page and programmed with its own
+   controller sequence, as agon-recovery does.
+4. **Verify:** read all 128 KB of flash back through ZDI. Its CRC32 must
+   equal `MOS.bin`'s, with any tail bytes left erased (`FF`).
+5. **Reboot with the wire:** VIOS still loads over ZDI as before.
+   `MR` + `MX` then show MOS 3 booting: banner, `&80` poll, `autoexec.txt`,
+   and `viosboot` running its `E8` requests.
+6. **Then the wire-off run** (U6 again).
+
+A new ESP control command, about `MF <len> <crc>`, does steps 3–4. Steps 1–2
+reuse existing commands. The host tool is `tools/vios_ez80_flash.py`, which
+writes a JSON report next to the backup.
+
+### 16.5 Recovery
+
+- **Backup:** the original flash is `backups/ez80/original-2026-10-16.bin`
+  (131,072 bytes, sha256 `e396bfff…`). It was read twice over ZDI and the two
+  reads are identical.
+- **If anything fails,** reflash that same image with the same tool. ZDI
+  doesn't depend on flash contents: an erased or half-programmed eZ80 can
+  still be halted and loaded. The ESP's A/B slots are untouched by this, and
+  `agon-recovery` remains an independent second route.
+- **Abort rules:**
+  - Stop before any erase if the RAM CRC of either file mismatches.
+  - Never run with the wire absent; dev mode is required.
+  - Report and keep retrying the write and verify while the ESP is up; the
+    image is still in RAM.
+
+### 16.6 Steps, each with an owner checkpoint
+
+1. Fetch and pin `MOS.bin` 3.0.2 and the agon-recovery flasher; build and
+   unit-test (the interpreter runs `flash.bin` against a flash-controller
+   model); write `MF` and the host tool. No board.
+2. Dry run on the board with the wire: upload both files to RAM, verify the
+   CRCs, **don't run the flasher**.
+3. **Owner approval, then the flash write** (step 3 of §16.4) and readback
+   verification.
+4. Boot checks with the wire (VIOS over ZDI; MOS 3 under `MR`/`MX`), then
+   wire-off cold boots.
+
