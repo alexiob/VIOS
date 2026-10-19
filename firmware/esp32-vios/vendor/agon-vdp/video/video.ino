@@ -129,6 +129,7 @@ void loop() {
     		if (!cursorState && ttxtMode) ttxt_instance.flash(true);
 			cursorState = !cursorState;
 			do_cursor();
+			vios_glyph_state_valid = false;
       		if (!cursorState && ttxtMode) ttxt_instance.flash(false);
 		}
 		vios_console_tick();
@@ -141,6 +142,7 @@ void loop() {
 			if (cursorState) {
 				cursorState = false;
 				do_cursor();
+				vios_glyph_state_valid = false;
 			}
 			vios_vdp_parser_busy(true);
 			uint32_t parse_start = (uint32_t)esp_timer_get_time();

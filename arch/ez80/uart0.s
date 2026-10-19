@@ -50,6 +50,11 @@ _ez80_uart0_tx_burst:
     or b
     jr z, 6f
     ld hl, (ix+6)
+    /* THRE (LSR bit 5) means the 16-byte TX FIFO is empty: after one CTS and
+     * one THRE check, fill it with up to 16 bytes. Checking per byte left
+     * the FIFO nearly idle and cost a full RX poll per byte in send_bytes.
+     * CTS overshoot is at most 15 bytes; the ESP raises RTS with 64 bytes
+     * of RX FIFO headroom. */
 5:
     in0 a, (0xC6)
     bit 4, a
@@ -58,12 +63,16 @@ _ez80_uart0_tx_burst:
     count_overrun
     bit 5, a
     jr z, 6f
+    ld b, 16
+7:
     ld a, (hl)
     out0 (0xC0), a
     inc hl
     inc de
     dec c
-    jr nz, 5b
+    jr z, 6f
+    djnz 7b
+    jr 5b
 6:
     ex de, hl
     pop ix

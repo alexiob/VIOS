@@ -574,3 +574,26 @@ idle polls, invisible before because the CPU drew echo from its tap); host
 lines still coalesce. Typing under load stays CPU-bound until Stage 2.
 Not done from Stage 1: 1b (ESP surfaces for the editor) and the local F1
 hotkey. A 30-minute soak gate was passed by 1a; 1c's soak is in progress.
+
+## Editor repaint tuning (board, 2026-10-19, after the compose speedup merge)
+
+Full editor repaint of the plain fixture (1775 cells, 2269 VDU bytes):
+
+| Build | CPU render+send | Total | ESP parse |
+| --- | --- | --- | --- |
+| merged main (compose 37 ms) | 178 ms | 198 ms | 154-175 ms |
+| + ESP glyph-state cache | 176 ms | 196 ms | 120 ms |
+| + 16-byte UART TX FIFO fills | 170 ms | 189 ms | — |
+| + pointer-walk render loop, static batch buffer | **102 ms** | **127 ms** | — |
+
+Character edit 8 ms, newline 14 ms, scroll 10 ms (were 9/17.5/12.5).
+- ESP: `plotCharacter` re-sent clip/pen/brush/paint state before every glyph;
+  the state is now kept while consecutive printable glyphs arrive and dropped
+  on any other VDU byte, a line wrap, the cursor flash or ESP console drawing.
+- CPU: `ez80_uart0_tx_burst` fills the 16-byte TX FIFO per THRE check (CTS
+  overshoot <= 15 bytes; the ESP raises RTS with 64 bytes of headroom).
+- CPU: `vios_text_render` walks pointers and settles counters once per span;
+  its 128-byte batch buffer is static, so locals stay within IX's +-128
+  displacement (eZ80 cycle model: 141 -> 58 ms).
+The ESP's glyph drawing (~68 us per glyph through the fabgl primitive queue)
+is now the bound for full repaints; Stage 1b's direct blitter targets it.

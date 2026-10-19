@@ -19,6 +19,11 @@ Point			p1, p2, p3;						// Coordinate store for plot
 Point			rp1, rp2, rp3;					// Relative coordinates store for plot
 RGB888			gfg, gbg;						// Graphics foreground and background colour
 RGB888			tfg, tbg;						// Text foreground and background colour
+// VIOS: true while the canvas still holds the text state plotCharacter last
+// set. Glyph runs then queue only drawChar; any other VDU command, a cursor
+// wrap, the cursor flash or ESP-side drawing clears it (fabgl executes queued
+// primitives in limited time slices, so redundant state costs throughput).
+bool			vios_glyph_state_valid = false;
 uint8_t			fontW;							// Font width
 uint8_t			fontH;							// Font height
 uint8_t			videoMode;						// Current video mode
@@ -433,6 +438,7 @@ void plotCharacter(char c) {
 	if (ttxtMode) {
     	ttxt_instance.draw_char(activeCursor->X, activeCursor->Y, c);
   	} else {
+		if (!vios_glyph_state_valid) {
   		if (textCursorActive()) {
 	  		canvas->setClippingRect(defaultViewport);
 			canvas->setPenColor(tfg);
@@ -443,9 +449,13 @@ void plotCharacter(char c) {
 		  canvas->setPenColor(gfg);
 		  canvas->setPaintOptions(gpo);
 		}
+			vios_glyph_state_valid = true;
+		}
 		canvas->drawChar(activeCursor->X, activeCursor->Y, c);
   	}
+	int16_t vios_row = activeCursor->Y;
 	cursorRight();
+	if (activeCursor->Y != vios_row) vios_glyph_state_valid = false;	// wrap may scroll
 }
 
 // Backspace plot

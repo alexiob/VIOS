@@ -1,0 +1,44 @@
+read 0x70000 failed; retrying read
+read 0x80000 failed; retrying read
+read 0x80000 failed; retrying read
+read 0xb0000 failed; retrying read
+read 0xd0000 failed; retrying read
+read 0x90000 failed; retrying read
+event: BOOT VIOS VDP 1.04 mux-v1 zdi-edge 1us
+event: BOOT retained failures 0
+event: FIRMWARE app0 valid trial
+event: DISCOVER RAM B5 00 B7 B7 B4 80 80 80 BASE B7E000
+event: NATIVE RAM B7E000 CS0 04 0B 08 01 DONE A5
+event: VIOREADY RAM image verified CRC 131DC3CF
+event: HEALTH flag 0
+event: HEALTH flag 1
+event: FIRMWARE confirmed
+{
+  "running_before": "app1",
+  "target": "app0",
+  "image": "backups/app0-2026-10-18/firmware-glyph-cache.bin",
+  "image_sha256": "b4c4a36bb3ff16d69f8e0e6734de6f68d910d8a0b9f256485b87d1455f78c536",
+  "backup_dir": "backups/ab-2026-10-19",
+  "stamp": "20261019-113818",
+  "otadata_sector": 0,
+  "otadata_entry": {
+    "sector": 0,
+    "seq": 15,
+    "state": "valid",
+    "crc_ok": true,
+    "valid": true,
+    "trial": true
+  },
+  "verdict": "FIRMWARE confirmed",
+  "events": [
+    "BOOT VIOS VDP 1.04 mux-v1 zdi-edge 1us",
+    "BOOT retained failures 0",
+    "FIRMWARE app0 valid trial",
+    "DISCOVER RAM B5 00 B7 B7 B4 80 80 80 BASE B7E000",
+    "NATIVE RAM B7E000 CS0 04 0B 08 01 DONE A5",
+    "VIOREADY RAM image verified CRC 131DC3CF",
+    "HEALTH flag 0",
+    "HEALTH flag 1",
+    "FIRMWARE confirmed"
+  ]
+}

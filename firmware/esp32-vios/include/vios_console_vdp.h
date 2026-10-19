@@ -9,6 +9,7 @@
 class VdpConsoleRenderer : public vios_console::Renderer {
     static RGB888 colour(uint8_t c) { return colourLookup[palette[c % getVGAColourDepth()]]; }
     void prepare(bool inverse) {
+        vios_glyph_state_valid = false; // plotCharacter must restore its own state next time
         canvas->setClippingRect(Rect(0, 0, canvas->getWidth() - 1, canvas->getHeight() - 1));
         canvas->setPaintOptions(fabgl::PaintOptions());
         canvas->setPenColor(colour(inverse ? 0 : 3));

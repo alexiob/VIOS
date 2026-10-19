@@ -166,24 +166,34 @@ class NativeRXTests(unittest.TestCase):
 
 
 class TXPeer(Peer):
-    def __init__(self, *, cts_after=None, ready_after=None, error=False):
+    """16-byte transmit FIFO: LSR THRE (bit 5) is set only while it is empty.
+    `drains` limits how many times it empties (None: before every LSR read);
+    `cts_after` drops CTS once that many bytes were sent. Writing into a full
+    FIFO would lose a byte, which the model records as an overflow."""
+    def __init__(self, *, cts_after=None, drains=None, error=False):
         super().__init__()
         self.transmitted = bytearray()
-        self.cts_after, self.ready_after = cts_after, ready_after
+        self.cts_after, self.drains = cts_after, drains
         self.error = error
         self.lsr_reads = self.modem_reads = 0
+        self.fifo = self.overflows = 0
     def read(self, port):
         if port == 0xc6:
             self.modem_reads += 1
             return 0x10 if self.cts_after is None or len(self.transmitted) < self.cts_after else 0
         if port == 0xc5:
             self.lsr_reads += 1
+            if self.fifo and (self.drains is None or self.drains > 0):
+                self.fifo = 0
+                if self.drains is not None: self.drains -= 1
             result = super().read(port)
-            return result if self.ready_after is None or len(self.transmitted) < self.ready_after else result & ~0x20
+            return result if self.fifo == 0 else result & ~0x20
         return super().read(port)
     def write(self, port, value):
         if port == 0xc0:
             self.transmitted.append(value)
+            if self.fifo == 16: self.overflows += 1
+            else: self.fifo += 1
         else:
             super().write(port, value)
 
@@ -210,22 +220,26 @@ class NativeTXTests(unittest.TestCase):
     def test_empty_burst_does_not_read_source_or_uart(self):
         n, peer, _ = self.burst(b'', 0)
         self.assertEqual((n,peer.modem_reads,peer.lsr_reads),(0,0,0))
-    def test_cts_deassertion_returns_partial_or_zero_progress(self):
-        for allowed in (0,1,7):
-            n, peer, _ = self.burst(bytes(range(16)), cts_after=allowed)
-            self.assertEqual(n,allowed)
-            self.assertEqual(peer.transmitted,bytes(range(allowed)))
-    def test_thre_deassertion_returns_partial_or_zero_progress(self):
-        for allowed in (0,1,7):
-            n, peer, _ = self.burst(bytes(range(16)), ready_after=allowed)
-            self.assertEqual(n,allowed)
-            self.assertEqual(peer.transmitted,bytes(range(allowed)))
+    def test_fifo_is_filled_per_empty_check_and_never_overflows(self):
+        n, peer, cpu = self.burst(bytes(range(32)))
+        self.assertEqual((n, peer.overflows), (32, 0))
+        self.assertLessEqual(peer.lsr_reads, 2)  # one THRE check per 16-byte FIFO fill
+    def test_cts_is_checked_before_each_fifo_fill_and_overshoot_is_bounded(self):
+        for allowed in (0, 1, 7, 16, 17):
+            with self.subTest(allowed=allowed):
+                n, peer, _ = self.burst(bytes(range(32)), cts_after=allowed)
+                self.assertEqual(n, 0 if allowed == 0 else min(32, -(-allowed // 16) * 16))
+                self.assertLessEqual(n - allowed, 15)  # the ESP raises RTS with 64 bytes of RX headroom
+                self.assertEqual(peer.transmitted, bytes(range(n)))
+    def test_full_fifo_returns_partial_or_zero_progress(self):
+        for drains, expected in ((0, 16), (1, 32)):
+            with self.subTest(drains=drains):
+                n, peer, _ = self.burst(bytes(range(32)) + bytes(16), 48, drains=drains)
+                self.assertEqual((n, peer.overflows), (min(48, expected), 0))
     def test_all_transmit_lsr_reads_account_for_clear_on_read_overruns(self):
-        for allowed in (0,7):
-            n, peer, cpu = self.burst(bytes(range(16)), ready_after=allowed, error=True)
-            self.assertEqual(n,allowed)
-            self.assertEqual(cpu.rd(cpu.syms['_ez80_uart0_rx_overruns']),1)
-
+        n, peer, cpu = self.burst(bytes(range(16)), error=True)
+        self.assertEqual(n, 16)
+        self.assertGreaterEqual(cpu.rd(cpu.syms['_ez80_uart0_rx_overruns']), 1)
 
 if __name__ == '__main__':
     unittest.main()

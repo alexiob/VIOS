@@ -10,6 +10,7 @@
 // Handle VDU commands
 //
 void VDUStreamProcessor::vdu(uint8_t c) {
+	if (c < 0x20 || c == 0x7F) vios_glyph_state_valid = false;	// VIOS: only glyph runs keep state
 
 	// We want to send raw chars back to the debugger
 	// this allows binary (faster) data transfer in ZDI mode

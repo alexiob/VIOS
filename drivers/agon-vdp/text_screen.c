@@ -191,7 +191,10 @@ static unsigned find_dirty(unsigned start) {
  return CELL_COUNT;
 }
 unsigned vios_text_render(unsigned budget) {
- unsigned char bytes[VIOS_TEXT_BATCH_BYTES];unsigned used=0;
+ /* Static: a 128-byte stack buffer pushes every local out of IX's +-128
+  * displacement range, turning each access into a push/add/pop sequence.
+  * Rendering is not re-entrant and platform_vdp_send copies synchronously. */
+ static unsigned char bytes[VIOS_TEXT_BATCH_BYTES];unsigned used=0;
  unsigned cursor=CELL_COUNT;unsigned char fg=255,bg=255;
  if(budget>sizeof bytes)budget=sizeof bytes;
  if(scroll_pending){used=render_scroll(bytes,budget);if(scroll_pending)goto send;}
@@ -205,24 +208,33 @@ unsigned vios_text_render(unsigned budget) {
   if(fg!=new_fg){bytes[used++]=17;bytes[used++]=new_fg;fg=new_fg;}
   if(bg!=new_bg){bytes[used++]=17;bytes[used++]=(unsigned char)(128|new_bg);bg=new_bg;}
   if(cursor!=index){bytes[used++]=31;bytes[used++]=(unsigned char)(index%VIOS_TEXT_COLUMNS);bytes[used++]=(unsigned char)row;}
-  ++stats.spans;painted_blank=0;unsigned clean_gap=0;
-  do {
-   bytes[used++]=desired[index].ch;
-   if(clean_gap)--clean_gap;
-   else{--dirty_cells;--dirty_rows[row];}
-   painted[index]=desired[index];++stats.cells;++index;
-   if(used==budget||index==row_end||desired[index].attr!=attr)break;
-   if(clean_gap)continue;
-   if(!dirty(index)){
-    /* An unchanged gap only wins when it costs less than a new 3-byte
-     * TAB. Never cross style changes or consume the final dirty glyph's
-     * space: otherwise reprinting a gap could waste this entire batch. */
-    unsigned next=index;
-    while(next<row_end&&next-index<3&&desired[next].attr==attr&&!dirty(next))++next;
-    if(next==row_end||next-index>=3||desired[next].attr!=attr||!dirty(next)||budget-used<=next-index)break;
-    clean_gap=next-index;
+  ++stats.spans;painted_blank=0;
+  {
+   /* Pointer walk with the dirty/stat counters settled once per span: the
+    * indexed form cost ~1000 eZ80 cycles per cell in shifts and globals. */
+   const struct vios_text_cell *want=desired+index,*stop=desired+row_end;
+   struct vios_text_cell *seen=painted+index;
+   unsigned char *out=bytes+used,*limit=bytes+budget;
+   unsigned consumed=0,clean_gap=0,cells=0;
+   for(;;){
+    *out++=want->ch;
+    if(clean_gap)--clean_gap;else ++consumed;
+    *seen++=*want++;++cells;
+    if(out==limit||want==stop||want->attr!=attr)break;
+    if(clean_gap)continue;
+    if(want->ch==seen->ch&&want->attr==seen->attr){
+     /* An unchanged gap only wins when it costs less than a new 3-byte
+      * TAB. Never cross style changes or consume the final dirty glyph's
+      * space: otherwise reprinting a gap could waste this entire batch. */
+     const struct vios_text_cell *next=want,*next_seen=seen;unsigned gap=0;
+     while(next<stop&&gap<3&&next->attr==attr&&next->ch==next_seen->ch&&next->attr==next_seen->attr){++next;++next_seen;++gap;}
+     if(next==stop||gap>=3||next->attr!=attr||(next->ch==next_seen->ch&&next->attr==next_seen->attr)||(unsigned)(limit-out)<=gap)break;
+     clean_gap=gap;
+    }
    }
-  }while(1);
+   used=(unsigned)(out-bytes);index+=cells;
+   dirty_cells-=consumed;dirty_rows[row]=(unsigned char)(dirty_rows[row]-consumed);stats.cells+=cells;
+  }
   cursor=index;paint_cursor=index==CELL_COUNT-1?0:index;
  }
 send:

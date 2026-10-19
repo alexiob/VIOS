@@ -111,7 +111,8 @@ class TextScreenTests(unittest.TestCase):
     self.pc=self.pop()
   # Sparse dirt across 59 clean rows stays bounded. A second case forces
   # scanning the suffix and wrapping back before the starting column.
-  for cursor,budget,max_reads in ((80,2000,20),(2,5000,340)):
+  # The span setup of the pointer-walk render loop costs ~25 fixed steps.
+  for cursor,budget,max_reads in ((80,2100,20),(2,5000,340)):
    sparse=SparseCPU(image)
    for name in ('_desired','_painted'):
     start=image.syms[name];sparse.mem[start:start+9600]=bytes((32,3))*4800
