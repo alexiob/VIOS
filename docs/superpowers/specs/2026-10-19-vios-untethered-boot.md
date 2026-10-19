@@ -482,3 +482,53 @@ options are `--resident` (default `build/vios-resident.bin` with its
 7. Try no SD card.
 8. Measure the boot time.
 
+## 14. U6, first board run (2026-10-19): MOS on this board does not boot against the VDP
+
+- **Card (approved by the owner):** written through the harness with
+  `/host/` and an on-board copy word, then verified byte for byte on the
+  board:
+  - `/mos/VIOSBOOT.BIN` (3,072 bytes);
+  - `/vios/VIOS.BIN` (158,434 bytes, sha256 `776c6115…`, identical to the
+    resident embedded in firmware-gui-boot-9);
+  - `/vios/VIOS.MAN`;
+  - `/autoexec.txt` = `LOAD console.bin`, `RUN`, `viosboot`.
+
+  The original `autoexec.txt` and listings are in
+  `backups/sd-u6-2026-10-19`. Boot slots and HELLO were not touched.
+- **No wire, ESP side: works.**
+  - `BOOT user mode: no ZDI; MOS and its stub load the resident`.
+  - The GUI desktop and Console window come up.
+  - The control command `B` answers `BOOT USER waiting for the MOS stub`.
+- **No wire, CPU side: nothing.**
+  - After a full reset (the reset button resets both the ESP and the eZ80),
+    the ESP received no MOS text for 72 s. The Console window stayed empty,
+    with the MOS phase filter active.
+  - It received no `E8` request.
+  - Injected keys got no echo.
+  - Log: `docs/bring-up/vios-untethered-boot-u6-reset-2026-10-19.jsonl`.
+- **Cause, U0 check 3 failed:** the eZ80 flash holds an old Agon Quark MOS.
+  - Its command set is DIR, CAT, LOAD, SAVE, DELETE, ERASE, JMP, RUN, CD,
+    RENAME, MKDIR and SET.
+  - The 2026-10-16 bring-up already found that this MOS produced no UART
+    traffic at any rate with stock VDP 1.04 (`progress.md`: "Normal MOS/VDP
+    headless loading remains unresolved").
+  - Path B depends on MOS reaching `autoexec.txt`, so it cannot work with this
+    flash content.
+- **Harness:** `connect` now treats `BOOT USER` as still starting
+  (`tools/vios_resident_board.py`).
+- **Note:** opening the port through `serial_monitor.Session` resets the ESP
+  (CH340 control lines), and in user mode the eZ80 keeps running. In this run
+  the CH340 stayed powered through the owner's power cycle.
+
+**Options:**
+1. **Diagnose why MOS stalls.** With the wire refitted, a dev-only firmware
+   switch delays the ZDI halt (for example to 15 s), then reads the eZ80 PC and
+   registers. That locates the MOS loop in the flash backup's disassembly. No
+   flash writes.
+2. **Update MOS** to a current Agon MOS (it supports moslets and runs at
+   1,152,000 baud) by programming the eZ80 flash over ZDI. The 128 KB original
+   is backed up and verified. This needs the owner's approval.
+3. **Path C:** a VIOS loader in eZ80 flash in place of MOS (§3). It doesn't
+   depend on MOS at all. It is also a flash write, needs approval, and reuses
+   the E8 protocol and the stub's code.
+

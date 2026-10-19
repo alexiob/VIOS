@@ -1,0 +1,72 @@
+{"phase": "settling", "t": 0.0}
+{"phase": "ready: press the reset button", "t": 7.6}
+{"boot": "BOOT USER waiting for the MOS stub", "t": 7.6}
+{"event": "BOOT VIOS VDP 1.04 mux-v1 zdi-edge 1us", "t": 7.6}
+{"event": "BOOT retained failures 0", "t": 7.6}
+{"event": "FIRMWARE app0 valid", "t": 7.6}
+{"event": "BOOT user mode: no ZDI; MOS and its stub load the resident", "t": 7.6}
+{"boot": "BOOT STARTING", "t": 226.5}
+{"row": 0, "text": "strap owns CPU; only B/Z available", "t": 226.5}
+{"row": 1, "text": "strap owns CPU; only B/Z available", "t": 226.5}
+{"row": 2, "text": "strap owns CPU; only B/Z available", "t": 226.5}
+{"row": 3, "text": "strap owns CPU; only B/Z available", "t": 226.5}
+{"row": 4, "text": "strap owns CPU; only B/Z available", "t": 226.5}
+{"row": 5, "text": "strap owns CPU; only B/Z available", "t": 226.5}
+{"row": 6, "text": "strap owns CPU; only B/Z available", "t": 226.6}
+{"row": 7, "text": "strap owns CPU; only B/Z available", "t": 226.6}
+{"row": 8, "text": "strap owns CPU; only B/Z available", "t": 226.6}
+{"row": 9, "text": "strap owns CPU; only B/Z available", "t": 226.6}
+{"row": 10, "text": "strap owns CPU; only B/Z available", "t": 226.6}
+{"row": 11, "text": "strap owns CPU; only B/Z available", "t": 226.6}
+{"row": 12, "text": "strap owns CPU; only B/Z available", "t": 226.6}
+{"row": 13, "text": "strap owns CPU; only B/Z available", "t": 226.6}
+{"row": 14, "text": "strap owns CPU; only B/Z available", "t": 226.6}
+{"row": 15, "text": "strap owns CPU; only B/Z available", "t": 226.6}
+{"row": 16, "text": "strap owns CPU; only B/Z available", "t": 226.7}
+{"row": 17, "text": "strap owns CPU; only B/Z available", "t": 226.7}
+{"row": 18, "text": "strap owns CPU; only B/Z available", "t": 226.7}
+{"row": 19, "text": "strap owns CPU; only B/Z available", "t": 226.7}
+{"row": 20, "text": "strap owns CPU; only B/Z available", "t": 226.7}
+{"row": 21, "text": "strap owns CPU; only B/Z available", "t": 226.7}
+{"row": 22, "text": "strap owns CPU; only B/Z available", "t": 226.7}
+{"row": 23, "text": "strap owns CPU; only B/Z available", "t": 226.7}
+{"row": 24, "text": "strap owns CPU; only B/Z available", "t": 226.7}
+{"row": 25, "text": "strap owns CPU; only B/Z available", "t": 226.7}
+{"row": 26, "text": "strap owns CPU; only B/Z available", "t": 226.8}
+{"row": 27, "text": "strap owns CPU; only B/Z available", "t": 226.8}
+{"row": 28, "text": "strap owns CPU; only B/Z available", "t": 226.8}
+{"row": 29, "text": "strap owns CPU; only B/Z available", "t": 226.8}
+{"row": 30, "text": "strap owns CPU; only B/Z available", "t": 226.8}
+{"row": 31, "text": "strap owns CPU; only B/Z available", "t": 226.8}
+{"row": 32, "text": "strap owns CPU; only B/Z available", "t": 226.8}
+{"row": 33, "text": "strap owns CPU; only B/Z available", "t": 226.8}
+{"row": 34, "text": "strap owns CPU; only B/Z available", "t": 226.8}
+{"row": 35, "text": "strap owns CPU; only B/Z available", "t": 226.9}
+{"row": 36, "text": "strap owns CPU; only B/Z available", "t": 226.9}
+{"row": 37, "text": "strap owns CPU; only B/Z available", "t": 226.9}
+{"row": 38, "text": "strap owns CPU; only B/Z available", "t": 226.9}
+{"row": 39, "text": "strap owns CPU; only B/Z available", "t": 226.9}
+{"row": 40, "text": "strap owns CPU; only B/Z available", "t": 226.9}
+{"row": 41, "text": "strap owns CPU; only B/Z available", "t": 226.9}
+{"row": 42, "text": "strap owns CPU; only B/Z available", "t": 226.9}
+{"row": 43, "text": "strap owns CPU; only B/Z available", "t": 226.9}
+{"row": 44, "text": "strap owns CPU; only B/Z available", "t": 226.9}
+{"row": 45, "text": "strap owns CPU; only B/Z available", "t": 227.0}
+{"row": 46, "text": "strap owns CPU; only B/Z available", "t": 227.0}
+{"row": 47, "text": "strap owns CPU; only B/Z available", "t": 227.0}
+{"row": 48, "text": "strap owns CPU; only B/Z available", "t": 227.0}
+{"row": 49, "text": "strap owns CPU; only B/Z available", "t": 227.0}
+{"row": 50, "text": "strap owns CPU; only B/Z available", "t": 227.0}
+{"row": 51, "text": "strap owns CPU; only B/Z available", "t": 227.0}
+{"row": 52, "text": "strap owns CPU; only B/Z available", "t": 227.0}
+{"row": 53, "text": "strap owns CPU; only B/Z available", "t": 227.0}
+{"row": 54, "text": "strap owns CPU; only B/Z available", "t": 227.1}
+{"row": 55, "text": "strap owns CPU; only B/Z available", "t": 227.1}
+{"row": 56, "text": "strap owns CPU; only B/Z available", "t": 227.1}
+{"row": 57, "text": "strap owns CPU; only B/Z available", "t": 227.1}
+{"boot": "BOOT USER waiting for the MOS stub", "t": 228.1}
+{"event": "BOOT VIOS VDP 1.04 mux-v1 zdi-edge 1us", "t": 228.1}
+{"event": "BOOT retained failures 0", "t": 228.1}
+{"event": "FIRMWARE app0 valid", "t": 228.1}
+{"event": "BOOT user mode: no ZDI; MOS and its stub load the resident", "t": 228.1}
+{"phase": "done", "t": 300.2}

@@ -108,7 +108,7 @@ class ResidentBoard(ViosBoard):
                 boot = session.control(b'B', timeout=min(5, remaining))
             except TimeoutError:
                 continue  # Read-only boot requests can safely retry during boot.
-            if boot == b'BOOT STARTING\r\n':
+            if boot in (b'BOOT STARTING\r\n', b'BOOT USER waiting for the MOS stub\r\n'):   # no ZDI: MOS loads the stub first
                 time.sleep(max(0, min(.05, deadline-time.monotonic())))
                 continue
             if boot not in (b'BOOT READY\r\n', b'BOOT HALTED\r\n'):
