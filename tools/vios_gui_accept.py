@@ -45,6 +45,15 @@ def main():
                     raise AssertionError(f'{source!r}: {out["output"][-200:]}')
                 return out['output']
 
+            def result(source):
+                """The line after the command's echo (background task output such as
+                HELLO's heartbeat may come before it)."""
+                lines = ev(source).split('\r\n')
+                for i, line in enumerate(lines):
+                    if line.strip() == source.strip() and i + 1 < len(lines):
+                        return lines[i + 1]
+                raise AssertionError(f'no echo of {source!r}: {lines}')
+
             def pixels(points):
                 time.sleep(0.4)  # let the compositor finish the damage (a few frames)
                 return c.tool('esp_gui', {'pixels': points})['pixels']
@@ -52,25 +61,27 @@ def main():
             def drain():
                 events = []
                 while True:
-                    out = ev('UI-NEXT DUP IF . . . . ELSE . THEN')
-                    words = out.split('\r\n')[1].split()
+                    words = result('GA-NEXT').split()
                     if words == ['0']:
                         return events
                     events.append([int(w) for w in words])  # flag arg id kind (printed top of stack first)
 
+            # IF is compile-only: one helper prints flag arg id kind, or 0.
+            ev(': GA-NEXT UI-NEXT IF -1 . . . . ELSE 0 . THEN ;')
             status = c.tool('esp_gui')['status']
             check('gui_on', status.startswith('GUI on'), status)
             drain()
             c.tool('esp_stats', {'reset': True})
-            old_center, new_center = [304, 120], [424, 300]
+            old_center, new_center = [152, 48], [480, 152]  # disjoint 240x64 window spots on the desktop above the console window
             before = pixels([old_center, new_center])
+            check('points_on_desktop', before[0] == before[1], before)
             # Windows: open, move, raise, close.
             ev(f'{SURFACE} 60 20 48 UI-SURFACE  S" VIOS GUI acceptance" {SURFACE} 1 1 48 UI-TYPE')
-            ev(f'{WINDOW} {SURFACE} 64 40 60 20 UI-VISIBLE UI-DECOR OR UI-SHADOW OR UI-WINDOW  S" Accept" {WINDOW} UI-TITLE  {WINDOW} UI-FOCUS')
+            ev(f'{WINDOW} {SURFACE} 32 16 30 8 UI-VISIBLE UI-DECOR OR UI-SHADOW OR UI-WINDOW  S" Accept" {WINDOW} UI-TITLE  {WINDOW} UI-FOCUS')
             opened = pixels([old_center, new_center])
             r['pixels'] = {'before': before, 'opened': opened}
             check('window_draws', opened[0] != before[0], (before, opened))
-            ev(f'{WINDOW} 184 220 60 20 UI-PLACE')
+            ev(f'{WINDOW} 360 120 30 8 UI-PLACE')
             moved = pixels([old_center, new_center])
             r['pixels']['moved'] = moved
             check('move_restores_desktop', moved[0] == before[0] and moved[1] != before[1], (before, moved))
@@ -90,9 +101,10 @@ def main():
             drain()
             for ch in 'ok':
                 c.tool('esp_gui', {'vk': 0, 'ascii': ord(ch)})
-            got = ev('CREATE GTXT 32 ALLOT  1 GTXT UI-WGET . .  GTXT C@ EMIT GTXT 1+ C@ EMIT').split('\r\n')[1]
+            ev('CREATE GTXT 32 ALLOT')
+            got = result('1 GTXT UI-WGET . .  GTXT C@ EMIT GTXT 1+ C@ EMIT')
             r['input_readback'] = got
-            check('input_text', got.replace(' ', '').endswith('ok'), got)
+            check('input_text', got.split()[:2] == ['2', '2'] and got.split()[2].startswith('ok'), got)
             c.tool('esp_gui', {'vk': 142, 'ascii': 9})
             c.tool('esp_gui', {'vk': 1, 'ascii': ord(' ')})
             events = drain()
@@ -103,7 +115,7 @@ def main():
             closed = pixels([old_center, new_center])
             r['pixels']['closed'] = closed
             check('close_restores_desktop', closed == before, (before, closed))
-            sync = ev('UI-SYNC . . .').split('\r\n')[1].split()
+            sync = result('UI-SYNC . . .').split()
             r['sync'] = sync
             check('no_protocol_errors', sync and sync[0] == '0', sync)
             s = c.tool('esp_stats')
