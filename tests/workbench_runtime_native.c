@@ -38,6 +38,10 @@ int main(int argc,char **argv){
  unsigned fences=vdp_fences;eval("WB-FLUSH-FENCED");assert(vdp_fences==fences+1);
  vdp_fence_fail=1;assert(!forth_eval("WB-FLUSH-FENCED")&&strstr(status().error,"fence")&&fvm_depth==1&&fvm_ds[0]==77);vdp_fence_fail=0;
  eval("WB-REPAINT WB-FLUSH");assert(!status().error[0]&&vdp_modes==modes);
+ /* An ESP restart (a new platform epoch) repaints the open workbench in full, once. */
+ vdp_setup_length=0;++esp_epoch_fake;vios_workbench_idle(0);
+ assert(vdp_setup_length>=sizeof setup&&!memcmp(vdp_setup,setup,sizeof setup)&&vdp_modes==modes&&vios_text_pending());
+ eval("WB-FLUSH");vdp_setup_length=0;vios_workbench_idle(0);assert(vdp_setup_length==0);
  eval("WB-ZOOM 1 WB-ZOOM?");assert(vios_workbench_zoomed());vios_workbench_idle(1);assert(vdp_modes==modes);
  assert(!forth_eval("WB-ZOOM 2")&&vios_workbench_zoomed());
  eval("WB-ZOOM 0 WB-REDRAW");assert(!vios_workbench_zoomed()&&vdp_modes==modes+1);

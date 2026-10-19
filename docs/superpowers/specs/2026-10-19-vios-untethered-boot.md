@@ -1,8 +1,8 @@
 # VIOS untethered boot: booting without the ZDI wire
 
 Status: **owner chose path B on 2026-10-19:** automatic dev/user mode, the ESP
-image first, MOS text hidden. U1, U2 and U3 are done and host-tested; nothing is
-flashed. See §9 to §11.
+image first, MOS text hidden. U1 to U5 are done and host-tested; nothing is flashed
+and no card has been written. See §9 to §13.
 
 ## 1. Problem
 
@@ -250,7 +250,20 @@ design assumes. If a check fails, the design changes as described in its
       so it refuses to overwrite an existing file. The stub therefore deletes
       `/vios/boot.cnt` (function 5) before saving it. Confirm both numbers on
       the board.
-12. **Removing and refitting the wire.** With the board powered off, both
+12. **The eZ80 watchdog (U5).**
+    - *Check:* `WDT_CTL` (`0x93`) = `0x83` (enable, reset rather than NMI,
+      system clock, 2^18 cycles), then `WDT_RR` (`0x94`) A5, 5A, resets the CPU
+      in about 14 ms.
+    - *Also check:* that MOS boots cleanly from a watchdog reset.
+13. **Unknown VDP packets under MOS.**
+    - *Check:* stock MOS ignores packet `FA` (the ESP-restart notice) and `FB`
+      (boot replies) when it is not the stub reading them.
+14. **`autoexec.txt` and moslets.**
+    - *Check:* a bare `viosboot` line runs `/mos/viosboot.bin` at `0x0B0000`
+      with its arguments in HL.
+    - *Check:* the existing card's `autoexec.txt` (23 bytes) still works with
+      the line appended.
+15. **Removing and refitting the wire.** With the board powered off, both
     modes must cold-boot repeatedly: 20 boots each in U6.
 
 ## 10. U2: ESP user mode (implemented, host-tested, not flashed)
@@ -377,4 +390,95 @@ header.
   CRC-32 at roughly 12 instructions per byte gives about 1.5–2 s of CRC. The
   transfer at burst 1 is limited by the round trip per block. Measure both in
   U6.
+
+## 12. U5: restart, counter and resync (implemented, host-tested)
+
+- **Counter:** every healthy path of `vios_boot_startup` removes
+  `/vios/boot.cnt` (`kernel/vios_boot.c` `ready()`). The stub's limit therefore
+  counts only boots that never finished.
+- **Restart through a CPU reset.**
+  - Just before `jp 0x040000`, the stub sets HL = `VIOS_BOOT_MAGIC`
+    (`0x56420B`).
+  - `start.s` pushes HL before the BSS clear and stores it afterwards in
+    `_platform_boot_source`.
+  - For a stub-booted resident, `platform_restart` drains TX and arms the
+    watchdog (`WDT_CTL` `0x83`, then `WDT_RR` A5/5A). The real reset then runs
+    MOS, autoexec and the stub again, which reload a verified image. If the
+    watchdog has not fired after about 1 s, the CPU jumps to 0.
+  - Dev (ZDI) boots keep the RAM restart, re-entering at `0x040000`.
+- **ESP restart under a running resident.**
+  - In user mode after any reset other than power-on, the bridge sends packet
+    `FA` (the reason) once.
+  - The resident (`platform_resident.c`) resends its line and route flags
+    (E7) and counts a platform epoch (`platform_vdp_epoch`).
+  - The workbench runtime then calls `vios_text_forget()` (none of its windows
+    exist any more). If the workbench is open, it repaints in full, with the
+    surface recreated and window 26 reopened.
+  - Not covered: GUI applications built on the `UI-*` words lose their windows
+    too. They can watch the epoch once it is exposed to Forth.
+- **A CPU restart seen by the ESP.**
+  - MOS's general poll (`&80`) clears the ESP's line mode and route.
+  - It also runs `vios_gui_cpu_reset()`: a protocol reset (op 34) drops the old
+    resident's windows, surfaces, menus and sprites, and then the server-owned
+    console window is recreated.
+- **Tests:**
+  - `tests/test_start_restart_native.py` runs `start.s` linked with the real
+    `ram.ld` on the interpreter. It checks the handoff kept through the BSS
+    clear, the watchdog sequence, and the RAM restart for any other HL. A
+    mutation that stores the handoff before the clear is caught.
+  - Also covered:
+    - the stub's HL handoff;
+    - the `FA` notice in `bridge.cpp` (once, not on power-on, not in dev mode);
+    - the resend in the platform probe (once);
+    - the runtime repaint (once per epoch);
+    - the counter clear in the runtime host.
+
+## 13. U4: the SD card (implemented, host-tested, no card written)
+
+`tools/vios_sd_install.py install CARD` installs onto a mounted MOS card. Its
+options are `--resident` (default `build/vios-resident.bin` with its
+`.gui`/`.baud` sidecars), `--stub` (default `build/viosboot.bin`) and
+`--dry-run`. It writes:
+
+| Path | Content |
+|---|---|
+| `/mos/viosboot.bin` | the stub |
+| `/vios/vios.bin` | the resident |
+| `/vios/vios.man` | its manifest, byte for byte the ESP's `M` packet |
+| `/autoexec.txt` | one `viosboot` line appended. The other lines are kept, and the original is saved once as `autoexec.txt.vios-backup`. |
+
+- **Write order:** each file is written as a temporary and renamed into place,
+  the image before its manifest. An interrupted install is therefore refused
+  by the stub's CRC check.
+- **The rest of the card:**
+  - Names are matched case-insensitively, as on FAT, so an existing `VIOS`
+    folder is reused.
+  - `/vios/boot.cnt` is removed.
+  - Module bundles are not touched.
+- **`check CARD [--resident BIN]`:** verifies an installed card and exits 1 on
+  a problem. It checks:
+  - the stub's header;
+  - that the image matches the manifest;
+  - that `autoexec.txt` runs `viosboot`;
+  - that the card carries that build;
+  - and reports the counter.
+- **Tests:** `tests/test_vios_sd_install.py`, 7 tests:
+  - the layout on a card with an existing autoexec and `VIOS` folder;
+  - reinstalling (idempotent);
+  - a card with no autoexec;
+  - a dry run;
+  - check failures;
+  - refused inputs;
+  - end to end: the real assembled stub, on the interpreter, boots the image
+    it installed, from the card's files, with a silent ESP.
+
+**Next: U6 on the board.** U0 checks first, with the wire, then without:
+1. Back up the card (`autoexec.txt` and `/mos`).
+2. Install with `vios_sd_install.py install /Volumes/<card>`.
+3. Flash the matching ESP image with the A/B installer.
+4. Remove the wire with the power off.
+5. Run 20 cold boots, then an ESP A/B install under user mode.
+6. Try a bad ESP image, so the stub falls back to SD.
+7. Try no SD card.
+8. Measure the boot time.
 

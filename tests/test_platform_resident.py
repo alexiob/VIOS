@@ -26,6 +26,7 @@ class ResidentPlatformTests(unittest.TestCase):
     def test_vdp_send_uses_bounded_native_bursts_without_per_byte_rx_work(self):self.run_probe('vdp-burst')
     def test_task_gate_admits_only_quiet_input(self):self.run_probe('gate')
     def test_cooked_line_echoes_once(self):self.run_probe('echo')
+    def test_esp_restart_resends_line_flags_once(self):self.run_probe('esp-restart')
     def test_echo_follows_mid_line_edits(self):self.run_probe('edit-echo')
     def test_echo_redisplays_after_foreign_output(self):self.run_probe('foreign')
     def test_echo_coalesces_streamed_input(self):self.run_probe('coalesce')

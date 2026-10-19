@@ -32,6 +32,12 @@ extern "C" {
  * Replies are packets FB ('M' manifest, 'B' block, 'E' no such block). */
 #define VIOS_VDU_BOOT 0xE8
 #define VIOS_PACKET_BOOT 0xFB
+/* The stub hands HL = VIOS_BOOT_MAGIC to the resident: booted through MOS and
+ * autoexec, so a restart is a real CPU reset (the stub reloads it). */
+#define VIOS_BOOT_MAGIC 0x56420BUL
+/* The ESP restarted while the CPU kept running (user mode: it cannot reload
+ * the CPU): packet FA, reason; the resident resends its ESP-side state. */
+#define VIOS_PACKET_ESP_RESTART 0xFA
 #define VIOS_PACKET_CONSOLE 0xFE
 #define VIOS_PACKET_CLOCK 0xFD
 #define VIOS_PACKET_HOST 0xFC

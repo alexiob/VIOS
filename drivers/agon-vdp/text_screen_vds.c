@@ -60,6 +60,7 @@ void vios_text_hide(void) {
     window(0);
     while (queued) if (!send(255 + 4)) break;
 }
+void vios_text_forget(void) { window_open = 0; queued = 0; }
 void vios_text_stats(struct vios_text_stats *out) { *out = stats; }
 uint32_t vios_text_generation(void) { return generation; }
 int vios_text_pending(void) { return queued != 0; }

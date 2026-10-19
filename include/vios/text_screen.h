@@ -37,4 +37,6 @@ int vios_text_owns_display(void);
  * (no-ops on VDU). */
 void vios_text_show(void);
 void vios_text_hide(void);
+/* The display server restarted: none of this screen's windows exist there. */
+void vios_text_forget(void);
 #endif

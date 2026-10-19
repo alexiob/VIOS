@@ -88,6 +88,7 @@ viosboot_entry:
     ret
 .Lrun:
     di
+    ld hl, 0x56420B            /* VIOS_BOOT_MAGIC: the resident restarts through a CPU reset */
     jp IMAGE
 
 /* Arguments: words "sd" and "force" in any order (first letter decides). */

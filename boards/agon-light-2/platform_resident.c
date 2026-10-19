@@ -13,6 +13,7 @@ static unsigned char output[128];
 static unsigned output_used;
 static unsigned char incoming[32];
 static void poll(void);
+static void esp_restart_check(void);
 /* Console output tap for the VGA console view: RAM only, never VDP I/O. */
 static void (*console_tap)(unsigned char);
 static unsigned char shown[sizeof rx.local],shown_length,shown_cursor;
@@ -88,7 +89,7 @@ static void echo_local(void) {
 int platform_console_getc(void) {
  ez80_uart0_rx_pause();
  int c=vdp_transport_getc(&rx);if(c>=0){echo_local();return c;}
- poll();c=vdp_transport_getc(&rx);echo_local();if(c>=0)return c;
+ poll();esp_restart_check();c=vdp_transport_getc(&rx);echo_local();if(c>=0)return c;
  if(idle_polls<ECHO_IDLE_POLLS)++idle_polls;else platform_console_flush();
  ez80_uart0_rx_resume();return -1;
 }
@@ -103,6 +104,16 @@ static void esp_line_update(void){
  esp_line_flags=flags;platform_console_flush();
  const unsigned char command[]={23,0,VIOS_VDU_LINE_MODE,flags};send_bytes(command,sizeof command);
 }
+/* U5: the ESP restarted while VIOS kept running (user mode; it cannot reload
+ * the CPU) and starts with its defaults: resend the line flags, count an
+ * epoch for display owners (platform_vdp_epoch). Runs outside poll(). */
+static unsigned esp_epoch;
+static void esp_restart_check(void){
+ unsigned char reason[4];unsigned n;
+ if(!vdp_transport_packet(&rx,VIOS_PACKET_ESP_RESTART,reason,sizeof reason,&n))return;
+ ++esp_epoch;esp_line_flags=0xFF;esp_line_update();
+}
+unsigned platform_vdp_epoch(void){esp_restart_check();return esp_epoch;}
 void platform_keyboard_route(int enabled) {
  ez80_uart0_rx_pause();vdp_transport_keyboard_route(&rx,enabled);poll();esp_line_update();
 }
@@ -110,7 +121,7 @@ int platform_keyboard_event(struct platform_key_event *out) {
  ez80_uart0_rx_pause();
  if(!out)return 0;
  if(vdp_transport_keyboard_event(&rx,out))return 1;
- poll();if(vdp_transport_keyboard_event(&rx,out))return 1;
+ poll();esp_restart_check();if(vdp_transport_keyboard_event(&rx,out))return 1;
  return 0;
 }
 unsigned platform_keyboard_dropped(void) {return rx.key_dropped;}

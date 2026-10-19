@@ -63,10 +63,14 @@ static bool boot_deadline_armed;
  * from this firmware (E8). The ESP can neither halt nor reset the CPU. */
 static bool boot_user_mode;
 static std::atomic<bool> mos_phase(true);
+void vios_line_mode(uint8_t flags);
 bool vios_boot_user_mode(){return boot_user_mode;}
 bool vios_mos_phase(){return mos_phase.load();}
 void vios_mos_phase_end(){mos_phase.store(false);}
-void vios_mos_phase_begin(){mos_phase.store(true);}
+/* MOS's general poll: the CPU (re)started into MOS. Whatever the previous
+ * resident set up on this side is gone with it: windows, line mode, route. */
+void vios_mos_phase_begin(){mos_phase.store(true);vios_line_mode(0);vios_gui_cpu_reset();}
+static bool restart_notice; // user mode after a non-power-on ESP restart: tell a running resident
 static bool cpu_boot_ready;
 static unsigned long boot_started,boot_paused_at;
 static std::atomic<unsigned> boot_failures(0);
@@ -484,6 +488,10 @@ void vios_vdp_tx_begin(){
 void vios_vdp_tx_end(){if(vdp_tx_mutex)xSemaphoreGive(vdp_tx_mutex);}
 void vios_bridge_service_vdp(){
     if(cpu_paused.load())return;
+    if(restart_notice){   // MOS and the stub skip unknown packets; a resident resyncs
+        restart_notice=false;uint8_t reason=(uint8_t)esp_reset_reason();
+        vios_vdp_tx_begin();VDPSerial.write((uint8_t)VIOS_PACKET_ESP_RESTART);VDPSerial.write((uint8_t)1);VDPSerial.write(reason);vios_vdp_tx_end();
+    }
     line_field.poll(); // a finished physical line waiting for queue room or a closed host line
     bool console=console_queue&&uxQueueMessagesWaiting(console_queue),host=host_queue&&uxQueueMessagesWaiting(host_queue);
     if(!console&&!host)return;
@@ -673,6 +681,7 @@ void vios_bridge_boot() {
     firmware_status(retry_event,sizeof retry_event);bridge_event(retry_event);
     if(vios_zdi_id()!=0x0007||vios_zdi_revision()!=0xAA){   // no wire: user mode
         boot_user_mode=true;pinMode(ZDI_TCK,INPUT);pinMode(ZDI_TDI,INPUT);
+        restart_notice=esp_reset_reason()!=ESP_RST_POWERON;
         bridge_event("BOOT user mode: no ZDI; MOS and its stub load the resident\r\n");return;
     }
     boot_user_mode=false;

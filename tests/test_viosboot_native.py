@@ -260,6 +260,7 @@ class ViosBootStubTests(unittest.TestCase):
         self.assertEqual(result, 'vios', cpu.console.decode(errors='replace'))
         self.assertEqual(bytes(cpu.mem[IMAGE:IMAGE+len(image)]), image)
         self.assertFalse(cpu.interrupts, 'VIOS must start with interrupts off')
+        self.assertEqual(cpu.r['hl'], 0x56420B, 'the resident learns it was stub-booted (VIOS_BOOT_MAGIC)')
 
     def test_packets_match_the_c_server(self):
         image = make_image(1000, seed=3)
