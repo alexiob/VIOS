@@ -2,6 +2,8 @@
 
 Status: **design proposal, 2026-10-19.** Research and design only. Nothing was built, flashed, or run on the board while preparing it. Numbers labelled *measured* come from the Oct 16 and Oct 19 evidence in this repo. Anything labelled *estimate* or *target* is unverified until Stage 0/1 measure it. Save as `docs/superpowers/specs/2026-10-19-vios-gui-toolkit.md`.
 
+**Amended by [windows, widgets and a pixel compositor](2026-10-19-vios-gui-windows.md)** (overlapping windows, menus, animation, mouse): it supersedes §6, §8, §9's pointer policy and Stages 1b/5/6 below.
+
 Related: [text workbench](2026-10-16-vios-text-workbench.md), [console](2026-10-19-vios-console.md), [tasks](2026-10-18-vios-tasks.md), [handles](2026-10-18-vios-handles.md), [stage 6/7](2026-10-19-vios-stage6-7-proposals.md), [interaction research](../../research/vios-interaction-environment.md), [fast-display benchmark](../../benchmarks/fast-display-2026-10-16.md).
 
 ---
