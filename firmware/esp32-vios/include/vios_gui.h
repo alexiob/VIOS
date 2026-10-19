@@ -110,11 +110,19 @@ void vios_gui_stop() {
     vios_display_unlock();
 }
 
+/* Slowest E4 batch and frame step since the last status read (us), with the
+ * first op of that batch: finds what holds the display lock too long. */
+static uint32_t vios_gui_batch_max, vios_gui_frame_max;
+static uint8_t vios_gui_batch_op;
+
 /* One E4 payload from the CPU (VDP task). */
 void vios_gui_batch(const uint8_t *payload, size_t length) {
     if (!vios_gui_ready) return;          // no display server: drop, the CPU sees no replies
     vios_display_lock();
+    uint32_t started = (uint32_t)esp_timer_get_time();
     vds_proto_batch(vios_gui_proto, payload, length);
+    uint32_t spent = (uint32_t)esp_timer_get_time() - started;
+    if (spent > vios_gui_batch_max) { vios_gui_batch_max = spent; vios_gui_batch_op = length ? payload[0] : 0; }
     vios_gui_apply_style();
     vios_display_unlock();
 }
@@ -157,7 +165,10 @@ void vios_gui_frame(uint32_t budget_pixels) {
     if (rows != vios_gui_vds.rows) { vios_gui_vds.rows = rows; vds_damage_all(&vios_gui_vds); }   // a new framebuffer
 
     uint32_t now = millis();
+    uint32_t started = (uint32_t)esp_timer_get_time();
     vds_proto_frame(vios_gui_proto, now - vios_gui_last_frame, budget_pixels);
+    uint32_t spent = (uint32_t)esp_timer_get_time() - started;
+    if (spent > vios_gui_frame_max) vios_gui_frame_max = spent;
     vios_gui_last_frame = now;
 }
 
@@ -171,8 +182,11 @@ int vios_gui_pixel(unsigned x, unsigned y) {
 /* Control-channel summary for the harness: "GUI on windows frames rows carried errors". */
 unsigned vios_gui_status(char *out, unsigned capacity) {
     if (!vios_gui_ready) return (unsigned)snprintf(out, capacity, "GUI off");
-    return (unsigned)snprintf(out, capacity, "GUI %s windows %u frames %u rows %u carried %u errors %u style %u",
+    unsigned n = (unsigned)snprintf(out, capacity, "GUI %s windows %u frames %u rows %u carried %u errors %u style %u batch_max_us %u batch_op %02X frame_max_us %u",
                               vios_gui_on ? "on" : "text", vios_gui_vds.count, (unsigned)vios_gui_vds.stats.frames,
                               (unsigned)vios_gui_vds.stats.rows, (unsigned)vios_gui_vds.stats.carried,
-                              vios_gui_proto->errors, vios_gui_vds.style.kind);
+                              vios_gui_proto->errors, vios_gui_vds.style.kind,
+                              (unsigned)vios_gui_batch_max, vios_gui_batch_op, (unsigned)vios_gui_frame_max);
+    vios_gui_batch_max = vios_gui_frame_max = 0;
+    return n;
 }

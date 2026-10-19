@@ -127,7 +127,9 @@
 
 
 /** Size (in bytes) of largest block to maintain free */
-#define FABGLIB_MINFREELARGESTBLOCK 40000
+// VIOS: no Wi-Fi/BT stack; the measured floor for VIOS after mode 0 with the
+// GUI pools is 24 KB free (G0). 40000 left mode 0 unallocatable with the GUI.
+#define FABGLIB_MINFREELARGESTBLOCK 24000
 
 
 /** Size of virtualkey queue */

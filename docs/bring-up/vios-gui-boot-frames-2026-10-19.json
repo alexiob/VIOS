@@ -1,0 +1,30 @@
+{
+ "WB-OPEN": {
+  "repl_s": 0.062,
+  "gui": "GUI on windows 2 frames 56 rows 1502 carried 26 errors 1 style 0 batch_max_us 1490 batch_op 13 frame_max_us 3495",
+  "vblank_start_max": 86,
+  "frame_work_max": 3514,
+  "parser_max": 14015
+ },
+ "WB-REPAINT WB-FLUSH-FENCED": {
+  "repl_s": 0.12,
+  "gui": "GUI on windows 2 frames 73 rows 2090 carried 37 errors 1 style 0 batch_max_us 1620 batch_op 01 frame_max_us 3519",
+  "vblank_start_max": 89,
+  "frame_work_max": 3536,
+  "parser_max": 13749
+ },
+ "WB-CLOSE": {
+  "repl_s": 0.059,
+  "gui": "GUI on windows 1 frames 87 rows 2602 carried 47 errors 1 style 0 batch_max_us 196 batch_op 57 frame_max_us 3219",
+  "vblank_start_max": 86,
+  "frame_work_max": 3259,
+  "parser_max": 6034
+ },
+ "1000 0 DO I . LOOP CR": {
+  "repl_s": 0.042,
+  "gui": "GUI on windows 1 frames 95 rows 2866 carried 51 errors 1 style 0 batch_max_us 0 batch_op 57 frame_max_us 4125",
+  "vblank_start_max": 86,
+  "frame_work_max": 4151,
+  "parser_max": 4763
+ }
+}

@@ -1,0 +1,41 @@
+read 0x110000 failed; retrying read
+read 0x20000 failed; retrying read
+read 0x70000 failed; retrying read
+event: BOOT VIOS VDP 1.04 mux-v1 zdi-edge 1us
+event: BOOT retained failures 0
+event: FIRMWARE app0 valid trial
+event: DISCOVER RAM B5 B7 B7 B7 B4 80 80 80 BASE B7E000
+event: NATIVE RAM B7E000 CS0 04 0B 08 01 DONE A5
+event: VIOREADY RAM image verified CRC 0BBE2C21
+event: HEALTH flag 0
+event: HEALTH flag 1
+event: FIRMWARE confirmed
+{
+  "running_before": "app1",
+  "target": "app0",
+  "image": "backups/app0-2026-10-18/firmware-gui-boot-4.bin",
+  "image_sha256": "55415224255c171dba0497ac5dcaaafb9b36711bb71c4a6e9da846b970695a37",
+  "backup_dir": "backups/ab-2026-10-19",
+  "stamp": "20261019-142623",
+  "otadata_sector": 0,
+  "otadata_entry": {
+    "sector": 0,
+    "seq": 31,
+    "state": "valid",
+    "crc_ok": true,
+    "valid": true,
+    "trial": true
+  },
+  "verdict": "FIRMWARE confirmed",
+  "events": [
+    "BOOT VIOS VDP 1.04 mux-v1 zdi-edge 1us",
+    "BOOT retained failures 0",
+    "FIRMWARE app0 valid trial",
+    "DISCOVER RAM B5 B7 B7 B7 B4 80 80 80 BASE B7E000",
+    "NATIVE RAM B7E000 CS0 04 0B 08 01 DONE A5",
+    "VIOREADY RAM image verified CRC 0BBE2C21",
+    "HEALTH flag 0",
+    "HEALTH flag 1",
+    "FIRMWARE confirmed"
+  ]
+}

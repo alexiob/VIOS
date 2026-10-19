@@ -152,7 +152,7 @@ unsigned vios_console_row(unsigned y, char *out, unsigned capacity) {
 void vios_display_mode0() {
     if (vios_gui_owns_display()) return;      // already mode 0 under the GUI: never reallocate it
     vios_display_lock();
-    canvas->waitCompletion();
+    if (canvas) canvas->waitCompletion(); // at boot set_mode creates the canvas
     set_mode(0);
     if (videoMode != 0 || getVGAColourDepth() != 16) { vios_display_unlock(); return; }
     static const uint8_t pinned[4] = {0x00, 0x30, 0x3C, 0x3F};

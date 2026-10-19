@@ -22,7 +22,7 @@ static volatile uint32_t vios_vblank_stamp;
 static volatile bool vios_vblank_pending;
 static std::atomic<uint32_t> vios_frames(0), vios_frame_start_max(0), vios_frame_work_max(0);
 static const unsigned VIOS_FRAME_CELLS = 2800; // ~4 ms at the measured 719 cells/ms
-static const uint32_t VIOS_GUI_FRAME_PIXELS = 160000; // compositor budget per frame (~3.5 ms, G0 rate)
+static const uint32_t VIOS_GUI_FRAME_PIXELS = 28000;  // ~3.7 ms: the compositor measured 7.6 px/us on the board (160000 took 20.9 ms)
 
 void vios_display_lock() {
     if (!vios_display_mutex) vios_display_mutex = xSemaphoreCreateRecursiveMutex();
