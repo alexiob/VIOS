@@ -113,7 +113,11 @@ build/storage-probe.bin: build/storage-probe.elf
 	$(EZOBJCOPY) -O binary $< $@
 -include $(STORAGE_OBJECTS:.o=.d)
 
-RESIDENT_C_SOURCES := kernel/workbench_runtime.c kernel/workbench.c drivers/agon-vdp/text_screen.c kernel/resident_main.c forth/system.c forth/modules.c forth/vm_reference.c forth/vm_memory.c boards/agon-light-2/platform_resident.c drivers/agon-vdp/transport.c kernel/vios_runtime.c kernel/vios_services.c kernel/vios_prelude.c kernel/vios_handles.c kernel/vios_ui.c kernel/vios_modules.c kernel/vios_boot.c bench/forth_bench.c $(STORAGE_C_SOURCES)
+# VIOS_GUI=1: the workbench screen lives in the ESP display server (no CPU screen
+# planes, 19 KB less BSS); needs ESP firmware running vios-vds. Default: VDU text.
+VIOS_GUI ?= 0
+RESIDENT_SCREEN := $(if $(filter 1,$(VIOS_GUI)),drivers/agon-vdp/text_screen_vds.c,drivers/agon-vdp/text_screen.c)
+RESIDENT_C_SOURCES := kernel/workbench_runtime.c kernel/workbench.c $(RESIDENT_SCREEN) kernel/resident_main.c forth/system.c forth/modules.c forth/vm_reference.c forth/vm_memory.c boards/agon-light-2/platform_resident.c drivers/agon-vdp/transport.c kernel/vios_runtime.c kernel/vios_services.c kernel/vios_prelude.c kernel/vios_handles.c kernel/vios_ui.c kernel/vios_modules.c kernel/vios_boot.c bench/forth_bench.c $(STORAGE_C_SOURCES)
 RESIDENT_UART_OBJECT := build/resident/arch/ez80/uart0_raw-$(VIOS_INTERNAL_BAUD).o
 RESIDENT_OBJECTS := $(patsubst %.c,build/vios/%.o,$(RESIDENT_C_SOURCES)) $(patsubst %.s,build/vios/%.o,$(filter-out arch/ez80/uart0_raw.s,$(VIOS_ASM_SOURCES))) $(RESIDENT_UART_OBJECT) build/vios/arch/ez80/spi.o build/vios/engine-token.o build/vios/engine-direct.o
 .PHONY: FORCE_INTERNAL_BAUD
@@ -122,6 +126,9 @@ FORCE_INTERNAL_BAUD:
 # link/output chain when switching rates even if both builds share that second
 # or the selected rate's object was already built by a focused test.
 ifneq ($(shell cat build/vios-resident.baud 2>/dev/null),$(VIOS_INTERNAL_BAUD))
+build/vios-resident.elf build/vios-resident.bin: FORCE_INTERNAL_BAUD
+endif
+ifneq ($(shell cat build/vios-resident.gui 2>/dev/null),$(VIOS_GUI))
 build/vios-resident.elf build/vios-resident.bin: FORCE_INTERNAL_BAUD
 endif
 # Raw monitor/VIOS/storage-probe initializers retain their historical default.
@@ -151,4 +158,5 @@ build/vios-resident.bin: build/vios-resident.elf
 	$(EZOBJCOPY) -O binary build/vios-resident.elf $@
 	.venv/bin/python -c 'from pathlib import Path;from tools.serial_monitor import validate_image;import hashlib;b=Path("$@").read_bytes();validate_image(b);print("VIOS resident",len(b),"bytes",hashlib.sha256(b).hexdigest())'
 	@printf '%s\n' '$(VIOS_INTERNAL_BAUD)' > build/vios-resident.baud
+	@printf '%s\n' '$(VIOS_GUI)' > build/vios-resident.gui
 -include $(RESIDENT_OBJECTS:.o=.d)
