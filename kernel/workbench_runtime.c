@@ -185,7 +185,9 @@ static void con_close(void){con_hide_cursor();con_open=0;}
 /* Interpret captured output into the shadow (drawn only when visible). */
 static int con_drain(void){
  int any=con_count!=0;
- for(unsigned budget=256;con_count&&budget;--budget){unsigned char c=con_ring[con_head];con_head=(unsigned short)((con_head+1)%CON_RING);--con_count;con_byte(c);}
+ /* Hidden: RAM-only interpretation, so drain everything. Visible: a full
+  * ring per pass; painting stays bounded by the per-idle render batch. */
+ for(unsigned budget=CON_RING;con_count&&budget;--budget){unsigned char c=con_ring[con_head];con_head=(unsigned short)((con_head+1)%CON_RING);--con_count;con_byte(c);}
  return any;
 }
 static void console_idle(void){
