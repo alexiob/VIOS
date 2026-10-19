@@ -138,7 +138,8 @@ static bool vios_g0_busy(){return g0_fake_busy;}
 static void vios_g0_reset_gap(){}
 static uint32_t vios_g0_gap(){return 0;}
 static void vios_frame_stats(uint32_t *f,uint32_t *s,uint32_t *w){*f=*s=*w=0;}
-static unsigned gui_keys;
+static unsigned gui_keys,gui_cpu_resets;
+void vios_gui_cpu_reset(){++gui_cpu_resets;}
 unsigned vios_gui_status(char *out,unsigned capacity){return (unsigned)snprintf(out,capacity,"GUI on windows 1 fake");}
 bool vios_gui_key(uint8_t,uint8_t,uint8_t vk,uint8_t){++gui_keys;return vk==168;}
 int vios_gui_pixel(unsigned x,unsigned y){return x<640&&y<480?(int)((x+y)&15):-1;}
@@ -296,7 +297,20 @@ static void check_user_mode(){
     // The wire back: dev mode again.
     zdi_wire=true;ota_rollbacks=before;memset(otadata_flash,0xFF,sizeof otadata_flash);running_partition=esp_partition_t{"app0",0x10};
     assert(vios_bridge_init());vios_bridge_boot();vios_bridge_handoff();output_frames();assert(!boot_user_mode&&ram_ready);
-    vios_mos_phase_end();assert(!vios_mos_phase());vios_mos_phase_begin();assert(vios_mos_phase());   // a restart through 0
+    vios_mos_phase_end();assert(!vios_mos_phase());
+    vios_line_mode(1);unsigned resets=gui_cpu_resets;vios_mos_phase_begin();                       // MOS boots (again)
+    assert(vios_mos_phase()&&!line_awaiting.load()&&gui_cpu_resets==resets+1);
+    // An ESP restart (not power-on) in user mode tells a running resident once: packet FA, reason.
+    memset(otadata_flash,0xFF,sizeof otadata_flash);running_partition=esp_partition_t{"app0",0x10};
+    zdi_wire=false;reset_reason=ESP_RST_PANIC;VDPSerial.output.clear();
+    assert(vios_bridge_init());vios_bridge_boot();vios_bridge_handoff();output_frames();
+    vios_bridge_service_vdp();vios_bridge_service_vdp();
+    assert(VDPSerial.output.size()==3&&VDPSerial.output[0]==0xFA&&VDPSerial.output[1]==1&&VDPSerial.output[2]==ESP_RST_PANIC);
+    reset_reason=ESP_RST_POWERON;VDPSerial.output.clear();
+    assert(vios_bridge_init());vios_bridge_boot();vios_bridge_handoff();output_frames();
+    vios_bridge_service_vdp();assert(VDPSerial.output.empty());                                   // power-on: nobody to tell
+    zdi_wire=true;reset_reason=0;assert(vios_bridge_init());vios_bridge_boot();vios_bridge_handoff();output_frames();
+    vios_bridge_service_vdp();assert(VDPSerial.output.empty()&&!boot_user_mode);                  // dev mode reloads the CPU instead
 }
 
 static void check_line_editing(){

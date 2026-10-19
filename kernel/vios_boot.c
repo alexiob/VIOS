@@ -137,14 +137,17 @@ static int health(void){
  if(!platform_vdp_request(command,sizeof command,0x86,data,sizeof data,&n)||n!=8)return forth_error("boot VDP health timeout");
  return storage_sync()?1:forth_error(storage_error());
 }
+/* Healthy: the MOS boot stub's unfinished-boot counter (/vios/boot.cnt,
+ * arch/ez80/viosboot.s) starts over. No file, no card: nothing to clear. */
+static void ready(void){(void)storage_remove("/vios/boot.cnt");platform_boot_ready();}
 int vios_boot_startup(void){
  running=NONE;platform_boot_trial();
- if(!storage_init()){vios_out("boot recovery: ");vios_out(storage_error());vios_out("\r\n");platform_boot_ready();return 1;}
+ if(!storage_init()){vios_out("boot recovery: ");vios_out(storage_error());vios_out("\r\n");ready();return 1;}
  read_state();
  if(boot.state==PENDING&&boot.candidate<2){
   unsigned candidate=boot.candidate;boot.state=TRIED;
   if(write_state()&&load_slot(candidate)&&health()&&vios_boot_confirm()){
-   vios_out("boot trial confirmed ");vios_out(slot_name(candidate));vios_out("\r\n");platform_boot_ready();return 1;
+   vios_out("boot trial confirmed ");vios_out(slot_name(candidate));vios_out("\r\n");ready();return 1;
   }
   vios_out("boot candidate rejected: ");vios_out(forth_last_error());vios_out("\r\n");
  }
@@ -154,11 +157,11 @@ int vios_boot_startup(void){
   if(!fresh_runtime())return 0;
   if(load_slot(choices[i])&&health()){
    if(i){boot.previous=boot.confirmed;boot.confirmed=choices[i];(void)write_state();}
-   vios_out("boot confirmed ");vios_out(slot_name(running));vios_out("\r\n");platform_boot_ready();return 1;
+   vios_out("boot confirmed ");vios_out(slot_name(running));vios_out("\r\n");ready();return 1;
   }
   vios_out("boot slot rejected: ");vios_out(forth_last_error());vios_out("\r\n");
  }
- if(!fresh_runtime())return 0;running=NONE;vios_out("boot recovery: built-in kernel, no valid source bundle\r\n");platform_boot_ready();return 1;
+ if(!fresh_runtime())return 0;running=NONE;vios_out("boot recovery: built-in kernel, no valid source bundle\r\n");ready();return 1;
 }
 int vios_boot_command(const char *word,const char **rest){
  (void)rest;

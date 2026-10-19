@@ -136,7 +136,16 @@ static unsigned physical_key(const struct platform_key_event *e){
  default:return e->ascii;
  }
 }
+/* The ESP restarted under us (user mode): its windows are gone; an open
+ * workbench gets its surface and window back and repaints in full. */
+static unsigned esp_epoch;
+static void esp_restarted(void){
+ unsigned epoch=platform_vdp_epoch();if(epoch==esp_epoch)return;
+ esp_epoch=epoch;vios_text_forget();
+ if(vios_workbench_active()&&display_repaint()){vios_text_show();vios_workbench_compose();}
+}
 void vios_workbench_idle(int changed){
+ esp_restarted();
  if(con_open){console_idle();return;}
  if(!vios_workbench_active())return;
  /* The event poll pauses RX; only then interpret console output for the

@@ -126,6 +126,18 @@ int main(int argc,char **argv) {
   assert(consumed>=0&&seen_b>=0&&seen_b<=consumed+2);
   puts("resident keystroke echo is sent immediately");return 0;
  }
+ if(!strcmp(argv[1],"esp-restart")){
+  /* The ESP restarted under a running resident (packet FA): the line flags
+   * go out again once, and the epoch counts it once. */
+  timer_step=10;const unsigned char notice[]={0xFA,1,4};
+  memcpy(incoming,notice,sizeof notice);wire_length=sizeof notice;next_wire=0;platform_console_init();platform_console_line_mode(1);writes=0;
+  assert(platform_vdp_epoch()==0);
+  for(unsigned i=0;i<50;++i)(void)platform_console_getc();
+  assert(platform_vdp_epoch()==1&&writes==4&&transmitted[0]==23&&transmitted[1]==0&&transmitted[2]==0xE7&&transmitted[3]==1);
+  for(unsigned i=0;i<50;++i)(void)platform_console_getc();
+  assert(platform_vdp_epoch()==1&&writes==4);
+  puts("resident esp restart resync");return 0;
+ }
  if(!strcmp(argv[1],"line-notice")){
   /* The ESP line editor learns when the REPL awaits a line and when keys are
    * routed to an application: VDU 23,0,E7,flags, sent only on change. */

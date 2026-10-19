@@ -70,6 +70,30 @@ static void vios_gui_apply_style() {
 
 static bool vios_gui_mode_ok() { return !ttxtMode && videoMode == 0 && getVGAColourDepth() == 16 && VdpRows::table(); }
 
+/* The server-owned console surface and window (display lock held). */
+static bool vios_gui_console_window() {
+    vds_cell *console = vios_gui_cell_memory(nullptr, VDS_CONSOLE_SURFACE, vios_console::COLS * (vios_console::ROWS + 1));
+    if (!console) return false;
+    vds_surface_init(&vios_gui_vds, VDS_CONSOLE_SURFACE, vios_console::COLS, vios_console::ROWS + 1, console, 0x30);
+    return vds_window_open(&vios_gui_vds, VDS_CONSOLE_WINDOW, VDS_CONSOLE_SURFACE, 16, 228, 74, 28,
+                           VDS_W_VISIBLE | VDS_W_DECOR | VDS_W_SHADOW | VDS_W_ACTIVE, "Console");
+}
+
+/* The CPU restarted into MOS: drop the windows, surfaces, menus and sprites
+ * the previous resident created (protocol reset, op 34) and bring back the
+ * console window, which the reset closes too. */
+void vios_gui_cpu_reset() {
+    if (!vios_gui_ready) return;
+    vios_display_lock();
+    static const uint8_t reset_op[] = {0x34};
+    vds_proto_batch(vios_gui_proto, reset_op, sizeof reset_op);
+    vios_gui_console_window();
+    vios_gui_style = 255;
+    vios_gui_apply_style();
+    if (vios_gui_on) { vios_console_terminal.show(millis()); vds_damage_all(&vios_gui_vds); }
+    vios_display_unlock();
+}
+
 /* Start the compositor in the VIOS display mode with a Console window. */
 bool vios_gui_start() {
     vios_display_lock();
@@ -83,11 +107,7 @@ bool vios_gui_start() {
         }
         vds_proto_init(vios_gui_proto, &vios_gui_vds, vios_gui_cell_memory, vios_gui_send, nullptr);
         vds_ui_init(vios_gui_ui, vios_gui_proto);
-        vds_cell *console = vios_gui_cell_memory(nullptr, VDS_CONSOLE_SURFACE, vios_console::COLS * (vios_console::ROWS + 1));
-        if (!console) { vios_display_unlock(); return false; }
-        vds_surface_init(&vios_gui_vds, VDS_CONSOLE_SURFACE, vios_console::COLS, vios_console::ROWS + 1, console, 0x30);
-        vds_window_open(&vios_gui_vds, VDS_CONSOLE_WINDOW, VDS_CONSOLE_SURFACE, 16, 228, 74, 28,
-                        VDS_W_VISIBLE | VDS_W_DECOR | VDS_W_SHADOW | VDS_W_ACTIVE, "Console");
+        if (!vios_gui_console_window()) { vios_display_unlock(); return false; }
         vios_gui_ready = true;
     }
     vios_gui_on = true;

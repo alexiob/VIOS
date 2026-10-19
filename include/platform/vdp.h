@@ -11,4 +11,7 @@ unsigned platform_console_dropped(void);
 int platform_host_request(const void *request,size_t length,void *reply,size_t capacity,unsigned *actual);
 void platform_boot_ready(void);
 void platform_boot_trial(void);
+/* Counts ESP restarts seen while running (packet FA): the display server's
+ * state (windows, surfaces) is gone after each; callers that own some redo it. */
+unsigned platform_vdp_epoch(void);
 #endif

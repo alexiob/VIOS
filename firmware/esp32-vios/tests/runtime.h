@@ -11,6 +11,7 @@
 #define pdMS_TO_TICKS(x) (x)
 #define portMAX_DELAY 0xFFFFFFFFu
 #define ESP_RST_SW 1
+#define ESP_RST_POWERON 11
 #define ESP_RST_PANIC 4
 #define ESP_RST_INT_WDT 5
 #define ESP_RST_TASK_WDT 6

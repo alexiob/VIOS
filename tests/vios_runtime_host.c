@@ -75,6 +75,7 @@ static int host_serve(const unsigned char *r,size_t length,unsigned char *o,unsi
 }
 unsigned platform_console_dropped(void){return 0;}
 void platform_boot_ready(void){++ready;}
+static unsigned esp_epoch_fake;unsigned platform_vdp_epoch(void){return esp_epoch_fake;}
 void platform_boot_trial(void){}
 int storage_init(void){return 1;}
 const char *storage_error(void){return error;}
@@ -122,8 +123,10 @@ int main(int argc,char **argv){
  /* Immutable persistence refuses silently replacing a different package. */
  eval("VALUE");assert(fvm_pop()==11);
  eval("MODULES");eval("MODULE-SOURCE demo");
+ (void)storage_mkdir("/vios");assert(storage_write_file("/vios/boot.cnt","\2",1));   /* the MOS stub's counter */
  assert(vios_boot_trial());reset();assert(vios_boot_startup());
  eval("VALUE");assert(fvm_pop()==11);assert(ready);
+ {char c;size_t got;assert(!storage_read_file("/vios/boot.cnt",&c,1,&got));}               /* healthy: cleared */
  assert(vios_boot_confirm());
  const char *second=": VALUE 22 ; : TEST VALUE 22 = ;";
  assert(forth_module_stage("demo","2",NULL,0,second,"TEST"));assert(forth_module_activate("demo"));
