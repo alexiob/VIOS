@@ -162,7 +162,7 @@ VDU packet until `Y` resumes. VGA rendering and audio remain active.
 ## Cold boot and recovery
 
 After initializing VDP graphics/audio/keyboard, setup skips the old indefinite
-MOS handshake. GPIO26/27 use the tested ZDI transport with 10 us edges and
+MOS handshake. GPIO26/27 use the tested ZDI transport (1 us edges since 2026-10-19, `VIOS_ZDI_EDGE_US`; 10 us before) and
 whole-transaction critical sections. Boot verifies CPU ID/revision, halts,
 selects ADL and injects the single-byte DI. The original pure IN0 discovery
 reads RAM_ADDR_U/RAM_CTL to locate enabled on-chip SRAM. Hardware evidence in

@@ -1,7 +1,7 @@
 """Record the exact built firmware and its embedded payload after linking."""
 Import('env')
 from pathlib import Path
-import hashlib,json
+import hashlib,json,re
 project=Path(env.subst('$PROJECT_DIR'))
 root=project.parents[1]
 embedded=json.loads((project/'include/vios_image.json').read_text())
@@ -19,6 +19,7 @@ def write_manifest(source,target,env):
             if path.is_file() and not path.name.endswith('.ino.cpp')}
     manifest={'firmware':str(binary.relative_to(root)), 'size':len(firmware),'sha256':hashlib.sha256(firmware).hexdigest(),
               'app0_offset':0x10000,'app0_limit':0x140000,'embedded_vios':embedded,'internal_baud':embedded['internal_baud'],'usb_baud':115200,
+              'zdi_edge_us':int(re.search(r'#define VIOS_ZDI_EDGE_US (\d+)',(project/'include/vios_zdi.h').read_text()).group(1)),
               'native_stage0':json.loads((project/'include/vios_stage0.json').read_text()),
               'profile':env.subst('$PIOENV'),'embedded_boot_enabled':env.subst('$PIOENV')!='esp32-vios-probe',
               'sources':json.loads((project/'vendor/manifest.json').read_text()),'build_source_sha256':hashes,

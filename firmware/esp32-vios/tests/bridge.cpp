@@ -103,6 +103,7 @@ static void vios_zdi_read_memory(uint32_t address,unsigned n,uint8_t *data){
     memcpy(data,memory+address,n);if(bad_readback||(bad_code_readback&&address==internal_base()))data[0]^=1;regs[7]=address+n;
 }
 struct {bool restarted=false;void restart(){restarted=true;}} ESP;
+#define VIOS_ZDI_EDGE_US 1 // Real transport lives in vios_zdi.h, faked above.
 #include "vios_bridge.h"
 static void note_usb(unsigned action){assert(usb_tx_mutex&&usb_tx_mutex->held);usb_actions.push_back(action);}
 static std::vector<vios_wire_message> output_frames(){

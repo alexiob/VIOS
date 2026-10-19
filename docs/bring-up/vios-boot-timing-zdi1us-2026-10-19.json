@@ -1,0 +1,52 @@
+[
+ {
+  "BOOT VIOS VDP 1.04 mux-v1 zdi-edge 1us": 2.15,
+  "BOOT retained failures 0": 2.15,
+  "FIRMWARE app0 valid": 2.15,
+  "DISCOVER RAM B5 B7 B7 B7 B4 80 80 80 BASE B7E000": 2.15,
+  "NATIVE": 2.15,
+  "VIOREADY": 12.11,
+  "HEALTH flag 0": 12.32,
+  "HEALTH flag 1": 15.75
+ },
+ {
+  "BOOT VIOS VDP 1.04 mux-v1 zdi-edge 1us": 2.12,
+  "BOOT retained failures 0": 2.12,
+  "FIRMWARE app0 valid": 2.12,
+  "DISCOVER RAM B5 B7 B7 B7 B4 80 80 80 BASE B7E000": 2.12,
+  "NATIVE": 2.12,
+  "VIOREADY": 12.08,
+  "HEALTH flag 0": 12.29,
+  "HEALTH flag 1": 15.68
+ },
+ {
+  "BOOT VIOS VDP 1.04 mux-v1 zdi-edge 1us": 2.13,
+  "BOOT retained failures 0": 2.13,
+  "FIRMWARE app0 valid": 2.13,
+  "DISCOVER RAM B5 B7 B7 B7 B4 80 80 80 BASE B7E000": 2.13,
+  "NATIVE": 2.13,
+  "VIOREADY": 12.08,
+  "HEALTH flag 0": 12.29,
+  "HEALTH flag 1": 15.68
+ },
+ {
+  "BOOT VIOS VDP 1.04 mux-v1 zdi-edge 1us": 2.13,
+  "BOOT retained failures 0": 2.13,
+  "FIRMWARE app0 valid": 2.13,
+  "DISCOVER RAM B5 B7 B7 B7 B4 80 80 80 BASE B7E000": 2.13,
+  "NATIVE": 2.13,
+  "VIOREADY": 12.01,
+  "HEALTH flag 0": 12.33,
+  "HEALTH flag 1": 15.69
+ },
+ {
+  "BOOT VIOS VDP 1.04 mux-v1 zdi-edge 1us": 2.15,
+  "BOOT retained failures 0": 2.15,
+  "FIRMWARE app0 valid": 2.15,
+  "DISCOVER RAM B5 B7 B7 B7 B4 80 80 80 BASE B7E000": 2.15,
+  "NATIVE": 2.15,
+  "VIOREADY": 12.1,
+  "HEALTH flag 0": 12.31,
+  "HEALTH flag 1": 15.72
+ }
+]

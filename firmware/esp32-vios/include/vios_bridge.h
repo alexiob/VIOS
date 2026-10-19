@@ -432,7 +432,7 @@ void vios_bridge_boot() {
     cpu_boot_ready=false;boot_deadline_armed=false;
     ram_ready=false;memset(native_ram_map,0,sizeof native_ram_map);
     pinMode(ZDI_TCK,OUTPUT);digitalWrite(ZDI_TCK,HIGH);pinMode(ZDI_TDI,INPUT);
-    bridge_event("BOOT VIOS VDP 1.04 mux-v1\r\n");
+    {char boot_event[48];snprintf(boot_event,sizeof boot_event,"BOOT VIOS VDP 1.04 mux-v1 zdi-edge %uus\r\n",(unsigned)VIOS_ZDI_EDGE_US);bridge_event(boot_event);}
     char retry_event[48];snprintf(retry_event,sizeof retry_event,"BOOT retained failures %u\r\n",boot_failures.load());bridge_event(retry_event);
     firmware_status(retry_event,sizeof retry_event);bridge_event(retry_event);
     if(vios_zdi_id()!=0x0007||vios_zdi_revision()!=0xAA||!cpu_halt()){bridge_event("ERR CPU identity/halt; recovery control available\r\n");return;}
@@ -478,7 +478,7 @@ void vios_bridge_boot() {
         memcpy_P(block,vios_image+offset,count);
         vios_zdi_write_memory(0x40000+offset,count,block);vios_zdi_read_memory(0x40000+offset,(uint16_t)count,verify);
         if(memcmp(block,verify,count)){bridge_event("ERR VIOS RAM readback; CPU left halted\r\n");return;}
-        delay(1);
+        if((offset/sizeof block)%16==15)delay(1); // Let same-core audio/idle tasks run.
     }
     while(VDPSerial.available())VDPSerial.read();
     vios_zdi_cpu_write(REG_PC,0x40000);

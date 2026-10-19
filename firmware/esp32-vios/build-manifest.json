@@ -1,7 +1,7 @@
 {
   "firmware": "firmware/esp32-vios/.pio/build/esp32-vios/firmware.bin",
-  "size": 712832,
-  "sha256": "676452812f52114bfb51e61cf3579f748e2c0c56bdcbecc410116d01671701fb",
+  "size": 712864,
+  "sha256": "46f162e3cb71b6a5f31834c11e63eceefd44688b46f782a29c6500aac20e2ad9",
   "app0_offset": 65536,
   "app0_limit": 1310720,
   "embedded_vios": {
@@ -13,6 +13,7 @@
   },
   "internal_baud": 1152000,
   "usb_baud": 115200,
+  "zdi_edge_us": 1,
   "native_stage0": {
     "path": "build/agon-stage0.bin",
     "size": 46,
@@ -39,14 +40,14 @@
   "build_source_sha256": {
     "firmware/esp32-vios/platformio.ini": "f438179bd78fe1f4df4fcb3940f7ec198635aefbdc43fad161bc8d79d9b2cfb7",
     "firmware/esp32-vios/scripts/embed_vios.py": "eac66a8a672d2739d5f61e57a835e32d4c5c5697d77b281001452617f1bc289f",
-    "firmware/esp32-vios/scripts/build_manifest.py": "af6a5f66df712e388a7459a61c391f2075cdc0da5d010fe430842d7a740e8c70",
+    "firmware/esp32-vios/scripts/build_manifest.py": "1516e37b5fb51e057bfddc8dfb0df9f7b9ff3adc61654cfd3e738a4161195f4b",
     "include/vios/wire.h": "9220fe13c32955a2dd22445c283c7fc218f165b77079891beeb8fdefffa8a151",
     "include/vios/internal_uart.h": "1f443000e7d0b2cfa861fb8e37c1e020eee071d16dc39d2e01497915a4ff3e7d",
     "drivers/vios-wire/wire.c": "f8a7f559de85bf8a26b1b4a19fd7f362d4b8a9d142ed8a8020d9febc34cc94c5",
     "arch/ez80/agon_stage0.s": "1ba56634bd0abe98c98a6e48e43df58cef409cf501fe030d5e0e654f3b2cd4e9",
-    "firmware/esp32-vios/include/vios_bridge.h": "22a327ecf9123d64b6a62f6ea064ce0de6fccc5d0d4f2e18752831b8e27a4df0",
+    "firmware/esp32-vios/include/vios_bridge.h": "01d1ae4858ed6484c6e47c59d6cf96ba42a25bd64627cbbf22ddfcd76c6d2378",
     "firmware/esp32-vios/include/vios_stage0.h": "7b8bcec3900bf9a813855858d56e35b30149631b9291271f6cea353f629c0fd8",
-    "firmware/esp32-vios/include/vios_zdi.h": "1ed6c3fe788c9ae23d0cea5629430a1159eb7db1177cadacc692ffb929cd2fee",
+    "firmware/esp32-vios/include/vios_zdi.h": "bd96b014827acc591db586c3fbf43980d87cacbba907cf228c9e7c2d7c9baff6",
     "firmware/esp32-vios/include/vios_image.h": "0dfd55de84e950bf33ebc40a09f3f43f889761a9d1a79e03b3975ea9d9dfc66d",
     "firmware/esp32-vios/include/vios_bridge_api.h": "1fb551a080c6190929bdc1034dfc06e52f0627b3260353e9d17976873803372d",
     "firmware/esp32-vios/vendor/agon-vdp/video/vdu_buffered.h": "3688b5a08f60612ec054b4bdc1744e6ca9f6b467519999e2fd772f1ec2c76662",

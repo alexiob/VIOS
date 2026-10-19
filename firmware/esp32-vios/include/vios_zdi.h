@@ -15,13 +15,19 @@ static void vz_high(uint32_t bits){VIOS_GPIO_REG(8)=bits;}
 static void vz_low(uint32_t bits){VIOS_GPIO_REG(12)=bits;}
 static void vz_output(uint32_t bits){VIOS_GPIO_REG(0x24)=bits;}
 static void vz_input(uint32_t bits){VIOS_GPIO_REG(0x28)=bits;}
+// Half-period of the ZDI clock. 10 us (50 kHz) was an untuned margin that made
+// the 150 KB boot upload take ~60 s; the eZ80F92 accepts up to sysclk/2, and
+// upstream agon-vdp clocks the same link with 1 us edges.
+#ifndef VIOS_ZDI_EDGE_US
+#define VIOS_ZDI_EDGE_US 1
+#endif
 static void vz_write_bit(unsigned bit) {
     vz_low(vios_zdi_clock);if(bit)vz_high(vios_zdi_data);else vz_low(vios_zdi_data);
-    vz_output(vios_zdi_data);delayMicroseconds(10);vz_high(vios_zdi_clock);delayMicroseconds(10);
+    vz_output(vios_zdi_data);delayMicroseconds(VIOS_ZDI_EDGE_US);vz_high(vios_zdi_clock);delayMicroseconds(VIOS_ZDI_EDGE_US);
 }
 static unsigned vz_read_bit() {
-    vz_low(vios_zdi_clock);vz_input(vios_zdi_data);delayMicroseconds(10);
-    unsigned value=(VIOS_GPIO_REG(0x3C)>>27)&1;vz_high(vios_zdi_clock);delayMicroseconds(10);return value;
+    vz_low(vios_zdi_clock);vz_input(vios_zdi_data);delayMicroseconds(VIOS_ZDI_EDGE_US);
+    unsigned value=(VIOS_GPIO_REG(0x3C)>>27)&1;vz_high(vios_zdi_clock);delayMicroseconds(VIOS_ZDI_EDGE_US);return value;
 }
 static void vz_start(unsigned reg,unsigned read) {
     vz_high(vios_zdi_data);vz_output(vios_zdi_data);vz_high(vios_zdi_clock);delayMicroseconds(2);
