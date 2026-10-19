@@ -246,6 +246,30 @@ static void browser_compose(int full,uint32_t catalog){
 }
 static unsigned char editor_cursors[38];
 static unsigned editor_cursor_row=38;
+/* First and last columns where two rows differ. Callers guarantee at least
+ * one difference, so neither scan needs a bound. On eZ80 a C byte walk spills
+ * its pointers to the stack frame (about 86 cycles a byte); cpi and cpd keep
+ * them in DE and HL (about 8). IY is scratch here, as in the library memcmp. */
+#if defined(__ez80__)
+unsigned editor_first_difference(const char *a,const char *b);
+unsigned editor_last_difference(const char *a,const char *b,unsigned width);
+__asm__(
+ ".assume ADL = 1\n"
+ ".section .text\n"
+ ".global _editor_first_difference, _editor_last_difference\n"
+ "_editor_first_difference:\n"
+ " ld iy,0\n add iy,sp\n ld de,(iy+3)\n ld hl,(iy+6)\n"
+ ".Lfirst:\n ld a,(de)\n inc de\n cpi\n jr z,.Lfirst\n"
+ " ld de,(iy+6)\n scf\n sbc hl,de\n ret\n"
+ "_editor_last_difference:\n"
+ " ld iy,0\n add iy,sp\n ld bc,(iy+9)\n dec bc\n"
+ " ld hl,(iy+3)\n add hl,bc\n ex de,hl\n ld hl,(iy+6)\n add hl,bc\n"
+ ".Llast:\n ld a,(de)\n dec de\n cpd\n jr z,.Llast\n"
+ " inc hl\n ld de,(iy+6)\n or a,a\n sbc hl,de\n ret\n");
+#else
+static unsigned editor_first_difference(const char *a,const char *b){unsigned i=0;while(a[i]==b[i])++i;return i;}
+static unsigned editor_last_difference(const char *a,const char *b,unsigned width){while(a[width-1]==b[width-1])--width;return width-1;}
+#endif
 /* On eZ80, inlining this row loop into compose combines their register
  * pressure and spills per-character state into deep stack-frame accesses. */
 #if defined(__GNUC__)
@@ -278,28 +302,19 @@ static void editor_row(unsigned row,unsigned line,unsigned left,int focused){
    if(x>=left+width)break;
   }
  }
- /* Compare plain glyphs with pointer walks. Cursor style repairs are kept
-  * out of this per-character loop; painting cannot run until compose returns. */
+ /* The cache holds the glyphs this row last stored, in style 3 except at the
+  * cursor, which is repaired before and restyled after the span. Re-storing
+  * unchanged glyphs between the first and last difference leaves the planes
+  * and dirty counts as they were, so one span replaces the per-run diff. */
  char *cached=view.editor[row];
  unsigned old_cursor=view.editor_valid?editor_cursors[row]:width;
  if(!view.editor_valid)memset(cached,' ',width);
  int changed=memcmp(cached,shown,width)!=0;
  if(changed||old_cursor!=cursor){
   if(old_cursor<width&&old_cursor!=cursor)vios_text_put(origin+old_cursor,row+18,shown+old_cursor,1,3,0);
-  if(changed&&!view.editor_valid){
-   /* A full frame starts from blank cells, so one span up to the last glyph
-    * stores the same cells as the diff walk with one call instead of many. */
-   unsigned end=width;while(shown[end-1]==' ')--end;
-   vios_text_put(origin,row+18,shown,end,3,0);memcpy(cached,shown,width);
-  }else if(changed){
-   const char *want=shown,*seen=cached,*limit=shown+width;
-   while(want<limit){
-    if(*want==*seen){++want;++seen;continue;}
-    const char *first=want;
-    do{++want;++seen;}while(want<limit&&*want!=*seen);
-    vios_text_put(origin+(unsigned)(first-shown),row+18,first,(size_t)(want-first),3,0);
-   }
-   memcpy(cached,shown,width);
+  if(changed){
+   unsigned first=editor_first_difference(shown,cached),last=editor_last_difference(shown,cached,width);
+   vios_text_put(origin+first,row+18,shown+first,last-first+1,3,0);memcpy(cached,shown,width);
   }
   if(cursor<width)vios_text_put(origin+cursor,row+18,shown+cursor,1,0,2);
  }

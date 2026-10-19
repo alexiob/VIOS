@@ -89,8 +89,45 @@ wire-framebuffer oracle in `tests/workbench_screen_native.c`.
   fallback and a `LinkedC` test against a Python oracle.
 - **Newline is the slowest incremental compose** (14.9 ms modelled): 47% is
   `editor_row`'s per-character diff walk over shifted rows. A
-  first/last-difference span would skip most of it.
+  first/last-difference span would skip most of it. Done; see
+  "editor_row span" below.
 - `row_end` (9.5%) scans attributes per character to find spans.
+
+## editor_row span
+
+After a newline, the model's 38 editor rows each differ from their cached
+copy in one or two digits (`row 07` → `row 08`). The old walk stepped every
+column at about 86 cycles a byte through IX spill slots to find those runs:
+1,970 equal-skip iterations, 158,692 of the frame's 274,230 cycles.
+
+`editor_row` now puts one span from the first to the last differing column.
+Two 26- and 34-byte eZ80 scanners find the edges with `cpi`/`cpd` at about 8
+cycles a byte (module-level `__asm__` in `kernel/workbench.c`, with C loops for
+host builds; `tests/test_editor_difference.py` checks the linked asm against
+a Python oracle). The cache holds the glyphs the row last stored, so
+re-storing unchanged cells inside the span leaves both planes and the dirty
+counts as they were. The cursor cell is repaired before the span and restyled
+after it, as before. Rejected: bisecting with the library `memcmp`. Inline or
+out of line, this compiler spends 120–200 cycles per bisect step, and newline
+improved only to 14.3 ms while the full frame regressed to 37.6 ms.
+
+| Frame | Before ms | After ms |
+|---|---:|---:|
+| Full, after `WB-REPAINT` | 33.01 | 32.75 |
+| Unchanged / TAB to editor | 1.08 / 2.19 | 1.08 / 2.19 |
+| Character insert / delete | 3.62 / 3.62 | 3.49 / 3.48 |
+| Newline insert / delete | 14.88 / 14.89 | **9.60 / 9.62** |
+| Source scroll up / down | 5.20 / 13.38 | 4.70 / **7.97** |
+| Zoom on / off (painted) | 39.41 / 40.22 | 38.07 / 39.98 |
+
+The desired-plane hash matches in all 11 frames. Newline still visits 38 rows,
+now with 39 `put` calls for 148 cells (before: 45 for 142). `.text` shrinks by
+238 B (`editor_row` −298 B, scanners +60 B); BSS is unchanged; `__bss_end`
+moves from 0xA84D6 to 0xA83E8.
+
+In this model's newline frame `vios_text_scroll` is never called: every row is
+re-diffed instead of shifted. If the hardware bench's edit position engages
+the shift path, the board will show a smaller newline delta than the model.
 
 ## Hardware follow-up (owner)
 
