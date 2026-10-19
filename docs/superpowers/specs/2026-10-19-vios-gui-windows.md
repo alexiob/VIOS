@@ -192,8 +192,11 @@ cell-aligned glyph row is one 32-bit store.
 - Horizontal moves and animation step 8 px at a time, which looks smooth at
   60 Hz on a 640-px screen (80 positions).
 - Vertical motion is pixel-smooth.
-- Allowing any *x* is possible later, at the cost of shifted glyph blits. That's
-  an owner decision (§16).
+- **Configurable (owner decision, §16):** a global `snap_x` setting, 8 (default)
+  or 1 (free x), set with `CONFIG snap_x n`, plus a per-window flag that can
+  override it. With free x, glyph blits shift by `x & 7` pixels: two partial
+  32-bit stores per glyph row instead of one aligned store. The blitter has both
+  paths from G1, and B10 is measured in both modes.
 
 ### 5.3 Dirty rectangles and occlusion
 
@@ -454,6 +457,7 @@ an op says cells. u16 values are little-endian.
 | `71 ANIMSTOP id prop` | Stop a tween |
 | `72 THEME role colour` | Theme role → palette index |
 | `73 SHADE idx shade-idx` | Entry in the shadow lookup table |
+| `74 CONFIG key value(u16)` | Compositor settings, e.g. `snap_x` (8 or 1) |
 
 New `F0` event kinds: `10 WIN`, `11 COMMAND`, `12 ANIMDONE`, `13 DRAG`. `07 POINTER`
 gains the window id and window-local coordinates.
@@ -523,16 +527,21 @@ between G1 and G2.
 
 ---
 
-## 16. Owner decisions requested
+## 16. Owner decisions (2026-10-19)
 
-1. **Display mode:** mode 0 (640×480, 16 colours, single buffer, beam-ordered
-   composition) as the target, subject to the G0 heap and tear gates, with mode 129
-   (4 colours, double buffer) as the fallback.
-2. **Mouse versus ZDI:** accept that the physical mouse lives in a separate `user`
-   build that gives up ZDI recovery; the `dev` build keeps ZDI and has no mouse.
-3. **Horizontal snap:** client-area x snaps to 8 px (fast aligned glyph blits;
-   horizontal motion in 8-px steps). The alternative is free x with shifted blits.
-4. **Look:** Turbo Vision-style theme as the default, with pixel frames and
-   shadows, plus a command palette and constraint layouts from modern TUIs.
-5. Approve **G0** as the next step: measurement only, plus one A/B-installed probe
-   build.
+1. **Display mode: decided.** Mode 0 (640×480, 16 colours, single buffer,
+   beam-ordered composition). Mode 129 stays only as the fallback if the G0 gates
+   fail.
+2. **Mouse: deferred.** No physical-mouse work for now. The pointer model (§10)
+   stays input-agnostic, and G6 is limited to the keyboard pointer and host
+   injection until the owner revisits the hardware trade.
+3. **Horizontal snap: both, by configuration.** 8 px is the default, with free x
+   available (§5.2).
+4. **Look: to be evaluated visually.** The owner suspects a Smalltalk-style look
+   may suit graphics mode better than Turbo Vision. Host-rendered mockups of both
+   at 640×480 in 16 colours, with the device's own 8×8 font, are in
+   [`docs/gui/mockups/`](../../gui/mockups/), produced by `tools/gui_mockup.py`.
+   Themes are data (`THEME`/`SHADE` ops plus decoration style), so G1/G2 do not
+   depend on this choice; the default theme is chosen before G2 ships.
+5. **G0: approved.** It is handed to the session that owns the board and the ESP
+   GUI work.
