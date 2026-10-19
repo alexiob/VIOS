@@ -22,7 +22,7 @@ static volatile uint32_t vios_vblank_stamp;
 static volatile bool vios_vblank_pending;
 static std::atomic<uint32_t> vios_frames(0), vios_frame_start_max(0), vios_frame_work_max(0);
 static const unsigned VIOS_FRAME_CELLS = 2800; // ~4 ms at the measured 719 cells/ms
-static const uint32_t VIOS_GUI_FRAME_US = 3000;  /* + console service (~0.6-1 ms in a flood) keeps the frame within 4 ms */ //       // compositor time per frame: stops after the row that passes it (a row is <= ~85 us at the measured 7.6 px/us)
+static const uint32_t VIOS_GUI_FRAME_US = 3000;  // compositor time per frame (stops after the row that passes it); with the console service a flood frame stays within 4 ms
 
 void vios_display_lock() {
     if (!vios_display_mutex) vios_display_mutex = xSemaphoreCreateRecursiveMutex();
