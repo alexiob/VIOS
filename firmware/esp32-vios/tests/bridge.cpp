@@ -352,8 +352,11 @@ static void check_user_mode(){
     vios_mos_capture('A');now+=500;vios_bridge_poll();f=output_frames();                           // MOS talks: stop
     assert(link_state==LINK_SETTLED&&VDPSerial.output.size()==2&&saw_event(f,"BOOT link: MOS answered\r\n"));
     // The stub's E8 op 2 moves both ends to the internal rate.
+    for(const char *p="Agon Quark MOS\r\nviosboot\r\n";*p;++p)vios_mos_line_byte((uint8_t)*p);
+    f=output_frames();assert(saw_event(f,"MOS: Agon Quark MOS\r\n")&&saw_event(f,"MOS: viosboot\r\n"));
     uint8_t rate[5];assert(vios_boot_rate_reply(rate,1152000)==5&&rate[0]=='R'&&rate[1]==0x00&&rate[2]==0x94&&rate[3]==0x11);
     vios_link_rate(1152000);assert(VDPSerial.baud==1152000&&VDPSerial.flow==HW_FLOWCTRL_CTS_RTS&&link_state==LINK_SETTLED);
+    f=output_frames();assert(saw_event(f,"BOOT link: stub switched to 1152000\r\n"));
     zdi_wire=true;reset_reason=0;VDPSerial.output.clear();VDPSerial.baud=0;assert(vios_bridge_init());vios_bridge_boot();vios_bridge_handoff();output_frames();
     vios_bridge_service_vdp();now+=5000;vios_bridge_poll();
     assert(VDPSerial.output.empty()&&!boot_user_mode&&VDPSerial.baud==0);                          // dev mode: no notice, no probe

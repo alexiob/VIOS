@@ -631,6 +631,16 @@ static void usb_dispatch(const struct vios_wire_message *message) {
 void vios_link_rate(uint32_t baud){
     VDPSerial.flush();VDPSerial.updateBaudRate(baud);
     VDPSerial.setHwFlowCtrlMode(HW_FLOWCTRL_CTS_RTS,64);link_state=LINK_SETTLED;
+    char event[48];snprintf(event,sizeof event,"BOOT link: stub switched to %lu\r\n",(unsigned long)baud);bridge_event(event);
+}
+/* MOS phase text also goes to USB as events, a line at a time (at most 40 lines
+ * per boot), so a headless capture sees what MOS and the stub print. */
+static char mos_line[80];static unsigned mos_line_used,mos_lines;
+void vios_mos_line_byte(uint8_t c){
+    if(c=='\r')return;
+    if(c!='\n'&&mos_line_used<sizeof mos_line-1){if(c>=32&&c<127)mos_line[mos_line_used++]=(char)c;return;}
+    if(mos_line_used&&mos_lines<40){char line[96];snprintf(line,sizeof line,"MOS: %.*s\r\n",(int)mos_line_used,mos_line);bridge_event(line);++mos_lines;}
+    mos_line_used=0;
 }
 static void link_service(){
     if(link_state==LINK_PROBE){

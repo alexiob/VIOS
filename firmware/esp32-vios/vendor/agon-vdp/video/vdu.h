@@ -24,7 +24,7 @@ void VDUStreamProcessor::vdu(uint8_t c) {
 	vios_mos_capture(c);
 	if (vios_mos_phase() && c != 23) {
 		for (unsigned n = vios_mos_vdu_args(c); n; --n) if (readByte_t() < 0) break;
-		if (vios_mos_text(c)) vios_console_feed(&c, 1);
+		if (vios_mos_text(c)) { vios_console_feed(&c, 1); vios_mos_line_byte(c); }
 		return;
 	}
 	
