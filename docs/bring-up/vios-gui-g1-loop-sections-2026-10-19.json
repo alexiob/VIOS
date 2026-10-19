@@ -1,0 +1,58 @@
+{
+ "idle": {
+  "loop_gap_max": 117,
+  "parser_max": 0,
+  "host_service_max": 98,
+  "console_max": 101,
+  "keyboard_max": 96
+ },
+ "repl": {
+  "loop_gap_max": 1544,
+  "parser_max": 1463,
+  "host_service_max": 306,
+  "console_max": 102,
+  "keyboard_max": 102
+ },
+ "typing": {
+  "loop_gap_max": 1294,
+  "parser_max": 248,
+  "host_service_max": 94,
+  "console_max": 102,
+  "keyboard_max": 998
+ },
+ "console_flood_1000": {
+  "loop_gap_max": 6494,
+  "parser_max": 5821,
+  "host_service_max": 283,
+  "console_max": 692,
+  "keyboard_max": 91
+ },
+ "wb_open": {
+  "loop_gap_max": 5490,
+  "parser_max": 5469,
+  "host_service_max": 285,
+  "console_max": 174,
+  "keyboard_max": 98
+ },
+ "wb_repaint": {
+  "loop_gap_max": 5033,
+  "parser_max": 5013,
+  "host_service_max": 258,
+  "console_max": 96,
+  "keyboard_max": 88
+ },
+ "wb_close": {
+  "loop_gap_max": 7792,
+  "parser_max": 5796,
+  "host_service_max": 226,
+  "console_max": 2253,
+  "keyboard_max": 99
+ },
+ "wb_console_clear": {
+  "loop_gap_max": 3298,
+  "parser_max": 1833,
+  "host_service_max": 256,
+  "console_max": 2224,
+  "keyboard_max": 92
+ }
+}

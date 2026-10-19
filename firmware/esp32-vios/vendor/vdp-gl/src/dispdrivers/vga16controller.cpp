@@ -39,6 +39,9 @@
 #include "esp_spi_flash.h"
 #include "esp_heap_caps.h"
 
+// VIOS: called from the line ISR once per frame at vertical blank (IRAM-safe).
+void (* volatile vios_vblank_hook)() = nullptr;
+
 #include "fabutils.h"
 #include "vga16controller.h"
 #include "devdrivers/swgenerator.h"
@@ -519,6 +522,9 @@ void IRAM_ATTR VGA16Controller::ISRHandler(void * arg)
     }
 
     s_scanLine += VGA16_LinesCount / 2;
+
+    if (scanLine >= height && vios_vblank_hook)
+      vios_vblank_hook();
 
     if (scanLine >= height && !ctrl->m_primitiveProcessingSuspended && spi_flash_cache_enabled() && ctrl->m_primitiveExecTask) {
       // vertical sync, unlock primitive execution task

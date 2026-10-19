@@ -142,6 +142,10 @@ void VDUStreamProcessor::vdu_sys_video() {
             uint8_t packet[4]={(uint8_t)now,(uint8_t)(now>>8),(uint8_t)(now>>16),(uint8_t)(now>>24)};
             send_packet(0x7D,sizeof packet,packet);
         } break;
+        case VIOS_VDU_DISPLAY: {
+            auto op=readByte_t();if(op==0)vios_display_mode0();
+            sendModeInformation();
+        } break;
         case VIOS_VDU_CONSOLE_VIEW: {
             auto op=readByte_t();if(op>=0)vios_console_view((uint8_t)op);
         } break;

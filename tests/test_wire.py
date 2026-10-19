@@ -120,15 +120,16 @@ struct SerialProbe {
  unsigned baud=0,stage=0;
  void end(){assert(stage==0);++stage;}
  void setRxBufferSize(unsigned n){assert(stage++==1&&n==256);}
- void begin(unsigned rate,unsigned config,int rx,int tx){assert(stage++==2&&config==8&&rx==34&&tx==2);baud=rate;}
- void setHwFlowCtrlMode(unsigned mode,unsigned threshold){assert(stage++==3&&mode==3&&threshold==64);}
- void setPins(int rx,int tx,int cts,int rts){assert(stage++==4&&rx==-1&&tx==-1&&cts==14&&rts==13);}
+ void setTxBufferSize(unsigned n){assert(stage++==2&&n==1024);} // writes queue, never stall the VDP loop
+ void begin(unsigned rate,unsigned config,int rx,int tx){assert(stage++==3&&config==8&&rx==34&&tx==2);baud=rate;}
+ void setHwFlowCtrlMode(unsigned mode,unsigned threshold){assert(stage++==4&&mode==3&&threshold==64);}
+ void setPins(int rx,int tx,int cts,int rts){assert(stage++==5&&rx==-1&&tx==-1&&cts==14&&rts==13);}
  void write(uint8_t){}
 } Serial2;
 """)
             (temp/'probe.cpp').write_text(r"""void vios_vdp_tx_begin(){} void vios_vdp_tx_end(){}
 #include "vdp_protocol.h"
-int main(){setupVDPProtocol();assert(Serial2.stage==5&&Serial2.baud==TEST_EXPECTED_UART_BAUD);}
+int main(){setupVDPProtocol();assert(Serial2.stage==6&&Serial2.baud==TEST_EXPECTED_UART_BAUD);}
 """)
             for requested,expected,mux in ((None,1152000,1),(384000,384000,1),(115200,115200,1),(None,115200,0)):
                 defines=[f'-DVIOS_USB_MUX={mux}',f'-DTEST_EXPECTED_UART_BAUD={expected}']+([] if requested is None else [f'-DVIOS_INTERNAL_BAUD={requested}'])

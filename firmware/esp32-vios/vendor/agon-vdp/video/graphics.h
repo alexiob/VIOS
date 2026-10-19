@@ -533,7 +533,15 @@ void clg() {
 // -  2: Not enough memory for mode
 // - -1: Invalid mode
 //
+static int8_t change_mode_unlocked(uint8_t mode);
+// VIOS: the frame task must never draw while the framebuffer is reallocated.
 int8_t change_mode(uint8_t mode) {
+	vios_display_lock();
+	int8_t result = change_mode_unlocked(mode);
+	vios_display_unlock();
+	return result;
+}
+static int8_t change_mode_unlocked(uint8_t mode) {
 	int8_t errVal = -1;
 
 	cls(true);

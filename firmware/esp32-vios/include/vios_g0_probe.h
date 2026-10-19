@@ -10,7 +10,7 @@
  *  - the longest VDP loop gap, which bounds vblank -> compositor start.
  * Triggered by control command G0<mm> (mode, hex); results read with G0R<n>;
  * G0Z restarts the loop-gap maximum (measure a workload, then run G0).
- * The screen shows probe glyphs while it runs; mode 1 and the console view are
+ * The screen shows probe glyphs while it runs; the VIOS display mode and the console view are
  * restored afterwards. Not used by normal operation.
  */
 #pragma once
@@ -132,7 +132,8 @@ static void g0_run(uint8_t mode) {
     heap_caps_free(internal);
     for (auto s : surfaces) heap_caps_free(s);
     canvas->waitCompletion();
-    set_mode(1);
+    vios_display_mode0();  // the VIOS display mode (falls back to mode 1 if refused)
+    if (videoMode != 0) set_mode(1);
     canvas->waitCompletion();
     vios_glyph_state_valid = false;
     if (vios_console_terminal.visible()) vios_console_terminal.show(millis());
@@ -145,7 +146,7 @@ void vios_g0_service() {
     g0_loop_last = now;
     int mode = g0_request.exchange(-1);
     if (mode < 0) return;
-    g0_run((uint8_t)mode);
+    vios_display_lock(); g0_run((uint8_t)mode); vios_display_unlock();
     g0_busy = false;
     g0_loop_last = (uint32_t)esp_timer_get_time();
 }

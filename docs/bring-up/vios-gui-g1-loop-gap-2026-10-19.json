@@ -1,0 +1,38 @@
+{
+ "idle": {
+  "loop_gap_max_us": 119,
+  "parser_max_us": 0
+ },
+ "typing": {
+  "loop_gap_max_us": 1083,
+  "parser_max_us": 306
+ },
+ "console_flood_1000": {
+  "loop_gap_max_us": 6257,
+  "parser_max_us": 5770
+ },
+ "console_show_e5": {
+  "loop_gap_max_us": 8799,
+  "parser_max_us": 5263
+ },
+ "wb_open": {
+  "loop_gap_max_us": 5043,
+  "parser_max_us": 4946
+ },
+ "wb_repaint": {
+  "loop_gap_max_us": 8352,
+  "parser_max_us": 5229
+ },
+ "wb_close": {
+  "loop_gap_max_us": 9175,
+  "parser_max_us": 5513
+ },
+ "wb_console_clear": {
+  "loop_gap_max_us": 6040,
+  "parser_max_us": 1403
+ },
+ "cls_12": {
+  "loop_gap_max_us": 4064,
+  "parser_max_us": 2768
+ }
+}

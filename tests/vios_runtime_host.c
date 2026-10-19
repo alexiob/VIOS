@@ -38,11 +38,11 @@ static unsigned char vdp_setup[64];static size_t vdp_setup_length;
 /* Order of display mode changes ('M') and console view commands ('0'..'2'). */
 static char vdp_trace[512];static unsigned vdp_trace_length;
 static void trace_vdp(char c){if(vdp_trace_length+1<sizeof vdp_trace){vdp_trace[vdp_trace_length++]=c;vdp_trace[vdp_trace_length]=0;}}
-void platform_vdp_send(const void *data,size_t size){const unsigned char *bytes=data;if(size>=2&&bytes[0]==22){vdp_setup_length=0;++vdp_modes;trace_vdp('M');}
+void platform_vdp_send(const void *data,size_t size){const unsigned char *bytes=data;if((size>=2&&bytes[0]==22)||(size==4&&bytes[0]==23&&bytes[1]==0&&bytes[2]==0xE6)){vdp_setup_length=0;++vdp_modes;trace_vdp('M');}
  if(size==4&&bytes[0]==23&&bytes[1]==0&&bytes[2]==0xE5)trace_vdp((char)('0'+bytes[3]));if(vdp_setup_length+size<=sizeof vdp_setup){memcpy(vdp_setup+vdp_setup_length,data,size);vdp_setup_length+=size;}++vdp_calls;if(size>vdp_max)vdp_max=(unsigned)size;}
 int platform_vdp_request(const void *command,size_t length,unsigned char reply,void *data,size_t capacity,unsigned *actual){
  (void)command;(void)length;unsigned char *p=data;
- if(reply==0x86&&capacity>=8){unsigned char mode[]={128,2,224,1,80,60,4,1};memcpy(p,mode,8);*actual=8;return 1;}
+ if(reply==0x86&&capacity>=8){unsigned char mode[]={128,2,224,1,80,60,16,0};memcpy(p,mode,8);*actual=8;return 1;}
  if(reply==0x83&&capacity>=1){++vdp_fences;if(vdp_fence_fail)return 0;p[0]='V';*actual=1;return 1;}
  if(reply==0x84&&capacity>=4){p[0]=0x12;p[1]=0x34;p[2]=0x56;p[3]=2;*actual=4;return 1;}
  if(reply==0x85&&capacity>=2){p[0]=0;p[1]=1;*actual=2;return 1;}

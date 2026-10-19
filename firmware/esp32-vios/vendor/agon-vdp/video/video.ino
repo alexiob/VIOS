@@ -81,6 +81,7 @@ VDUStreamProcessor *	processor;				// VDU Stream Processor
 #include "vios_bridge.h"
 #include "vios_console_vdp.h"
 #include "vios_g0_probe.h"
+#include "vios_frame.h"
 
 void setup() {
 	disableCore0WDT(); delay(200);				// Disable the watchdog timers
@@ -97,6 +98,7 @@ void setup() {
 	#endif
 	setupVDPProtocol();
 	processor = new VDUStreamProcessor(&VDPSerial);
+	vios_frame_start();
 	initialised = true; // VIOS cold boot does not wait for MOS handshake.
 	setupKeyboardAndMouse();
 	init_audio();
@@ -120,7 +122,9 @@ void loop() {
 	bool cursorState = false;
 
 	while (true) {
+		uint32_t section = (uint32_t)esp_timer_get_time();
 		vios_bridge_service_vdp();
+		vios_loop_section(0, section);
 		if (terminalMode) {
 			do_keyboard_terminal();
 			continue;
@@ -133,12 +137,16 @@ void loop() {
 			vios_glyph_state_valid = false;
       		if (!cursorState && ttxtMode) ttxt_instance.flash(false);
 		}
+		section = (uint32_t)esp_timer_get_time();
 		vios_console_tick();
+		vios_loop_section(1, section);
 		vios_g0_service();
+		section = (uint32_t)esp_timer_get_time();
 		if (!vios_cpu_is_paused()) {
 			do_keyboard();
 			do_mouse();
 		}
+		vios_loop_section(2, section);
 
 		if (!vios_cpu_is_paused() && processor->byteAvailable()) {
 			if (cursorState) {

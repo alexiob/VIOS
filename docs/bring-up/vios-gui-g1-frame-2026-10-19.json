@@ -1,0 +1,65 @@
+{
+ "idle": {
+  "frames": 90,
+  "vblank_start_max": 85,
+  "frame_work_max": 24,
+  "loop_gap_max": 165,
+  "parser_max": 0,
+  "host_service_max": 143,
+  "seconds": 1.51
+ },
+ "typing": {
+  "frames": 35,
+  "vblank_start_max": 87,
+  "frame_work_max": 60,
+  "loop_gap_max": 1267,
+  "parser_max": 249,
+  "host_service_max": 134,
+  "seconds": 0.58
+ },
+ "console_flood_1000": {
+  "frames": 58,
+  "vblank_start_max": 100,
+  "frame_work_max": 267,
+  "loop_gap_max": 5831,
+  "parser_max": 5807,
+  "host_service_max": 286,
+  "seconds": 0.96
+ },
+ "wb_open": {
+  "frames": 36,
+  "vblank_start_max": 81,
+  "frame_work_max": 19,
+  "loop_gap_max": 5071,
+  "parser_max": 5052,
+  "host_service_max": 317,
+  "seconds": 0.59
+ },
+ "wb_repaint": {
+  "frames": 41,
+  "vblank_start_max": 87,
+  "frame_work_max": 30,
+  "loop_gap_max": 5376,
+  "parser_max": 5357,
+  "host_service_max": 255,
+  "seconds": 0.67
+ },
+ "wb_close": {
+  "frames": 35,
+  "vblank_start_max": 85,
+  "frame_work_max": 1669,
+  "loop_gap_max": 5728,
+  "parser_max": 5709,
+  "host_service_max": 315,
+  "seconds": 0.58
+ },
+ "wb_console_clear": {
+  "frames": 33,
+  "vblank_start_max": 86,
+  "frame_work_max": 1622,
+  "loop_gap_max": 2841,
+  "parser_max": 2806,
+  "host_service_max": 258,
+  "seconds": 0.54
+ }
+}

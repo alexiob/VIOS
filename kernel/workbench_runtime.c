@@ -34,13 +34,14 @@ static void status(void){
  vios_out(" module ");hex_string(s.module);vios_out(" version ");hex_string(s.version);vios_out(" test ");hex_string(s.test_word);vios_out(" error ");hex_string(s.error);vios_out("\r\n");
 }
 static int display_reset(void){
- static const unsigned char mode[]={22,1},query[]={23,0,0x86};
+ static const unsigned char mode[]={23,0,VIOS_VDU_DISPLAY,0},query[]={23,0,0x86};
  unsigned char info[8];unsigned actual=0;platform_vdp_send(mode,sizeof mode);
- if(!platform_vdp_request(query,sizeof query,0x86,info,sizeof info,&actual)||actual!=8||info[4]!=80||info[5]!=60||info[6]!=4||info[7]!=1){
-  vios_workbench_close();platform_keyboard_route(0);error("workbench requires mode 1 (80x60, four colours)");return 0;
+ if(!platform_vdp_request(query,sizeof query,0x86,info,sizeof info,&actual)||actual!=8||info[4]!=80||info[5]!=60||info[6]!=16||info[7]!=0){
+  vios_workbench_close();platform_keyboard_route(0);error("workbench requires mode 0 (80x60, 16 colours)");return 0;
  }
- /* Pinned VDP 1.04 mode-1 palette: black/red/yellow/white. Keep its hardware
-  * palette and cached RGB colour lookup in agreement (including CHAR@). */
+ /* VIOS display (VDU 23,0,E6,0): mode 0, 16 colours, with 0-3 pinned to the
+  * mode 1 black/red/yellow/white so existing attrs keep their look. The ESP
+  * keeps its hardware palette and cached RGB lookup in agreement (CHAR@). */
  static const unsigned char setup[]={17,3,17,128,12,23,1,0};
  platform_vdp_send(setup,sizeof setup);vios_text_reset();paint_failed=0;vios_workbench_note_error("");return 1;
 }
@@ -48,7 +49,7 @@ static int display_repaint(void){
  /* Repainting an owned mode needs no VGA mode transition. Explicit REDRAW
   * remains the complete recovery route after raw display configuration. */
  static const unsigned char query[]={23,0,0x86};unsigned char info[8];unsigned actual=0;
- if(!platform_vdp_request(query,sizeof query,0x86,info,sizeof info,&actual)||actual!=8||info[4]!=80||info[5]!=60||info[6]!=4||info[7]!=1)return display_reset();
+ if(!platform_vdp_request(query,sizeof query,0x86,info,sizeof info,&actual)||actual!=8||info[4]!=80||info[5]!=60||info[6]!=16||info[7]!=0)return display_reset();
  static const unsigned char setup[]={26,17,3,17,128,12,23,1,0};
  platform_vdp_send(setup,sizeof setup);vios_text_reset();paint_failed=0;vios_workbench_note_error("");return 1;
 }
