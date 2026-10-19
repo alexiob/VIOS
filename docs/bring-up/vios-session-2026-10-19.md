@@ -18,7 +18,9 @@ restored with `tools/vios_fast_display_state.py` after flashes.
 | Inspection | LAST-ERROR pre-unwind capture, TRACE on all engines, source maps (host-tested, flashed with this report's image) | `vios-trace-2026-10-19.log` |
 | Core words | prelude words, ." CHAR CREATE ALLOT HERE , C,, J LEAVE +LOOP ?DO UNLOOP, FILL MOVE U. | `vios-core-words-2026-10-19.json` |
 | Host tools | snapshot, resync, complete/help, module_graph, develop, describe, events, sd_list/put/get, trace, last_error | 216 host tests |
-| Soak | 45-minute mixed load (REPL, snapshot, pipeline, editor round trip, SD round trip) | `vios-soak-2026-10-19.json` |
+| Soak 1 | 342 clean mixed-load iterations (31.9 min, 0 console drops), then 3 bytes lost inside one 1-char USB console frame (open issue #2); harness failed closed | `vios-soak-2026-10-19.json` |
+| Echo coalescing | per-character echo held while input streams; REPL round trip 77.6 -> 35.9 ms; `resync` recovers wire loss without reboot | `vios-tasks-regress-2026-10-19.json` |
+| Soak 2 | rerun on the coalescing firmware | `vios-soak-2026-10-19b.json` |
 
 ## Questions and physical tests for the owner
 

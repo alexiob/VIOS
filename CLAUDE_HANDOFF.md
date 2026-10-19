@@ -562,6 +562,12 @@ See `docs/USER-GUIDE.md` and `docs/bring-up/vios-session-2026-10-19.md`.
 
 Hardware lessons worth keeping:
 
+- USB loss (open issue #2) reproduced on 2026-10-19: after 31.9 min of mixed
+  load, 3 bytes vanished inside one 1-character console frame between ESP
+  and Mac. Echo coalescing (one frame per streamed line) cut frame count and
+  halved REPL latency (35.9 ms); `resync` now re-arms framing at a quiet
+  prompt. Root cause (ESP UART/CH340/host driver) remains unproven.
+
 - Never run bounded C work (task slices, console interpretation) while the
   REPL has re-asserted RTS: the 16-byte UART FIFO overruns and host frames
   are lost. Pause RX first (`platform_console_quiet` gate, drain after the
