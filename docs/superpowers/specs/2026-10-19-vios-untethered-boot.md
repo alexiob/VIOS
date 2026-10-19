@@ -1,7 +1,8 @@
 # VIOS untethered boot: booting without the ZDI wire
 
-Status: **design proposal, 2026-10-19; needs owner decisions (§8). Nothing
-here is implemented.**
+Status: **owner chose path B on 2026-10-19:** automatic dev/user mode, the ESP
+image first, MOS text hidden. U1 and U2 are done and host-tested; nothing is
+flashed. See §9 and §10.
 
 ## 1. Problem
 
@@ -185,3 +186,102 @@ the GUI image hit today.
    then SD (recommended, keeps the matched pair), or SD first.
 4. **MOS boot text:** hide it behind the GUI and log it to the console window
    (recommended), or show it.
+
+## 9. U0: hardware facts to verify (on paper, 2026-10-19)
+
+Each fact below is a check to run on the board, with the result that the
+design assumes. If a check fails, the design changes as described in its
+"If not" line.
+
+1. **No wire means no ZDI ID.**
+   - *Check:* with the jumpers removed, `vios_zdi_id()` does not return
+     `0x0007` (expected `0xFFFF` or `0x0000`).
+   - *Result:* user mode is chosen.
+   - *If not:* add a second read and a revision check, which is already
+     `0xAA`.
+2. **ZDI pin 2 (reset).**
+   - *Check:* whether any ESP pin or DTR/RTS reaches it.
+   - *Expected:* none. The ESP cannot reset the eZ80 in user mode, which is
+     why a missed deadline only reports.
+   - *If a line exists:* user mode can retry the CPU boot.
+3. **MOS handshake.**
+   - *Check:* stock Quark MOS boots against VDP 1.04's parser with no halt.
+     It polls with `VDU 23,0,&80` and reads mode (`&86`), RTC (`&87`) and
+     keyboard state.
+   - *Expected:* nothing new is needed beyond not halting. Measure how long
+     MOS takes to reach its prompt.
+4. **UART rate under MOS.**
+   - *Check:* the rate MOS programs for UART0 (1,152,000 expected, divisor 1)
+     and whether it equals `VIOS_INTERNAL_BAUD`.
+   - *If not:* the stub reprograms the divisor before E8, and the ESP switches
+     rate on the first E8.
+5. **Moslet load and run.**
+   - *Check:* a `.bin` in `/mos/` loads at `0x0B0000` and runs with MOS's
+     stack and interrupts on.
+   - *Expected:* the stub may then disable interrupts (DI) and poll UART0
+     directly.
+   - *Also check:* the stub fits below `0x0B8000`.
+6. **MOS RAM use.**
+   - *Check:* MOS keeps no state in `0x40000..0xAFFFF` that the stub needs
+     while loading, and MOS's own stack and globals stay clear of what the
+     stub writes.
+7. **A RAM word that survives a jump to 0.**
+   - *Check:* find an address that MOS initialisation leaves alone. U5 uses
+     it for the stub's retry counter.
+   - *If none:* use an SD file instead.
+8. **IM2 vector table.**
+   - *Check:* the table VIOS relies on (`vios-tasks.md`) is the one MOS left.
+     It is the same in both modes, but verify it after a stub boot.
+9. **Plain VDU text from MOS at boot.**
+   - *Check:* list the codes MOS sends (CLS, colours, mode).
+   - *Expected:* the §10 filter covers them, and no VDU 22 mode change
+     reaches the GUI.
+10. **Removing and refitting the wire.** With the board powered off, both
+    modes must cold-boot repeatedly: 20 boots each in U6.
+
+## 10. U2: ESP user mode (implemented, host-tested, not flashed)
+
+- **Mode selection.**
+  - In `vios_bridge_boot`, a failed ZDI ID or revision check now means user
+    mode instead of `ERR CPU identity/halt`.
+  - User mode puts GPIO26 and GPIO27 into input mode (free for the mouse
+    later), does not halt the CPU, and reports `BOOT user mode: no ZDI; MOS
+    and its stub load the resident`.
+  - Dev mode is unchanged.
+- **Boot deadline in user mode.**
+  - The deadline is armed by the stub's manifest request. A miss reports `ERR
+    CPU boot deadline in user mode; reset the board`.
+  - In user mode the ESP never halts the CPU or restarts itself, and does not
+    count failures. A trial image still falls back.
+- **`VDU 23,0,E8`** (`include/vios_bootserve.h`, `vdu_sys.h`). Replies use
+  packet `0x7B`, which the CPU sees as `FB`. Integers are little endian, and
+  CRCs are zlib CRC-32.
+
+  | Request | Reply |
+  |---|---|
+  | `E8,0` | `'M' ver=1 block=192 size:u32 crc32:u32 gui baud:u32`, 16 bytes |
+  | `E8,1,index:u16,n` (n 1..32) | n × `'B' index:u16 data crc32(data)`, or `'E' index:u16` past the end |
+
+  A burst of 32 blocks is about 6.4 KB, roughly 55 ms of parser time. Loading
+  158 KB takes 26 bursts, about 1.4 s at 1,152,000 baud. Other VDP packets,
+  such as keyboard packets, may arrive between boot packets; the stub skips
+  them by code.
+- **MOS phase.** Until the resident's first `VDU 23,0,E*` command other than
+  E8:
+  - plain VDU text goes into the console window (`vios_console_feed`);
+  - VDU codes that take arguments have those arguments swallowed;
+  - `VDU 23` still reaches the parser, so MOS's poll, mode and RTC requests
+    are answered.
+  - Nothing is drawn on the framebuffer that the GUI owns. This applies in
+    both modes: dev mode also has 2.1 s of MOS before the halt.
+- **Tests.**
+  - `tests/test_esp_bootserve.py` runs a model of the stub. It loads images of
+    1 B to 158 KB through manifest and bursts, with keyboard packets
+    interleaved, and refuses flipped bytes. It also checks the MOS filter.
+  - `bridge.cpp` `check_user_mode` covers mode selection, the pins, deadline
+    arming, a deadline miss without restarting and the trial fallback, and
+    that dev mode returns with the wire.
+- **Next:** U3 (the stub), U4 (the SD layout and installer) and U5 (restart
+  through 0, and re-handshake after an ESP restart). U6 is board acceptance
+  with the wire removed.
+

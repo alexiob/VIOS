@@ -19,6 +19,13 @@ void VDUStreamProcessor::vdu(uint8_t c) {
 	if(consoleMode) {
 		vios_usb_console_write(&c,1);
 	}
+	// VIOS: MOS's boot text goes to the console window; its VDU arguments are
+	// swallowed. Nothing reaches the framebuffer before the resident takes over.
+	if (vios_mos_phase() && c != 23) {
+		for (unsigned n = vios_mos_vdu_args(c); n; --n) if (readByte_t() < 0) break;
+		if (vios_mos_text(c)) vios_console_feed(&c, 1);
+		return;
+	}
 	
 	switch(c) {
 		case 0x04:	

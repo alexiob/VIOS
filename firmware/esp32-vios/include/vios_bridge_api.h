@@ -3,6 +3,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <vios_wire.h>
+#include "vios_bootserve.h"
 void vios_bridge_poll();
 void vios_bridge_boot();
 void vios_usb_console_write(const uint8_t *data,size_t length);
@@ -10,6 +11,14 @@ void vios_usb_host_write(const uint8_t *data,size_t length);
 
 void vios_legacy_hexload_notice();
 void vios_boot_health(uint8_t flag);
+/* Untethered boot: payloads of the VDU 23,0,E8 replies (vios_bootserve.h), and
+ * the MOS phase (until the resident's first VDU 23,0,E* command, plain VDU
+ * text from MOS is console text, never drawn on the framebuffer). */
+unsigned vios_boot_manifest_reply(uint8_t *out);
+unsigned vios_boot_block_reply(unsigned index,uint8_t *out);
+bool vios_boot_user_mode();
+bool vios_mos_phase();
+void vios_mos_phase_end();
 
 bool vios_cpu_is_paused();
 void vios_unsupported(const char *feature);

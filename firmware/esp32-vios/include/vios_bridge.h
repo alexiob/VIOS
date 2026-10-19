@@ -6,6 +6,10 @@
 #pragma once
 #include "vios_bridge_api.h"
 #include "vios_image.h"
+#include "vios_bootserve.h"
+#ifndef VIOS_GUI_BOOT
+#define VIOS_GUI_BOOT 0
+#endif
 #include "vios_line.h"
 #include "vios_stage0.h"
 #include "vios/internal_uart.h"
@@ -55,6 +59,13 @@ static std::atomic<bool> cpu_paused(false);
 static bool ram_ready;
 static uint8_t native_ram_map[4];
 static bool boot_deadline_armed;
+/* User mode: no ZDI wire, MOS boots the eZ80 and its stub loads the resident
+ * from this firmware (E8). The ESP can neither halt nor reset the CPU. */
+static bool boot_user_mode;
+static std::atomic<bool> mos_phase(true);
+bool vios_boot_user_mode(){return boot_user_mode;}
+bool vios_mos_phase(){return mos_phase.load();}
+void vios_mos_phase_end(){mos_phase.store(false);}
 static bool cpu_boot_ready;
 static unsigned long boot_started,boot_paused_at;
 static std::atomic<unsigned> boot_failures(0);
@@ -556,7 +567,12 @@ void vios_bridge_poll() {
         else {boot_deadline_armed=false;cpu_boot_ready=true;boot_failures=0;retain_failures(0);firmware_confirm();}
     }
     if(boot_deadline_armed&&!cpu_paused&&millis()-boot_started>=30000) {
-        boot_deadline_armed=false;cpu_boot_ready=false;++boot_failures;retain_failures(boot_failures);
+        boot_deadline_armed=false;cpu_boot_ready=false;
+        if(boot_user_mode){   // the ESP cannot reload the CPU: report, or leave a trial image
+            if(firmware_trial){firmware_fallback("CPU boot deadline");return;}
+            bridge_event("ERR CPU boot deadline in user mode; reset the board\r\n");return;
+        }
+        ++boot_failures;retain_failures(boot_failures);
         bool halted=cpu_halt();
         if(firmware_trial){firmware_fallback("CPU boot deadline");return;}
         if(boot_failures>=3)bridge_event(halted?"ERR three failed CPU boots; halted, USB recovery available\r\n":"ERR three failed CPU boots; halt failed, use Z\r\n");
@@ -641,6 +657,11 @@ static bool boot_crc_check(uint32_t internal,unsigned blocks,uint32_t expected){
     }
     return true;
 }
+unsigned vios_boot_manifest_reply(uint8_t *out){
+    if(boot_user_mode&&!boot_deadline_armed){cpu_boot_ready=false;boot_started=millis();boot_deadline_armed=true;bridge_event("BOOT stub loading the resident over the UART\r\n");}
+    return vios_boot_manifest(out,vios_image_size,vios_image_crc,VIOS_GUI_BOOT,VIOS_INTERNAL_BAUD);
+}
+unsigned vios_boot_block_reply(unsigned index,uint8_t *out){return vios_boot_block(out,vios_image,vios_image_size,index);}
 void vios_bridge_boot() {
     cpu_boot_ready=false;boot_deadline_armed=false;
     ram_ready=false;memset(native_ram_map,0,sizeof native_ram_map);
@@ -648,7 +669,12 @@ void vios_bridge_boot() {
     {char boot_event[48];snprintf(boot_event,sizeof boot_event,"BOOT VIOS VDP 1.04 mux-v1 zdi-edge %uus\r\n",(unsigned)VIOS_ZDI_EDGE_US);bridge_event(boot_event);}
     char retry_event[48];snprintf(retry_event,sizeof retry_event,"BOOT retained failures %u\r\n",boot_failures.load());bridge_event(retry_event);
     firmware_status(retry_event,sizeof retry_event);bridge_event(retry_event);
-    if(vios_zdi_id()!=0x0007||vios_zdi_revision()!=0xAA||!cpu_halt()){bridge_event("ERR CPU identity/halt; recovery control available\r\n");return;}
+    if(vios_zdi_id()!=0x0007||vios_zdi_revision()!=0xAA){   // no wire: user mode
+        boot_user_mode=true;pinMode(ZDI_TCK,INPUT);pinMode(ZDI_TDI,INPUT);
+        bridge_event("BOOT user mode: no ZDI; MOS and its stub load the resident\r\n");return;
+    }
+    boot_user_mode=false;
+    if(!cpu_halt()){bridge_event("ERR CPU identity/halt; recovery control available\r\n");return;}
     if(boot_failures>=3){bridge_event("ERR retained boot failure limit; halted, use Z\r\n");return;}
     vios_zdi_cpu_read(SET_ADL);vios_zdi_di();
     // F92 hardware: the first IN0 after a port/opcode change returns prior A.

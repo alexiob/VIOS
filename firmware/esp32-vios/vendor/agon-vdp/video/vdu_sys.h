@@ -115,8 +115,21 @@ void VDUStreamProcessor::vdu_sys() {
 //
 void VDUStreamProcessor::vdu_sys_video() {
 	auto mode = readByte_t();
+	if (mode >= 0xE0 && mode <= 0xEF && mode != VIOS_VDU_BOOT) vios_mos_phase_end();	// the resident is talking
 
 	switch (mode) {
+        case VIOS_VDU_BOOT: {	// untethered boot stub: manifest or a burst of blocks
+            auto op=readByte_t();uint8_t reply[3+VIOS_BOOT_BLOCK+4];
+            if(op==0){send_packet(VIOS_BOOT_PACKET,(uint8_t)vios_boot_manifest_reply(reply),reply);break;}
+            if(op!=1)break;
+            auto lo=readByte_t(),hi=readByte_t(),count=readByte_t();
+            if(lo<0||hi<0||count<1||count>(int)VIOS_BOOT_BURST)break;
+            for(int i=0;i<count;++i){
+                unsigned n=vios_boot_block_reply((unsigned)(lo|hi<<8)+(unsigned)i,reply);
+                send_packet(VIOS_BOOT_PACKET,(uint8_t)n,reply);
+                if(reply[0]!='B')break;
+            }
+        } break;
         case VIOS_VDU_CONSOLE: {
             auto length=readByte_t();
             uint8_t payload[VIOS_WIRE_PAYLOAD_MAX];
