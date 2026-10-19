@@ -122,6 +122,7 @@ void VDUStreamProcessor::vdu_sys_video() {
         case VIOS_VDU_BOOT: {	// untethered boot stub: manifest or a burst of blocks
             auto op=readByte_t();uint8_t reply[3+VIOS_BOOT_BLOCK+4];
             if(op==0){send_packet(VIOS_BOOT_PACKET,(uint8_t)vios_boot_manifest_reply(reply),reply);break;}
+            if(op==2){send_packet(VIOS_BOOT_PACKET,(uint8_t)vios_boot_rate_reply(reply,VIOS_INTERNAL_BAUD),reply);vios_link_rate(VIOS_INTERNAL_BAUD);break;}
             if(op!=1)break;
             auto lo=readByte_t(),hi=readByte_t(),count=readByte_t();
             if(lo<0||hi<0||count<1||count>(int)VIOS_BOOT_BURST)break;

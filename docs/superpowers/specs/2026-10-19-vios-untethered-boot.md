@@ -582,3 +582,35 @@ options are `--resident` (default `build/vios-resident.bin` with its
 4. **Tests:** ESP rate and ESC selection by reset reason, the op-2 handshake,
    and the stub's divisor switch on the interpreter.
 
+### 15.1 Implemented (host-tested, not on the board yet)
+
+- **ESP link probe** (`vios_bridge.h` `link_service`). In user mode, every
+  boot:
+  1. The ESP sends `FA` at the internal rate.
+  2. If a resident answers with any `VDU 23,0,E*` command within 1 s, the link
+     stays at the internal rate. This covers an ESP-only restart, such as USB
+     DTR or an A/B install.
+  3. Otherwise it switches to 384,000 and sends ESC every 500 ms until MOS
+     sends anything.
+
+  A board power-on with no wire therefore boots MOS. The events are `BOOT link
+  …`. The reset-reason heuristic is gone; `FA` goes out in all user-mode
+  boots.
+- **`E8` op 2:**
+  - The ESP replies `'R'` with the baud (`vios_boot_rate_reply`), drains its
+    TX, then switches to `VIOS_INTERNAL_BAUD` (`vios_link_rate`).
+  - The stub (`rate_switch`, run once after the counter and before both load
+    paths) sends op 2. On an `'R'` it sets the UART0 divisor to 1 under DLAB,
+    keeping LCR, and waits about 2 ms. Without an answer it keeps the rate.
+  - The load and VIOS then run at 1,152,000.
+- **Tests:**
+  - `bridge.cpp` covers the probe answered (no switch), the probe unanswered
+    (384,000, ESC at once and every 500 ms, stopping when MOS talks), the op 2
+    reply bytes, and that dev mode does neither.
+  - `test_viosboot_native.py` models both ends' divisors: a byte at mismatched
+    rates is garbled. It checks the switch (both at divisor 1, nothing
+    garbled), another VDP firmware that ignores op 2 (the stub stays at
+    384,000 and still boots), and the request order (op 2 first).
+  - Leaving DLAB set fails 5 tests.
+- **Card:** `/mos/viosboot.bin` must be replaced with this build.
+

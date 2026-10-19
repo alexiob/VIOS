@@ -70,7 +70,25 @@ void vios_mos_phase_end(){mos_phase.store(false);}
 /* MOS's general poll: the CPU (re)started into MOS. Whatever the previous
  * resident set up on this side is gone with it: windows, line mode, route. */
 void vios_mos_phase_begin(){mos_phase.store(true);vios_line_mode(0);vios_gui_cpu_reset();}
-static bool restart_notice; // user mode after a non-power-on ESP restart: tell a running resident
+static bool restart_notice; // user mode: tell a resident that may still be running (packet FA)
+/* User-mode link. The board's MOS (Agon Quark) runs UART0 at 384000 baud and
+ * waits, without a timeout, for ESC from the VDP before it boots (spec §15).
+ * A resident that kept running across an ESP-only restart (USB DTR, A/B
+ * install) talks at the internal rate instead. So: probe first at the
+ * internal rate (FA; a resident answers with a VDU 23,0,E* command within
+ * LINK_PROBE_MS), else switch to MOS's rate and send ESC every LINK_ESC_MS
+ * until MOS talks. The stub moves both ends to the internal rate (E8 op 2). */
+static const uint32_t VIOS_MOS_BAUD=384000;
+static const unsigned long LINK_PROBE_MS=1000,LINK_ESC_MS=500;
+enum {LINK_SETTLED,LINK_PROBE,LINK_MOS};
+static uint8_t link_state=LINK_SETTLED;
+static unsigned long link_since,link_esc;
+/* The bytes the CPU sends to the VDU parser after MR (top-level VDU codes). */
+static uint8_t mos_bytes[32];
+static std::atomic<unsigned> mos_count(0);
+static std::atomic<bool> mos_capturing(false);
+static void mos_capture_start(){mos_count.store(0);mos_capturing.store(true);}
+void vios_mos_capture(uint8_t c){if(!mos_capturing.load())return;unsigned i=mos_count.fetch_add(1);if(i<sizeof mos_bytes)mos_bytes[i]=c;}
 static bool cpu_boot_ready;
 static unsigned long boot_started,boot_paused_at;
 static std::atomic<unsigned> boot_failures(0);
@@ -309,12 +327,6 @@ static bool parse_hex(const char *s,size_t n,uint32_t *value) {
     return true;
 }
 static bool ram_range(uint32_t address,uint32_t count,uint32_t end) {return count&&count<=256&&address>=0x40000&&address<end&&count<=end-address;}
-/* The bytes the CPU sends to the VDU parser after MR (top-level VDU codes). */
-static uint8_t mos_bytes[32];
-static std::atomic<unsigned> mos_count(0);
-static std::atomic<bool> mos_capturing(false);
-static void mos_capture_start(){mos_count.store(0);mos_capturing.store(true);}
-void vios_mos_capture(uint8_t c){if(!mos_capturing.load())return;unsigned i=mos_count.fetch_add(1);if(i<sizeof mos_bytes)mos_bytes[i]=c;}
 /* IN0 A,(port) on the halted CPU, every register restored afterwards. */
 static uint8_t zdi_port_in(uint8_t port,const uint32_t saved[8]){
     uint8_t in[3]={port,0x38,0xED};vios_zdi_write_registers(ZDI_IS2,3,in);delayMicroseconds(10);
@@ -611,7 +623,24 @@ static void usb_dispatch(const struct vios_wire_message *message) {
         }
     }
 }
+/* Both ends to `baud` (E8 op 2 after its reply, or the probe's fallback). */
+void vios_link_rate(uint32_t baud){VDPSerial.flush();VDPSerial.updateBaudRate(baud);link_state=LINK_SETTLED;}
+static void link_service(){
+    if(link_state==LINK_PROBE){
+        if(!mos_phase.load()){link_state=LINK_SETTLED;bridge_event("BOOT link: a resident answered at the internal rate\r\n");return;}
+        if(millis()-link_since<LINK_PROBE_MS)return;
+        vios_vdp_tx_begin();VDPSerial.flush();VDPSerial.updateBaudRate(VIOS_MOS_BAUD);vios_vdp_tx_end();
+        mos_capture_start();link_state=LINK_MOS;link_esc=millis()-LINK_ESC_MS;
+        bridge_event("BOOT link 384000: sending ESC until MOS answers\r\n");
+    }
+    if(link_state==LINK_MOS){
+        if(mos_count.load()){link_state=LINK_SETTLED;bridge_event("BOOT link: MOS answered\r\n");return;}
+        if(millis()-link_esc<LINK_ESC_MS)return;
+        link_esc=millis();vios_vdp_tx_begin();VDPSerial.write((uint8_t)0x1B);vios_vdp_tx_end();
+    }
+}
 void vios_bridge_poll() {
+    link_service();
     if(source_used&&millis()-source_started>2000){line_reply(source_sequence,"LINE ERR timeout\r\n");source_used=0;}
     if(full_control.load()){
     int health=health_mailbox.exchange(-1);
@@ -725,7 +754,7 @@ void vios_bridge_boot() {
     firmware_status(retry_event,sizeof retry_event);bridge_event(retry_event);
     if(vios_zdi_id()!=0x0007||vios_zdi_revision()!=0xAA){   // no wire: user mode
         boot_user_mode=true;pinMode(ZDI_TCK,INPUT);pinMode(ZDI_TDI,INPUT);
-        restart_notice=esp_reset_reason()!=ESP_RST_POWERON;
+        restart_notice=true;link_state=LINK_PROBE;link_since=millis();
         bridge_event("BOOT user mode: no ZDI; MOS and its stub load the resident\r\n");return;
     }
     boot_user_mode=false;

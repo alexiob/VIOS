@@ -55,6 +55,7 @@ viosboot_entry:
     call parse_args
     call count_boot
     jp c, .Llimit
+    call rate_switch           /* MOS runs the link at 384000; VIOS and fast loads want 1152000 */
     ld a, (flag_sd)
     or a, a
     jp nz, .Lsd_first
@@ -163,6 +164,40 @@ count_boot:
     ret
 
 /* ---------------------------------------------------------------- ESP */
+
+/* E8 op 2: the ESP answers 'R' and moves to its internal rate (1152000); the
+ * stub follows (UART0 divisor 1 at 18.432 MHz, line settings kept). No answer
+ * (another VDP firmware): the rate stays. Interrupts are back on afterwards. */
+rate_switch:
+    di
+    call flush
+    ld hl, req_rate
+    ld b, 4
+    call send_bytes
+    call read_packet
+    jr c, 2f
+    ld a, (pkt)
+    cp a, 'R'
+    jr nz, 2f
+    in0 a, (0xC3)
+    ld (lcr), a
+    or a, 0x80                 /* DLAB: the divisor latch */
+    out0 (0xC3), a
+    ld a, 1
+    out0 (0xC0), a
+    xor a, a
+    out0 (0xC1), a
+    ld a, (lcr)
+    out0 (0xC3), a
+    ld bc, 0x1000              /* ~2 ms: the ESP has switched before the next request */
+1:
+    dec bc
+    ld a, b
+    or a, c
+    jr nz, 1b
+2:
+    ei
+    ret
 
 /* Carry set on failure (interrupts back on); clear with a verified image (DI). */
 load_esp:
@@ -613,6 +648,7 @@ print:
 /* ---------------------------------------------------------------- data */
 
 req_manifest: .byte 23, 0, 0xE8, 0
+req_rate:     .byte 23, 0, 0xE8, 2
 req_blocks:   .byte 23, 0, 0xE8, 1
 req_index:    .byte 0, 0
 req_count:    .byte 0
@@ -630,6 +666,7 @@ saved_sp:     .space 3
 flag_sd:      .space 1
 flag_force:   .space 1
 count:        .space 1
+lcr:          .space 1
 wait:         .space 1
 tries:        .space 1
 left:         .space 1
