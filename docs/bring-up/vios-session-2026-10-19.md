@@ -38,7 +38,10 @@ restored with `tools/vios_fast_display_state.py` after flashes.
 | GUI toolkit stages 0-1 | design `docs/superpowers/specs/2026-10-19-vios-gui-toolkit.md`; Stage 0 baseline (fb77d31), Stage 1a USB drain off the VDP parser (19d15c8), Stage 1c console on the ESP in progress |
 | Cold-start / power-cut tests | owner will run them |
 | Second architecture (6502) | on hold |
-| HELLO autorun demo | approved; held until boot/GUI work settles (its heartbeat disturbs timing runs) |
+| HELLO autorun demo | **installed**: module HELLO 1 staged/saved, boot trial written to slot A, reboot ran it, confirmed (generation 15); AUTORUN runs as task 1 with a 10 s heartbeat. `n TASK-KILL` stops it; `boot_revert` returns to slot B |
+| Boot to the GUI | on the board (image gui-boot-9): mode 0, GUI first, Ctrl+Alt+F1 text console; fixes for a boot crash, mode 0 memory and the frame budget (9a87e0d) |
+| Stage 2a (ESP line editing) | on the board: key-to-console 0.125 ms idle and under load (was 27-34 ms under load) |
+| GUI soak | passed: 387 iterations, 30.1 min, 0 failures, 0 drops |
 
 Every ESP image since the A/B work was installed as a trial and confirmed;
 one (the first CRC build) failed its trial and rolled back by itself, as
