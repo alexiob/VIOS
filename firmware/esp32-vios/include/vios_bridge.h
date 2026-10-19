@@ -624,12 +624,19 @@ static void usb_dispatch(const struct vios_wire_message *message) {
     }
 }
 /* Both ends to `baud` (E8 op 2 after its reply, or the probe's fallback). */
-void vios_link_rate(uint32_t baud){VDPSerial.flush();VDPSerial.updateBaudRate(baud);link_state=LINK_SETTLED;}
+/* The board's MOS never asserts RTS (no hardware flow control): with the ESP's
+ * CTS/RTS on, nothing it is sent ever leaves and every flush blocks for good
+ * (U6 run 2: the whole control task hung). MOS's rate runs without flow
+ * control; the internal rate (VIOS, the stub's reads) with it. */
+void vios_link_rate(uint32_t baud){
+    VDPSerial.flush();VDPSerial.updateBaudRate(baud);
+    VDPSerial.setHwFlowCtrlMode(HW_FLOWCTRL_CTS_RTS,64);link_state=LINK_SETTLED;
+}
 static void link_service(){
     if(link_state==LINK_PROBE){
         if(!mos_phase.load()){link_state=LINK_SETTLED;bridge_event("BOOT link: a resident answered at the internal rate\r\n");return;}
         if(millis()-link_since<LINK_PROBE_MS)return;
-        vios_vdp_tx_begin();VDPSerial.flush();VDPSerial.updateBaudRate(VIOS_MOS_BAUD);vios_vdp_tx_end();
+        vios_vdp_tx_begin();VDPSerial.setHwFlowCtrlMode(HW_FLOWCTRL_DISABLE,64);VDPSerial.flush();VDPSerial.updateBaudRate(VIOS_MOS_BAUD);vios_vdp_tx_end();
         mos_capture_start();link_state=LINK_MOS;link_esc=millis()-LINK_ESC_MS;
         bridge_event("BOOT link 384000: sending ESC until MOS answers\r\n");
     }

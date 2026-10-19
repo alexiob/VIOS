@@ -16,6 +16,8 @@
 #define ZDI_TDI 27
 #define ZDI_BRK_CTL 0x10
 #define ZDI_MASTER_CTL 0x11
+#define HW_FLOWCTRL_DISABLE 0
+#define HW_FLOWCTRL_CTS_RTS 3
 #define ZDI_IS2 0x23
 #define ZDI_IS1 0x24
 #define ZDI_IS0 0x25
@@ -50,7 +52,8 @@ struct Serial {
     std::deque<uint8_t> input;
     size_t write(const uint8_t *p,size_t n){if(usb&&trace_usb)note_usb(1);output.insert(output.end(),p,p+n);return n;}
     size_t write(uint8_t byte){output.push_back(byte);return 1;}
-    uint32_t baud=0;void updateBaudRate(uint32_t b){baud=b;}
+    uint32_t baud=0;int flow=1;void updateBaudRate(uint32_t b){baud=b;}
+    bool setHwFlowCtrlMode(int mode,int){flow=mode;return true;}
     int available(){return (int)input.size();}
     int read(){if(input.empty())return -1;int b=input.front();input.pop_front();return b;}
     void flush(){if(usb&&trace_usb)note_usb(2);}
@@ -342,7 +345,7 @@ static void check_user_mode(){
     vios_bridge_service_vdp();assert(VDPSerial.output.size()==3&&VDPSerial.output[0]==0xFA);VDPSerial.output.clear();
     now+=999;vios_bridge_poll();assert(VDPSerial.baud==0&&link_state==LINK_PROBE);
     now+=1;vios_bridge_poll();f=output_frames();
-    assert(VDPSerial.baud==384000&&link_state==LINK_MOS&&saw_event(f,"BOOT link 384000: sending ESC until MOS answers\r\n"));
+    assert(VDPSerial.baud==384000&&VDPSerial.flow==HW_FLOWCTRL_DISABLE&&link_state==LINK_MOS&&saw_event(f,"BOOT link 384000: sending ESC until MOS answers\r\n"));
     vios_bridge_poll();assert(VDPSerial.output.size()==1&&VDPSerial.output[0]==0x1B);            // at once
     now+=499;vios_bridge_poll();assert(VDPSerial.output.size()==1);
     now+=1;vios_bridge_poll();assert(VDPSerial.output.size()==2&&VDPSerial.output[1]==0x1B);    // again after 500 ms
@@ -350,7 +353,7 @@ static void check_user_mode(){
     assert(link_state==LINK_SETTLED&&VDPSerial.output.size()==2&&saw_event(f,"BOOT link: MOS answered\r\n"));
     // The stub's E8 op 2 moves both ends to the internal rate.
     uint8_t rate[5];assert(vios_boot_rate_reply(rate,1152000)==5&&rate[0]=='R'&&rate[1]==0x00&&rate[2]==0x94&&rate[3]==0x11);
-    vios_link_rate(1152000);assert(VDPSerial.baud==1152000&&link_state==LINK_SETTLED);
+    vios_link_rate(1152000);assert(VDPSerial.baud==1152000&&VDPSerial.flow==HW_FLOWCTRL_CTS_RTS&&link_state==LINK_SETTLED);
     zdi_wire=true;reset_reason=0;VDPSerial.output.clear();VDPSerial.baud=0;assert(vios_bridge_init());vios_bridge_boot();vios_bridge_handoff();output_frames();
     vios_bridge_service_vdp();now+=5000;vios_bridge_poll();
     assert(VDPSerial.output.empty()&&!boot_user_mode&&VDPSerial.baud==0);                          // dev mode: no notice, no probe
