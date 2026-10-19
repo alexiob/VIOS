@@ -207,6 +207,29 @@ static void firmware_status(char *line,size_t size){
     if(!running||esp_ota_get_state_partition(running,&state)!=ESP_OK)state=ESP_OTA_IMG_UNDEFINED;
     snprintf(line,size,"FIRMWARE %s %s%s\r\n",running?running->label:"?",firmware_state_name(state),firmware_trial?" trial":"");
 }
+static void firmware_fallback(const char *reason);
+/* A trial image that crashes before its CPU can report health (a fault in
+ * setup, a panic or watchdog loop) never reaches the deadline checks above:
+ * count its unexpected restarts in RTC memory, keyed by its otadata entry, and
+ * fall back on the FIRMWARE_TRIAL_CRASHES-th. Power-on and deliberate restarts
+ * neither count nor clear; confirming clears. Runs first in setup. */
+static const unsigned FIRMWARE_TRIAL_CRASHES=3;
+RTC_NOINIT_ATTR static uint32_t trial_magic,trial_seq,trial_crashes,trial_inverse;
+static const uint32_t trial_signature=0x5654524C;
+static void trial_record(uint32_t seq,uint32_t crashes){trial_seq=seq;trial_crashes=crashes;trial_inverse=~(seq^crashes);trial_magic=trial_signature;}
+static bool reset_was_crash(int reason){
+    return reason==ESP_RST_PANIC||reason==ESP_RST_INT_WDT||reason==ESP_RST_TASK_WDT||reason==ESP_RST_WDT||reason==ESP_RST_BROWNOUT;
+}
+static void firmware_trial_start(uint32_t seq){
+    bool kept=trial_magic==trial_signature&&trial_seq==seq&&trial_inverse==~(seq^trial_crashes);
+    uint32_t crashes=kept?trial_crashes:0;
+    if(reset_was_crash(esp_reset_reason()))++crashes;
+    trial_record(seq,crashes);
+    if(crashes>=FIRMWARE_TRIAL_CRASHES){
+        char reason[64];snprintf(reason,sizeof reason,"trial restarted %u times by crashes",(unsigned)crashes);
+        trial_record(seq,0);firmware_fallback(reason);
+    }
+}
 static void firmware_init(){
     firmware_trial=false;firmware_trial_sector=-1;
     const esp_partition_t *running=esp_ota_get_running_partition();
@@ -218,6 +241,7 @@ static void firmware_init(){
     const OtaEntry &e=entries[active];
     if(!memcmp(e.label,firmware_trial_label,sizeof firmware_trial_label-1)){firmware_trial=true;firmware_trial_sector=active;}
     else firmware_trial=e.state==ESP_OTA_IMG_NEW||e.state==ESP_OTA_IMG_PENDING_VERIFY;
+    if(firmware_trial)firmware_trial_start(e.seq);
 }
 static void firmware_confirm(){
     if(!firmware_trial)return;
@@ -227,7 +251,7 @@ static void firmware_confirm(){
         if(ok){memset(e.label,0xFF,sizeof e.label);e.state=ESP_OTA_IMG_VALID;ok=otadata_write((unsigned)firmware_trial_sector,&e);}
     }else ok=esp_ota_mark_app_valid_cancel_rollback()==ESP_OK;
     if(!ok){bridge_event("ERR FIRMWARE confirm failed\r\n");return;}
-    firmware_trial=false;firmware_trial_sector=-1;char line[64];firmware_status(line,sizeof line);bridge_event("FIRMWARE confirmed\r\n");bridge_event(line);
+    trial_magic=0;firmware_trial=false;firmware_trial_sector=-1;char line[64];firmware_status(line,sizeof line);bridge_event("FIRMWARE confirmed\r\n");bridge_event(line);
 }
 static void firmware_fallback(const char *reason){
     char line[96];snprintf(line,sizeof line,"FIRMWARE rollback: %s\r\n",reason);bridge_event(line);DBGSerial.flush();delay(50);

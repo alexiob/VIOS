@@ -11,6 +11,11 @@
 #define pdMS_TO_TICKS(x) (x)
 #define portMAX_DELAY 0xFFFFFFFFu
 #define ESP_RST_SW 1
+#define ESP_RST_PANIC 4
+#define ESP_RST_INT_WDT 5
+#define ESP_RST_TASK_WDT 6
+#define ESP_RST_WDT 7
+#define ESP_RST_BROWNOUT 9
 static int reset_reason;
 static int esp_reset_reason(){return reset_reason;}
 struct FakeMutex {std::timed_mutex lock;std::atomic<bool> held{false};};

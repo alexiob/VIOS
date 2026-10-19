@@ -211,6 +211,20 @@ static void check_firmware_ab(){
     ota_entry_at(1,4,ESP_OTA_IMG_VALID,"VIOS-TRIAL");now=1000;assert(vios_bridge_init()&&firmware_trial);vios_bridge_handoff();cpu_boot_ready=false;boot_deadline_armed=false;
     vios_bridge_poll();assert(ota_rollbacks==1);now=FIRMWARE_TRIAL_MS;vios_bridge_poll();f=output_frames();
     assert(ota_rollbacks==2&&saw_event(f,"FIRMWARE rollback: no CPU health\r\n"));
+    // A trial that crashes during start-up (no health ever) falls back on its third crash restart;
+    // power-on and deliberate restarts neither count nor clear, a new install starts from zero.
+    ota_entry_at(1,8,ESP_OTA_IMG_VALID,"VIOS-TRIAL");now=1000;unsigned before=ota_rollbacks;
+    reset_reason=0;assert(vios_bridge_init()&&firmware_trial&&trial_crashes==0);
+    reset_reason=ESP_RST_PANIC;assert(vios_bridge_init()&&trial_crashes==1);
+    reset_reason=ESP_RST_SW;assert(vios_bridge_init()&&trial_crashes==1);
+    reset_reason=ESP_RST_TASK_WDT;assert(vios_bridge_init()&&trial_crashes==2&&ota_rollbacks==before);output_frames();
+    reset_reason=ESP_RST_PANIC;assert(vios_bridge_init());f=output_frames();
+    assert(ota_rollbacks==before+1&&ota_word(1,24)==ESP_OTA_IMG_INVALID&&trial_crashes==0&&saw_event(f,"FIRMWARE rollback: trial restarted 3 times by crashes\r\n"));
+    ota_entry_at(1,10,ESP_OTA_IMG_VALID,"VIOS-TRIAL");trial_record(8,2);reset_reason=ESP_RST_PANIC;
+    assert(vios_bridge_init()&&firmware_trial&&trial_crashes==1&&ota_rollbacks==before+1);   // another install: its own count
+    vios_bridge_handoff();cpu_paused=false;vios_boot_health(1);vios_bridge_poll();output_frames();
+    assert(!firmware_trial&&trial_magic==0);                                                 // confirmed: the record is cleared
+    reset_reason=0;ota_rollbacks=before;
     // A standard NEW entry (working rollback bootloader) is a trial confirmed through the IDF call.
     ota_entry_at(1,6,ESP_OTA_IMG_NEW,nullptr);now=1000;assert(vios_bridge_init()&&firmware_trial&&firmware_trial_sector<0);vios_bridge_handoff();
     vios_boot_health(1);vios_bridge_poll();output_frames();assert(!firmware_trial&&ota_word(1,24)==ESP_OTA_IMG_VALID);
