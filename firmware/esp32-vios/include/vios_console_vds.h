@@ -20,6 +20,7 @@ public:
     uint8_t ordinary() const { return normal; }
     void cells(unsigned x, unsigned y, const char *text, unsigned count, bool inverted) override {
         vds_put(v, surface, (uint8_t)x, (uint8_t)y, inverted ? inverse : normal, text, count);
+        vios_probe_glyphs(text, count);   /* latency probe: key -> console surface (composited next frame step) */
         if (inverted && y < vios_console::ROWS && count == 1) follow(y);   /* the cursor */
     }
     void scroll_up(unsigned rows) override {

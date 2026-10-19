@@ -1,0 +1,96 @@
+{
+  "status": "measured",
+  "B1_console_flood": {
+    "lines": 1000,
+    "repl_seconds": 0.457,
+    "display_settled_seconds": 0.528,
+    "stats": {
+      "glyphs": 3968,
+      "console_bytes": 3944,
+      "console_writes": 36,
+      "usb_block_us": 427,
+      "usb_block_max": 48,
+      "parser_us": 331526,
+      "parser_max": 13936,
+      "injected": 0,
+      "console_sync": 0,
+      "console_queued": 0,
+      "loop_gap_max": 13967,
+      "host_service_max": 320,
+      "console_max": 122,
+      "keyboard_max": 4256,
+      "frames": 88,
+      "vblank_start_max": 2968,
+      "frame_work_max": 4677
+    },
+    "glyphs_per_s": 7516,
+    "usb_console_bytes_per_s": 7470,
+    "parser_blocked_on_usb_share": 0.001,
+    "parser_busy_share": 0.628
+  },
+  "B2_typing_idle": {
+    "20cps": {
+      "n": 40,
+      "min": 82,
+      "med": 125,
+      "p95": 168,
+      "max": 187
+    },
+    "100cps": {
+      "n": 40,
+      "min": 81,
+      "med": 125,
+      "p95": 133,
+      "max": 133
+    }
+  },
+  "B2_stats": {
+    "glyphs": 480,
+    "console_bytes": 320,
+    "console_writes": 160,
+    "usb_block_us": 4099,
+    "usb_block_max": 52,
+    "parser_us": 0,
+    "parser_max": 0,
+    "injected": 160,
+    "console_sync": 0,
+    "console_queued": 0,
+    "loop_gap_max": 1413,
+    "host_service_max": 232,
+    "console_max": 165,
+    "keyboard_max": 1386,
+    "frames": 568,
+    "vblank_start_max": 161,
+    "frame_work_max": 313
+  },
+  "B3_typing_two_tasks": {
+    "20cps": {
+      "n": 40,
+      "min": 104,
+      "med": 125,
+      "p95": 129,
+      "max": 130
+    },
+    "100cps": {
+      "n": 40,
+      "min": 80,
+      "med": 124,
+      "p95": 128,
+      "max": 128
+    }
+  },
+  "events_after": {
+    "ok": true,
+    "events": [
+      {
+        "time": 1792414490.449,
+        "text": "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \bqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b"
+      },
+      {
+        "time": 1792414497.628,
+        "text": "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \bqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b"
+      }
+    ]
+  },
+  "handles_after": []
+}
