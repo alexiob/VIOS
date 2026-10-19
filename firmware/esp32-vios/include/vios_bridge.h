@@ -308,6 +308,19 @@ static bool parse_hex(const char *s,size_t n,uint32_t *value) {
     return true;
 }
 static bool ram_range(uint32_t address,uint32_t count,uint32_t end) {return count&&count<=256&&address>=0x40000&&address<end&&count<=end-address;}
+/* The bytes the CPU sends to the VDU parser after MR (top-level VDU codes). */
+static uint8_t mos_bytes[32];
+static std::atomic<unsigned> mos_count(0);
+static std::atomic<bool> mos_capturing(false);
+static void mos_capture_start(){mos_count.store(0);mos_capturing.store(true);}
+void vios_mos_capture(uint8_t c){if(!mos_capturing.load())return;unsigned i=mos_count.fetch_add(1);if(i<sizeof mos_bytes)mos_bytes[i]=c;}
+/* IN0 A,(port) on the halted CPU, every register restored afterwards. */
+static uint8_t zdi_port_in(uint8_t port,const uint32_t saved[8]){
+    uint8_t in[3]={port,0x38,0xED};vios_zdi_write_registers(ZDI_IS2,3,in);delayMicroseconds(10);
+    uint8_t value=(uint8_t)vios_zdi_cpu_read(REG_AF);
+    for(unsigned r=0;r<8;++r)vios_zdi_cpu_write((rw_control_t)r,saved[r]);
+    return value;
+}
 static void register_reply(uint16_t sequence) {
     char line[100];size_t n=(size_t)snprintf(line,sizeof line,"REGS %02X",vios_zdi_status());
     for(unsigned reg=0;reg<8;++reg)n+=(size_t)snprintf(line+n,sizeof(line)-n," %06lX",(unsigned long)vios_zdi_cpu_read((rw_control_t)reg));
@@ -408,6 +421,35 @@ static void control_command(uint16_t sequence,const char *command,size_t length)
     if(length==1&&command[0]=='B') {
         control_reply(sequence,boot_user_mode&&!cpu_paused&&!cpu_boot_ready&&!boot_deadline_armed?"BOOT USER waiting for the MOS stub\r\n":
             cpu_paused||(!cpu_boot_ready&&!boot_deadline_armed)?"BOOT HALTED\r\n":boot_deadline_armed?"BOOT STARTING\r\n":"BOOT READY\r\n");return;
+    }
+    /* MOS diagnostics (dev, wire attached): MR resets the eZ80 through ZDI and
+     * lets MOS run untouched; MS<n> samples it n times (halt, registers, UART0
+     * LCR/MCR/LSR/MSR on the first, resume); MB reports the bytes MOS sent. */
+    if(length==2&&command[0]=='M'&&command[1]=='R'){
+        boot_deadline_armed=false;cpu_boot_ready=false;ram_ready=false;mos_capture_start();vios_mos_phase_begin();
+        pinMode(ZDI_TCK,OUTPUT);digitalWrite(ZDI_TCK,HIGH);pinMode(ZDI_TDI,INPUT);
+        vios_zdi_write_register(ZDI_MASTER_CTL,0x80);cpu_paused=false;
+        control_reply(sequence,"MOS RESET\r\n");return;
+    }
+    if(length==3&&command[0]=='M'&&command[1]=='S'&&parse_hex(command+2,1,&stage0_value)&&stage0_value){
+        size_t n=(size_t)snprintf(reply,sizeof reply,"MOS PC");uint32_t first[8];uint8_t status=0,uart[4]={0};
+        for(unsigned i=0;i<stage0_value;++i){
+            if(!cpu_halt()){control_reply(sequence,"ERR CPU halt timeout\r\n");return;}
+            if(!i){status=vios_zdi_status();for(unsigned r=0;r<8;++r)first[r]=vios_zdi_cpu_read((rw_control_t)r);
+                for(unsigned k=0;k<4;++k)uart[k]=zdi_port_in((uint8_t)(0xC3+k),first);}
+            n+=(size_t)snprintf(reply+n,sizeof reply-n," %06lX",(unsigned long)vios_zdi_cpu_read(REG_PC));
+            vios_zdi_write_register(ZDI_BRK_CTL,0);cpu_paused=false;delay(10);
+        }
+        n+=(size_t)snprintf(reply+n,sizeof reply-n," STAT %02X",status);
+        for(unsigned r=0;r<7;++r)n+=(size_t)snprintf(reply+n,sizeof reply-n," %06lX",(unsigned long)first[r]);
+        snprintf(reply+n,sizeof reply-n," LCR %02X MCR %02X LSR %02X MSR %02X\r\n",uart[0],uart[1],uart[2],uart[3]);
+        control_reply(sequence,reply);return;
+    }
+    if(length==2&&command[0]=='M'&&command[1]=='B'){
+        unsigned count=mos_count.load(),shown=count<sizeof mos_bytes?count:(unsigned)sizeof mos_bytes;
+        size_t n=(size_t)snprintf(reply,sizeof reply,"MOS BYTES %u",count);
+        for(unsigned i=0;i<shown;++i)n+=(size_t)snprintf(reply+n,sizeof reply-n," %02X",mos_bytes[i]);
+        snprintf(reply+n,sizeof reply-n,"\r\n");control_reply(sequence,reply);return;
     }
     if(length==1&&command[0]=='H') {
         if(source_used){line_reply(source_sequence,"LINE ERR halted\r\n");source_used=0;}

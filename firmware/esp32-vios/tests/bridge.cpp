@@ -15,6 +15,7 @@
 #define ZDI_TCK 26
 #define ZDI_TDI 27
 #define ZDI_BRK_CTL 0x10
+#define ZDI_MASTER_CTL 0x11
 #define ZDI_IS2 0x23
 #define ZDI_IS1 0x24
 #define ZDI_IS0 0x25
@@ -34,6 +35,7 @@ static bool trace_usb;
 static std::vector<unsigned> usb_actions;
 static void note_usb(unsigned action);
 static unsigned long millis(){return now;}
+static void delayMicroseconds(unsigned){}
 static void delay(unsigned value){if(trace_usb)note_usb(0x10000+value);now+=value;}
 static int pin_modes[40];
 static void pinMode(int pin,int mode){if(pin>=0&&pin<40)pin_modes[pin]=mode;}
@@ -94,7 +96,9 @@ static void native_crc(){
     regs[7]=start+vios_crc_stage_size-2;
 }
 static void inject(unsigned,uint8_t);
+static unsigned zdi_resets;
 static void vios_zdi_write_register(unsigned r,uint8_t value){
+    if(r==ZDI_MASTER_CTL){assert(value==0x80);++zdi_resets;regs[7]=0;status=0x18;return;}   // a real CPU reset: MOS at 0
     if(r==0x10){status=value?0x98:0x18;
         bool crc_loaded=!memcmp(memory+internal_base(),vios_crc_stage,vios_crc_stage_size);
         if(!value&&regs[7]==internal_base()){if(crc_loaded)native_crc();else native_stage0();}
@@ -114,6 +118,7 @@ static void inject(unsigned r,uint8_t value){
     if(value==0x3E)regs[0]=(regs[0]&0xFFFF00)|instructions[1];
     if(value==0xED&&instructions[1]==0x38)regs[0]=(regs[0]&0xFFFF00)|ports[instructions[0]];
 }
+static void vios_zdi_write_registers(unsigned r,unsigned count,const uint8_t *data){for(unsigned i=0;i<count;++i)inject(r+i,data[i]);}
 static uint8_t vios_zdi_boot_in0(uint8_t port){
     assert(port==0xB5||port==0xB4);discovery.push_back(port);
     if(port!=discovery_port){discovery_port=port;discovery_samples=0;}
@@ -274,6 +279,24 @@ static void check_stage0_instrumentation(){
 /* No ZDI wire: user mode. MOS boots the CPU, its stub pulls the resident (E8);
  * the ESP never halts the CPU, a missed deadline is reported (no restart loop),
  * a trial image still falls back. */
+/* MOS diagnostics: MR resets the CPU through ZDI and lets it run; MS samples
+ * PCs (registers and UART0 ports read without disturbing it); MB shows what it sent. */
+static void check_mos_probe(){
+    memset(otadata_flash,0xFF,sizeof otadata_flash);running_partition=esp_partition_t{"app0",0x10};reset_reason=0;zdi_wire=true;
+    assert(vios_bridge_init());vios_bridge_boot();vios_bridge_handoff();output_frames();
+    unsigned resets=zdi_resets;
+    assert(control_text("MR\n",120)=="MOS RESET\r\n"&&zdi_resets==resets+1&&!cpu_paused&&!boot_deadline_armed&&vios_mos_phase());
+    vios_mos_capture(0x17);vios_mos_capture(0x00);vios_mos_capture(0x80);
+    assert(control_text("MB\n",121)=="MOS BYTES 3 17 00 80\r\n");
+    regs[7]=0x0012AB;regs[0]=0x00445A;regs[6]=0x0BFF00;ports[0xC3]=0x03;ports[0xC4]=0x02;ports[0xC5]=0x60;ports[0xC6]=0x00;
+    std::string sample=control_text("MS2\n",122);
+    assert(sample.rfind("MOS PC 0012AB 0012AB STAT ",0)==0);
+    assert(sample.find(" 00445A ")!=std::string::npos&&sample.find("0BFF00 LCR 03 MCR 02 LSR 60 MSR 00\r\n")!=std::string::npos);
+    assert(regs[0]==0x00445A&&regs[7]==0x0012AB&&!cpu_paused);                          // nothing disturbed, running again
+    for(int i=0;i<40;++i)vios_mos_capture((uint8_t)i);
+    assert(control_text("MB\n",123).rfind("MOS BYTES 43 17 00 80 00 01",0)==0);
+}
+
 static void check_user_mode(){
     memset(otadata_flash,0xFF,sizeof otadata_flash);running_partition=esp_partition_t{"app0",0x10};reset_reason=0;
     now=1000;zdi_wire=false;ESP.restarted=false;cpu_paused=false;mos_phase.store(true);
@@ -462,5 +485,6 @@ int main(int argc,char **argv){
     check_stage0_instrumentation();
     check_line_editing();
     check_user_mode();
+    check_mos_probe();
     puts("bridge boot/control/ranges/CRC/fragment sequences/health checks passed");
 }
