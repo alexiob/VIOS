@@ -194,13 +194,16 @@ class Stub(UARTCPU):
                     status = 4 if data is None else 19 if len(data) > bc else 0
                     if not status:
                         self.mem[de:de+len(data)] = data
-                elif function == 2:        # mos_save
-                    status = 0 if self.sd_writable else 7
+                elif function == 2:        # mos_save: FA_CREATE_NEW, never overwrites
+                    status = 7 if not self.sd_writable else 8 if name in self.sd else 0
                     if not status:
                         self.sd[name] = bytes(self.mem[de:de+bc])
+                elif function == 5:        # mos_del
+                    status = 7 if not self.sd_writable else 0 if self.sd.pop(name, None) is not None else 4
                 else:
                     raise AssertionError(f'MOS function {function}')
                 self.set('a', status)
+                self.r.update(bc=0xbadbad, de=0xbadbad, hl=0xbadbad)   # nothing relies on MOS preserving them
             self.pc += size
             return True
         if text in ('di', 'ei'):

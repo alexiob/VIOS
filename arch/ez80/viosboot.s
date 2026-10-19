@@ -24,7 +24,9 @@
  *
  * MOS API used (rst.lil 0x08, function in A; to verify on hardware, U0):
  * 1 mos_load (HL name, DE address, BC max size), 2 mos_save (HL name,
- * DE address, BC size); A returns 0 on success. rst.lil 0x10 prints A.
+ * DE address, BC size; it does not overwrite), 5 mos_del (HL name); A returns
+ * 0 on success. rst.lil 0x10 prints A. Every register the stub needs after a
+ * MOS call is reloaded from memory: nothing relies on MOS preserving them.
  * MOS passes the argument string in HL.
  */
 .assume ADL = 1
@@ -149,6 +151,9 @@ count_boot:
     inc a
     ld (count), a
     ld hl, name_cnt
+    ld a, 5
+    rst.lil 0x08               /* mos_del first: mos_save does not overwrite (FA_CREATE_NEW) */
+    ld hl, name_cnt
     ld de, count
     ld bc, 1
     ld a, 2
@@ -161,7 +166,7 @@ count_boot:
 /* Carry set on failure (interrupts back on); clear with a verified image (DI). */
 load_esp:
     di
-    call drain
+    call flush                 /* stale bytes only; a quiet-line drain would cost a timeout */
     ld hl, req_manifest
     ld b, 4
     call send_bytes
@@ -339,6 +344,17 @@ take_block:
     ret
 .Lblock_refuse:
     scf
+    ret
+
+/* Discard what is already in the RX FIFO (no waiting). */
+flush:
+    ld b, 0
+1:
+    in0 a, (0xC5)
+    bit 0, a
+    ret z
+    in0 a, (0xC0)
+    djnz 1b
     ret
 
 /* Discard input until the line has been quiet for one timeout. */

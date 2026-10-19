@@ -171,7 +171,7 @@ fails cleanly with `ERR CPU identity/halt`. A build flag can force a mode.
 | U3 | Stub `viosboot.bin` (eZ80 asm/C, ≤ 2 KB): manifest, blocks, CRC, SD fallback, retry counter | `arch/ez80/`, `boards/agon-light-2/` | 1–2 d |
 | U4 | SD layout and installer: `autoexec.txt`, `/mos/viosboot.bin`, `/vios/vios.bin`, manifest; the `vios_sd_install` tool | `tools/` | 0.5 d |
 | U5 | VIOS restart through `0`, and re-handshake after an ESP restart | `platform_resident.c` | 1 d |
-| U6 | Board acceptance without the wire: 20 cold boots, ESP A/B under `user`, a bad ESP image falling back to SD, no SD card, and boot timing | harness, user removes the wire | 1 d |
+| U6 (after U5) | Board acceptance without the wire: 20 cold boots, ESP A/B under `user`, a bad ESP image falling back to SD, no SD card, and boot timing | harness, user removes the wire | 1 d |
 
 U1 is worth doing first whatever is decided: it closes the boot-loop hole that
 the GUI image hit today.
@@ -245,7 +245,12 @@ design assumes. If a check fails, the design changes as described in its
       it), and whether a DI polling loop keeps up.
     - *If not:* a smaller `VIOS_BOOT_BURST` (down to 1, one request per
       block), or the stub drives RTS around each block.
-11. **Removing and refitting the wire.** With the board powered off, both
+11. **`mos_save` overwrite semantics, and the `mos_del` number.**
+    - *Check:* Quark MOS's `mos_save` appears to open with `FA_CREATE_NEW`,
+      so it refuses to overwrite an existing file. The stub therefore deletes
+      `/vios/boot.cnt` (function 5) before saving it. Confirm both numbers on
+      the board.
+12. **Removing and refitting the wire.** With the board powered off, both
     modes must cold-boot repeatedly: 20 boots each in U6.
 
 ## 10. U2: ESP user mode (implemented, host-tested, not flashed)
@@ -331,8 +336,14 @@ header.
 - **Failure:** the stub prints why, turns interrupts back on, and returns to
   the MOS prompt with IX, IY and SP restored and HL=0.
 - **Counter:** `/vios/boot.cnt` (1 byte) counts boots started. At 3 the stub
-  stays in MOS. With no card, or a read-only card, there is no counter. The
-  resident must clear it once healthy (U5).
+  stays in MOS. It is deleted and saved again each time, because `mos_save`
+  does not overwrite. With no card, or a read-only card, there is no counter.
+- **Hard ordering constraint:** the counter goes up on every boot, including
+  good ones. Only the resident clears it once healthy, and that is U5. So a
+  card carrying the stub without U5 refuses to boot on the 4th power cycle,
+  until someone types `viosboot force`. **U5 must land before any card is
+  built for U6 acceptance.** Otherwise U4's installer must leave the counter
+  out.
 - **Defaults:**
   - `VIOS_BOOT_BURST=1` until U0 item 10 (flow control) is measured on the
     board.
@@ -359,6 +370,9 @@ header.
   - that MOS runs `/mos/*.bin` at `0x0B0000`;
   - that the ESP's UART TX honours the CPU's RTS, as the resident already
     relies on.
+- **Opening the ESP path:** the stub only flushes what is already in the RX
+  FIFO. The full drain, which waits for the line to stay quiet for one
+  timeout, runs only on a retry. So a good boot spends no timeout.
 - **Estimated time on the board:** about 1 KB of code plus 2 × 158 KB of
   CRC-32 at roughly 12 instructions per byte gives about 1.5–2 s of CRC. The
   transfer at burst 1 is limited by the round trip per block. Measure both in
