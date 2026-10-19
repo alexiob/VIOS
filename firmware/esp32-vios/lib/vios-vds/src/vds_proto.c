@@ -2,9 +2,10 @@
 #include "vds_proto.h"
 #include <string.h>
 
-static void reply(vds_proto *p, const uint8_t *data, uint8_t n) {
+void vds_proto_reply(vds_proto *p, const uint8_t *data, uint8_t n) {
     if (p->send) p->send(p->ctx, VDS_PACKET_REPLY, data, n);
 }
+static void reply(vds_proto *p, const uint8_t *data, uint8_t n) { vds_proto_reply(p, data, n); }
 
 static int16_t s16(const uint8_t *b) { return (int16_t)(uint16_t)(b[0] | b[1] << 8); }
 static uint16_t u16(const uint8_t *b) { return (uint16_t)(b[0] | b[1] << 8); }
@@ -42,6 +43,12 @@ static size_t op_size(const uint8_t *b, size_t n) {
     case 0x70: s = 11; break;
     case 0x71: s = 4; break;
     case 0x7B: s = 6; break;
+    case 0x80: s = 10; break;
+    case 0x81: s = n < 3 ? 0 : 3u + b[2]; break;
+    case 0x82: case 0x83: case 0x84: s = 4; break;
+    case 0x85: s = n < 4 ? 0 : 4u + b[3]; break;
+    case 0x86: s = 3; break;
+    case 0x87: case 0x88: case 0x89: s = 2; break;
     default: s = 0; break;
     }
     return s && s <= n ? s : 0;
@@ -127,6 +134,7 @@ static void reset(vds_proto *p) {
     vds_set_snap(v, 8);
     vds_set_style(v, VDS_STYLE_SMALLTALK);
     if (p->ui_reset) p->ui_reset(p->ui);
+    p->errors = p->desync = 0;                              /* a new epoch starts clean */
     ++p->epoch;
 }
 
@@ -162,7 +170,8 @@ static int apply(vds_proto *p, const uint8_t *b) {
     uint8_t op = b[0];
     if (op != 0x10 && op != 0x11) p->more_ok = 0;
     if (reserved(b)) return 0;
-    if ((op >= 0x59 && op <= 0x62) || op == 0x70 || op == 0x71 || op == 0x7B) return p->ui_op ? p->ui_op(p->ui, b) : 0;
+    if ((op >= 0x59 && op <= 0x62) || op == 0x70 || op == 0x71 || op == 0x7B || (op >= 0x80 && op <= 0x89))
+        return p->ui_op ? p->ui_op(p->ui, b) : 0;
     switch (op) {
     case 0x01: {
         if (b[1] >= VDS_MAX_SURFACES || !b[2] || !b[3] || !p->cells) return 0;
@@ -287,7 +296,7 @@ int vds_proto_batch(vds_proto *p, const uint8_t *b, size_t len) {
     for (size_t at = 0; at < len;) {
         size_t s = op_size(b + at, len - at);
         uint8_t op = b[at];
-        if (op != 0x30 && op != 0x31 && op != 0x32 && op != 0x33 && op != 0x36 && !p->hold) { p->hold = 1; p->held_ms = 0; }
+        if (op != 0x30 && op != 0x31 && op != 0x32 && op != 0x33 && op != 0x36 && op != 0x89 && !p->hold) { p->hold = 1; p->held_ms = 0; }
         if (!apply(p, b + at)) error(p, op, at);
         at += s;
     }

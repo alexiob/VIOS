@@ -32,9 +32,13 @@ static vds_geometry geometry_of(vds *v, uint8_t id) {
     return g;
 }
 
-static void apply(vds *v, uint8_t id, vds_geometry g) {
-    vds_window_move(v, id, g.x, g.y);
-    vds_window_resize(v, id, g.cols, g.rows);
+static void widgets_check(vds_ui *u);
+
+/* Move and resize a window; widgets inside re-lay out to the new size. */
+static void apply(vds_ui *u, uint8_t id, vds_geometry g) {
+    vds_window_move(core(u), id, g.x, g.y);
+    vds_window_resize(core(u), id, g.cols, g.rows);
+    widgets_check(u);
 }
 
 static void win_event(vds_ui *u, uint8_t what, uint8_t id) {
@@ -44,8 +48,23 @@ static void win_event(vds_ui *u, uint8_t what, uint8_t id) {
     vds_proto_event(u->p, VDS_EVENT_WIN, id, args, sizeof args);
 }
 
+static void widgets_check(vds_ui *u) {                       /* re-lay out resized windows */
+    vds *v = core(u);
+    for (uint8_t id = 0; id < VDS_UI_FIRST_WINDOW; ++id) {
+        if (!v->windows[id].used || (u->widget_cols[id] == v->windows[id].cols && u->widget_rows[id] == v->windows[id].rows)) continue;
+        for (unsigned i = 0; i < VDS_MAX_WIDGETS; ++i)
+            if (u->widgets[i].used && u->widgets[i].window == id) { vds_ui_widgets_refresh(u, id); break; }
+    }
+}
+
+static int has_widgets(vds_ui *u, uint8_t window) {
+    for (unsigned i = 0; i < VDS_MAX_WIDGETS; ++i) if (u->widgets[i].used && u->widgets[i].window == window) return 1;
+    return 0;
+}
+
 void vds_ui_forget(vds_ui *u, uint8_t id) {
     if (id >= VDS_MAX_WINDOWS) return;
+    vds_ui_widgets_forget(u, id);
     if (u->focus == id) { u->focus = VDS_NONE; u->wm_mode = 0; }
     u->zoomed &= ~(1ul << id);
     u->window_menu[id] = VDS_NONE;
@@ -65,7 +84,11 @@ int vds_ui_focus(vds_ui *u, uint8_t id) {
     }
     u->focus = id;
     u->wm_mode = 0;
-    if (previous != id) vds_proto_event(u->p, VDS_EVENT_FOCUS, id, &previous, 1);
+    if (previous != id) {
+        if (previous < VDS_UI_FIRST_WINDOW && v->windows[previous].used && has_widgets(u, previous)) vds_ui_widgets_refresh(u, previous);
+        if (id != VDS_NONE && has_widgets(u, id)) vds_ui_widgets_refresh(u, id);
+        vds_proto_event(u->p, VDS_EVENT_FOCUS, id, &previous, 1);
+    }
     return 1;
 }
 
@@ -87,7 +110,7 @@ static void zoom(vds_ui *u) {
     vds *v = core(u);
     uint8_t id = u->focus;
     if (u->zoomed & (1ul << id)) {
-        apply(v, id, u->zoom_saved[id]);
+        apply(u, id, u->zoom_saved[id]);
         u->zoomed &= ~(1ul << id);
         win_event(u, VDS_WIN_RESTORED, id);
         return;
@@ -96,7 +119,7 @@ static void zoom(vds_ui *u) {
     int turbo = v->style.kind == VDS_STYLE_TURBO;
     int top = (turbo ? 8 : 12) + (u->bar_shown ? 8 : 0), bottom = (turbo ? 8 : 2) + (u->status_shown ? 8 : 0);
     vds_geometry g = {8, (int16_t)top, (uint8_t)((v->width - 16) / 8), (uint8_t)((v->height - top - bottom) / 8)};
-    apply(v, id, g);
+    apply(u, id, g);
     u->zoomed |= 1ul << id;
     win_event(u, VDS_WIN_ZOOMED, id);
 }
@@ -125,13 +148,13 @@ static int wm_key(vds_ui *u, uint8_t modifiers, uint8_t vk) {
         win_event(u, VDS_WIN_MOVED, id);
         return 1;
     case VDS_VK_ESCAPE:
-        apply(v, id, u->wm_saved);
+        apply(u, id, u->wm_saved);
         u->wm_mode = 0;
         return 1;
     default:
         return 1;                                           /* the mode swallows other keys */
     }
-    apply(v, id, g);
+    apply(u, id, g);
     return 1;
 }
 
@@ -688,6 +711,8 @@ void vds_ui_pointer(vds_ui *u, int16_t x, int16_t y, uint8_t buttons) {
     int press = (buttons & 1) && !(u->buttons & 1);
     u->buttons = buttons;
     if (press && id != VDS_NONE && focusable(v, id) && id != u->focus) vds_ui_focus(u, id);
+    if (press && id != VDS_NONE && part == VDS_PART_CLIENT && id == u->focus)
+        vds_ui_widget_click(u, id, (x - v->windows[id].x) / 8 + v->windows[id].scroll_col, (y - v->windows[id].y) / 8 + v->windows[id].scroll_row);
     int lx = id == VDS_NONE ? x : x - v->windows[id].x, ly = id == VDS_NONE ? y : y - v->windows[id].y;
     uint8_t args[7] = {(uint8_t)x, (uint8_t)((uint16_t)x >> 8), (uint8_t)y, (uint8_t)((uint16_t)y >> 8),
                        (uint8_t)(part == VDS_PART_CLIENT ? lx / 8 + v->windows[id].scroll_col : 0),
@@ -771,7 +796,7 @@ static int route(vds_ui *u, uint8_t ascii, uint8_t modifiers, uint8_t vk) {
         win_event(u, VDS_WIN_CLOSE, u->focus);
         return 1;
     }
-    return 0;
+    return vds_ui_widget_key(u, ascii, modifiers, vk);
 }
 
 int vds_ui_key(vds_ui *u, uint8_t ascii, uint8_t modifiers, uint8_t vk, uint8_t down) {
@@ -792,7 +817,12 @@ static int focus_hook(void *ui, uint8_t id) { return vds_ui_focus((vds_ui *)ui, 
 static void forget_hook(void *ui, uint8_t id) { vds_ui_forget((vds_ui *)ui, id); }
 static void after_hook(void *ui) {                     /* only a style change re-decorates */
     vds_ui *u = (vds_ui *)ui;
-    if (u->style_seen != core(u)->style.kind) vds_ui_refresh(u);
+    if (u->style_seen != core(u)->style.kind) {
+        vds_ui_refresh(u);
+        for (uint8_t id = 0; id < VDS_UI_FIRST_WINDOW; ++id)
+            if (core(u)->windows[id].used && has_widgets(u, id)) vds_ui_widgets_refresh(u, id);
+    }
+    widgets_check(u);
 }
 
 /* The protocol reset already closed every window: drop menus and commands too. */
@@ -830,6 +860,26 @@ static int op_hook(void *ui, const uint8_t *b) {
                               (uint16_t)(b[8] | b[9] << 8), b[10]);
     case 0x71: return vds_ui_stop(u, b[1], b[2], b[3]);
     case 0x7B: vds_ui_pointer(u, (int16_t)(uint16_t)(b[1] | b[2] << 8), (int16_t)(uint16_t)(b[3] | b[4] << 8), b[5]); return 1;
+    case 0x80: return vds_ui_widget(u, b[1], b[2], b[3], b[4], b[5], b[6], b[7], b[8], b[9]);
+    case 0x81: return vds_ui_widget_text(u, b[1], (const char *)b + 3, b[2]);
+    case 0x82: return vds_ui_widget_value(u, b[1], (int16_t)(uint16_t)(b[2] | b[3] << 8));
+    case 0x83: return vds_ui_widget_layout(u, b[1], b[2], b[3]);
+    case 0x84: return vds_ui_widget_size(u, b[1], b[2], b[3]);
+    case 0x85: return vds_ui_widget_item(u, b[1], b[2], (const char *)b + 4, b[3]);
+    case 0x86: return vds_ui_widget_count(u, b[1], b[2]);
+    case 0x87: return vds_ui_widget_delete(u, b[1]);
+    case 0x88: return vds_ui_widget_focus(u, b[1]);
+    case 0x89: {
+        if (b[1] >= VDS_MAX_WIDGETS || !u->widgets[b[1]].used) return 0;
+        const vds_widget *w = &u->widgets[b[1]];
+        uint8_t r[VDS_REPLY_MAX] = {0x89, b[1], (uint8_t)w->value, (uint8_t)((uint16_t)w->value >> 8)};
+        size_t n = strlen(w->text);
+        if (n > VDS_REPLY_MAX - 5) n = VDS_REPLY_MAX - 5;
+        r[4] = (uint8_t)n;
+        memcpy(r + 5, w->text, n);
+        vds_proto_reply(u->p, r, (uint8_t)(5 + n));
+        return 1;
+    }
     }
     return 0;
 }
@@ -842,6 +892,8 @@ void vds_ui_init(vds_ui *u, vds_proto *p) {
     u->focus = VDS_NONE;
     u->bar_index = VDS_NONE;
     memset(u->window_menu, VDS_NONE, sizeof u->window_menu);
+    memset(u->widget_focus, VDS_NONE, sizeof u->widget_focus);
+    u->caret_widget = VDS_NONE;
     p->ui = u;
     p->ui_focus = focus_hook;
     p->ui_forget = forget_hook;

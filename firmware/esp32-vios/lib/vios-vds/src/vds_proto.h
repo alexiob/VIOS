@@ -25,7 +25,7 @@
  *                                        n <= max, as many queued events as fit (events are pulled)
  *  33  sel                               reply 33 sel u32 u32 (0 frames rows, 1 pixels carried,
  *                                        2 lut_misses damage|windows<<8|sprites<<16)
- *  34                                    reset: drop windows, sprites, surfaces; epoch++
+ *  34                                    reset: drop windows, sprites, surfaces, errors; epoch++
  *  35  on                                raw: legacy VDU owns the screen while on
  *  50  id surface x(s16) y(s16) cols rows flags   open a window
  *  51  id x(s16) y(s16) cols rows        move and resize
@@ -53,6 +53,17 @@
  *  7A  id                                define the built-in arrow cursor
  *  7B  x(s16) y(s16) buttons             pointer position and buttons (host or keyboard
  *                                        pointer; a press focuses the window under it)
+ *  80  id window kind parent col row w h flags   widget (kinds: 1 box, 2 label, 3 button,
+ *                                        4 check, 5 radio, 6 input, 7 list, 8 progress)
+ *  81  id n ch*n                         widget text ('&' marks a mnemonic)
+ *  82  id value(s16)                     widget value
+ *  83  id layout gap                     box layout (0 none, 1 column, 2 row)
+ *  84  id fixed weight                   size inside a box: fixed cells, else by weight
+ *  85  id index n ch*n                   list item
+ *  86  id count                          list length
+ *  87  id                                delete a widget and its children
+ *  88  id                                focus a widget
+ *  89  id                                reply 89 id value(s16) n ch*n (text, at most 25)
  */
 #ifndef VIOS_VDS_PROTO_H
 #define VIOS_VDS_PROTO_H
@@ -109,6 +120,8 @@ int vds_proto_batch(vds_proto *p, const uint8_t *payload, size_t len);
  * changes are held for a COMMIT or the screen is raw. Returns vds_frame's
  * result (1 when nothing is left). */
 int vds_proto_frame(vds_proto *p, uint32_t elapsed_ms, uint32_t budget);
+/* One reply packet (VDS_PACKET_REPLY) to the CPU, at most VDS_REPLY_MAX bytes. */
+void vds_proto_reply(vds_proto *p, const uint8_t *data, uint8_t n);
 /* Queue (or push) one event for the CPU: kind, window/widget id and up to 26 bytes. */
 void vds_proto_event(vds_proto *p, uint8_t kind, uint8_t id, const uint8_t *args, uint8_t n);
 

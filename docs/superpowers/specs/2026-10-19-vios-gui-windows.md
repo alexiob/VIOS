@@ -707,7 +707,10 @@ integration is in progress in the session that owns the hardware.
 | G3 commands, menu bar + status line (Turbo Vision), world and window pop-ups (Smalltalk), cascades, mnemonics, accelerators, palette | `vds_ui.c` | done |
 | eZ80 client: 32 Forth words, argument checks, atomic batches, pulled events | `kernel/vios_ui.c`, `include/vios/ui.h` | done; linked into `vios-resident` |
 | fabgl adapter, vertical-blank frames, E4 hook, console on the blitter, loop-gap gate | firmware | **in progress** (board owner) |
-| G4 widgets and layout, G5 animation and Canvas, G6 keyboard pointer | — | not started |
+| G4 widgets: box (column/row layout by fixed size or weight), label, button, check, radio group, input, list, progress; Tab order, keys, pointer clicks, ACTIVATE/SELECT/CHANGE events, text read-back | `vds_widget.c`, ops 80–89 | done |
+| G5 tweens (window x/y/scroll, sprite x/y; linear, in-out, out, spring) | `vds_ui.c`, ops 70/71 | done |
+| G6 keyboard pointer (Ctrl+F12) and pointer injection, hit testing | `vds_ui.c`, op 7B | done; physical mouse deferred |
+| G4 TextView, tree, table, tabs; G5 Canvas display lists and icons | — | not started |
 
 **Deviations from the §12 draft** (the authoritative table is the header of
 `vds_proto.h`):
@@ -732,7 +735,10 @@ integration is in progress in the session that owns the hardware.
 - **Palette indices:** indices 0–3 are pinned in both styles, while 4–15 belong
   to the style. Content meant to look the same in both styles uses 0–3.
 
-**Sizes:**
+**Sizes** (as of `8fbfee8`; with widgets: ESP code 31 KB in total, `vds_proto` 4.7 KB and
+`vds_ui` 10.7 KB of state, both PSRAM-capable; eZ80 `vios_ui.o` 8.7 KB code and
+2.8 KB rodata, leaving about 24 KB below the stack, so the planned reclaim of
+the 19.2 KB `text_screen` planes is now needed before large GUI growth on the CPU):
 
 | Side | Component | Size |
 |---|---|---|

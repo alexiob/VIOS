@@ -158,6 +158,27 @@ int main(int argc, char **argv) {
     fails("2 1 0 0 1 10 0 UI-ANIMATE");
     fails("0 1 0 0 1 10 4 UI-ANIMATE");
 
+    /* Widgets from Forth: a column with an input and a button. */
+    eval("0 1 UI-BOX UI-NONE 0 0 0 0 UI-WF-FILL UI-WIDGET  0 UI-COLUMN 1 UI-LAYOUT");
+    eval("1 1 UI-INPUT 0 0 0 0 0 0 UI-WIDGET  1 1 0 UI-WSIZE");
+    eval("2 1 UI-BUTTON 0 0 0 0 0 0 UI-WIDGET  2 1 0 UI-WSIZE  S\" &Go\" 2 UI-WTEXT");
+    eval("3 1 UI-LIST 0 0 0 0 0 0 UI-WIDGET  3 2 UI-ITEMS  S\" alpha\" 3 0 UI-ITEM  S\" beta\" 3 1 UI-ITEM");
+    assert(!p.errors && u.widgets[1].row == 0 && u.widgets[2].row == 2 && u.widgets[3].row == 4 && u.widgets[3].count == 2);
+    assert(vds_ui_key(&u, 'h', 0, 0, 1) && vds_ui_key(&u, 'i', 0, 0, 1));           /* typing into the input */
+    eval("CREATE TXT 32 ALLOT  1 TXT UI-WGET");
+    assert(fvm_pop() == 2 && fvm_pop() == 2);                                      /* length 2, caret 2 */
+    eval("TXT C@ TXT 1+ C@");
+    assert(fvm_pop() == 'i' && fvm_pop() == 'h');
+    for (int i = 0; i < 2; ++i) { eval("UI-NEXT"); assert(fvm_pop() == FVM_MASK && fvm_pop() == (fcell)(i + 1) && fvm_pop() == 1 && fvm_pop() == 4); }
+    assert(vds_ui_key(&u, 9, 0, 142, 1) && vds_ui_key(&u, ' ', 0, 1, 1));          /* Tab to Go, press */
+    eval("UI-NEXT");
+    assert(fvm_pop() == FVM_MASK && fvm_pop() == 1 && fvm_pop() == 2 && fvm_pop() == 2);   /* ACTIVATE widget 2 in window 1 */
+    eval("1 UI-WDELETE 0 UI-WDELETE");
+    assert(!u.widgets[0].used && !u.widgets[2].used);
+    fails("48 1 UI-LABEL UI-NONE 0 0 1 1 0 UI-WIDGET");
+    fails("5 1 9 UI-NONE 0 0 1 1 0 UI-WIDGET");
+    fails("5 TXT UI-WGET");
+
     /* Turbo Vision from Forth: the menu bar and the status line appear. */
     eval("1 UI-STYLE");
     assert(u.bar_shown && u.status_shown);
@@ -165,7 +186,7 @@ int main(int argc, char **argv) {
     assert(!u.bar_shown && va.snap_x == 8);
 
     /* Argument checks fail in Forth, before anything reaches the wire. */
-    unsigned sent = e4_batches;
+    unsigned sent = e4_batches, errors_before = p.errors;
     fails("11 10 10 0 UI-SURFACE");
     fails("27 0 0 0 10 10 1 UI-WINDOW");
     fails("0 81 10 0 UI-SURFACE");
@@ -174,7 +195,7 @@ int main(int argc, char **argv) {
     fails("16 UI-ARROW");
     fails("S\" a title that is far too long for a window\" 1 UI-TITLE");
     fails("0 0 0 200 1 UI-SCROLL");
-    assert(e4_batches == sent && !p.errors);
+    assert(e4_batches == sent && p.errors == errors_before);
 
     /* Reset clears the server and the CPU's event ring. */
     eval("UI-RESET");

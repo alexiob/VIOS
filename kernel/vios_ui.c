@@ -296,6 +296,71 @@ static int ui_pointer(void) {                           /* ( x y buttons -- ) */
     return 1;
 }
 
+/* Widgets (G4). Widget ids 0..47; text up to 31 characters, list items 23. */
+static int widget_id(fcell id) { return range(id, 47, "UI widget id 0..47"); }
+static int ui_widget(void) {                            /* ( id window kind parent col row w h flags -- ) */
+    fcell a[9];
+    if (!pop(a, 9) || !widget_id(a[0]) || !window_id(a[1]) || !a[2] || !range(a[2], 8, "UI-WIDGET kind 1..8") ||
+        (a[3] != 255 && !widget_id(a[3])))
+        return fvm_error ? 0 : forth_error("UI-WIDGET kind 1..8");
+    unsigned char o[10] = {0x80};
+    for (unsigned i = 0; i < 9; ++i) o[1 + i] = b(a[i]);
+    op(o, sizeof o);
+    return 1;
+}
+static int ui_wtext(void) {                             /* ( addr len id -- ) */
+    fcell a[3];
+    if (!pop(a, 3) || !widget_id(a[2])) return 0;
+    unsigned char o[3 + 31] = {0x81, b(a[2]), b(a[1])};
+    if (!text(a[0], a[1], o + 3, 31)) return 0;
+    op(o, 3 + (unsigned)a[1]);
+    return 1;
+}
+static int ui_wvalue(void) {                            /* ( id value -- ) */
+    fcell a[2];
+    if (!pop(a, 2) || !widget_id(a[0])) return 0;
+    unsigned char o[4] = {0x82, b(a[0])};
+    le16(o + 2, s24(a[1]));
+    op(o, sizeof o);
+    return 1;
+}
+static int widget_triple(unsigned char code, const char *what) {   /* ( id x y -- ) */
+    fcell a[3];
+    if (!pop(a, 3) || !widget_id(a[0]) || !range(a[1], 255, what) || !range(a[2], 255, what)) return 0;
+    unsigned char o[] = {code, b(a[0]), b(a[1]), b(a[2])};
+    op(o, sizeof o);
+    return 1;
+}
+static int ui_layout(void) { return widget_triple(0x83, "UI-LAYOUT: layout 0..2, gap"); }
+static int ui_wsize(void) { return widget_triple(0x84, "UI-WSIZE: fixed and weight 0..255"); }
+static int ui_item(void) {                              /* ( addr len id index -- ) */
+    fcell a[4];
+    if (!pop(a, 4) || !widget_id(a[2]) || !range(a[3], 63, "UI-ITEM index 0..63")) return 0;
+    unsigned char o[4 + 23] = {0x85, b(a[2]), b(a[3]), b(a[1])};
+    if (!text(a[0], a[1], o + 4, 23)) return 0;
+    op(o, 4 + (unsigned)a[1]);
+    return 1;
+}
+static int ui_items(void) {                             /* ( id count -- ) */
+    fcell a[2];
+    if (!pop(a, 2) || !widget_id(a[0]) || !range(a[1], 64, "UI-ITEMS count 0..64")) return 0;
+    unsigned char o[] = {0x86, b(a[0]), b(a[1])};
+    op(o, sizeof o);
+    return 1;
+}
+static int widget_op(unsigned char code) { fcell id = fvm_pop(); if (fvm_error || !widget_id(id)) return 0; unsigned char o[] = {code, b(id)}; op(o, 2); return 1; }
+static int ui_wdelete(void) { return widget_op(0x87); }
+static int ui_wfocus(void) { return widget_op(0x88); }
+static int ui_wget(void) {                              /* ( id addr -- value len ) text copied to addr */
+    fcell a[2];
+    if (!pop(a, 2) || !widget_id(a[0])) return 0;
+    unsigned char o[] = {0x89, b(a[0])}, r[32];
+    unsigned n = 0;
+    if (!request(o, sizeof o, r, sizeof r, &n) || n < 5 || r[1] != b(a[0]) || 5u + r[4] > n) return forth_error("UI-WGET: no such widget");
+    for (unsigned i = 0; i < r[4]; ++i) { fvm_write8(a[1] + i, r[5 + i]); if (fvm_error) return 0; }
+    return fvm_push((fcell)s24((fcell)(int16_t)(r[2] | r[3] << 8) & FVM_MASK)) && fvm_push(r[4]);
+}
+
 static int ui_begin(void) { batching = 1; return 1; }
 static int ui_commit(void) { unsigned char o[] = {0x30}; batching = 0; op(o, 1); return 1; }
 
@@ -367,13 +432,16 @@ int vios_ui_init(void) {
         {"UI-FOCUS", ui_focus}, {"UI-FLAGS", ui_flags}, {"UI-CLIENT", ui_client}, {"UI-VIEW", ui_view},
         {"UI-COMMAND", ui_command}, {"UI-MENU", ui_menu}, {"UI-STATE", ui_state}, {"UI-POPUP", ui_popup},
         {"UI-SPRITE", ui_sprite}, {"UI-PIXELS", ui_pixels}, {"UI-SPRITE-AT", ui_sprite_at}, {"UI-SPRITE-SHOW", ui_sprite_show},
-        {"UI-ARROW", ui_arrow}, {"UI-ANIMATE", ui_animate}, {"UI-STOP", ui_stop}, {"UI-POINTER", ui_pointer}, {"UI-BEGIN", ui_begin}, {"UI-COMMIT", ui_commit},
+        {"UI-ARROW", ui_arrow}, {"UI-ANIMATE", ui_animate}, {"UI-STOP", ui_stop}, {"UI-POINTER", ui_pointer},
+        {"UI-WIDGET", ui_widget}, {"UI-WTEXT", ui_wtext}, {"UI-WVALUE", ui_wvalue}, {"UI-LAYOUT", ui_layout}, {"UI-WSIZE", ui_wsize},
+        {"UI-ITEM", ui_item}, {"UI-ITEMS", ui_items}, {"UI-WDELETE", ui_wdelete}, {"UI-WFOCUS", ui_wfocus}, {"UI-WGET", ui_wget},
+        {"UI-BEGIN", ui_begin}, {"UI-COMMIT", ui_commit},
         {"UI-SYNC", ui_sync}, {"UI-EVENT", ui_event}, {"UI-NEXT", ui_next}};
     batch_used = batching = event_head = event_count = 0;
     /* Words that only send bytes may run in background tasks; requests wait
      * for a reply and stay in the foreground. */
     for (unsigned i = 0; i < sizeof words / sizeof words[0]; ++i) {
-        int foreground = words[i].fn == ui_sync || words[i].fn == ui_event || words[i].fn == ui_next;
+        int foreground = words[i].fn == ui_sync || words[i].fn == ui_event || words[i].fn == ui_next || words[i].fn == ui_wget;
         if (!forth_register_native(words[i].name, words[i].fn, foreground ? 0 : FORTH_NATIVE_TASK)) return 0;
     }
     return forth_eval(
@@ -386,5 +454,9 @@ int vios_ui_init(void) {
         "15 CONSTANT UI-CURSOR 7 CONSTANT UI-EV-POINTER 18 CONSTANT UI-EV-ANIMDONE "
         "0 CONSTANT UI-TWEEN-WINDOW 1 CONSTANT UI-TWEEN-SPRITE 0 CONSTANT UI-X 1 CONSTANT UI-Y "
         "2 CONSTANT UI-SCROLL-ROW 3 CONSTANT UI-SCROLL-COL 0 CONSTANT UI-LINEAR 1 CONSTANT UI-IN-OUT "
-        "2 CONSTANT UI-OUT 3 CONSTANT UI-SPRING");
+        "2 CONSTANT UI-OUT 3 CONSTANT UI-SPRING "
+        "1 CONSTANT UI-BOX 2 CONSTANT UI-LABEL 3 CONSTANT UI-BUTTON 4 CONSTANT UI-CHECK 5 CONSTANT UI-RADIO "
+        "6 CONSTANT UI-INPUT 7 CONSTANT UI-LIST 8 CONSTANT UI-PROGRESS 1 CONSTANT UI-HIDDEN 2 CONSTANT UI-DISABLED "
+        "4 CONSTANT UI-WF-FILL 1 CONSTANT UI-COLUMN 2 CONSTANT UI-ROW 255 CONSTANT UI-NONE "
+        "2 CONSTANT UI-EV-ACTIVATE 3 CONSTANT UI-EV-SELECT 4 CONSTANT UI-EV-CHANGE");
 }

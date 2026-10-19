@@ -46,6 +46,8 @@ extern "C" {
 #endif
 
 enum {
+    VDS_VK_SPACE = 1, VDS_VK_DELETE = 130, VDS_VK_HOME = 133, VDS_VK_KP_HOME = 134, VDS_VK_END = 135, VDS_VK_KP_END = 136,
+    VDS_VK_PAGEUP = 146, VDS_VK_KP_PAGEUP = 147, VDS_VK_PAGEDOWN = 148, VDS_VK_KP_PAGEDOWN = 149,
     VDS_VK_ESCAPE = 125, VDS_VK_BACKSPACE = 132, VDS_VK_TAB = 142, VDS_VK_RETURN = 143, VDS_VK_KP_ENTER = 144,
     VDS_VK_UP = 150, VDS_VK_KP_UP = 151, VDS_VK_DOWN = 152, VDS_VK_KP_DOWN = 153,
     VDS_VK_LEFT = 154, VDS_VK_KP_LEFT = 155, VDS_VK_RIGHT = 156, VDS_VK_KP_RIGHT = 157,
@@ -57,6 +59,27 @@ enum { VDS_TWEEN_WINDOW = 0, VDS_TWEEN_SPRITE = 1 };
 enum { VDS_PROP_X = 0, VDS_PROP_Y = 1, VDS_PROP_SCROLL_ROW = 2, VDS_PROP_SCROLL_COL = 3 };
 enum { VDS_EASE_LINEAR = 0, VDS_EASE_IN_OUT = 1, VDS_EASE_OUT = 2, VDS_EASE_SPRING = 3 };
 #define VDS_MAX_TWEENS 16
+
+/* Widgets (G4): rendered by the ESP into their window's surface; events to
+ * the CPU: 02 ACTIVATE id=widget args: window; 03 SELECT id=widget args:
+ * index(u16) window; 04 CHANGE id=widget args: value(s16) window. */
+enum { VDS_EVENT_ACTIVATE = 0x02, VDS_EVENT_SELECT = 0x03, VDS_EVENT_CHANGE = 0x04 };
+enum { VDS_WK_BOX = 1, VDS_WK_LABEL, VDS_WK_BUTTON, VDS_WK_CHECK, VDS_WK_RADIO, VDS_WK_INPUT, VDS_WK_LIST, VDS_WK_PROGRESS };
+enum { VDS_WF_HIDDEN = 1, VDS_WF_DISABLED = 2, VDS_WF_FILL = 4 };   /* FILL: a root box covering the client area */
+enum { VDS_LAYOUT_NONE = 0, VDS_LAYOUT_COLUMN = 1, VDS_LAYOUT_ROW = 2 };
+#define VDS_MAX_WIDGETS 48
+#define VDS_WIDGET_TEXT 32
+#define VDS_LIST_POOL 64                /* list items held on the ESP, shared by all lists */
+#define VDS_ITEM_TEXT 24
+typedef struct {
+    uint8_t used, window, kind, parent, flags, layout, gap, fixed, weight;
+    uint16_t seq;                       /* creation order: layout and Tab follow it */
+    uint8_t col, row, w, h;             /* placement in window client cells (computed under a box) */
+    int16_t value;                      /* check/radio 0/1, progress 0..100, list selection, input caret */
+    uint8_t top;                        /* first visible list item / input scroll */
+    uint8_t count, first;               /* list: item count and first pool slot */
+    char text[VDS_WIDGET_TEXT];
+} vds_widget;
 enum { VDS_WIN_MOVED = 1, VDS_WIN_CLOSE = 2, VDS_WIN_ZOOMED = 3, VDS_WIN_RESTORED = 4 };
 enum { VDS_FROM_MENU = 1, VDS_FROM_ACCELERATOR = 2, VDS_FROM_PALETTE = 3 };
 
@@ -99,6 +122,12 @@ typedef struct vds_ui {
     vds_cell popup_cells[VDS_MENU_DEPTH][(VDS_MENU_ITEMS + 1) * VDS_POPUP_COLS];   /* +1: palette filter row */
     vds_cell bar_cells[80], status_cells[80];
     vds_tween tweens[VDS_MAX_TWEENS];
+    vds_widget widgets[VDS_MAX_WIDGETS];
+    uint8_t widget_focus[VDS_MAX_WINDOWS];  /* focused widget per window, VDS_NONE */
+    char items[VDS_LIST_POOL][VDS_ITEM_TEXT];
+    uint8_t items_used, caret_widget;
+    uint16_t widget_seq;
+    uint8_t widget_cols[VDS_MAX_WINDOWS], widget_rows[VDS_MAX_WINDOWS];   /* size at the last layout */
     uint8_t pointer_mode, buttons;
     int16_t px, py;
 } vds_ui;
@@ -125,6 +154,25 @@ void vds_ui_tick(vds_ui *u, uint32_t ms);
 /* Pointer at (x, y) with buttons (bit 0 primary): moves the cursor sprite; a
  * press focuses the window under it; button changes send POINTER events. */
 void vds_ui_pointer(vds_ui *u, int16_t x, int16_t y, uint8_t buttons);
+/* Widgets (ops 80-89). Placement is in client cells of `window`; children of
+ * a box with a layout are placed by it in creation order (fixed cells, else a
+ * share by weight). Tab moves through a window's widgets in creation order. */
+int vds_ui_widget(vds_ui *u, uint8_t id, uint8_t window, uint8_t kind, uint8_t parent,
+                  uint8_t col, uint8_t row, uint8_t w, uint8_t h, uint8_t flags);
+int vds_ui_widget_text(vds_ui *u, uint8_t id, const char *text, size_t n);
+int vds_ui_widget_value(vds_ui *u, uint8_t id, int16_t value);
+int vds_ui_widget_layout(vds_ui *u, uint8_t id, uint8_t layout, uint8_t gap);
+int vds_ui_widget_size(vds_ui *u, uint8_t id, uint8_t fixed, uint8_t weight);
+int vds_ui_widget_item(vds_ui *u, uint8_t id, uint8_t index, const char *text, size_t n);
+int vds_ui_widget_count(vds_ui *u, uint8_t id, uint8_t count);
+int vds_ui_widget_delete(vds_ui *u, uint8_t id);
+int vds_ui_widget_focus(vds_ui *u, uint8_t id);
+/* Lay out and redraw every widget of a window (after resize or style change). */
+void vds_ui_widgets_refresh(vds_ui *u, uint8_t window);
+/* Internal to vds_ui.c: keys and clicks for widgets; 1 when consumed. */
+int vds_ui_widget_key(vds_ui *u, uint8_t ascii, uint8_t modifiers, uint8_t vk);
+int vds_ui_widget_click(vds_ui *u, uint8_t window, int col, int row);
+void vds_ui_widgets_forget(vds_ui *u, uint8_t window);
 /* Re-render the menu bar, status line and open menus (after style changes). */
 void vds_ui_refresh(vds_ui *u);
 /* Text shown for a command's accelerator, e.g. "Ctrl+S"; out holds VDS_ACCEL_MAX bytes. */
