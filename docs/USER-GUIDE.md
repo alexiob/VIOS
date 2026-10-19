@@ -67,6 +67,13 @@ S" sink" ' SINK DEVICE           \ writing /dev/sink feeds SINK's KEY
 ``` `HANDLES`
 lists open handles and the last I/O error.
 
+## Startup
+
+At boot VIOS loads the confirmed source slot (your saved modules), then
+`/VIOS/USER.FTH` if that file exists (put it there with `:put`), then starts
+a word named `AUTORUN` if one is defined. A failing `USER.FTH` is reported
+on the console and boot continues; delete or fix the file to change it.
+
 ## When something goes wrong
 
 - `LAST-ERROR` shows the word, source token and callers of the last

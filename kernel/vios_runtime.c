@@ -42,6 +42,16 @@ static int command(const char *word,const char **rest){
  int result=vios_module_command(word,rest);if(result)return result;
  return vios_boot_command(word,rest);
 }
+/* Durable user configuration, separate from module packages and boot slots:
+ * /VIOS/USER.FTH is LOADed once per boot if present. A failure is reported
+ * and boot continues; the normal execution budget stops runaway code. */
+int vios_user_startup(void){
+ char probe[1];size_t n=0;
+ if(!storage_read_file("/VIOS/USER.FTH",probe,0,&n)&&vios_same(storage_error(),"file not found"))return 0;
+ vios_out("user startup: /VIOS/USER.FTH\r\n");
+ if(!vios_load_source("/VIOS/USER.FTH")){vios_out("user startup failed: ");vios_out(forth_last_error());vios_out("\r\n");fvm_reset();return -1;}
+ return 1;
+}
 /* Boot convention: a word named AUTORUN (normally from a boot-slot module)
  * starts as a console-attached background task, so the REPL stays usable
  * and TASK-KILL can stop a misbehaving application. */

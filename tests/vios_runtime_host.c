@@ -108,6 +108,12 @@ int main(int argc,char **argv){
  const char child[]=": CHILD 37 ;";const char parent[]="INCLUDE /VIOS/CHILD.FTH\n: PARENT CHILD 5 + ;";
  assert(storage_write_file("/VIOS/CHILD.FTH",child,sizeof child-1));assert(storage_write_file("/VIOS/PARENT.FTH",parent,sizeof parent-1));
  eval("LOAD /VIOS/PARENT.FTH PARENT");assert(fvm_pop()==42);
+ /* User startup script: absent -> 0; present -> loaded; failing -> -1. */
+ reset();assert(vios_user_startup()==0);
+ {const char *user="VARIABLE CONF 42 CONF !\n";assert(storage_write_file("/VIOS/USER.FTH",user,strlen(user)));
+  assert(vios_user_startup()==1);assert((eval("CONF @"),fvm_pop())==42);
+  const char *bad=": OOPS 1 0 / ; OOPS\n";assert(storage_write_file("/VIOS/USER.FTH",bad,strlen(bad)));
+  assert(vios_user_startup()==-1&&fvm_depth==0);assert(storage_remove("/VIOS/USER.FTH"));assert(vios_user_startup()==0);}
  /* Stage 5: reboot into an application from SD. A module defining AUTORUN
   * goes into a boot trial; after the simulated reboot the confirmed slot is
   * loaded and AUTORUN starts as a console task without any host. */

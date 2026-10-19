@@ -11,6 +11,6 @@ void kernel_main(void){
  }
  /* Local keyboard + VGA are usable without a host: start on the console
   * view. A missing/unexpected display leaves the headless REPL unchanged. */
- platform_console_tap(vios_console_putc);(void)vios_console_open();(void)vios_autorun();
+ platform_console_tap(vios_console_putc);(void)vios_console_open();(void)vios_user_startup();(void)vios_autorun();
  forth_repl();
 }
