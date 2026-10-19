@@ -138,6 +138,8 @@ static uint32_t vios_g0_gap(){return 0;}
 static void vios_frame_stats(uint32_t *f,uint32_t *s,uint32_t *w){*f=*s=*w=0;}
 static void vios_frame_stats_reset(){}
 static const char *vios_g0_line(unsigned n){return n==0?"G0 mode 0 fake":"";}
+static std::string console_fed;
+static void vios_console_feed(const uint8_t *d,size_t n){console_fed.append((const char*)d,n);}
 static unsigned vios_console_row(unsigned y,char *out,unsigned capacity){return (unsigned)snprintf(out,capacity,"row %u",y);}
 #include "vios_bridge.h"
 static void note_usb(unsigned action){assert(usb_tx_mutex&&usb_tx_mutex->held);usb_actions.push_back(action);}
@@ -243,6 +245,27 @@ static void check_stage0_instrumentation(){
     assert(control_text("G0R0\n",88)=="G0R G0 mode 0 fake\r\n"&&control_text("G0Z\n",89)=="G0 GAP RESET\r\n");
     assert(control_text("CR05\n",83)=="CROW 05 row 5\r\n"&&control_text("CR3B\n",84).rfind("ERR",0)==0);
     probe_char.store(-1);
+}
+static void check_line_editing(){
+    bool was_paused=cpu_paused.load();cpu_paused=false;
+    console_host_open=false; // earlier raw console bytes left a host line open
+    // Line mode off or keys routed to an application: nothing is consumed.
+    vios_line_mode(0);assert(!vios_line_key('a',0,1));vios_line_mode(3);assert(!vios_line_key('a',0,1));
+    // Awaiting a line: keys are edited and echoed on the ESP (VGA feed + USB console).
+    vios_line_mode(1);console_fed.clear();xQueueReset(console_queue);
+    assert(vios_line_key('h',0,1)&&vios_line_key('i',0,1)&&!vios_line_key('i',0,0));
+    assert(console_fed=="hi"&&console_out_drain(16)==2);auto f=output_frames();assert(f.size()==2&&f[0].channel==1);
+    // Enter erases the echo and queues "hi\r" as console input for the CPU.
+    assert(vios_line_key('\r',143,1));ConsoleRecord r;assert(xQueueReceive(console_queue,&r,0)&&r.length==3&&!memcmp(r.data,"hi\r",3));
+    console_out_drain(16);output_frames();
+    // A host line still open holds a finished physical line until it closes.
+    console_host_open=true;vios_line_key('x',0,1);vios_line_key('\r',143,1);assert(uxQueueMessagesWaiting(console_queue)==0);
+    console_host_open=false;line_field.poll();assert(uxQueueMessagesWaiting(console_queue)==1);
+    xQueueReset(console_queue);console_out_drain(16);output_frames();
+    // CPU console output marks the shown line foreign; non-editing keys pass through.
+    assert(!vios_line_key(0,159,1));vios_line_mode(0);console_fed.clear();
+    cpu_paused=true;vios_line_mode(1);assert(!vios_line_key('a',0,1)); // a halted CPU edits nothing
+    vios_line_mode(0);cpu_paused=was_paused;
 }
 int main(int argc,char **argv){
     if(argc==4&&!strcmp(argv[1],"--control-frame")){
@@ -370,5 +393,6 @@ int main(int argc,char **argv){
     first.join();second.join();producing=false;drainer.join();assert(output_frames().size()==60);
     check_firmware_ab();
     check_stage0_instrumentation();
+    check_line_editing();
     puts("bridge boot/control/ranges/CRC/fragment sequences/health checks passed");
 }

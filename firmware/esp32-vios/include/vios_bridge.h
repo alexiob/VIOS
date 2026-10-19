@@ -6,6 +6,7 @@
 #pragma once
 #include "vios_bridge_api.h"
 #include "vios_image.h"
+#include "vios_line.h"
 #include "vios_stage0.h"
 #include "vios/internal_uart.h"
 #include <atomic>
@@ -28,10 +29,14 @@ static std::atomic<int> health_mailbox(-1);
 RTC_NOINIT_ATTR static uint32_t retained_magic,retained_count,retained_inverse;
 static const uint32_t retained_signature=0x56494F53;
 static void retain_failures(unsigned count){retained_count=count;retained_inverse=~count;retained_magic=retained_signature;}
+/* Host console input can split a line across records; a physical line from
+ * the ESP editor waits until the host line is closed (CR, LF or Ctrl-C). */
+static std::atomic<bool> console_host_open(false);
 static bool enqueue_console(const uint8_t *data,size_t length){
     if(!console_queue||!length||length>256)return false;
     ConsoleRecord record;record.length=(uint16_t)length;memcpy(record.data,data,length);
-    return xQueueSend(console_queue,&record,0)==pdTRUE;
+    if(xQueueSend(console_queue,&record,0)!=pdTRUE)return false;
+    uint8_t last=data[length-1];console_host_open=!(last=='\r'||last=='\n'||last==3);return true;
 }
 
 static uint8_t usb_frame[VIOS_WIRE_FRAME_MAX];
@@ -128,7 +133,25 @@ static void probe_report(char *line,size_t size){
  * the 115200 USB link. A full queue blocks the parser in 50 ms steps until
  * the control task frees a slot: output is never dropped or reordered. */
 static void console_out_write(const uint8_t *data,size_t length){usb_send(VIOS_CHANNEL_CONSOLE,0,data,length);}
+/* Stage 2a: the cooked line editor runs on the VDP task (keys arrive through
+ * send_packet). Its echo goes to the VGA console and USB like CPU output; a
+ * finished line joins the console input queue that also carries host lines. */
+static std::atomic<bool> line_awaiting(false),line_routed(false);
+static bool line_echoing;
+struct LineSink : vios_line::Sink {
+    void echo(const uint8_t *bytes,size_t n) override{line_echoing=true;vios_console_feed(bytes,n);vios_usb_console_write(bytes,n);line_echoing=false;}
+    bool submit(const uint8_t *line,size_t n) override{return !console_host_open.load()&&enqueue_console(line,n);}
+};
+static LineSink line_sink;
+static vios_line::Field line_field(&line_sink);
+void vios_line_mode(uint8_t flags){line_awaiting=(flags&1)!=0;line_routed=(flags&2)!=0;}
+bool vios_line_key(uint8_t ascii,uint8_t vk,uint8_t down){
+    if(!line_awaiting.load()||line_routed.load()||cpu_paused.load())return false;
+    if(!down)return false; // the CPU ignores key-ups in line mode
+    return line_field.key(ascii,vk);
+}
 void vios_usb_console_write(const uint8_t *data,size_t length) {
+    if(!line_echoing)line_field.foreign_output();
     uint32_t start=stage0_us();
     while(length) {
         ConsoleRecord record;record.length=(uint16_t)(length>VIOS_WIRE_PAYLOAD_MAX?VIOS_WIRE_PAYLOAD_MAX:length);memcpy(record.data,data,record.length);
@@ -411,6 +434,7 @@ void vios_vdp_tx_begin(){
 void vios_vdp_tx_end(){if(vdp_tx_mutex)xSemaphoreGive(vdp_tx_mutex);}
 void vios_bridge_service_vdp(){
     if(cpu_paused.load())return;
+    line_field.poll(); // a finished physical line waiting for queue room or a closed host line
     bool console=console_queue&&uxQueueMessagesWaiting(console_queue),host=host_queue&&uxQueueMessagesWaiting(host_queue);
     if(!console&&!host)return;
     ConsoleRecord record;

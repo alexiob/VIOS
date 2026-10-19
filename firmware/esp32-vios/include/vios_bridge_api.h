@@ -62,3 +62,7 @@ void vios_display_unlock();
 void vios_frame_start();
 void vios_frame_stats(uint32_t *frames,uint32_t *start_max_us,uint32_t *work_max_us);
 void vios_frame_stats_reset();
+
+/* Stage 2a cooked line editing on the ESP (vios_line.h, glue in vios_bridge.h). */
+void vios_line_mode(uint8_t flags);                       // VDU 23,0,E7,flags
+bool vios_line_key(uint8_t ascii,uint8_t vk,uint8_t down); // true: consumed, do not send 0x81
