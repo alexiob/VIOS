@@ -690,3 +690,98 @@ board):**
 - console `show()` and surfaces moved onto the blitter (no fabgl glyph
   primitives);
 - the loop-gap ≤ 4 ms gate.
+
+## Implementation status (host-tested, 2026-10-19)
+
+On main (`93340b4`..`648d948`); none of it has run on the board yet. Board
+integration is in progress in the session that owns the hardware.
+
+| Piece | Where | State |
+|---|---|---|
+| Compositor: windows, surfaces, damage, occlusion, shadows, both styles, snap/free x, blitter | `lib/vios-vds/src/vds.{h,c}` | done |
+| Sprites (16, 4 bpp ≤ 64×64, transparency, hotspot) and a built-in 12×16 arrow cursor | `vds.c` | done; pointer = sprite 15 |
+| Text caret (block, underline, bar), blinking from local time | `vds.c` (`vds_tick`) | done |
+| Overlay band, menu frame and colours, modal dimming | `vds.c` | done |
+| Wire protocol: batch validation, replies, hold/commit, raw, reset, sprite upload | `vds_proto.{h,c}` | done |
+| G2 window manager: focus cycling, keyboard move/resize, zoom, close requests, modal focus | `vds_ui.{h,c}` | done |
+| G3 commands, menu bar + status line (Turbo Vision), world and window pop-ups (Smalltalk), cascades, mnemonics, accelerators, palette | `vds_ui.c` | done |
+| eZ80 client: 32 Forth words, argument checks, atomic batches, pulled events | `kernel/vios_ui.c`, `include/vios/ui.h` | done; linked into `vios-resident` |
+| fabgl adapter, vertical-blank frames, E4 hook, console on the blitter, loop-gap gate | firmware | **in progress** (board owner) |
+| G4 widgets and layout, G5 animation and Canvas, G6 keyboard pointer | — | not started |
+
+**Deviations from the §12 draft** (the authoritative table is the header of
+`vds_proto.h`):
+
+- **Window ops:**
+  - `50 WIN id surface x y cols rows flags`: client size in cells; the title
+    is sent separately with `54`.
+  - `51` sets geometry. `55` rebinds a window's surface, `56` sets its client
+    scroll, `57` closes it and `58` focuses it.
+- **Menu ops:** `59` sets a window's pop-up menu, `60` defines a command, `61`
+  a menu and `62` a command's state. Item encoding: a command id, `FFFF` for
+  a separator, `FE00|menu` for a submenu.
+- **Sprite ops:** `76` defines a sprite, `77` uploads pixel data, `78` moves
+  it, `79` shows or hides it, and `7A` loads the built-in arrow.
+- **Events are pulled, not pushed:** the ESP queues 16 events (the newest are
+  kept; a loss is reported as an `OVERFLOW` event). The CPU asks with `36 max`
+  and gets at most `max` events in one 0xF1 reply. This uses the existing
+  request/reply path, needs no CPU event ring in the transport, and gives
+  flow control.
+- **Reserved ids:** window ids 27–31 and surface ids 11–15 belong to the menus,
+  the menu bar and the status line, and the protocol refuses them from the CPU.
+- **Palette indices:** indices 0–3 are pinned in both styles, while 4–15 belong
+  to the style. Content meant to look the same in both styles uses 0–3.
+
+**Sizes:**
+
+| Side | Component | Size |
+|---|---|---|
+| ESP32 (`-Os`) code | `vds` | 7.9 KB |
+| | `vds_proto` | 3.5 KB |
+| | `vds_ui` | 7.9 KB |
+| ESP32 state | `vds` (internal RAM) | 10.8 KB |
+| | `vds_proto` (can live in PSRAM) | 4.2 KB |
+| | `vds_ui` (can live in PSRAM) | 6.1 KB |
+| eZ80 | `vios_ui.o` | 6.4 KB code, 1.6 KB rodata, 0.5 KB BSS |
+| eZ80 | `NATIVES_MAX` 48 → 96 | +288 B |
+
+That leaves about 27.6 KB below the stack.
+
+**Tests** (all native, ASan/UBSan, run by `make test`):
+
+- `firmware/esp32-vios/tests/vds.c`: full-render oracle over 3 × 3000 random
+  operations.
+- `vds_proto.c`: protocol versus API equivalence, rejection, replies, pulled
+  events, 20,000 fuzzed batches.
+- `vds_ui.c`: window manager, 6000 random steps.
+- `vds_menu.c`: menus, palette, accelerators, 5000 random steps, plus three
+  regressions from the security review.
+- `tests/vios_ui_host.c`: end to end. Forth words → E4 bytes → ESP library →
+  replies and events back, compared with direct API renders.
+
+**Forth vocabulary** (stack effects in `kernel/vios_ui.c`):
+
+- Surfaces and text: `UI-SURFACE`, `UI-TYPE`, `UI-FILL`, `UI-SCROLL`, `UI-CARET`.
+- Windows: `UI-WINDOW`, `UI-TITLE`, `UI-PLACE`, `UI-RAISE`, `UI-CLOSE`,
+  `UI-FOCUS`, `UI-FLAGS`, `UI-CLIENT`, `UI-VIEW`.
+- Commands and menus: `UI-COMMAND`, `UI-MENU`, `UI-STATE`, `UI-POPUP`.
+- Sprites: `UI-SPRITE`, `UI-PIXELS`, `UI-SPRITE-AT`, `UI-SPRITE-SHOW`, `UI-ARROW`.
+- Settings: `UI-STYLE`, `UI-SNAP`, `UI-RAW`, `UI-RESET`.
+- Batching: `UI-BEGIN`, `UI-COMMIT`.
+- Server queries: `UI-SYNC`, `UI-EVENT`, `UI-NEXT`.
+- Constants: `UI-VISIBLE`, `UI-DECOR`, `UI-SHADOW`, `UI-ACTIVE`, `UI-FREE-X`,
+  `UI-MODAL`, `UI-ENABLED`, `UI-CHECKED`, `UI-STATUS`, `UI-SEPARATOR`,
+  `UI-SUBMENU`, `UI-CTRL`, `UI-SHIFT`, `UI-ALT`, `UI-EV-*`, `UI-CURSOR`.
+
+Example:
+
+```forth
+0 60 20 48 UI-SURFACE                              \ surface 0: 60x20, black on white
+S" : SQUARE DUP * ;" 0 1 1 48 UI-TYPE
+1 0 64 40 60 20 UI-VISIBLE UI-DECOR OR UI-SHADOW OR UI-WINDOW
+S" Browser" 1 UI-TITLE  1 UI-FOCUS
+S" &Save" 3 UI-ENABLED 0 UI-CTRL CHAR s UI-COMMAND  \ command 3, Ctrl+S
+3 1 S" &File" 1 UI-MENU  1 UI-SUBMENU 1 S" " 0 UI-MENU
+UI-CURSOR UI-ARROW  UI-CURSOR 320 240 UI-SPRITE-AT  UI-CURSOR TRUE UI-SPRITE-SHOW
+UI-NEXT  \ ( -- kind id arg TRUE | FALSE ): e.g. 17 1 3 TRUE after Ctrl+S
+```
