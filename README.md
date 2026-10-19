@@ -26,6 +26,8 @@ All verified on the physical board unless noted; evidence in `docs/bring-up/*-20
   `READ-WAIT`/`WRITE-ALL`, SD file streams, `/dev/null`, `/dev/cons`,
   `/dev/tasks`, per-task cleanup, `HANDLES`
   ([handle spec](docs/superpowers/specs/2026-10-18-vios-handles.md)).
+- **User devices and startup.** `S" name" ' word DEVICE` serves `/dev/name`
+  from a Forth word; `/VIOS/USER.FTH` runs at boot when present.
 - **Inspection.** `LAST-ERROR` keeps the failing word, offset, caller frames
   and stack captured before unwind; `TRACE word n` single-steps on any engine.
 - **Core words.** A Forth prelude adds `> 0< ROT NIP TUCK ABS MAX MIN TYPE

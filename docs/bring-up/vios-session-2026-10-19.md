@@ -15,9 +15,12 @@ restored with `tools/vios_fast_display_state.py` after flashes.
 | Tasks | 4 preemptive Forth tasks, PAUSE/MS, gate, slice sweep (default 1024), SPAWN-CON, AUTORUN (host-tested boot path) | `vios-tasks-acceptance-2026-10-18.json`, `vios-task-slice-sweep-2026-10-19.json` |
 | Handles | OPEN/CLOSE/READ/WRITE/PIPE, /dev/null|cons|tasks, ownership cleanup | `vios-handles-acceptance-2026-10-18.json` |
 | Pipelines | TASK-INPUT/TASK-OUTPUT, PIPELINE, backpressure, broken pipe | `vios-pipeline-acceptance-2026-10-19.json` |
+| Devices | Forth words serve `/dev/NAME` (`DEVICE`), Plan 9 style | `vios-devices-2026-10-19.log` |
+| Startup | `/VIOS/USER.FTH` loaded at boot when present; failures reported, boot continues | `vios-user-startup-2026-10-19.log` |
+| Review | independent code review: 6 findings, 5 fixed (task exit drain, MS clock, ring headroom, echo redisplay, VGA backspace wrap) | handles spec |
 | Inspection | LAST-ERROR pre-unwind capture, TRACE on all engines, source maps (host-tested, flashed with this report's image) | `vios-trace-2026-10-19.log` |
 | Core words | prelude words, ." CHAR CREATE ALLOT HERE , C,, J LEAVE +LOOP ?DO UNLOOP, FILL MOVE U. | `vios-core-words-2026-10-19.json` |
-| Host tools | snapshot, resync, complete/help, module_graph, develop, describe, events, sd_list/put/get, trace, last_error | 216 host tests |
+| Host tools | snapshot, resync, complete/help, module_graph, develop, describe, events, sd_list/put/get, trace, last_error; CLI :ls :put :get :events :describe | 220 host tests |
 | Soak 1 | 342 clean mixed-load iterations (31.9 min, 0 console drops), then 3 bytes lost inside one 1-char USB console frame (open issue #2); harness failed closed | `vios-soak-2026-10-19.json` |
 | Echo coalescing | per-character echo held while input streams; REPL round trip 77.6 -> 35.9 ms; `resync` recovers wire loss without reboot | `vios-tasks-regress-2026-10-19.json` |
 | Soak 2 | **passed**: 558 iterations / 45.1 min, 0 console drops, no wire loss (median iteration 4.8 s vs 5.5 s before). The VGA view's 512-byte ring dropped display-only output under continuous host traffic (expected; USB stream intact) | `vios-soak-2026-10-19b.json` |
