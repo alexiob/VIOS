@@ -127,6 +127,55 @@ static void check_usb_console_pacing(){
     assert(frames[1].channel==3&&frames[1].sequence==0&&frames[1].length==7&&!memcmp(frames[1].payload,"event\r\n",7));
     assert(!usb_tx_mutex->held);
 }
+static bool saw_event(const std::vector<vios_wire_message> &frames,const char *text){
+    for(auto &f:frames)if(f.channel==3&&f.length==strlen(text)&&!memcmp(f.payload,text,f.length))return true;return false;
+}
+static void ota_entry_at(unsigned sector,uint32_t seq,uint32_t state,const char *label){
+    memset(otadata_flash+sector*4096,0xFF,4096);uint8_t *e=otadata_flash+sector*4096;uint32_t crc=ota_entry_crc(seq);
+    memcpy(e,&seq,4);if(label)memcpy(e+4,label,strlen(label));memcpy(e+24,&state,4);memcpy(e+28,&crc,4);
+}
+static uint32_t ota_word(unsigned sector,unsigned at){uint32_t v;memcpy(&v,otadata_flash+sector*4096+at,4);return v;}
+static void check_firmware_ab(){
+    now=1000; // millis() counts from ESP start; the trial window is absolute.
+    assert(ota_entry_crc(1)==0x4743989AUL); // The board's real otadata seq-1 entry.
+    // app0 selected by an UNDEFINED-state entry (the board today): no trial, health never rewrites otadata.
+    memset(otadata_flash,0xFF,sizeof otadata_flash);ota_entry_at(0,1,0xFFFFFFFFu,nullptr);
+    running_partition=esp_partition_t{"app0",0x10};ota_rollbacks=otadata_erases=0;reset_reason=0;
+    assert(vios_bridge_init()&&!firmware_trial);vios_bridge_handoff();cpu_paused=false;
+    incoming("F\n",60);auto f=output_frames();assert(f.size()==1&&!memcmp(f[0].payload,"FIRMWARE app0 undefined\r\n",25));
+    vios_boot_health(1);vios_bridge_poll();assert(otadata_erases==0);output_frames();
+    // A marked VALID entry for app1 is a trial; health 0 never confirms, health 1 clears the marker.
+    ota_entry_at(1,2,ESP_OTA_IMG_VALID,"VIOS-TRIAL");running_partition=esp_partition_t{"app1",0x11};
+    assert(vios_bridge_init()&&firmware_trial&&firmware_trial_sector==1);vios_bridge_handoff();cpu_paused=false;
+    incoming("F\n",61);f=output_frames();assert(f.size()==1&&!memcmp(f[0].payload,"FIRMWARE app1 valid trial\r\n",27));
+    vios_boot_health(0);vios_bridge_poll();assert(firmware_trial&&otadata_erases==0);output_frames();
+    vios_boot_health(1);vios_bridge_poll();f=output_frames();
+    assert(!firmware_trial&&otadata_flash[4096+4]==0xFF&&ota_word(1,0)==2&&ota_word(1,24)==ESP_OTA_IMG_VALID&&ota_word(1,28)==ota_entry_crc(2));
+    assert(saw_event(f,"FIRMWARE confirmed\r\n")&&saw_event(f,"FIRMWARE app1 valid\r\n")&&ota_rollbacks==0);
+    assert(vios_bridge_init()&&!firmware_trial); // Confirmed images stay confirmed across restarts.
+    // A confirm whose write does not land is reported and the trial stays armed.
+    ota_entry_at(1,2,ESP_OTA_IMG_VALID,"VIOS-TRIAL");assert(vios_bridge_init()&&firmware_trial);vios_bridge_handoff();cpu_paused=false;
+    otadata_write_fails=true;vios_boot_health(1);vios_bridge_poll();f=output_frames();otadata_write_fails=false;
+    assert(firmware_trial&&saw_event(f,"ERR FIRMWARE confirm failed\r\n"));
+    // A trial whose CPU misses the boot deadline falls back at once with a clean failure budget.
+    ota_entry_at(1,2,ESP_OTA_IMG_VALID,"VIOS-TRIAL");ESP.restarted=false;assert(vios_bridge_init()&&firmware_trial);vios_bridge_handoff();cpu_paused=false;
+    vios_boot_health(0);vios_bridge_poll();now+=30001;retain_failures(1);vios_bridge_poll();f=output_frames();
+    assert(ota_rollbacks==1&&ota_word(1,24)==ESP_OTA_IMG_INVALID&&retained_count==0&&!ESP.restarted&&saw_event(f,"FIRMWARE rollback: CPU boot deadline\r\n"));
+    // app1 running after the bootloader fell back past an INVALID entry is not "the selected image": no trial.
+    assert(vios_bridge_init()&&!firmware_trial);
+    // No CPU health at all within the trial window (bootstrap error paths) also falls back.
+    ota_entry_at(1,4,ESP_OTA_IMG_VALID,"VIOS-TRIAL");now=1000;assert(vios_bridge_init()&&firmware_trial);vios_bridge_handoff();cpu_boot_ready=false;boot_deadline_armed=false;
+    vios_bridge_poll();assert(ota_rollbacks==1);now=FIRMWARE_TRIAL_MS;vios_bridge_poll();f=output_frames();
+    assert(ota_rollbacks==2&&saw_event(f,"FIRMWARE rollback: no CPU health\r\n"));
+    // A standard NEW entry (working rollback bootloader) is a trial confirmed through the IDF call.
+    ota_entry_at(1,6,ESP_OTA_IMG_NEW,nullptr);now=1000;assert(vios_bridge_init()&&firmware_trial&&firmware_trial_sector<0);vios_bridge_handoff();
+    vios_boot_health(1);vios_bridge_poll();output_frames();assert(!firmware_trial&&ota_word(1,24)==ESP_OTA_IMG_VALID);
+    // Host-requested rollback with no other valid slot keeps this image running.
+    ota_other_valid=false;assert(vios_bridge_init()&&!firmware_trial);vios_bridge_handoff();
+    incoming("FR\n",62);f=output_frames();
+    assert(ota_rollbacks==2&&ota_word(1,24)==ESP_OTA_IMG_VALID&&!firmware_trial&&saw_event(f,"ERR FIRMWARE no other valid slot; trial ended, use esptool\r\n"));
+    ota_other_valid=true;memset(otadata_flash,0xFF,sizeof otadata_flash);running_partition=esp_partition_t{"app0",0x10};
+}
 int main(int argc,char **argv){
     if(argc==4&&!strcmp(argv[1],"--control-frame")){
         /* Expose production control replies to the real Python resident stack.
@@ -239,5 +288,6 @@ int main(int argc,char **argv){
     std::thread first([]{for(unsigned i=0;i<30;++i)bridge_event("event\r\n");});
     std::thread second([]{for(unsigned i=0;i<30;++i)vios_usb_console_write((const uint8_t*)"console",7);});
     first.join();second.join();assert(output_frames().size()==60);
+    check_firmware_ab();
     puts("bridge boot/control/ranges/CRC/fragment sequences/health checks passed");
 }

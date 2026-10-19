@@ -34,3 +34,41 @@ static void (*started_task)(void*);
 static unsigned task_stack,task_priority,task_core;
 static int xTaskCreatePinnedToCore(void(*fn)(void*),const char*,unsigned stack,void*,unsigned priority,void*,unsigned core){started_task=fn;task_stack=stack;task_priority=priority;task_core=core;return 1;}
 static void vTaskDelay(unsigned ticks){delay(ticks);}
+/* ESP OTA: a fake 8 KB otadata partition and a settable running slot. The
+ * esp_ota_* calls follow IDF: state of the active entry, rewrite in place. */
+#define ESP_OK 0
+#define ESP_FAIL -1
+typedef int esp_err_t;
+typedef enum {ESP_OTA_IMG_NEW=0,ESP_OTA_IMG_PENDING_VERIFY=1,ESP_OTA_IMG_VALID=2,ESP_OTA_IMG_INVALID=3,ESP_OTA_IMG_ABORTED=4,ESP_OTA_IMG_UNDEFINED=-1} esp_ota_img_states_t;
+#define ESP_PARTITION_TYPE_DATA 1
+#define ESP_PARTITION_SUBTYPE_DATA_OTA 0
+#define ESP_PARTITION_SUBTYPE_APP_OTA_MIN 0x10
+#define ESP_PARTITION_SUBTYPE_APP_OTA_MAX 0x20
+struct esp_partition_t {char label[17];unsigned subtype;};
+static esp_partition_t running_partition={"app0",0x10},otadata_part={"otadata",0};
+static uint8_t otadata_flash[8192];
+static bool otadata_write_fails,ota_other_valid=true;
+static unsigned ota_rollbacks,otadata_erases;
+static const esp_partition_t *esp_partition_find_first(int,int,const char*){return &otadata_part;}
+static esp_err_t esp_partition_read(const esp_partition_t*,size_t at,void *out,size_t n){memcpy(out,otadata_flash+at,n);return ESP_OK;}
+static esp_err_t esp_partition_erase_range(const esp_partition_t*,size_t at,size_t n){memset(otadata_flash+at,0xFF,n);++otadata_erases;return ESP_OK;}
+static esp_err_t esp_partition_write(const esp_partition_t*,size_t at,const void *in,size_t n){
+    if(otadata_write_fails)return ESP_OK; // Models this board's bootloader: erase lands, program silently does not.
+    for(size_t i=0;i<n;++i)otadata_flash[at+i]&=((const uint8_t*)in)[i];return ESP_OK;
+}
+static const esp_partition_t *esp_ota_get_running_partition(){return &running_partition;}
+static int fake_active_sector(){
+    int active=-1;uint32_t best=0;
+    for(int i=0;i<2;++i){uint32_t seq,state;memcpy(&seq,otadata_flash+i*4096,4);memcpy(&state,otadata_flash+i*4096+24,4);
+        if(seq!=0xFFFFFFFFu&&state!=3&&state!=4&&(active<0||seq>best)){active=i;best=seq;}}
+    return active;
+}
+static esp_err_t esp_ota_get_state_partition(const esp_partition_t*,esp_ota_img_states_t *state){
+    int a=fake_active_sector();if(a<0)return ESP_FAIL;uint32_t v;memcpy(&v,otadata_flash+a*4096+24,4);
+    if(v==0xFFFFFFFFu)return ESP_FAIL;*state=(esp_ota_img_states_t)v;return ESP_OK;
+}
+static esp_err_t esp_ota_mark_app_valid_cancel_rollback(){int a=fake_active_sector();if(a<0)return ESP_FAIL;uint32_t v=2;memcpy(otadata_flash+a*4096+24,&v,4);return ESP_OK;}
+static esp_err_t esp_ota_mark_app_invalid_rollback_and_reboot(){
+    if(!ota_other_valid)return ESP_FAIL;int a=fake_active_sector();if(a<0)return ESP_FAIL;
+    uint32_t v=3;memcpy(otadata_flash+a*4096+24,&v,4);++ota_rollbacks;return ESP_OK;
+}

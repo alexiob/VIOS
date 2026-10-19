@@ -13,6 +13,10 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/semphr.h>
 #include <freertos/queue.h>
+#include <esp_ota_ops.h>
+// Arduino would mark a pending image valid before setup(); VIOS confirms it
+// only after the CPU it boots reports healthy (see firmware_confirm).
+extern "C" bool verifyRollbackLater(){return true;}
 #endif
 static SemaphoreHandle_t usb_tx_mutex,vdp_tx_mutex;
 struct ConsoleRecord {uint16_t length;uint8_t data[256];};
@@ -75,6 +79,71 @@ void vios_usb_console_write(const uint8_t *data,size_t length) {usb_send(VIOS_CH
 void vios_usb_host_write(const uint8_t *data,size_t length) {usb_send(VIOS_CHANNEL_HOST,0,data,length);}
 static void control_reply(uint16_t sequence,const char *line) {usb_send(VIOS_CHANNEL_CONTROL,sequence,(const uint8_t *)line,strlen(line));}
 static void bridge_event(const char *line) {usb_send(VIOS_CHANNEL_EVENT,0,(const uint8_t *)line,strlen(line));}
+
+/* ESP firmware A/B (app0/app1). The Mac installs into the slot that is not
+ * running and adds an otadata entry with state VALID plus a "VIOS-TRIAL"
+ * marker in the unused label field: this board's rollback bootloader erases
+ * NEW/PENDING_VERIFY entries without rewriting them, but never touches VALID.
+ * A marked image (or a NEW/PENDING one under a working rollback bootloader)
+ * is on trial until the CPU it booted reports health 1. A CPU boot failure,
+ * or no health within FIRMWARE_TRIAL_MS of ESP start, marks it INVALID (an
+ * app-side write, which lands) and boots the other slot. */
+static const unsigned long FIRMWARE_TRIAL_MS=180000;
+static const char firmware_trial_label[]="VIOS-TRIAL";
+struct OtaEntry {uint32_t seq;uint8_t label[20];uint32_t state;uint32_t crc;};
+static bool firmware_trial;
+static int firmware_trial_sector=-1; // otadata sector holding our marked entry
+static uint32_t ota_entry_crc(uint32_t seq){
+    uint32_t crc=0;for(unsigned i=0;i<4;++i){crc^=(seq>>(8*i))&0xFF;for(unsigned b=0;b<8;++b)crc=(crc>>1)^((crc&1)?0xEDB88320UL:0);}
+    return ~crc; // esp_rom_crc32_le(UINT32_MAX,&seq,4), as the bootloader checks it.
+}
+static bool ota_entry_valid(const OtaEntry &e){return e.seq!=0xFFFFFFFFUL&&e.crc==ota_entry_crc(e.seq)&&e.state!=ESP_OTA_IMG_INVALID&&e.state!=ESP_OTA_IMG_ABORTED;}
+static const esp_partition_t *otadata_partition(){return esp_partition_find_first(ESP_PARTITION_TYPE_DATA,ESP_PARTITION_SUBTYPE_DATA_OTA,nullptr);}
+static bool otadata_read(unsigned sector,OtaEntry *e){const esp_partition_t *p=otadata_partition();return p&&esp_partition_read(p,sector*4096,e,sizeof *e)==ESP_OK;}
+static bool otadata_write(unsigned sector,const OtaEntry *e){
+    const esp_partition_t *p=otadata_partition();OtaEntry check;
+    return p&&esp_partition_erase_range(p,sector*4096,4096)==ESP_OK&&esp_partition_write(p,sector*4096,e,sizeof *e)==ESP_OK
+        &&otadata_read(sector,&check)&&!memcmp(&check,e,sizeof check);
+}
+static const char *firmware_state_name(esp_ota_img_states_t state){
+    switch(state){case ESP_OTA_IMG_NEW:return "new";case ESP_OTA_IMG_PENDING_VERIFY:return "pending";
+    case ESP_OTA_IMG_VALID:return "valid";case ESP_OTA_IMG_INVALID:return "invalid";
+    case ESP_OTA_IMG_ABORTED:return "aborted";default:return "undefined";}
+}
+static void firmware_status(char *line,size_t size){
+    const esp_partition_t *running=esp_ota_get_running_partition();esp_ota_img_states_t state=ESP_OTA_IMG_UNDEFINED;
+    if(!running||esp_ota_get_state_partition(running,&state)!=ESP_OK)state=ESP_OTA_IMG_UNDEFINED;
+    snprintf(line,size,"FIRMWARE %s %s%s\r\n",running?running->label:"?",firmware_state_name(state),firmware_trial?" trial":"");
+}
+static void firmware_init(){
+    firmware_trial=false;firmware_trial_sector=-1;
+    const esp_partition_t *running=esp_ota_get_running_partition();
+    if(!running||running->subtype<ESP_PARTITION_SUBTYPE_APP_OTA_MIN||running->subtype>=ESP_PARTITION_SUBTYPE_APP_OTA_MAX)return;
+    unsigned slot=running->subtype-ESP_PARTITION_SUBTYPE_APP_OTA_MIN;
+    OtaEntry entries[2];int active=-1;
+    for(unsigned i=0;i<2;++i)if(otadata_read(i,&entries[i])&&ota_entry_valid(entries[i])&&(active<0||entries[i].seq>entries[active].seq))active=(int)i;
+    if(active<0||(entries[active].seq-1)%2!=slot)return; // Booted by fallback, not by the selecting entry.
+    const OtaEntry &e=entries[active];
+    if(!memcmp(e.label,firmware_trial_label,sizeof firmware_trial_label-1)){firmware_trial=true;firmware_trial_sector=active;}
+    else firmware_trial=e.state==ESP_OTA_IMG_NEW||e.state==ESP_OTA_IMG_PENDING_VERIFY;
+}
+static void firmware_confirm(){
+    if(!firmware_trial)return;
+    bool ok;
+    if(firmware_trial_sector>=0){
+        OtaEntry e;ok=otadata_read((unsigned)firmware_trial_sector,&e);
+        if(ok){memset(e.label,0xFF,sizeof e.label);e.state=ESP_OTA_IMG_VALID;ok=otadata_write((unsigned)firmware_trial_sector,&e);}
+    }else ok=esp_ota_mark_app_valid_cancel_rollback()==ESP_OK;
+    if(!ok){bridge_event("ERR FIRMWARE confirm failed\r\n");return;}
+    firmware_trial=false;firmware_trial_sector=-1;char line[64];firmware_status(line,sizeof line);bridge_event("FIRMWARE confirmed\r\n");bridge_event(line);
+}
+static void firmware_fallback(const char *reason){
+    char line[96];snprintf(line,sizeof line,"FIRMWARE rollback: %s\r\n",reason);bridge_event(line);DBGSerial.flush();delay(50);
+    retain_failures(0); // The fallback image starts with a clean CPU boot budget.
+    if(esp_ota_mark_app_invalid_rollback_and_reboot()==ESP_OK)return; // Reboots on hardware.
+    // Only returns when no other valid slot exists; keep running for USB recovery.
+    firmware_trial=false;bridge_event("ERR FIRMWARE no other valid slot; trial ended, use esptool\r\n");
+}
 void vios_legacy_hexload_notice(){bridge_event("ERR raw hexload replaced by framed RAM control\r\n");}
 static bool cpu_halt() {
     if(vdp_tx_mutex&&xSemaphoreTake(vdp_tx_mutex,pdMS_TO_TICKS(100))!=pdTRUE)return false;
@@ -145,6 +214,8 @@ static void control_command(uint16_t sequence,const char *command,size_t length)
         control_reply(sequence,length==1&&command[0]=='B'?"BOOT STARTING\r\n":"ERR bootstrap owns CPU; only B/Z available\r\n");return;
     }
     if(length==1&&command[0]=='2'){control_reply(sequence,"ACK 2\r\n");return;}
+    if(length==1&&command[0]=='F'){firmware_status(reply,sizeof reply);control_reply(sequence,reply);return;}
+    if(length==2&&command[0]=='F'&&command[1]=='R'){control_reply(sequence,"FIRMWARE ROLLBACK\r\n");firmware_trial=true;firmware_fallback("host request");return;}
     if(length==1&&command[0]=='I') {
         snprintf(reply,sizeof reply,"ID %04X REV %02X STAT %02X\r\n",vios_zdi_id(),vios_zdi_revision(),vios_zdi_status());control_reply(sequence,reply);return;
     }
@@ -308,15 +379,17 @@ void vios_bridge_poll() {
     if(health>=0){
         char event[32];snprintf(event,sizeof event,"HEALTH flag %u\r\n",(unsigned)health);bridge_event(event);
         if(health==0){cpu_boot_ready=false;boot_started=millis();boot_deadline_armed=true;if(cpu_paused)boot_paused_at=boot_started;}
-        else {boot_deadline_armed=false;cpu_boot_ready=true;boot_failures=0;retain_failures(0);}
+        else {boot_deadline_armed=false;cpu_boot_ready=true;boot_failures=0;retain_failures(0);firmware_confirm();}
     }
     if(boot_deadline_armed&&!cpu_paused&&millis()-boot_started>=30000) {
         boot_deadline_armed=false;cpu_boot_ready=false;++boot_failures;retain_failures(boot_failures);
         bool halted=cpu_halt();
+        if(firmware_trial){firmware_fallback("CPU boot deadline");return;}
         if(boot_failures>=3)bridge_event(halted?"ERR three failed CPU boots; halted, USB recovery available\r\n":"ERR three failed CPU boots; halt failed, use Z\r\n");
         else {char event[80];snprintf(event,sizeof event,"BOOT failure %u/3; restarting ESP recovery\r\n",boot_failures.load());bridge_event(event);DBGSerial.flush();delay(50);ESP.restart();}
     }
     }
+    if(firmware_trial&&!cpu_boot_ready&&millis()>=FIRMWARE_TRIAL_MS){firmware_fallback("no CPU health");return;}
     if(control_used&&millis()-control_started>2000){control_reply(control_sequence,"ERR command timeout\r\n");control_used=0;}
     if(usb_used&&millis()-usb_started>2000){usb_used=0;usb_discard=true;}
     unsigned usb_budget=1024; // Yield/check deadlines even under continuous host input.
@@ -343,7 +416,7 @@ bool vios_bridge_init(){
     usb_tx_mutex=xSemaphoreCreateMutex();vdp_tx_mutex=xSemaphoreCreateMutex();
     console_queue=xQueueCreate(8,sizeof(ConsoleRecord));host_queue=xQueueCreate(2,sizeof(ConsoleRecord));
     if(esp_reset_reason()!=ESP_RST_SW||retained_magic!=retained_signature||retained_count>3||retained_inverse!=~retained_count)retain_failures(0);
-    boot_failures=retained_count;
+    boot_failures=retained_count;firmware_init();
     return usb_tx_mutex&&vdp_tx_mutex&&console_queue&&host_queue;
 }
 static void control_task(void*){for(;;){vios_bridge_poll();vTaskDelay(pdMS_TO_TICKS(1));}}
@@ -361,6 +434,7 @@ void vios_bridge_boot() {
     pinMode(ZDI_TCK,OUTPUT);digitalWrite(ZDI_TCK,HIGH);pinMode(ZDI_TDI,INPUT);
     bridge_event("BOOT VIOS VDP 1.04 mux-v1\r\n");
     char retry_event[48];snprintf(retry_event,sizeof retry_event,"BOOT retained failures %u\r\n",boot_failures.load());bridge_event(retry_event);
+    firmware_status(retry_event,sizeof retry_event);bridge_event(retry_event);
     if(vios_zdi_id()!=0x0007||vios_zdi_revision()!=0xAA||!cpu_halt()){bridge_event("ERR CPU identity/halt; recovery control available\r\n");return;}
     if(boot_failures>=3){bridge_event("ERR retained boot failure limit; halted, use Z\r\n");return;}
     vios_zdi_cpu_read(SET_ADL);vios_zdi_di();

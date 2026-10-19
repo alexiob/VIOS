@@ -53,3 +53,33 @@ chunks, 1 s timeout when no harness serves); `LOAD`/`INCLUDE /host/...`
 read whole files. An idle pump in the harness answers requests between
 commands. Agon: read 37 bytes from a Mac file, wrote a file back, LOAD of a
 Mac-edited source in 106 ms, forbidden path refused, no leaks.
+
+## Stage 7 item 2 (ESP firmware A/B), implemented 2026-10-19
+
+`tools/vios_firmware_ab.py status|install|rollback` (esptool at 115200,
+chunked digest-checked reads; writes are hash-verified, never retried).
+`install` backs up otadata and the target slot to `backups/ab-2026-10-19/`,
+writes the image to the slot that is not running, then adds an otadata entry
+in the other sector with state **VALID** and a `VIOS-TRIAL` marker in the
+unused label field. The firmware (`vios_bridge.h`, `firmware_*`) treats the
+marker as a trial: CPU health 1 clears it (`FIRMWARE confirmed`); a CPU boot
+deadline failure, no health within 180 s, or the control command `FR` marks
+the entry INVALID and reboots into the other slot. `F` reports
+`FIRMWARE <slot> <state>[ trial]`.
+
+Why not the standard NEW/PENDING_VERIFY flow: this board's bootloader (not
+the Arduino or Olimex build) has rollback enabled but its own otadata writes
+do not land: the erase succeeds, the program does not. A NEW entry written
+by esptool was found erased after one boot, and the pre-install backup had
+the same signature (seq 0, no CRC). Writes made by the app do land (seq 2
+marked INVALID by `FR`, read back). Opening the USB serial port resets the
+ESP. Replacing the bootloader would fix the standard flow but is outside
+the approved scope.
+
+On the board: app1 = `backups/app0-2026-10-18/firmware-ab2.bin` (sha256
+6764528…71fb, includes the d95e070 host-protocol fix), seq 4 VALID and
+confirmed; app0 = previous `firmware-host-load` image, seq 1, fallback.
+Self-rollback app1 -> app0 verified with the first A/B build. `/host/`
+re-verified: `docs/bring-up/vios-host-files-ab-2026-10-19.log`. Boot to
+health takes ~66 s, dominated by the ZDI RAM upload (ESP ready at 2 s,
+VIOREADY at 62 s).
