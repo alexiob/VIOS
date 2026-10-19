@@ -1,0 +1,34 @@
+save True /VIOS/A8783CA5/203C0319.VIM SAVE WBM1P
+saved /VIOS/A8783CA5/203C0319.VIM
+
+ok
+vios> 
+trial True BOOT-TRIAL
+
+ok
+vios> 
+BOOT-STATUS BOOT-MANIFEST
+boot confirmed A candidate B state PENDING current A generation 9
+manifest A confirmed modules 3 crc32 3057582859
+manifest-module A LIVE1I version 11 crc32 4203863728 package ok
+manifest-module A LIVE1P version 11 crc32 2732385733 package ok
+manifest-module A LIVE1D version 11 crc32 1721124452 package ok
+manifest B candidate modules 4 crc32 4290897870
+manifest-module B LIVE1I version 11 crc32 4203863728 package ok
+manifest-module B LIVE1P version 11 crc32 2732385733 package ok
+manifest-module B LIVE1D version 11 crc32 1721124452 package ok
+manifest-module B WBM1P version 1.0 crc32 3627393478 package ok
+
+ok
+vios> 
+reboot True True
+BOOT-STATUS
+boot confirmed B candidate NONE state CLEAN current B generation 11
+
+ok
+vios> 
+LIVE1I 11 persisted True
+LIVE1P 11 persisted True
+LIVE1D 11 persisted True
+WBM1P 1.0 persisted True
+WBM1P source same True
