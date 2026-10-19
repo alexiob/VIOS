@@ -126,6 +126,7 @@ void vios_probe_glyph(char c){
     }
 }
 static std::atomic<uint32_t> stat_section_max[3];
+extern volatile uint32_t vios_vga_isr_gap_max, vios_vga_isr_late; // VGA16 line ISR timing (vga16controller.cpp)
 void vios_loop_section(unsigned index,uint32_t started_us){if(index<3)stat_max(stat_section_max[index],stage0_us()-started_us);}
 void vios_probe_glyphs(const char *text,size_t count){
     if(probe_pending.load()){for(size_t i=0;i<count;++i)if((int)(uint8_t)text[i]==probe_char.load()){vios_probe_glyph(text[i]);stat_glyphs.fetch_add((uint32_t)(count-1));return;}}
@@ -134,7 +135,7 @@ void vios_probe_glyphs(const char *text,size_t count){
 void vios_parser_time(uint32_t us){stat_parser_us.fetch_add(us);stat_max(stat_parser_max,us);}
 static void stats_reset(){
     stat_glyphs=0;stat_console_bytes=0;stat_console_writes=0;stat_injected=0;
-    stat_usb_block_us=0;stat_usb_block_max=0;stat_parser_us=0;stat_parser_max=0;stat_console_sync=0;vios_g0_reset_gap();for(auto &m:stat_section_max)m=0;vios_frame_stats_reset();
+    stat_usb_block_us=0;stat_usb_block_max=0;stat_parser_us=0;stat_parser_max=0;stat_console_sync=0;vios_g0_reset_gap();for(auto &m:stat_section_max)m=0;vios_frame_stats_reset();vios_vga_isr_gap_max=0;vios_vga_isr_late=0;
 }
 static void probe_report(char *line,size_t size){
     unsigned n=probe_count.load();uint32_t sorted[PROBE_SAMPLES];
@@ -351,13 +352,14 @@ static void control_command(uint16_t sequence,const char *command,size_t length)
     uint32_t stage0_value;
     if(length==1&&command[0]=='T'){
         uint32_t frame_stats[3];vios_frame_stats(frame_stats,frame_stats+1,frame_stats+2);
-        snprintf(reply,sizeof reply,"STATS glyphs=%lu console_bytes=%lu console_writes=%lu usb_block_us=%lu usb_block_max=%lu parser_us=%lu parser_max=%lu injected=%lu console_sync=%lu console_queued=%u loop_gap_max=%lu host_service_max=%lu console_max=%lu keyboard_max=%lu frames=%lu vblank_start_max=%lu frame_work_max=%lu\r\n",
+        snprintf(reply,sizeof reply,"STATS glyphs=%lu console_bytes=%lu console_writes=%lu usb_block_us=%lu usb_block_max=%lu parser_us=%lu parser_max=%lu injected=%lu console_sync=%lu console_queued=%u loop_gap_max=%lu host_service_max=%lu console_max=%lu keyboard_max=%lu frames=%lu vblank_start_max=%lu frame_work_max=%lu vga_isr_gap_max_us=%lu vga_isr_late=%lu\r\n",
             (unsigned long)stat_glyphs.load(),(unsigned long)stat_console_bytes.load(),(unsigned long)stat_console_writes.load(),
             (unsigned long)stat_usb_block_us.load(),(unsigned long)stat_usb_block_max.load(),(unsigned long)stat_parser_us.load(),
             (unsigned long)stat_parser_max.load(),(unsigned long)stat_injected.load(),(unsigned long)stat_console_sync.load(),
             console_out_queue?(unsigned)uxQueueMessagesWaiting(console_out_queue):0u,(unsigned long)vios_g0_gap(),
             (unsigned long)stat_section_max[0].load(),(unsigned long)stat_section_max[1].load(),(unsigned long)stat_section_max[2].load(),
-            (unsigned long)frame_stats[0],(unsigned long)frame_stats[1],(unsigned long)frame_stats[2]);
+            (unsigned long)frame_stats[0],(unsigned long)frame_stats[1],(unsigned long)frame_stats[2],
+            (unsigned long)(vios_vga_isr_gap_max/240u),(unsigned long)vios_vga_isr_late);
         control_reply(sequence,reply);return;
     }
     if(length==2&&command[0]=='T'&&command[1]=='0'){stats_reset();control_reply(sequence,"STATS RESET\r\n");return;}

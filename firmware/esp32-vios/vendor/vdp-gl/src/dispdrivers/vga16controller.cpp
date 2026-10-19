@@ -41,6 +41,10 @@
 
 // VIOS: called from the line ISR once per frame at vertical blank (IRAM-safe).
 void (* volatile vios_vblank_hook)() = nullptr;
+// VIOS: the line ISR refills 2 of 4 DMA line buffers per interrupt (every
+// 2 scanlines, ~63.6 us at 640x480@60). A gap much longer than that lets the
+// DMA replay stale buffers: visible bars. Max gap in CPU cycles, late count.
+volatile uint32_t vios_vga_isr_gap_max = 0, vios_vga_isr_late = 0;
 
 #include "fabutils.h"
 #include "vga16controller.h"
@@ -458,6 +462,17 @@ void IRAM_ATTR VGA16Controller::ISRHandler(void * arg)
   #endif
 
   auto ctrl = (VGA16Controller *) arg;
+
+  {
+    static uint32_t last;
+    uint32_t now = getCycleCount();
+    if (last) {
+      uint32_t gap = now - last;
+      if (gap > vios_vga_isr_gap_max) vios_vga_isr_gap_max = gap;
+      if (gap > 240u * 95u) ++vios_vga_isr_late;   // > 1.5 refill periods at 240 MHz
+    }
+    last = now;
+  }
 
   if (I2S1.int_st.out_eof) {
 
