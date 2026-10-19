@@ -42,7 +42,8 @@ restored with `tools/vios_fast_display_state.py` after flashes.
    every power cycle. Should I `SAVE` it and include it in the boot slot?
 6. **Cold start / power-cut tests** need you to unplug and replug the board;
    when convenient.
-7. **Priorities next:** pipelines throughput (EMIT/KEY trap cost), more
+7. **Stage 6/7 proposals** in `docs/superpowers/specs/2026-10-19-vios-stage6-7-proposals.md`: host namespace over USB first? power-cut session? app1/OTA? which 6502 board?
+8. **Priorities next:** pipelines throughput (EMIT/KEY trap cost), more
    standard words, Plan 9-style namespaces, networking broker, or 6502 port
    planning?
 
