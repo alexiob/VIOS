@@ -22,7 +22,8 @@ static size_t op_size(const uint8_t *b, size_t n) {
     case 0x13: s = 8; break;
     case 0x14: s = 4; break;
     case 0x15: s = 6; break;
-    case 0x30: case 0x34: case 0x36: s = 1; break;
+    case 0x30: case 0x34: s = 1; break;
+    case 0x36: s = 2; break;
     case 0x31: case 0x33: case 0x35: s = 2; break;
     case 0x32: s = 5; break;
     case 0x50: s = 10; break;
@@ -66,10 +67,10 @@ void vds_proto_event(vds_proto *p, uint8_t kind, uint8_t id, const uint8_t *args
 
 /* Reply 36 left n (len event)*n: as many queued events as fit. A loss is
  * reported first as an OVERFLOW event so the CPU knows to resynchronise. */
-static void poll_events(vds_proto *p) {
+static void poll_events(vds_proto *p, uint8_t max) {
     uint8_t r[VDS_REPLY_MAX] = {0x36, 0, 0};
     unsigned at = 3;
-    if (p->event_lost) {
+    if (p->event_lost && max) {
         uint8_t lost = p->event_lost;
         p->event_lost = 0;
         uint8_t ev[4] = {p->event_seq++, VDS_EVENT_OVERFLOW, 0, lost};
@@ -78,7 +79,7 @@ static void poll_events(vds_proto *p) {
         at += sizeof ev;
         ++r[2];
     }
-    while (p->event_count && at + 1u + p->event_len[p->event_head] <= sizeof r) {
+    while (p->event_count && r[2] < max && at + 1u + p->event_len[p->event_head] <= sizeof r) {
         uint8_t len = p->event_len[p->event_head];
         r[at++] = len;
         memcpy(r + at, p->events[p->event_head], len);
@@ -219,7 +220,7 @@ static int apply(vds_proto *p, const uint8_t *b) {
         return 1;
     }
     case 0x34: reset(p); return 1;
-    case 0x36: poll_events(p); return 1;
+    case 0x36: poll_events(p, b[1]); return 1;
     case 0x35:
         p->raw = b[1] != 0;
         if (!p->raw) vds_damage_all(v);

@@ -46,7 +46,7 @@ static fcell base_address;
 static char error_text[96];
 static unsigned char transport_crc;
 static const char *vm_message(void);
-#define NATIVES_MAX 48
+#define NATIVES_MAX 96 /* 6 B each on the eZ80; the GUI words (kernel/vios_ui.c) take 32 */
 static struct {int (*callback)(void);unsigned flags;} natives[NATIVES_MAX];
 static unsigned native_count,origin_id;
 static int (*outer_hook)(const char *,const char **);

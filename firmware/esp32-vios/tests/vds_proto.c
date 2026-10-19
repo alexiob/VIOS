@@ -168,19 +168,25 @@ int main(int argc, char **argv) {
     p.push_events = 0;
     for (uint8_t i = 0; i < 5; ++i) vds_proto_event(&p, 0x11, i, (const uint8_t[]){i, 0, 2}, 3);
     unsigned before_events = events;
-    begin(); b8(0x36); assert(send_batch());
+    begin(); b8(0x36); b8(255); assert(send_batch());
     assert(events == before_events && last_code == VDS_PACKET_REPLY && last[0] == 0x36);
     assert(last[2] == 3 && last[1] == 2 && last_n == 3 + 3 * 7);              /* 3 x (len + 6 bytes) fit in 30 */
     assert(last[3] == 6 && last[5] == 0x11 && last[6] == 0 && last[3 + 7 + 3] == 1);
-    begin(); b8(0x36); assert(send_batch());
+    begin(); b8(0x36); b8(255); assert(send_batch());
     assert(last[2] == 2 && last[1] == 0 && last[6] == 3 && last[13] == 4);
-    begin(); b8(0x36); assert(send_batch());
+    begin(); b8(0x36); b8(255); assert(send_batch());
     assert(last[2] == 0 && last_n == 3);
+    vds_proto_event(&p, 0x11, 1, 0, 0); vds_proto_event(&p, 0x11, 2, 0, 0);
+    begin(); b8(0x36); b8(1); assert(send_batch());
+    assert(last[2] == 1 && last[1] == 1);                                      /* the CPU's limit is honoured */
+    begin(); b8(0x36); b8(0); assert(send_batch());
+    assert(last[2] == 0 && last[1] == 1);
+    begin(); b8(0x36); b8(9); assert(send_batch());
     for (unsigned i = 0; i < VDS_EVENT_QUEUE + 3; ++i) vds_proto_event(&p, 0x11, (uint8_t)i, 0, 0);
-    begin(); b8(0x36); assert(send_batch());
+    begin(); b8(0x36); b8(255); assert(send_batch());
     assert(last[4 + 1] == VDS_EVENT_OVERFLOW && last[4 + 3] == 3);           /* loss reported first */
     assert(last[4 + 4] == 3 && last[4 + 4 + 1 + 2] == 3);                      /* oldest kept: id 3 */
-    while (last[1] || last[2]) { begin(); b8(0x36); assert(send_batch()); }
+    while (last[1] || last[2]) { begin(); b8(0x36); b8(255); assert(send_batch()); }
     p.push_events = 1;
 
     /* Random batches: valid opcodes with random arguments, plus junk. */

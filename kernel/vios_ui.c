@@ -1,0 +1,356 @@
+/* CPU side of the VIOS GUI: Forth words that drive the ESP display server
+ * (firmware/esp32-vios/lib/vios-vds) through VDU 23,0,&E4 batches, and pull
+ * its events (op 36). The ESP owns presentation and frame-time behaviour
+ * (compositing, window manager, menus, caret blink); these words only state
+ * what exists and receive semantic events. Wire format: vds_proto.h.
+ *
+ * Every word sends its op at once unless UI-BEGIN started a batch, which
+ * UI-COMMIT sends as one E4 payload ending in a COMMIT, so the ESP shows it
+ * atomically. Text longer than one op is split into PUT + MORE runs. */
+#include "vios/ui.h"
+#include "vios/runtime.h"
+#include "platform/vdp.h"
+
+#define BATCH_MAX 250
+#define REPLY 0xF1                      /* packet 0x71 as seen by the CPU */
+#define EVENT_RING 8
+static unsigned char batch[BATCH_MAX];
+static unsigned batch_used, batching;
+static unsigned char events[EVENT_RING][VIOS_UI_EVENT_MAX], event_len[EVENT_RING];
+static unsigned event_head, event_count;
+
+static void flush(void) {
+    if (!batch_used) return;
+    unsigned char header[4] = {23, 0, 0xE4, (unsigned char)batch_used};
+    platform_vdp_send(header, sizeof header);
+    platform_vdp_send(batch, batch_used);
+    batch_used = 0;
+}
+
+/* Append one complete op; ops never straddle two E4 payloads. */
+static void op(const unsigned char *bytes, unsigned n) {
+    if (batch_used + n > BATCH_MAX) flush();
+    for (unsigned i = 0; i < n; ++i) batch[batch_used++] = bytes[i];
+    if (!batching) flush();
+}
+
+static int request(const unsigned char *bytes, unsigned n, unsigned char *reply, unsigned capacity, unsigned *length) {
+    flush();
+    unsigned char command[4 + 8] = {23, 0, 0xE4, (unsigned char)n};
+    for (unsigned i = 0; i < n; ++i) command[4 + i] = bytes[i];
+    return platform_vdp_request(command, 4 + n, REPLY, reply, capacity, length) && *length && reply[0] == bytes[0];
+}
+
+/* Stack helpers: pop k cells (last pushed first) into out[0..k-1] in push order. */
+static int pop(fcell *out, unsigned k) {
+    for (unsigned i = k; i--;) out[i] = fvm_pop();
+    return !fvm_error;
+}
+static unsigned char b(fcell v) { return (unsigned char)(v & 0xFF); }
+static int32_t s24(fcell v) { v &= FVM_MASK; return v & 0x800000UL ? (int32_t)v - 0x1000000L : (int32_t)v; }
+static int range(fcell v, unsigned max, const char *what) { return v <= max ? 1 : forth_error(what); }
+static void le16(unsigned char *p, int32_t v) { p[0] = (unsigned char)v; p[1] = (unsigned char)((uint32_t)v >> 8); }
+
+/* Copy a Forth string (addr len) into op bytes, checking printable ASCII. */
+static int text(fcell addr, fcell len, unsigned char *out, unsigned max) {
+    if (len > max) return forth_error("UI text too long");
+    for (fcell i = 0; i < len; ++i) {
+        unsigned char c = fvm_read8(addr + i);
+        if (fvm_error) return 0;
+        out[i] = c;
+    }
+    return 1;
+}
+
+static int ui_reset(void) { unsigned char o[] = {0x34}; batch_used = 0; event_count = 0; op(o, 1); return 1; }
+static int ui_raw(void) { fcell f = fvm_pop(); if (fvm_error) return 0; unsigned char o[] = {0x35, (unsigned char)(f != 0)}; op(o, 2); return 1; }
+static int config(unsigned char key, fcell v, unsigned max, const char *what) {
+    if (!range(v, max, what)) return 0;
+    unsigned char o[] = {0x74, key, b(v), 0};
+    op(o, 4);
+    return 1;
+}
+static int ui_style(void) { fcell v = fvm_pop(); return !fvm_error && config(2, v, 1, "UI-STYLE: 0 Smalltalk or 1 Turbo Vision"); }
+static int ui_snap(void) { fcell v = fvm_pop(); return !fvm_error && (v == 8 || v == 1 ? config(1, v, 8, "") : forth_error("UI-SNAP: 8 or 1")); }
+
+static int ui_surface(void) {                           /* ( id cols rows attr -- ) */
+    fcell a[4];
+    if (!pop(a, 4) || !range(a[0], VIOS_UI_SURFACES - 1, "UI surface id 0..10") || !range(a[1], 80, "UI surface: 1..80 columns") ||
+        !range(a[2], 60, "UI surface: 1..60 rows") || !a[1] || !a[2]) return fvm_error ? 0 : forth_error("UI surface size");
+    unsigned char o[] = {0x01, b(a[0]), b(a[1]), b(a[2]), b(a[3])};
+    op(o, sizeof o);
+    return 1;
+}
+
+static int ui_type(void) {                              /* ( addr len id col row attr -- ) */
+    fcell a[6];
+    if (!pop(a, 6) || !range(a[2], VIOS_UI_SURFACES - 1, "UI surface id 0..10") || !range(a[3], 255, "UI column") || !range(a[4], 255, "UI row"))
+        return 0;
+    if (a[1] > 255) return forth_error("UI-TYPE: at most 255 characters");
+    unsigned char o[6 + 64];
+    fcell done = 0;
+    do {
+        unsigned n = a[1] - done > 64 ? 64u : (unsigned)(a[1] - done), at;
+        if (!done) { o[0] = 0x10; o[1] = b(a[2]); o[2] = b(a[3]); o[3] = b(a[4]); o[4] = b(a[5]); o[5] = (unsigned char)n; at = 6; }
+        else { o[0] = 0x11; o[1] = b(a[5]); o[2] = (unsigned char)n; at = 3; }
+        if (!text(a[0] + done, n, o + at, 64)) return 0;
+        op(o, at + n);
+        done += n;
+    } while (done < a[1]);
+    return 1;
+}
+
+static int ui_fill(void) {                              /* ( id col row w h char attr -- ) */
+    fcell a[7];
+    if (!pop(a, 7) || !range(a[0], VIOS_UI_SURFACES - 1, "UI surface id 0..10")) return 0;
+    unsigned char o[] = {0x13, b(a[0]), b(a[1]), b(a[2]), b(a[3]), b(a[4]), b(a[5]), b(a[6])};
+    op(o, sizeof o);
+    return 1;
+}
+
+static int ui_scroll(void) {                            /* ( id dy attr -- ) */
+    fcell a[3];
+    if (!pop(a, 3) || !range(a[0], VIOS_UI_SURFACES - 1, "UI surface id 0..10")) return 0;
+    int32_t dy = s24(a[1]);
+    if (dy < -127 || dy > 127) return forth_error("UI-SCROLL: -127..127 rows");
+    unsigned char o[] = {0x14, b(a[0]), (unsigned char)(dy & 0xFF), b(a[2])};
+    op(o, sizeof o);
+    return 1;
+}
+
+static int ui_caret(void) {                             /* ( id col row shape blink -- ) */
+    fcell a[5];
+    if (!pop(a, 5) || !range(a[0], VIOS_UI_SURFACES - 1, "UI surface id 0..10") || !range(a[3], 3, "UI-CARET shape 0..3")) return 0;
+    unsigned char o[] = {0x15, b(a[0]), b(a[1]), b(a[2]), b(a[3]), (unsigned char)(a[4] != 0)};
+    op(o, sizeof o);
+    return 1;
+}
+
+static int window_id(fcell id) { return range(id, VIOS_UI_WINDOWS - 1, "UI window id 0..26"); }
+
+static int ui_window(void) {                            /* ( id surface x y cols rows flags -- ) */
+    fcell a[7];
+    if (!pop(a, 7) || !window_id(a[0]) || (a[1] != 255 && !range(a[1], VIOS_UI_SURFACES - 1, "UI surface id 0..10 or 255")) ||
+        !a[4] || !a[5] || !range(a[4], 255, "UI window columns") || !range(a[5], 255, "UI window rows"))
+        return fvm_error ? 0 : forth_error("UI window size");
+    unsigned char o[10] = {0x50, b(a[0]), b(a[1])};
+    le16(o + 3, s24(a[2]));
+    le16(o + 5, s24(a[3]));
+    o[7] = b(a[4]); o[8] = b(a[5]); o[9] = b(a[6]);
+    op(o, sizeof o);
+    return 1;
+}
+
+static int ui_title(void) {                             /* ( addr len id -- ) */
+    fcell a[3];
+    if (!pop(a, 3) || !window_id(a[2])) return 0;
+    unsigned char o[3 + 31] = {0x54, b(a[2]), b(a[1])};
+    if (!text(a[0], a[1], o + 3, 31)) return 0;
+    op(o, 3 + (unsigned)a[1]);
+    return 1;
+}
+
+static int ui_place(void) {                             /* ( id x y cols rows -- ) */
+    fcell a[5];
+    if (!pop(a, 5) || !window_id(a[0]) || !a[3] || !a[4] || a[3] > 255 || a[4] > 255) return fvm_error ? 0 : forth_error("UI-PLACE size");
+    unsigned char o[8] = {0x51, b(a[0])};
+    le16(o + 2, s24(a[1]));
+    le16(o + 4, s24(a[2]));
+    o[6] = b(a[3]); o[7] = b(a[4]);
+    op(o, sizeof o);
+    return 1;
+}
+
+static int window_op(unsigned char code) {              /* ( id -- ) */
+    fcell id = fvm_pop();
+    if (fvm_error || !window_id(id)) return 0;
+    unsigned char o[] = {code, b(id)};
+    op(o, 2);
+    return 1;
+}
+static int ui_raise(void) { return window_op(0x52); }
+static int ui_close(void) { return window_op(0x57); }
+static int ui_focus(void) { return window_op(0x58); }
+
+static int window_pair(unsigned char code, unsigned max, const char *what) {   /* ( id value -- ) */
+    fcell a[2];
+    if (!pop(a, 2) || !window_id(a[0]) || !range(a[1], max, what)) return 0;
+    unsigned char o[] = {code, b(a[0]), b(a[1])};
+    op(o, 3);
+    return 1;
+}
+static int ui_flags(void) { return window_pair(0x53, 255, "UI-FLAGS 0..255"); }
+static int ui_client(void) { return window_pair(0x55, 255, "UI-CLIENT surface"); }
+static int ui_popup(void) { return window_pair(0x59, 255, "UI-POPUP menu 0..15 or 255"); }
+
+static int ui_view(void) {                              /* ( id col row -- ) */
+    fcell a[3];
+    if (!pop(a, 3) || !window_id(a[0])) return 0;
+    unsigned char o[] = {0x56, b(a[0]), b(a[1]), b(a[2])};
+    op(o, sizeof o);
+    return 1;
+}
+
+static int ui_command(void) {                           /* ( addr len id flags vk mods ascii -- ) */
+    fcell a[7];
+    if (!pop(a, 7) || !range(a[2], 0xFDFF, "UI-COMMAND id 0..65023")) return 0;
+    unsigned char o[8 + 23] = {0x60, b(a[2]), (unsigned char)(a[2] >> 8), b(a[3]), b(a[4]), b(a[5]), b(a[6]), b(a[1])};
+    if (!text(a[0], a[1], o + 8, 23)) return 0;
+    op(o, 8 + (unsigned)a[1]);
+    return 1;
+}
+
+static int ui_menu(void) {                              /* ( item1 .. itemN n addr len menu -- ) */
+    fcell a[4];
+    if (!pop(a, 4) || !range(a[3], 15, "UI-MENU id 0..15") || !range(a[0], 16, "UI-MENU: at most 16 items")) return 0;
+    unsigned char o[4 + 15 + 32];
+    unsigned at = 0;
+    o[at++] = 0x61; o[at++] = b(a[3]); o[at++] = b(a[2]);
+    if (!text(a[1], a[2], o + at, 15)) return 0;
+    at += (unsigned)a[2];
+    o[at++] = b(a[0]);
+    fcell items[16];
+    for (unsigned i = (unsigned)a[0]; i--;) items[i] = fvm_pop();
+    if (fvm_error) return 0;
+    for (unsigned i = 0; i < a[0]; ++i) { o[at++] = b(items[i]); o[at++] = (unsigned char)(items[i] >> 8); }
+    op(o, at);
+    return 1;
+}
+
+static int ui_state(void) {                             /* ( id flags -- ) */
+    fcell a[2];
+    if (!pop(a, 2) || !range(a[0], 0xFDFF, "UI-STATE command id")) return 0;
+    unsigned char o[] = {0x62, b(a[0]), (unsigned char)(a[0] >> 8), b(a[1])};
+    op(o, sizeof o);
+    return 1;
+}
+
+static int sprite_id(fcell id) { return range(id, 15, "UI sprite id 0..15"); }
+static int ui_sprite(void) {                            /* ( id w h hotx hoty transparent -- ) */
+    fcell a[6];
+    if (!pop(a, 6) || !sprite_id(a[0]) || !a[1] || !a[2] || a[1] > 64 || a[2] > 64 || a[3] >= a[1] || a[4] >= a[2])
+        return fvm_error ? 0 : forth_error("UI-SPRITE: 1..64 pixels, hotspot inside");
+    unsigned char o[] = {0x76, b(a[0]), b(a[1]), b(a[2]), b(a[3]), b(a[4]), b(a[5])};
+    op(o, sizeof o);
+    return 1;
+}
+static int ui_pixels(void) {                            /* ( addr len id offset -- ) 4 bpp bytes */
+    fcell a[4];
+    if (!pop(a, 4) || !sprite_id(a[2]) || !range(a[3] + a[1], 2048, "UI-PIXELS past the sprite")) return 0;
+    unsigned char o[5 + 64];
+    for (fcell done = 0; done < a[1];) {
+        unsigned n = a[1] - done > 64 ? 64u : (unsigned)(a[1] - done);
+        o[0] = 0x77; o[1] = b(a[2]); le16(o + 2, (int32_t)(a[3] + done)); o[4] = (unsigned char)n;
+        if (!text(a[0] + done, n, o + 5, 64)) return 0;
+        op(o, 5 + n);
+        done += n;
+    }
+    return 1;
+}
+static int ui_sprite_at(void) {                         /* ( id x y -- ) */
+    fcell a[3];
+    if (!pop(a, 3) || !sprite_id(a[0])) return 0;
+    unsigned char o[6] = {0x78, b(a[0])};
+    le16(o + 2, s24(a[1]));
+    le16(o + 4, s24(a[2]));
+    op(o, sizeof o);
+    return 1;
+}
+static int ui_sprite_show(void) {                       /* ( id flag -- ) */
+    fcell a[2];
+    if (!pop(a, 2) || !sprite_id(a[0])) return 0;
+    unsigned char o[] = {0x79, b(a[0]), (unsigned char)(a[1] != 0)};
+    op(o, sizeof o);
+    return 1;
+}
+static int ui_arrow(void) { fcell id = fvm_pop(); if (fvm_error || !sprite_id(id)) return 0; unsigned char o[] = {0x7A, b(id)}; op(o, 2); return 1; }
+
+static int ui_begin(void) { batching = 1; return 1; }
+static int ui_commit(void) { unsigned char o[] = {0x30}; batching = 0; op(o, 1); return 1; }
+
+static int ui_sync(void) {                              /* ( -- epoch generation errors ) */
+    static unsigned char seq;
+    unsigned char o[] = {0x31, ++seq}, r[32];
+    unsigned n = 0;
+    if (!request(o, sizeof o, r, sizeof r, &n) || n < 9 || r[1] != seq) return forth_error("UI-SYNC: no display server reply");
+    return fvm_push((fcell)(r[2] | r[3] << 8)) && fvm_push((fcell)(r[4] | r[5] << 8)) && fvm_push(r[6]);
+}
+
+/* Pull queued events into the CPU ring; returns 0 when the server did not answer. */
+static int poll_events(void) {
+    unsigned char o[2] = {0x36}, r[32];
+    for (unsigned rounds = 0; rounds < 4 && event_count < EVENT_RING; ++rounds) {
+        unsigned n = 0;
+        o[1] = (unsigned char)(EVENT_RING - event_count);  /* never more than the ring can hold */
+        if (!request(o, 2, r, sizeof r, &n) || n < 3) return 0;
+        if (r[2] > o[1]) return 0;                      /* the server overran the request */
+        for (unsigned at = 3, k = 0; k < r[2] && at < n; ++k) {
+            unsigned len = r[at++];
+            if (at + len > n || len > VIOS_UI_EVENT_MAX) break;
+            unsigned slot = (event_head + event_count++) % EVENT_RING;
+            for (unsigned i = 0; i < len; ++i) events[slot][i] = r[at + i];
+            event_len[slot] = (unsigned char)len;
+            at += len;
+        }
+        if (!r[1]) break;                               /* nothing left on the ESP */
+    }
+    return 1;
+}
+
+static int take(unsigned char *out, unsigned *len) {
+    if (!event_count && !poll_events()) return -1;
+    if (!event_count) return 0;
+    *len = event_len[event_head];
+    for (unsigned i = 0; i < *len; ++i) out[i] = events[event_head][i];
+    event_head = (event_head + 1) % EVENT_RING;
+    --event_count;
+    return 1;
+}
+
+static int ui_event(void) {                             /* ( addr -- len ) raw: seq kind id args... */
+    fcell addr = fvm_pop();
+    unsigned char e[VIOS_UI_EVENT_MAX];
+    unsigned len = 0;
+    if (fvm_error) return 0;
+    int got = take(e, &len);
+    if (got < 0) return forth_error("UI-EVENT: no display server reply");
+    for (unsigned i = 0; got && i < len; ++i) { fvm_write8(addr + i, e[i]); if (fvm_error) return 0; }
+    return fvm_push(got ? len : 0);
+}
+
+static int ui_next(void) {                              /* ( -- kind id arg TRUE | FALSE ) */
+    unsigned char e[VIOS_UI_EVENT_MAX];
+    unsigned len = 0;
+    int got = take(e, &len);
+    if (got < 0) return forth_error("UI-NEXT: no display server reply");
+    if (!got || len < 3) return fvm_push(0);
+    fcell arg = len >= 5 ? (fcell)(e[3] | e[4] << 8) : len == 4 ? e[3] : 0;
+    return fvm_push(e[1]) && fvm_push(e[2]) && fvm_push(arg) && fvm_push(FVM_MASK);
+}
+
+int vios_ui_init(void) {
+    static const struct { const char *name; int (*fn)(void); } words[] = {
+        {"UI-RESET", ui_reset}, {"UI-RAW", ui_raw}, {"UI-STYLE", ui_style}, {"UI-SNAP", ui_snap},
+        {"UI-SURFACE", ui_surface}, {"UI-TYPE", ui_type}, {"UI-FILL", ui_fill}, {"UI-SCROLL", ui_scroll}, {"UI-CARET", ui_caret},
+        {"UI-WINDOW", ui_window}, {"UI-TITLE", ui_title}, {"UI-PLACE", ui_place}, {"UI-RAISE", ui_raise}, {"UI-CLOSE", ui_close},
+        {"UI-FOCUS", ui_focus}, {"UI-FLAGS", ui_flags}, {"UI-CLIENT", ui_client}, {"UI-VIEW", ui_view},
+        {"UI-COMMAND", ui_command}, {"UI-MENU", ui_menu}, {"UI-STATE", ui_state}, {"UI-POPUP", ui_popup},
+        {"UI-SPRITE", ui_sprite}, {"UI-PIXELS", ui_pixels}, {"UI-SPRITE-AT", ui_sprite_at}, {"UI-SPRITE-SHOW", ui_sprite_show},
+        {"UI-ARROW", ui_arrow}, {"UI-BEGIN", ui_begin}, {"UI-COMMIT", ui_commit},
+        {"UI-SYNC", ui_sync}, {"UI-EVENT", ui_event}, {"UI-NEXT", ui_next}};
+    batch_used = batching = event_head = event_count = 0;
+    /* Words that only send bytes may run in background tasks; requests wait
+     * for a reply and stay in the foreground. */
+    for (unsigned i = 0; i < sizeof words / sizeof words[0]; ++i) {
+        int foreground = words[i].fn == ui_sync || words[i].fn == ui_event || words[i].fn == ui_next;
+        if (!forth_register_native(words[i].name, words[i].fn, foreground ? 0 : FORTH_NATIVE_TASK)) return 0;
+    }
+    return forth_eval(
+        "1 CONSTANT UI-VISIBLE 2 CONSTANT UI-DECOR 4 CONSTANT UI-SHADOW 8 CONSTANT UI-ACTIVE "
+        "16 CONSTANT UI-FREE-X 32 CONSTANT UI-MODAL "
+        "2 CONSTANT UI-ENABLED 4 CONSTANT UI-CHECKED 8 CONSTANT UI-STATUS "
+        "65535 CONSTANT UI-SEPARATOR : UI-SUBMENU ( menu -- item ) 65024 OR ; "
+        "1 CONSTANT UI-CTRL 2 CONSTANT UI-SHIFT 4 CONSTANT UI-ALT "
+        "6 CONSTANT UI-EV-FOCUS 16 CONSTANT UI-EV-WIN 17 CONSTANT UI-EV-COMMAND 14 CONSTANT UI-EV-OVERFLOW 15 CONSTANT UI-EV-ERROR "
+        "15 CONSTANT UI-CURSOR");
+}

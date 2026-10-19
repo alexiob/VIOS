@@ -113,7 +113,7 @@ build/storage-probe.bin: build/storage-probe.elf
 	$(EZOBJCOPY) -O binary $< $@
 -include $(STORAGE_OBJECTS:.o=.d)
 
-RESIDENT_C_SOURCES := kernel/workbench_runtime.c kernel/workbench.c drivers/agon-vdp/text_screen.c kernel/resident_main.c forth/system.c forth/modules.c forth/vm_reference.c forth/vm_memory.c boards/agon-light-2/platform_resident.c drivers/agon-vdp/transport.c kernel/vios_runtime.c kernel/vios_services.c kernel/vios_prelude.c kernel/vios_handles.c kernel/vios_modules.c kernel/vios_boot.c bench/forth_bench.c $(STORAGE_C_SOURCES)
+RESIDENT_C_SOURCES := kernel/workbench_runtime.c kernel/workbench.c drivers/agon-vdp/text_screen.c kernel/resident_main.c forth/system.c forth/modules.c forth/vm_reference.c forth/vm_memory.c boards/agon-light-2/platform_resident.c drivers/agon-vdp/transport.c kernel/vios_runtime.c kernel/vios_services.c kernel/vios_prelude.c kernel/vios_handles.c kernel/vios_ui.c kernel/vios_modules.c kernel/vios_boot.c bench/forth_bench.c $(STORAGE_C_SOURCES)
 RESIDENT_UART_OBJECT := build/resident/arch/ez80/uart0_raw-$(VIOS_INTERNAL_BAUD).o
 RESIDENT_OBJECTS := $(patsubst %.c,build/vios/%.o,$(RESIDENT_C_SOURCES)) $(patsubst %.s,build/vios/%.o,$(filter-out arch/ez80/uart0_raw.s,$(VIOS_ASM_SOURCES))) $(RESIDENT_UART_OBJECT) build/vios/arch/ez80/spi.o build/vios/engine-token.o build/vios/engine-direct.o
 .PHONY: FORCE_INTERNAL_BAUD

@@ -21,8 +21,8 @@
  *  30                                    commit: show everything sent so far
  *  31  seq                               reply 31 seq epoch(u16) gen(u16) errors desync raw
  *  32  id col row n                      reply 32 n (ch attr)*n, n <= 14
- *  36                                    poll events: reply 36 left n (len event)*n, as many
- *                                        queued events as fit in one reply (events are pulled)
+ *  36  max                               poll events: reply 36 left n (len event)*n with
+ *                                        n <= max, as many queued events as fit (events are pulled)
  *  33  sel                               reply 33 sel u32 u32 (0 frames rows, 1 pixels carried,
  *                                        2 lut_misses damage|windows<<8|sprites<<16)
  *  34                                    reset: drop windows, sprites, surfaces; epoch++
