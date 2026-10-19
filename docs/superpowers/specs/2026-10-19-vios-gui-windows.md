@@ -706,7 +706,8 @@ integration is in progress in the session that owns the hardware.
 | G2 window manager: focus cycling, keyboard move/resize, zoom, close requests, modal focus | `vds_ui.{h,c}` | done |
 | G3 commands, menu bar + status line (Turbo Vision), world and window pop-ups (Smalltalk), cascades, mnemonics, accelerators, palette | `vds_ui.c` | done |
 | eZ80 client: 32 Forth words, argument checks, atomic batches, pulled events | `kernel/vios_ui.c`, `include/vios/ui.h` | done; linked into `vios-resident` |
-| fabgl adapter, vertical-blank frames, E4 hook, console on the blitter, loop-gap gate | firmware | **in progress** (board owner) |
+| fabgl adapter, vertical-blank frames, E4 hook, console on the blitter, loop-gap gate | firmware | done (`fabdaad`) |
+| Boot to the GUI: compositor at ESP start-up, console as window 32, Ctrl+Alt+F1 text console, CPU `VIOS_GUI=1` | `vios_gui.h`, `vios_console_vds.h`, `text_screen_vds.c` | done; see *Boot to the GUI* below |
 | G4 widgets: box (column/row layout by fixed size or weight), label, button, check, radio group, input, list, progress; Tab order, keys, pointer clicks, ACTIVATE/SELECT/CHANGE events, text read-back | `vds_widget.c`, ops 80–89 | done |
 | G5 tweens (window x/y/scroll, sprite x/y; linear, in-out, out, spring) | `vds_ui.c`, ops 70/71 | done |
 | G6 keyboard pointer (Ctrl+F12) and pointer injection, hit testing | `vds_ui.c`, op 7B | done; physical mouse deferred |
@@ -791,3 +792,41 @@ S" &Save" 3 UI-ENABLED 0 UI-CTRL CHAR s UI-COMMAND  \ command 3, Ctrl+S
 UI-CURSOR UI-ARROW  UI-CURSOR 320 240 UI-SPRITE-AT  UI-CURSOR TRUE UI-SPRITE-SHOW
 UI-NEXT  \ ( -- kind id arg TRUE | FALSE ): e.g. 17 1 3 TRUE after Ctrl+S
 ```
+
+## Boot to the GUI (2026-10-19)
+
+The device now boots straight into the GUI. Both builds default to it
+(`VIOS_GUI ?= 1` in the Makefile, `VIOS_GUI` env default `1` in
+`embed_vios.py`). The ESP build refuses a resident built with the other
+setting (the `build/vios-resident.gui` sidecar).
+
+- **ESP start-up** (`video.ino` setup): the ESP sets the VIOS display mode,
+  then runs `vios_gui_start()` before it loads the eZ80. The desktop and a
+  Console window (window 32 on surface 16, 74×28 cells at 16,228) appear at
+  once.
+  - The console terminal (`vios_console.h`) draws into the surface through
+    `VdsConsoleRenderer`. The window scrolls to follow the cursor.
+  - If the server cannot start, the ESP stays in mode 0 and shows the
+    full-screen console instead.
+- **Ctrl+Alt+F1** switches between the GUI and the full-screen text console
+  (the 4 bpp blitter) at any time. The server keeps its windows while hidden
+  and repaints everything on return.
+- **Keys:** physical and injected keys pass the window manager first and
+  reach the CPU only when it does not use them.
+  - While the workbench window (26) is open, it owns the keyboard: F5, F6 and
+    F10 keep their workbench meaning (stage, activate, close).
+  - F1 opens the workbench as a full-screen window above the console. Closing
+    it returns to the desktop.
+- **CPU:** `text_screen_vds.c` replaces the 19.2 KB screen planes. BSS now ends
+  at `0xA3D92`, which leaves about 45 KB below the stack (was about 24 KB).
+  Under the GUI the runtime sends no mode change, clear screen or console-view
+  hide or reset, so nothing on the CPU side repaints the desktop.
+- **ESP memory:** `vds` (10.8 KB) is in internal RAM. `vds_proto`, `vds_ui`
+  and the surface cells are in PSRAM, allocated at start-up and on first use.
+- **Harness:** the `esp_gui` tool reads the server status (`GS`), presses keys
+  through the window manager (`GK`, so Ctrl+Alt+F1 can be tested remotely) and
+  samples framebuffer pixels (`GP`). `esp_console` still reads the terminal
+  text, so it works in both views.
+- **Caveat:** `esp_g0` (the G0 probe) restores mode 1 when it finishes. Under
+  the GUI, follow it with a reboot.
+
