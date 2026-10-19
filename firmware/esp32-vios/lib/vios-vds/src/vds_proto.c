@@ -23,6 +23,7 @@ static size_t op_size(const uint8_t *b, size_t n) {
     case 0x13: s = 8; break;
     case 0x14: s = 4; break;
     case 0x15: s = 6; break;
+    case 0x16: s = 8; break;
     case 0x30: case 0x34: s = 1; break;
     case 0x36: s = 2; break;
     case 0x31: case 0x33: case 0x35: s = 2; break;
@@ -155,7 +156,7 @@ static int define_sprite(vds_proto *p, const uint8_t *b) {
 /* Ops whose window (b[1]) or surface argument the CPU may not name. */
 static int reserved(const uint8_t *b) {
     switch (b[0]) {
-    case 0x01: case 0x10: case 0x12: case 0x13: case 0x14: case 0x15: case 0x32:
+    case 0x01: case 0x10: case 0x12: case 0x13: case 0x14: case 0x15: case 0x16: case 0x32:
         return b[1] >= VDS_PROTO_SURFACES;
     case 0x50: case 0x55:
         return b[1] >= VDS_PROTO_WINDOWS || (b[2] != VDS_NONE && b[2] >= VDS_PROTO_SURFACES);
@@ -196,6 +197,7 @@ static int apply(vds_proto *p, const uint8_t *b) {
     case 0x13: return vds_fill(v, b[1], b[2], b[3], b[4], b[5], b[6], b[7]);
     case 0x14: return vds_scroll(v, b[1], (int8_t)b[2], b[3]);
     case 0x15: return vds_cursor(v, b[1], b[2], b[3], b[4], b[5]);
+    case 0x16: return vds_scroll_rect(v, b[1], b[2], b[3], b[4], b[5], (int8_t)b[6], b[7]);
     case 0x30: p->hold = 0; return 1;
     case 0x31: {
         uint8_t r[9] = {0x31, b[1], 0, 0, 0, 0, p->errors, p->desync, p->raw};

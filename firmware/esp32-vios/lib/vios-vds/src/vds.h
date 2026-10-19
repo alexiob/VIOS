@@ -117,6 +117,9 @@ int vds_surface_init(vds *v, uint8_t id, uint8_t cols, uint8_t rows, vds_cell *c
 int vds_put(vds *v, uint8_t id, uint8_t col, uint8_t row, uint8_t attr, const char *text, size_t n);
 int vds_fill(vds *v, uint8_t id, uint8_t col, uint8_t row, uint8_t w, uint8_t h, uint8_t ch, uint8_t attr);
 int vds_scroll(vds *v, uint8_t id, int dy, uint8_t attr);  /* whole surface; dy > 0 moves up */
+/* Scroll the cell rectangle (col, row, w, h) by dy rows (> 0 moves up); the
+ * vacated rows become spaces in attr. */
+int vds_scroll_rect(vds *v, uint8_t id, uint8_t col, uint8_t row, uint8_t w, uint8_t h, int dy, uint8_t attr);
 int vds_cursor(vds *v, uint8_t id, uint8_t col, uint8_t row, uint8_t shape, uint8_t blink);
 /* Advance local time: blinking carets change phase every VDS_BLINK_MS. */
 #define VDS_BLINK_MS 500

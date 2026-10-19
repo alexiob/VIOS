@@ -468,6 +468,24 @@ int vds_scroll(vds *v, uint8_t id, int dy, uint8_t attr) {
     return 1;
 }
 
+int vds_scroll_rect(vds *v, uint8_t id, uint8_t col, uint8_t row, uint8_t w, uint8_t h, int dy, uint8_t attr) {
+    vds_surface *sf = surface(v, id);
+    if (!sf || row >= sf->rows || col >= sf->cols || !w || !h) return 0;
+    if (w > sf->cols - col) w = (uint8_t)(sf->cols - col);
+    if (h > sf->rows - row) h = (uint8_t)(sf->rows - row);
+    if (dy >= h || -dy >= h) return vds_fill(v, id, col, row, w, h, ' ', attr);
+    int cols = sf->cols;
+    if (dy > 0)
+        for (int y = row; y < row + h - dy; ++y) memmove(&sf->cells[y * cols + col], &sf->cells[(y + dy) * cols + col], sizeof(vds_cell) * w);
+    else if (dy < 0)
+        for (int y = row + h - 1; y >= row - dy; --y) memmove(&sf->cells[y * cols + col], &sf->cells[(y + dy) * cols + col], sizeof(vds_cell) * w);
+    int from = dy > 0 ? row + h - dy : row, count = dy > 0 ? dy : -dy;
+    for (int y = from; y < from + count; ++y)
+        for (int x = col; x < col + w; ++x) { sf->cells[y * cols + x].ch = ' '; sf->cells[y * cols + x].attr = attr; }
+    if (dy) damage_surface(v, id, col, row, w, h);
+    return 1;
+}
+
 int vds_cursor(vds *v, uint8_t id, uint8_t col, uint8_t row, uint8_t shape, uint8_t blink) {
     vds_surface *sf = surface(v, id);
     if (!sf || shape > VDS_CURSOR_BAR || col >= sf->cols || row >= sf->rows) return 0;

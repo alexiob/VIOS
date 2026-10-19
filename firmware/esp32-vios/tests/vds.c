@@ -147,6 +147,20 @@ int main(int argc, char **argv) {
     }
     matches_full_render();
 
+    /* Rectangle scroll: only the rectangle moves; vacated rows are cleared. */
+    {
+        static vds_cell sc[10 * 6];
+        assert(vds_surface_init(&v, 5, 10, 6, sc, 0x30));
+        for (uint8_t r = 0; r < 6; ++r) { char line[10]; memset(line, 'A' + r, 10); vds_put(&v, 5, 0, r, 0x30, line, 10); }
+        assert(vds_scroll_rect(&v, 5, 2, 1, 4, 4, 1, 0x31));               /* rows 1..4, cols 2..5 up by one */
+        assert(sc[1 * 10 + 2].ch == 'C' && sc[3 * 10 + 5].ch == 'E');           /* moved up inside */
+        assert(sc[1 * 10 + 1].ch == 'B' && sc[1 * 10 + 6].ch == 'B' && sc[5 * 10 + 2].ch == 'F');   /* outside untouched */
+        assert(sc[4 * 10 + 2].ch == ' ' && sc[4 * 10 + 2].attr == 0x31 && sc[0 * 10 + 2].ch == 'A');
+        assert(vds_scroll_rect(&v, 5, 2, 1, 4, 4, -2, 0x30));                   /* down by two */
+        assert(sc[1 * 10 + 2].ch == ' ' && sc[2 * 10 + 2].ch == ' ' && sc[3 * 10 + 2].ch == 'C' && sc[4 * 10 + 2].ch == 'D');
+        assert(vds_scroll_rect(&v, 5, 0, 0, 10, 6, 6, 0x30) && sc[0].ch == ' ' && !vds_scroll_rect(&v, 5, 10, 0, 1, 1, 1, 0));
+    }
+
     /* Sprites: the arrow cursor over a window, transparency and hotspot. */
     assert(vds_window_close(&v, 3));
     assert(!vds_sprite_define(&v, 16, 4, 4, 0, 0, 15, vds_arrow_cursor) && !vds_sprite_define(&v, 0, 4, 4, 4, 0, 15, vds_arrow_cursor));
@@ -210,7 +224,10 @@ int main(int argc, char **argv) {
             break;
         }
         case 2: vds_fill(&v, sid, (uint8_t)rnd(80), (uint8_t)rnd(60), (uint8_t)rnd(20), (uint8_t)rnd(8), (uint8_t)('A' + rnd(26)), (uint8_t)rnd(256)); break;
-        case 3: vds_scroll(&v, sid, (int)rnd(7) - 3, (uint8_t)rnd(256)); break;
+        case 3:
+            if (rnd(2)) vds_scroll(&v, sid, (int)rnd(7) - 3, (uint8_t)rnd(256));
+            else vds_scroll_rect(&v, sid, (uint8_t)rnd(80), (uint8_t)rnd(60), (uint8_t)rnd(40), (uint8_t)rnd(30), (int)rnd(9) - 4, (uint8_t)rnd(256));
+            break;
         case 4:
             if (!v.windows[id].used)
                 vds_window_open(&v, id, rnd(5) ? sid : VDS_NONE, (int16_t)(rnd(700) - 40), (int16_t)(rnd(520) - 30),

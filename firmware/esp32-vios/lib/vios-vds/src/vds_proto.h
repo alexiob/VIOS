@@ -18,6 +18,7 @@
  *  13  id col row w h ch attr            fill a cell rectangle
  *  14  id dy(s8) attr                    scroll a surface (dy > 0 moves text up)
  *  15  id col row shape blink            text caret
+ *  16  id col row w h dy(s8) attr       scroll a cell rectangle (dy > 0 moves text up)
  *  30                                    commit: show everything sent so far
  *  31  seq                               reply 31 seq epoch(u16) gen(u16) errors desync raw
  *  32  id col row n                      reply 32 n (ch attr)*n, n <= 14
