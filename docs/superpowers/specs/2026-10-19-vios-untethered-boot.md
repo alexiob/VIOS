@@ -1,6 +1,6 @@
 # VIOS untethered boot: booting without the ZDI wire
 
-Status: **owner chose path B on 2026-10-19:** automatic dev/user mode, the ESP
+Status: **working on the board without the wire (2026-10-19, §16.9).** Owner chose path B on 2026-10-19: automatic dev/user mode, the ESP
 image first, MOS text hidden. U1 to U5 are done and host-tested; nothing is flashed
 and no card has been written. See §9 to §13.
 
@@ -794,4 +794,24 @@ then repeat `MR`/`MX`. Then comes the wire-off boot: `autoexec.txt`, then
    `BOOT READY`, and HELLO's heartbeats. Log:
    `docs/bring-up/vios-mos3-stub-boot-wired-2026-10-19.jsonl`.
 4. **Next:** the wire-off cold boot.
+
+### 16.9 First untethered boot of VIOS (wire removed), 2026-10-19
+
+- **Setup:** wires removed with the board powered off. ESP `firmware-mos3-1`
+  in app1, eZ80 MOS 3.0.2, card `autoexec.txt` = `viosboot`.
+- **Events** (`docs/bring-up/vios-untethered-boot-mos3-wireoff-2026-10-19.jsonl`):
+  `BOOT user mode: no ZDI`, then `BOOT link: MOS answered at the internal
+  rate` (no ESC fallback needed), the MOS 3.0.2 banner, `BOOT link: stub
+  switched to 1152000`, `BOOT stub loading the resident over the UART`, and
+  finally `BOOT READY`.
+- **Console window:** MOS banner, then `boot confirmed A`, autorun task 1,
+  `VIOS Forth 24`, and HELLO running. The GUI reports 0 protocol errors.
+- **Still to do for U6 acceptance:**
+  - 20 cold boots, with timing;
+  - an ESP A/B install in user mode;
+  - a bad ESP image, so the stub falls back to the SD copy (`/vios/vios.bin`
+    has to match the resident in use);
+  - no SD card;
+  - burst size above 1 once flow control is measured;
+  - `!boot.obey` instead of `autoexec.txt` (MOS 3's preferred boot file).
 
