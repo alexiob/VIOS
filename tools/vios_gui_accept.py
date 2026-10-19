@@ -9,7 +9,8 @@ Runs through the harness (127.0.0.1:8765) on a board booted into the GUI:
             COMMAND event the CPU pulls with UI-NEXT;
   widgets   an input and a button: typed text reads back with UI-WGET, Tab +
             Space activates the button (ACTIVATE event);
-  health    no protocol errors, frame work and vblank start measured.
+  health    no protocol errors, frame work and vblank start measured (frames
+            that show an off-screen repaint are budgeted apart, within 15 ms).
 Uses window 3 and surface 3 only (console 32/16 and workbench 26/10 untouched).
 """
 import argparse
@@ -119,9 +120,12 @@ def main():
             r['sync'] = sync
             check('no_protocol_errors', sync and sync[0] == '0', sync)
             s = c.tool('esp_stats')
-            r['frames'] = {k: s[k] for k in ('frames', 'vblank_start_max', 'frame_work_max')}
+            r['frames'] = {k: s[k] for k in ('frames', 'vblank_start_max', 'frame_work_max', 'present_frames', 'present_work_max')}
             r['gui'] = c.tool('esp_gui')['status']
             check('frame_budget', s['frame_work_max'] <= 6000 and s['vblank_start_max'] <= 1000, r['frames'])
+            # A frame that shows an off-screen repaint is one long copy from PSRAM
+            # (vios_offscreen.h); it must still fit in one video frame.
+            check('present_budget', s['present_work_max'] <= 15000, r['frames'])
         r['status'] = 'passed'
     except BaseException as error:
         r.update(status='failed', error=f'{type(error).__name__}: {error}')

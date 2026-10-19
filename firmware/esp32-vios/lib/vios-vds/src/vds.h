@@ -93,6 +93,8 @@ typedef struct vds {
     const uint8_t *font;        /* 256 glyphs x 8 bytes, MSB = left pixel */
     vds_style style;
     uint8_t snap_x;             /* 8 (default) or 1 */
+    uint8_t no_blit;            /* scrolls recompose instead of copying framebuffer rows (set while
+                                   rows point at a slow off-screen buffer) */
     vds_surface surfaces[VDS_MAX_SURFACES];
     vds_window windows[VDS_MAX_WINDOWS];
     vds_sprite sprites[VDS_MAX_SPRITES];
