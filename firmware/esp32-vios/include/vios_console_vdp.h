@@ -158,6 +158,9 @@ void vios_display_mode0() {
     static const uint8_t pinned[4] = {0x00, 0x30, 0x3C, 0x3F};
     for (uint8_t i = 0; i < 4; ++i) { palette[i] = pinned[i]; setPaletteItem(i, colourLookup[pinned[i]]); }
     setTextColour(3); setTextColour(128);
+    /* The VDP's own blinking text cursor (an inverse block via swapRectangle)
+     * would draw into the framebuffer the GUI and the console own: off. */
+    enableCursor(false);
     vios_glyph_state_valid = false;
     vios_display_unlock();
 }

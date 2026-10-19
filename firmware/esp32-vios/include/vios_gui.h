@@ -91,6 +91,7 @@ bool vios_gui_start() {
         vios_gui_ready = true;
     }
     vios_gui_on = true;
+    enableCursor(false);                  // the VDP text cursor must not draw into the GUI's framebuffer
     vios_gui_style = 255;
     vios_gui_apply_style();
     vios_console_terminal.attach(&vios_gui_console);
