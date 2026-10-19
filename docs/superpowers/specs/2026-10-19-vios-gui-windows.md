@@ -643,3 +643,50 @@ draw surfaces with the direct blitter instead of fabgl primitives (a full
 console redraw is ~6.5 ms at the measured rate), bound per-command work and
 split large redraws across frames, and start frames from the vertical-blank
 notification instead of a loop poll.
+
+## G1 progress: portable compositor core (host-tested, 2026-10-19)
+
+`firmware/esp32-vios/lib/vios-vds/src/vds.{h,c}` is plain C99 with no heap,
+fabgl or Arduino. It implements:
+
+- windows over shared 8×8 cell surfaces;
+- a bounded damage list (32 rects; a full list grows the rect with the least
+  added area);
+- beam-ordered frames with a pixel budget and scanline-boundary carry-over;
+- occlusion culling (painting starts at the topmost window whose body covers the
+  span);
+- shade-table shadows, and both decoration styles switchable at run time;
+- 8 px snap or free x, globally or per window;
+- an aligned 4 bpp table blitter with a generic free-x and clipped path.
+
+Each damaged scanline span is composed in a 320-byte line buffer (desktop, then
+windows bottom to top) and copied to the framebuffer once. The screen therefore
+never shows an intermediate state and needs no region algebra.
+
+The native test (`firmware/esp32-vios/tests/vds.c`, `tests/test_esp_vds.py`)
+runs with the real Agon font under ASan/UBSan. Its main oracle: after any
+operation sequence and any budget-limited frames, the retained framebuffer
+equals a fresh full render of the same scene. It covers 3 × 3000 random
+operations (open, move, resize, raise, flags, scroll, title, close, style and
+snap switches, surface writes), with partial frames that really carry damage
+over.
+
+The test also checks beam order, occlusion, raise, shadow colours, title tabs,
+the 2 px active border, snap and free-x glyph placement, and that the damage list
+stays bounded. The random test found one real bug, now fixed: a Turbo Vision
+title wider than its window drew outside the window's damage rect.
+
+ESP32 build of the core (xtensa-esp32-elf-gcc, `-Os`): **6,012 B of code;
+state 10,464 B** (8 LUT slots × 1 KB, 32 windows, damage list, line buffer).
+That is within the 12 KB internal pool G0 measured against. Surface cells stay
+in PSRAM.
+
+**Still to do for G1 (on-board integration, owned by the session with the
+board):**
+
+- fabgl adapter: row pointers from `sgetScanline`; palette from `vds_style.palette`;
+- vertical-blank notification driving `vds_frame(v, budget)`;
+- `E4` op decoding onto this API;
+- console `show()` and surfaces moved onto the blitter (no fabgl glyph
+  primitives);
+- the loop-gap ≤ 4 ms gate.
