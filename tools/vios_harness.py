@@ -202,6 +202,9 @@ class RpcServer:
         self.lock = lock or threading.RLock()
         self.initialized = False
 
+    def _call(self, name, arguments):
+        return call_with_wire_recovery(self.backend, name, arguments)
+
     def handle(self, request):
         ident = None
         try:
@@ -238,7 +241,7 @@ class RpcServer:
                     with self.lock:
                         if name == 'reboot' and not hasattr(self.backend,'reboot'):
                             raise RuntimeError('Reboot is supported only by the resident backend; the RAM bridge does not support reboot')
-                        data = getattr(self.backend,name)(**arguments)
+                        data = self._call(name, arguments)
                     result = {'content':[{'type':'text','text':json.dumps(data,ensure_ascii=True,allow_nan=False)}], 'isError': isinstance(data,dict) and data.get('ok') is False}
                 except Exception as error:
                     result = {'content':[{'type':'text','text':str(error)}],'isError':True}
@@ -247,6 +250,28 @@ class RpcServer:
             return {'jsonrpc':'2.0','id':ident,'result':result}
         except RpcError as error:
             return {'jsonrpc':'2.0','id':ident,'error':{'code':error.code,'message':error.message}}
+
+
+# Read-only tools whose repetition cannot change board state. After a lost USB
+# frame (rare CH340 byte loss, open issue #2) the harness resyncs once at an
+# idle prompt and repeats them once; every mutating tool still fails closed.
+READ_ONLY_RETRY = frozenset({'snapshot','tasks','handles','last_error','sd_list','sd_get',
+                             'boot_status','boot_manifest','esp_stats','esp_console'})
+
+
+def call_with_wire_recovery(backend, name, arguments):
+    try:
+        return getattr(backend,name)(**arguments)
+    except (IOError, OSError) as error:
+        if name not in READ_ONLY_RETRY or 'wire integrity lost' not in str(error) or not hasattr(backend,'resync'):
+            raise
+        recovered = backend.resync()
+        if not (isinstance(recovered,dict) and recovered.get('synchronized')):
+            raise
+        data = getattr(backend,name)(**arguments)
+        if isinstance(data,dict):
+            data = dict(data, wire_loss_recovered=True)
+        return data
 
 
 def serve_stream(reader, writer, server):
