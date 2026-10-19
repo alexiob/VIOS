@@ -94,6 +94,19 @@ class EspVdsTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             self.assertIn('console on vds checks passed', result.stdout)
 
+    def test_offscreen_presenter_shows_large_repaints_at_once(self):
+        with tempfile.TemporaryDirectory() as temp:
+            core, binary, font = Path(temp) / 'vds.o', Path(temp) / 'offscreen', Path(temp) / 'font.bin'
+            font.write_bytes(agon_font())
+            subprocess.run(['cc', '-std=c99', '-pedantic', '-Wall', '-Wextra', '-Werror', '-g', '-fsanitize=address,undefined',
+                            '-c', '-I' + str(VDS), str(VDS / 'vds.c'), '-o', str(core)], check=True)
+            subprocess.run(['c++', '-std=c++11', '-Wall', '-Wextra', '-Werror', '-g', '-fsanitize=address,undefined',
+                            '-I' + str(FIRMWARE / 'include'), '-I' + str(VDS), str(FIRMWARE / 'tests/offscreen.cpp'),
+                            str(core), '-o', str(binary)], check=True)
+            result = subprocess.run([str(binary), str(font)], capture_output=True, text=True, timeout=120)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn('offscreen presenter checks passed', result.stdout)
+
     def test_core_is_freestanding(self):
         source = ''.join(path.read_text() for path in sorted(VDS.glob('*.[ch]')))
         self.assertLessEqual(set(re.findall(r'#include\s*[<"]([^>"]+)', source)),
