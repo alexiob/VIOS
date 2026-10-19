@@ -46,6 +46,7 @@ static void digitalWrite(int,int){}
 #define memcpy_P memcpy
 #include "runtime.h"
 #include "vios_stage0.h"
+#include "vios_flash_stage.h"
 struct Serial {
     bool usb;
     explicit Serial(bool is_usb=false):usb(is_usb){}
@@ -101,9 +102,14 @@ static void native_crc(){
     regs[7]=start+vios_crc_stage_size-2;
 }
 static void inject(unsigned,uint8_t);
-static unsigned zdi_resets;
+static unsigned zdi_resets,flash_runs;static bool flash_hangs,flash_corrupts;
 static void vios_zdi_write_register(unsigned r,uint8_t value){
     if(r==ZDI_MASTER_CTL){assert(value==0x80);++zdi_resets;regs[7]=0;status=0x18;return;}   // a real CPU reset: MOS at 0
+    if(r==0x10&&!value&&regs[7]==0x40000&&!memcmp(memory+0x40000,vios_flash_stage,vios_flash_stage_size)){   // the flash stage
+        ++flash_runs;if(flash_hangs)return;
+        uint32_t n=memory[0x70000]|memory[0x70001]<<8|memory[0x70002]<<16;
+        memset(memory,0xFF,0x20000);memcpy(memory,memory+0x50000,n);if(flash_corrupts)memory[n/2]^=1;memory[0x70003]=1;return;
+    }
     if(r==0x10){status=value?0x98:0x18;
         bool crc_loaded=!memcmp(memory+internal_base(),vios_crc_stage,vios_crc_stage_size);
         if(!value&&regs[7]==internal_base()){if(crc_loaded)native_crc();else native_stage0();}
@@ -132,11 +138,11 @@ static uint8_t vios_zdi_boot_in0(uint8_t port){
     regs[0]=(regs[0]&0xFFFF00)|value;return value;
 }
 static void vios_zdi_di(){discovery_port=0;discovery_samples=0;}
-static void vios_zdi_write_memory(uint32_t address,unsigned n,uint8_t *data){++memory_writes;assert((address>=0x40000&&address+n<=0xAF000)||(address>=internal_base()&&address+n<=internal_base()+0x2000));
+static void vios_zdi_write_memory(uint32_t address,unsigned n,uint8_t *data){++memory_writes;assert(address>=0x20000);assert((address>=0x40000&&address+n<=0xAF000)||(address>=internal_base()&&address+n<=internal_base()+0x2000));
     if(address<0xAF000){assert(native_runs&&stage0_completed);++external_writes;}
     memcpy(memory+address,data,n);regs[7]=address+n;}
 static void vios_zdi_read_memory(uint32_t address,unsigned n,uint8_t *data){
-    assert((address>=0x40000&&address+n<=0xC0000)||(address>=internal_base()&&address+n<=internal_base()+0x2000));
+    assert((address>=0x40000&&address+n<=0xC0000)||(address>=internal_base()&&address+n<=internal_base()+0x2000)||address+n<=0x20000);
     memcpy(data,memory+address,n);if(bad_readback||(bad_code_readback&&address==internal_base()))data[0]^=1;regs[7]=address+n;
 }
 struct {bool restarted=false;void restart(){restarted=true;}} ESP;
@@ -308,6 +314,35 @@ static void check_mos_probe(){
     vios_link_rate(1152000);output_frames();
 }
 
+/* eZ80 flash update: MD checks staged RAM and the current flash, writing
+ * nothing; MF runs the flash stage and verifies by reading all flash back. */
+static void check_flash_update(){
+    memset(otadata_flash,0xFF,sizeof otadata_flash);running_partition=esp_partition_t{"app0",0x10};reset_reason=0;zdi_wire=true;
+    assert(vios_bridge_init());vios_bridge_boot();vios_bridge_handoff();output_frames();
+    for(uint32_t i=0;i<0x20000;++i)memory[i]=(uint8_t)(i*7);                       // the old MOS
+    const uint32_t n=108490;for(uint32_t i=0;i<n;++i)memory[0x50000+i]=(uint8_t)(i^(i>>9));
+    uint32_t want=vios_boot_crc32(0,memory+0x50000,n),old=vios_boot_crc32(0,memory,0x20000);
+    char cmd[32];
+    incoming("H\n",130);output_frames();assert(cpu_paused);
+    snprintf(cmd,sizeof cmd,"MD%06X%08X\n",(unsigned)n,(unsigned)want);
+    char expect[80];snprintf(expect,sizeof expect,"MD RAM ok %08X FLASH %08X\r\n",(unsigned)want,(unsigned)old);
+    assert(control_text(cmd,131)==expect&&flash_runs==0&&vios_boot_crc32(0,memory,0x20000)==old);   // dry run: untouched
+    snprintf(cmd,sizeof cmd,"MF%06X%08X\n",(unsigned)n,(unsigned)(want^1));
+    assert(control_text(cmd,132).rfind("ERR MF RAM image CRC",0)==0&&flash_runs==0);                 // wrong CRC: nothing written
+    snprintf(cmd,sizeof cmd,"MF%06X%08X\n",(unsigned)n,(unsigned)want);
+    incoming(cmd,133);auto f=output_frames();
+    assert(flash_runs==1&&saw_event(f,"FLASH writing the eZ80 flash: do not reset or unplug\r\n"));
+    std::string reply;for(auto &x:f)if(x.channel==2)reply.assign((const char*)x.payload,x.length);
+    assert(reply.rfind("MF OK ",0)==0&&reply.find("REST erased")!=std::string::npos&&!memcmp(memory,memory+0x50000,n));
+    flash_corrupts=true;incoming(cmd,134);f=output_frames();flash_corrupts=false;                   // a bad write is reported
+    for(auto &x:f)if(x.channel==2)reply.assign((const char*)x.payload,x.length);
+    assert(reply.rfind("ERR MF verify",0)==0);
+    flash_hangs=true;unsigned long before=now;incoming(cmd,135);f=output_frames();flash_hangs=false;  // a stuck stage times out
+    for(auto &x:f)if(x.channel==2)reply.assign((const char*)x.payload,x.length);
+    assert(reply.rfind("ERR MF stage did not finish",0)==0&&now-before>=60000);
+    assert(control_text("MF00000000000000\n",136)=="ERR flash length\r\n");
+}
+
 static void check_user_mode(){
     memset(otadata_flash,0xFF,sizeof otadata_flash);running_partition=esp_partition_t{"app0",0x10};reset_reason=0;
     now=1000;zdi_wire=false;ESP.restarted=false;cpu_paused=false;mos_phase.store(true);
@@ -344,11 +379,17 @@ static void check_user_mode(){
     now+=200;vios_mos_phase_end();vios_bridge_poll();f=output_frames();
     assert(link_state==LINK_SETTLED&&VDPSerial.baud==0&&saw_event(f,"BOOT link: a resident answered at the internal rate\r\n"));
     now+=5000;vios_bridge_poll();assert(VDPSerial.baud==0&&VDPSerial.output.size()==3);
+    // MOS 1.03+ talks at the internal rate during the probe: the link stays, no ESC.
+    reset_reason=ESP_RST_POWERON;VDPSerial.output.clear();mos_phase.store(true);
+    assert(vios_bridge_init());vios_bridge_boot();vios_bridge_handoff();output_frames();vios_bridge_service_vdp();VDPSerial.output.clear();
+    vios_mos_capture('A');now+=100;vios_bridge_poll();f=output_frames();
+    assert(link_state==LINK_SETTLED&&VDPSerial.baud==0&&saw_event(f,"BOOT link: MOS answered at the internal rate\r\n"));
+    now+=5000;vios_bridge_poll();assert(VDPSerial.output.empty());
     // Nobody answers within the probe (a fresh board: MOS waits for ESC at 384000): switch, ESC every 500 ms.
     reset_reason=ESP_RST_POWERON;VDPSerial.output.clear();mos_phase.store(true);
     assert(vios_bridge_init());vios_bridge_boot();vios_bridge_handoff();output_frames();
     vios_bridge_service_vdp();assert(VDPSerial.output.size()==3&&VDPSerial.output[0]==0xFA);VDPSerial.output.clear();
-    now+=999;vios_bridge_poll();assert(VDPSerial.baud==0&&link_state==LINK_PROBE);
+    now+=2999;vios_bridge_poll();assert(VDPSerial.baud==0&&link_state==LINK_PROBE);
     now+=1;vios_bridge_poll();f=output_frames();
     assert(VDPSerial.baud==384000&&VDPSerial.flow==HW_FLOWCTRL_RTS&&link_state==LINK_MOS&&saw_event(f,"BOOT link 384000: sending ESC until MOS answers\r\n"));
     vios_bridge_poll();assert(VDPSerial.output.size()==1&&VDPSerial.output[0]==0x1B);            // at once
@@ -517,5 +558,6 @@ int main(int argc,char **argv){
     check_line_editing();
     check_user_mode();
     check_mos_probe();
+    check_flash_update();
     puts("bridge boot/control/ranges/CRC/fragment sequences/health checks passed");
 }

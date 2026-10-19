@@ -1,7 +1,7 @@
 {
   "firmware": "firmware/esp32-vios/.pio/build/esp32-vios/firmware.bin",
-  "size": 775824,
-  "sha256": "11d2cd0e617efd9743c46089ff4b14233a0fe334cfb971bb552bb394996614d4",
+  "size": 777296,
+  "sha256": "1ed8047dec5fafb2b4cccbcf6d678fe96126b56e091107b1b89762e2f59d79ac",
   "app0_offset": 65536,
   "app0_limit": 1310720,
   "embedded_vios": {
@@ -45,7 +45,7 @@
   ],
   "build_source_sha256": {
     "firmware/esp32-vios/platformio.ini": "f438179bd78fe1f4df4fcb3940f7ec198635aefbdc43fad161bc8d79d9b2cfb7",
-    "firmware/esp32-vios/scripts/embed_vios.py": "46e2e217e8e234108ad78c95b47a51d7e75126c5dba0f6e1238d9dcd712f79d7",
+    "firmware/esp32-vios/scripts/embed_vios.py": "8e80ba5be63082197da89b1f61ce0fd44cf78b16f38397d23359361b552acce3",
     "firmware/esp32-vios/scripts/build_manifest.py": "0e04103afbf864269f739bdb7aa966c0a6637c3bd05a176846dcf02178360a80",
     "include/vios/wire.h": "286a7361d853d40ea798e8b2302ac9ffd64d71293118322cfebdd62cd53642bf",
     "include/vios/internal_uart.h": "1f443000e7d0b2cfa861fb8e37c1e020eee071d16dc39d2e01497915a4ff3e7d",
@@ -53,10 +53,11 @@
     "arch/ez80/agon_stage0.s": "1ba56634bd0abe98c98a6e48e43df58cef409cf501fe030d5e0e654f3b2cd4e9",
     "arch/ez80/agon_crc.s": "a134c06ffebaf29548cdd6465854e2c752b481c5e641850029265f7e531cdb3b",
     "firmware/esp32-vios/include/vios_g0_probe.h": "a69648d2b931913fcba50f5af077622375b313a1987ae856c24f6d580f5f4501",
-    "firmware/esp32-vios/include/vios_bridge.h": "ffa6e64a5ff37e5f436a21cc294e353ab3f2175c62a059a75e5ce31741c00330",
+    "firmware/esp32-vios/include/vios_bridge.h": "f77880e70be4c56db92e5506e101322ffcb19c90df6348016749afff8ab03adb",
     "firmware/esp32-vios/include/vios_bootserve.h": "2bfb47555ccd72d973557fe1bbb006a97a3746cdef74424d375ae75f187d9a4d",
     "firmware/esp32-vios/include/vios_console.h": "bc6199b7beeb807429699205f253bb580b0c9067e20114202f0a4030f5b844fb",
     "firmware/esp32-vios/include/vios_frame.h": "4aafb5cc359dbf874cb085bbfe06bab5241e1a82f0b21ba361f9068a27c4e9ad",
+    "firmware/esp32-vios/include/vios_flash_stage.h": "95331ed040079e71b1cb163dcd06cf1e8d02a7cc07157fd2b3fea3b24f853efa",
     "firmware/esp32-vios/include/vios_stage0.h": "8c9f61dd29ade07ffb7e9ad119a9d5d3079b8e1301ed24c89e7a58dea673455a",
     "firmware/esp32-vios/include/vios_zdi.h": "bd96b014827acc591db586c3fbf43980d87cacbba907cf228c9e7c2d7c9baff6",
     "firmware/esp32-vios/include/vios_line.h": "7ecbf95cdcbbe788ef6fae60a2055c9522dc600546b52c8dad8d9eacc05e4234",

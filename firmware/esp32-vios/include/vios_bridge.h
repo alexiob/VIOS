@@ -12,6 +12,7 @@
 #endif
 #include "vios_line.h"
 #include "vios_stage0.h"
+#include "vios_flash_stage.h"
 #include "vios/internal_uart.h"
 #include <atomic>
 #ifndef VIOS_BRIDGE_TEST_RUNTIME
@@ -79,7 +80,7 @@ static bool restart_notice; // user mode: tell a resident that may still be runn
  * LINK_PROBE_MS), else switch to MOS's rate and send ESC every LINK_ESC_MS
  * until MOS talks. The stub moves both ends to the internal rate (E8 op 2). */
 static const uint32_t VIOS_MOS_BAUD=384000;
-static const unsigned long LINK_PROBE_MS=1000,LINK_ESC_MS=500;
+static const unsigned long LINK_PROBE_MS=3000,LINK_ESC_MS=500;   // MOS 1.03+ talks at the internal rate within this
 enum {LINK_SETTLED,LINK_PROBE,LINK_MOS};
 static uint8_t link_state=LINK_SETTLED;
 static unsigned long link_since,link_esc;
@@ -331,6 +332,49 @@ static bool parse_hex(const char *s,size_t n,uint32_t *value) {
     }
     return true;
 }
+/* eZ80 flash update (spec §16): the host stages the image at 0x050000 with W;
+ * MD checks it and the current flash (no writes); MF runs the flash stage
+ * (arch/ez80/agon_flash.s) and reads the whole flash back. CPU halted, dev mode. */
+static const uint32_t FLASH_SIZE=0x20000,FLASH_IMAGE=0x050000,FLASH_STAGE=0x040000,FLASH_LENGTH=0x070000,FLASH_DONE=0x070003;
+static uint32_t zdi_crc(uint32_t address,uint32_t count){
+    uint8_t data[256];uint32_t crc=0;
+    for(uint32_t at=0;at<count;at+=sizeof data){unsigned n=count-at>sizeof data?(unsigned)sizeof data:(unsigned)(count-at);vios_zdi_read_memory(address+at,n,data);crc=vios_boot_crc32(crc,data,n);}
+    return crc;
+}
+static bool zdi_erased(uint32_t address,uint32_t count){
+    uint8_t data[256];
+    for(uint32_t at=0;at<count;at+=sizeof data){unsigned n=count-at>sizeof data?(unsigned)sizeof data:(unsigned)(count-at);vios_zdi_read_memory(address+at,n,data);for(unsigned i=0;i<n;++i)if(data[i]!=0xFF)return false;}
+    return true;
+}
+static void flash_command(bool write,uint32_t length,uint32_t crc,uint16_t sequence){
+    char line[120];
+    if(boot_user_mode||!ram_ready){control_reply(sequence,"ERR flash needs the wire and a mapped RAM (dev boot)\r\n");return;}
+    if(!length||length>FLASH_SIZE){control_reply(sequence,"ERR flash length\r\n");return;}
+    uint32_t pc=vios_zdi_cpu_read(REG_PC),ram=zdi_crc(FLASH_IMAGE,length);
+    if(!write){
+        uint32_t flash=zdi_crc(0,FLASH_SIZE);vios_zdi_cpu_write(REG_PC,pc);
+        snprintf(line,sizeof line,"MD RAM %s %08lX FLASH %08lX\r\n",ram==crc?"ok":"BAD",(unsigned long)ram,(unsigned long)flash);
+        control_reply(sequence,line);return;
+    }
+    if(ram!=crc){vios_zdi_cpu_write(REG_PC,pc);snprintf(line,sizeof line,"ERR MF RAM image CRC %08lX; nothing written\r\n",(unsigned long)ram);control_reply(sequence,line);return;}
+    uint8_t stage[256],check[256];memcpy_P(stage,vios_flash_stage,vios_flash_stage_size);
+    vios_zdi_write_memory(FLASH_STAGE,vios_flash_stage_size,stage);vios_zdi_read_memory(FLASH_STAGE,vios_flash_stage_size,check);
+    if(memcmp(stage,check,vios_flash_stage_size)){control_reply(sequence,"ERR MF stage readback; nothing written\r\n");return;}
+    uint8_t args[4]={(uint8_t)length,(uint8_t)(length>>8),(uint8_t)(length>>16),0};
+    vios_zdi_write_memory(FLASH_LENGTH,sizeof args,args);
+    bridge_event("FLASH writing the eZ80 flash: do not reset or unplug\r\n");
+    vios_zdi_di();vios_zdi_cpu_write(REG_PC,FLASH_STAGE);vios_zdi_write_register(ZDI_BRK_CTL,0);cpu_paused=false;
+    unsigned long start=millis();bool done=false;
+    while(!done&&millis()-start<60000){
+        delay(200);if(!cpu_halt())continue;
+        uint8_t flag;vios_zdi_read_memory(FLASH_DONE,1,&flag);done=flag==1;
+        if(!done){vios_zdi_write_register(ZDI_BRK_CTL,0);cpu_paused=false;}
+    }
+    if(!done){cpu_halt();control_reply(sequence,"ERR MF stage did not finish in 60 s; flash state unknown, retry MF\r\n");return;}
+    uint32_t flash=zdi_crc(0,length);bool rest=zdi_erased(length,FLASH_SIZE-length);
+    snprintf(line,sizeof line,"%s %lu ms FLASH %08lX REST %s\r\n",flash==crc&&rest?"MF OK":"ERR MF verify",millis()-start,(unsigned long)flash,rest?"erased":"NOT ERASED");
+    control_reply(sequence,line);
+}
 static bool ram_range(uint32_t address,uint32_t count,uint32_t end) {return count&&count<=256&&address>=0x40000&&address<end&&count<=end-address;}
 /* IN0 A,(port) on the halted CPU, every register restored afterwards. */
 static uint8_t zdi_port_in(uint8_t port,const uint32_t saved[8]){
@@ -510,6 +554,11 @@ static void control_command(uint16_t sequence,const char *command,size_t length)
     }
 #endif
     if(length==1&&command[0]=='S'){register_reply(sequence);return;}
+    if(length==16&&command[0]=='M'&&(command[1]=='D'||command[1]=='F')){
+        uint32_t len,want;
+        if(!parse_hex(command+2,6,&len)||!parse_hex(command+8,8,&want)){control_reply(sequence,"ERR syntax\r\n");return;}
+        flash_command(command[1]=='F',len,want,sequence);return;
+    }
     if(length==1&&command[0]=='D') {
 #if VIOS_ZDI_EARLY_PROBE
         uint8_t map[4]={cpu_in(CS0_LBR),cpu_in(CS0_UBR),cpu_in(CS0_CTL),cpu_in(CS0_BMC)};
@@ -666,6 +715,7 @@ static void link_mos(){
 static void link_service(){
     if(link_state==LINK_PROBE){
         if(!mos_phase.load()){link_state=LINK_SETTLED;bridge_event("BOOT link: a resident answered at the internal rate\r\n");return;}
+        if(mos_count.load()){link_state=LINK_SETTLED;bridge_event("BOOT link: MOS answered at the internal rate\r\n");return;}   // MOS 1.03 and later
         if(millis()-link_since<LINK_PROBE_MS)return;
         link_mos();
     }
@@ -790,7 +840,7 @@ void vios_bridge_boot() {
     firmware_status(retry_event,sizeof retry_event);bridge_event(retry_event);
     if(vios_zdi_id()!=0x0007||vios_zdi_revision()!=0xAA){   // no wire: user mode
         boot_user_mode=true;pinMode(ZDI_TCK,INPUT);pinMode(ZDI_TDI,INPUT);
-        restart_notice=true;link_state=LINK_PROBE;link_since=millis();
+        restart_notice=true;link_state=LINK_PROBE;link_since=millis();mos_capture_start();
         bridge_event("BOOT user mode: no ZDI; MOS and its stub load the resident\r\n");return;
     }
     boot_user_mode=false;
