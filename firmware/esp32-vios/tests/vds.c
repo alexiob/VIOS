@@ -147,6 +147,35 @@ int main(int argc, char **argv) {
     }
     matches_full_render();
 
+    /* Sprites: the arrow cursor over a window, transparency and hotspot. */
+    assert(vds_window_close(&v, 3));
+    assert(!vds_sprite_define(&v, 16, 4, 4, 0, 0, 15, vds_arrow_cursor) && !vds_sprite_define(&v, 0, 4, 4, 4, 0, 15, vds_arrow_cursor));
+    assert(vds_sprite_define(&v, VDS_CURSOR_SPRITE, VDS_ARROW_W, VDS_ARROW_H, 0, 0, VDS_ARROW_TRANSPARENT, vds_arrow_cursor));
+    assert(vds_sprite_move(&v, VDS_CURSOR_SPRITE, 64, 120));
+    finish();
+    assert(px(64, 120) == 3 || px(64, 120) == v.style.body);            /* hidden after define: window shows */
+    assert(vds_sprite_show(&v, VDS_CURSOR_SPRITE, 1));
+    finish();
+    assert(px(64, 120) == 0 && px(65, 122) == 3 && px(66, 122) == 0);    /* outline, fill, outline */
+    matches_full_render();
+    for (int step = 0; step < 50; ++step) {                               /* drag it across overlapping windows */
+        vds_sprite_move(&v, VDS_CURSOR_SPRITE, (int16_t)(rnd(660) - 10), (int16_t)(rnd(500) - 10));
+        frame(1 + rnd(30000));
+    }
+    matches_full_render();
+    /* A second sprite below the cursor: higher ids draw on top. */
+    static uint8_t block[8 * 8 / 2];
+    memset(block, 0x99, sizeof block);
+    assert(vds_sprite_define(&v, 3, 8, 8, 0, 0, VDS_NONE, block) && vds_sprite_move(&v, 3, 200, 200) && vds_sprite_show(&v, 3, 1));
+    assert(vds_sprite_move(&v, VDS_CURSOR_SPRITE, 200, 200));
+    finish();
+    assert(px(200, 200) == 0 && px(203, 200) == 9 && px(205, 207) == 3);   /* arrow over block; block through transparency */
+    vds_rect sr = vds_sprite_rect(&v, VDS_CURSOR_SPRITE);
+    assert(sr.x == 200 && sr.y == 200 && sr.w == VDS_ARROW_W && sr.h == VDS_ARROW_H);
+    matches_full_render();
+    assert(vds_sprite_undefine(&v, 3));
+    matches_full_render();
+
     /* Random operations, partial frames and style switches. */
     static const char *words[] = {"DUP", "SWAP", ": SQUARE DUP * ;", "LOOP", "VIOS", "ok"};
     static const unsigned seeds[] = {12345, 7, 2024};
@@ -155,7 +184,7 @@ int main(int argc, char **argv) {
     uint32_t carried_before = v.stats.carried;
     for (int step = 0; step < 3000; ++step) {
         uint8_t id = (uint8_t)(1 + rnd(5)), sid = (uint8_t)rnd(4);
-        switch (rnd(14)) {
+        switch (rnd(15)) {
         case 0: case 1: {
             const char *w = words[rnd(6)];
             vds_put(&v, sid, (uint8_t)rnd(80), (uint8_t)rnd(60), (uint8_t)(rnd(16) | rnd(16) << 4), w, strlen(w));
@@ -174,6 +203,7 @@ int main(int argc, char **argv) {
         case 9: vds_window_flags(&v, id, (uint8_t)rnd(32)); break;
         case 10: vds_window_scroll(&v, id, (uint8_t)rnd(20), (uint8_t)rnd(20)); break;
         case 11: if (!rnd(4)) vds_window_close(&v, id); else vds_window_title(&v, id, words[rnd(6)]); break;
+        case 13: if (rnd(2)) vds_sprite_move(&v, VDS_CURSOR_SPRITE, (int16_t)(rnd(660) - 10), (int16_t)(rnd(500) - 10)); else vds_sprite_show(&v, VDS_CURSOR_SPRITE, (int)rnd(2)); break;
         case 12: if (!rnd(20)) vds_set_style(&v, (uint8_t)rnd(VDS_STYLE_COUNT)); else vds_set_snap(&v, rnd(2) ? 8 : 1); break;
         default: frame(rnd(3) ? (uint32_t)(1 + rnd(40000)) : UINT32_MAX); break;
         }

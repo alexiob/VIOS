@@ -245,6 +245,19 @@ static void window_row(vds *v, const vds_window *w, int y, int x0, int x1) {
     client_row(v, w, y, x0, x1);
 }
 
+static void sprite_row(vds *v, unsigned id, int y, int x0, int x1) {
+    const vds_sprite *s = &v->sprites[id];
+    if (!s->used || !s->visible) return;
+    vds_rect r = vds_sprite_rect(v, (uint8_t)id);
+    if (!has_row(r, y)) return;
+    const uint8_t *row = s->pixels + (size_t)(y - r.y) * ((s->w + 1u) / 2);
+    int a = r.x > x0 ? r.x : x0, b = r.x + r.w < x1 ? r.x + r.w : x1;
+    for (int x = a; x < b; ++x) {
+        uint8_t c = get_px(row, x - r.x);
+        if (c != s->transparent) set_px(line(v), x, c);
+    }
+}
+
 static void compose(vds *v, int y, int x0, int x1) {
     int start = -1;
     for (int i = v->count - 1; i >= 0 && start < 0; --i) {   /* topmost opaque cover */
@@ -263,6 +276,7 @@ static void compose(vds *v, int y, int x0, int x1) {
         const vds_window *w = &v->windows[v->order[i]];
         if (w->flags & VDS_W_VISIBLE) window_row(v, w, y, x0, x1);
     }
+    for (unsigned i = 0; i < VDS_MAX_SPRITES; ++i) sprite_row(v, i, y, x0, x1);
     memcpy(v->rows[y] + (x0 >> 1), line(v) + (x0 >> 1), (size_t)(x1 - x0) >> 1);
 }
 
@@ -502,5 +516,83 @@ int vds_window_close(vds *v, uint8_t id) {
     for (; i + 1 < v->count; ++i) v->order[i] = v->order[i + 1];
     --v->count;
     w->used = 0;
+    return 1;
+}
+
+/* ------------------------------------------------------------ sprites */
+
+const uint8_t vds_arrow_cursor[VDS_ARROW_W / 2 * VDS_ARROW_H] = {
+    0x0F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+    0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+    0x03, 0x0F, 0xFF, 0xFF, 0xFF, 0xFF,
+    0x03, 0x30, 0xFF, 0xFF, 0xFF, 0xFF,
+    0x03, 0x33, 0x0F, 0xFF, 0xFF, 0xFF,
+    0x03, 0x33, 0x30, 0xFF, 0xFF, 0xFF,
+    0x03, 0x33, 0x33, 0x0F, 0xFF, 0xFF,
+    0x03, 0x33, 0x33, 0x30, 0xFF, 0xFF,
+    0x03, 0x33, 0x33, 0x33, 0x0F, 0xFF,
+    0x03, 0x33, 0x33, 0x33, 0x30, 0xFF,
+    0x03, 0x33, 0x33, 0x00, 0x00, 0x0F,
+    0x03, 0x30, 0x33, 0x0F, 0xFF, 0xFF,
+    0x03, 0x0F, 0x03, 0x30, 0xFF, 0xFF,
+    0x00, 0xFF, 0x03, 0x30, 0xFF, 0xFF,
+    0x0F, 0xFF, 0xF0, 0x33, 0x0F, 0xFF,
+    0xFF, 0xFF, 0xF0, 0x00, 0x0F, 0xFF,
+};
+
+vds_rect vds_sprite_rect(const vds *v, uint8_t id) {
+    if (id >= VDS_MAX_SPRITES || !v->sprites[id].used) return rect(0, 0, 0, 0);
+    const vds_sprite *s = &v->sprites[id];
+    return rect(s->x - s->hot_x, s->y - s->hot_y, s->w, s->h);
+}
+
+static void damage_sprite(vds *v, uint8_t id) {
+    if (v->sprites[id].used && v->sprites[id].visible) vds_damage(v, vds_sprite_rect(v, id));
+}
+
+int vds_sprite_define(vds *v, uint8_t id, uint8_t w, uint8_t h, uint8_t hot_x, uint8_t hot_y,
+                      uint8_t transparent, const uint8_t *pixels) {
+    if (id >= VDS_MAX_SPRITES || !pixels || !w || !h || w > VDS_SPRITE_MAX || h > VDS_SPRITE_MAX ||
+        hot_x >= w || hot_y >= h || (transparent > 15 && transparent != VDS_NONE)) return 0;
+    vds_sprite *s = &v->sprites[id];
+    int visible = s->used && s->visible;
+    damage_sprite(v, id);
+    int16_t x = s->used ? s->x : 0, y = s->used ? s->y : 0;
+    s->used = 1;
+    s->visible = (uint8_t)visible;
+    s->w = w;
+    s->h = h;
+    s->hot_x = hot_x;
+    s->hot_y = hot_y;
+    s->transparent = transparent;
+    s->pixels = pixels;
+    s->x = x;
+    s->y = y;
+    damage_sprite(v, id);
+    return 1;
+}
+
+int vds_sprite_move(vds *v, uint8_t id, int16_t x, int16_t y) {
+    if (id >= VDS_MAX_SPRITES || !v->sprites[id].used) return 0;
+    if (v->sprites[id].x == x && v->sprites[id].y == y) return 1;
+    damage_sprite(v, id);
+    v->sprites[id].x = x;
+    v->sprites[id].y = y;
+    damage_sprite(v, id);
+    return 1;
+}
+
+int vds_sprite_show(vds *v, uint8_t id, int visible) {
+    if (id >= VDS_MAX_SPRITES || !v->sprites[id].used) return 0;
+    damage_sprite(v, id);
+    v->sprites[id].visible = visible != 0;
+    damage_sprite(v, id);
+    return 1;
+}
+
+int vds_sprite_undefine(vds *v, uint8_t id) {
+    if (id >= VDS_MAX_SPRITES || !v->sprites[id].used) return 0;
+    damage_sprite(v, id);
+    memset(&v->sprites[id], 0, sizeof v->sprites[id]);
     return 1;
 }

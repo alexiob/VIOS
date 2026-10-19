@@ -24,6 +24,9 @@ extern "C" {
 #define VDS_MAX_DAMAGE 32
 #define VDS_TITLE_MAX 32
 #define VDS_LUT_SLOTS 8
+#define VDS_MAX_SPRITES 16
+#define VDS_SPRITE_MAX 64           /* width and height limit */
+#define VDS_CURSOR_SPRITE 15        /* convention: the pointer is the topmost sprite */
 #define VDS_NONE 255
 
 typedef struct { int16_t x, y, w, h; } vds_rect;
@@ -58,6 +61,15 @@ typedef struct {
     char title[VDS_TITLE_MAX];
 } vds_window;
 
+/* A sprite is a 4 bpp bitmap (rows of (w + 1) / 2 bytes, high nibble left)
+ * drawn above all windows, higher ids on top. Colour index `transparent`
+ * (or VDS_NONE) shows what is underneath. (x, y) is the hotspot position. */
+typedef struct {
+    uint8_t used, visible, w, h, hot_x, hot_y, transparent;
+    int16_t x, y;
+    const uint8_t *pixels;      /* owned by the adapter */
+} vds_sprite;
+
 typedef struct {
     uint32_t frames, rows, spans, pixels, carried, lut_misses;
 } vds_stats;
@@ -70,6 +82,7 @@ typedef struct vds {
     uint8_t snap_x;             /* 8 (default) or 1 */
     vds_surface surfaces[VDS_MAX_SURFACES];
     vds_window windows[VDS_MAX_WINDOWS];
+    vds_sprite sprites[VDS_MAX_SPRITES];
     uint8_t order[VDS_MAX_WINDOWS], count;      /* z order, bottom first */
     vds_rect damage[VDS_MAX_DAMAGE];
     uint8_t ndamage;
@@ -104,6 +117,19 @@ int vds_window_scroll(vds *v, uint8_t id, uint8_t col, uint8_t row);
 int vds_window_title(vds *v, uint8_t id, const char *title);
 int vds_window_close(vds *v, uint8_t id);
 vds_rect vds_window_outer(const vds *v, uint8_t id);    /* incl. title tab and shadow */
+
+/* Sprites (cursor = VDS_CURSOR_SPRITE). Defining one leaves it hidden. */
+int vds_sprite_define(vds *v, uint8_t id, uint8_t w, uint8_t h, uint8_t hot_x, uint8_t hot_y,
+                      uint8_t transparent, const uint8_t *pixels);
+/* Built-in 12x16 arrow (colours 0 and 3, transparent 15, hotspot 0,0). */
+#define VDS_ARROW_W 12
+#define VDS_ARROW_H 16
+#define VDS_ARROW_TRANSPARENT 15
+extern const uint8_t vds_arrow_cursor[VDS_ARROW_W / 2 * VDS_ARROW_H];
+int vds_sprite_move(vds *v, uint8_t id, int16_t x, int16_t y);
+int vds_sprite_show(vds *v, uint8_t id, int visible);
+int vds_sprite_undefine(vds *v, uint8_t id);
+vds_rect vds_sprite_rect(const vds *v, uint8_t id);
 
 /* Damage and frames. */
 void vds_damage(vds *v, vds_rect r);
