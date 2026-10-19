@@ -1,9 +1,9 @@
 # VIOS GUI: windows, widgets and a pixel compositor (amendment)
 
-Status: **design proposal, 2026-10-19.** Research and design only. Nothing in this
-document has been built or run on the board. Numbers marked *measured* come from
-board evidence in this repo; numbers marked *estimate* or *target* are unverified
-until the gate in §14 (G0) measures them.
+Status: **design proposal, 2026-10-19; G0 gates measured on the board the same day**
+([report](../../bring-up/vios-gui-g0-2026-10-19.md), commit `308c464`). No
+compositor has been built yet. Numbers marked *measured* come from board evidence
+in this repo; numbers marked *estimate* or *target* are still unverified.
 
 This amends the [GUI toolkit design](2026-10-19-vios-gui-toolkit.md) to meet new
 owner requirements. It **supersedes** these parts of that document:
@@ -156,12 +156,18 @@ be updated in G1: `tools/vios_resident_acceptance.py` ("Pinned nonlegacy mode 1"
 the `VDP-INFO` fixture in `tests/test_vios_resident_acceptance.py`, and the
 fast-display and console acceptance tools.
 
-**Gate G0:** nobody has measured the ESP's free internal heap after a mode change.
-The pio report gives only the static use, *measured* at 44,332 B of 327,680 B. G0
-reads the free heap and the largest free block (`heap_caps_*`, already planned for
-`esp_stats`) after setting mode 0, mode 129 and mode 1, with the compositor's pools
-allocated. **Mode 0 is accepted only if ≥24 KB of internal RAM stays free** (the
-existing doc's floor).
+**Gate G0: passed** (*measured* 2026-10-19). The gate required ≥24 KB of
+internal RAM free in mode 0 with the compositor's pools allocated (12 KB internal
+plus 4 × 9.6 KB surfaces in PSRAM):
+
+| Mode | Internal free | Largest block | Verdict |
+|---|---:|---:|---|
+| **0** (640×480, 16 colours) | **36,856 B** | 29,684 B | pass: 12.9 KB above the floor |
+| 129 (4 colours, double) | 36,296 B | 29,684 B | pass, not needed |
+| 1 (today) | 113,464 B | 98,292 B | reference |
+
+PSRAM has about 4.1 MB free in every mode. **Mode 0 is confirmed.** Mode 129 is
+not needed as a fallback (§5.5).
 
 ---
 
@@ -267,9 +273,15 @@ cell-aligned glyph row is one 32-bit store.
   The VGA16 row layout is plain bytes with the high nibble as the left pixel
   (`VGA16_SETPIXELINROW` in `vga16controller.cpp`) and no word swap. On the
   little-endian ESP32, table entry byte 0 therefore holds pixels 0 and 1.
-- *Estimate:* about 100 cycles per cell at 240 MHz. A full 4800-cell screen
-  would take about 2 ms, and a 40×20-cell window move (old plus new rect, about
-  1600 cells) under 1 ms.
+- *Measured (G0):* the aligned 4 bpp table blitter (x snap 8) runs at **719
+  cells/ms**.
+  - A full 4800-cell screen takes 6.7 ms. The design estimate was about 2 ms;
+    the real rate is 3.3× slower but still well inside the 15.3 ms scan.
+  - A 40×20-cell window move (old plus new rect, about 1600 cells) takes about
+    2.2 ms.
+- *Measured (G0):* free x (two masked read-modify-write stores per glyph row)
+  runs at **325 cells/ms**, 14.7 ms for a full screen. That is 2.2× the cost of
+  the aligned path, so 8 px snap stays the default.
 - The compositor writes `getScanline(y)` rows directly. The paletted controllers
   expose `sgetScanline`, a vertical-blank interrupt (`setProcessPrimitivesOnBlank`)
   and `swapBuffers` (`vdp-gl/src/dispdrivers/vgapalettedcontroller.h`).
@@ -282,14 +294,19 @@ cell-aligned glyph row is one 32-bit store.
   arrives during a frame is coalesced into the next one.
 - **Single-buffered (mode 0):** rasterise damage rects in top-to-bottom order,
   starting at vertical blank. The beam needs 15.3 ms for 480 lines. While
-  composition stays ahead of the beam, the frame shows no tear. *Estimate:*
-  ordinary frames (≤1600 cells) finish in about 1 ms.
+  composition stays ahead of the beam, the frame shows no tear.
+  - *Measured (G0):* frame period 16,683 µs, ISR line counter 0..480, conversion
+    lead 2 lines (4 DMA line buffers, 2 per interrupt).
+  - The tear test drew 60 beam-ordered frames from vertical blank, for both the
+    full screen (4800 cells) and a 40×20 window: **0 torn frames, 0 late rows**.
+  - Ordinary frames (≤1600 cells) take about 2.2 ms.
 - If a frame's damage would not finish ahead of the beam, the compositor stops at
   a line boundary and finishes in the next frame. The result is one dropped frame,
   never a torn window.
-- **Double-buffered (mode 129 fallback):** compose into the back buffer, then
-  `swapBuffers` at vertical blank. The back buffer is two frames stale, so it must
-  also receive the previous frame's damage (buffer age 2).
+- **Double-buffered (mode 129):** no longer needed, since G0 showed no tearing in
+  single-buffered mode 0. Kept only as a documented alternative: compose into the
+  back buffer, `swapBuffers` at vertical blank, and also re-blit the previous
+  frame's damage (buffer age 2).
 - **How the compositor gets control:** the existing design runs VDS inside the
   VDP task's `loop()`. Here the paletted controller's vertical-blank interrupt
   sets a flag or gives a semaphore, and the VDP task starts the frame at its next
@@ -299,11 +316,27 @@ cell-aligned glyph row is one 32-bit store.
     competing for the same window.
   - The paletted ISR converts framebuffer lines into DMA line buffers a few lines
     ahead of scanout, so "ahead of the beam" means ahead of that conversion lead.
-  - G0 measures both the vertical-blank → compositor-start latency and the lead.
-- **Budget:** at most 4 ms of compositing per 16.7 ms frame, so UART parsing and
-  the VDP task are never starved.
-- **Exit test (G0):** a scripted window drag must show zero torn frames, checked
-  with an ESP-side frame counter and the probe.
+  - **G0 finding (constraint for G1):** the VDP loop gap is *measured* at 0.09 ms
+    idle and 1.1 ms while typing. It grows to 4.8 ms on `WB-OPEN`, 7.9 ms on a
+    repaint, 13.4 ms per console flood record, and **66.2 ms on `WB-CLOSE`**.
+    There, the ESP console's `show()` (`VDU 23,0,E5,1`) clears the screen and
+    queues about 4,600 fabgl glyph primitives inside one VDU command. A
+    compositor polled from the loop would miss 3–4 frames. G1 therefore must:
+    1. Draw console and surface content with the direct blitter, never fabgl
+       glyph primitives. A full console redraw is then about 6.5 ms at 719
+       cells/ms.
+    2. Bound the work of any single VDU command, and split large redraws across
+       frames as damage instead of drawing them inside the command.
+    3. Start frames from the vertical-blank notification rather than a loop
+       poll. G1 acceptance includes a loop gap ≤ 4 ms in every scenario above.
+- **Budget:** at most 4 ms of compositing per 16.7 ms frame, about 2,900 cells at
+  the measured rate, so UART parsing and the VDP task are never starved. Damage
+  beyond the budget carries over to the next frame in beam order. The one
+  exception is a full-screen redraw (6.7 ms), which may run in a single frame
+  because G0 showed it stays ahead of the beam.
+- **Exit test (G0): passed.** It showed zero torn frames, checked with an
+  ESP-side frame counter and the probe. G1 repeats it as a scripted window drag
+  (B10).
 
 ### 5.6 Pointer
 
@@ -541,8 +574,8 @@ Effort figures are rough, for one focused developer-agent.
 
 | Stage | Work | Accept | Effort |
 |---|---|---|---|
-| **G0: gates** | Heap after mode 0/129/1 with pools; 4 bpp blitter microbenchmark; vertical-blank hook prototype racing the beam; vertical-blank → compositor-start latency and ISR line lead | Heap ≥ 24 KB free in the chosen mode; blitter cells/ms measured; tear test passes or the fallback is chosen | 1–2 days |
-| **G1: compositor core** (replaces old 1b) | Mode 0 with palette 0–3 pinned; acceptance tools updated for 16 colours; windows plus cell surfaces, dirty rects, occlusion, shade table, pixel frames, 60 Hz frame loop; console and editor become two windows; `RAW` hand-back kept | B4 parity or better; B12; console acceptance unchanged | 1–2 weeks |
+| **G0: gates — done** | Heap after mode 0/129/1 with pools; 4 bpp blitter microbenchmark; vertical-blank hook prototype racing the beam; vertical-blank → compositor-start latency and ISR line lead | **Passed (2026-10-19):** mode 0 leaves 36.9 KB free; blitter 719 cells/ms aligned, 325 free x; 0 torn frames; new loop-gap constraint (§5.5) | done |
+| **G1: compositor core** (replaces old 1b) | Mode 0 with palette 0–3 pinned; acceptance tools updated for 16 colours; console and surfaces drawn with the direct blitter (no fabgl glyph primitives), bounded per-command work, frames started from vertical blank; windows plus cell surfaces, dirty rects, occlusion, shade table, pixel frames, 60 Hz frame loop; console and editor become two windows; `RAW` hand-back kept | B4 parity or better; B12; console acceptance unchanged; VDP loop gap ≤ 4 ms in the G0 scenarios (`WB-CLOSE` was 66 ms) | 1–2 weeks |
 | **G2: window manager** | Both decoration styles, switchable at run time; move/resize/raise/min/max, keyboard WM mode, focus cycling, modal dialogs, `WIN` events, geometry in `UI-SNAPSHOT` | B10; all §8 window keys | 1–2 weeks |
 | **G3: commands and menus** | Command table presented as world/pane pop-ups (Smalltalk) and as a menu bar with pulldowns (Turbo Vision); context menu, accelerators, mnemonics, palette, status line; workbench actions exposed as commands | B11; every workbench action reachable by menu, accelerator and palette | 1–2 weeks |
 | **G4: widgets and client** | Widget set and layout (§7); `kernel/vios_ui.c`; `UI` vocabulary; `/dev/win`; workbench panes ported (old Stage 3) | B7 and B14; CPU RAM reclaim per §11 | 2–3 weeks |
@@ -558,8 +591,9 @@ between G1 and G2.
 
 | Risk | Mitigation |
 |---|---|
-| Mode 0 leaves too little internal heap | G0 gate; fallback to mode 129 or mode 1 with a 4-colour theme; fixed pools; content in PSRAM |
-| Composition falls behind the beam (tearing) | Line-boundary split into the next frame; 4 ms budget; mode 129 fallback |
+| Mode 0 leaves too little internal heap | **Retired by G0** (36.9 KB free with pools); fixed pools and PSRAM content keep the margin |
+| Composition falls behind the beam (tearing) | **Retired by G0** (0 torn frames at full screen); line-boundary carry-over and the 4 ms budget remain |
+| Long VDU commands stall the VDP loop (66 ms measured on `WB-CLOSE`) | G1 rules in §5.5: direct blitter, bounded per-command work, vertical-blank-driven frames; acceptance gate ≤ 4 ms |
 | PSRAM bandwidth for big expose areas | Cell surfaces are small (9.6 KB per full screen); keep glyph tables and active window metadata in internal RAM; measure in G0 |
 | ESP and CPU state diverge | Existing batch atomicity, `SYNC` epoch, CPU replay; geometry reported per gesture |
 | Feature creep in ESP intrinsics turns policy into firmware | Intrinsics are limited to frame-time behaviour (§4 rule); meaning stays in CPU handlers; every intrinsic has an inspectable state through `GETP` |
@@ -584,8 +618,8 @@ between G1 and G2.
    choice was made from host-rendered mockups at 640×480 in 16 colours with the
    device's own 8×8 font, in [`docs/gui/mockups/`](../../gui/mockups/) (produced
    by `tools/gui_mockup.py`).
-5. **G0: approved.** It is handed to the session that owns the board and the ESP
-   GUI work.
+5. **G0: approved and done** (2026-10-19, `308c464`). All gates pass. One new G1
+   constraint: no VDU command may stall the VDP loop (§5.5).
 
 ---
 
