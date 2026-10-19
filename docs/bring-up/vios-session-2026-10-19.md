@@ -32,9 +32,10 @@ restored with `tools/vios_fast_display_state.py` after flashes.
    flicker or wrong colours?
 2. **Held keys / repeat:** hold an arrow and a letter in the console and in
    the editor; does repeat work without lost or doubled keys?
-3. **Merge** `refs/heads/claude/frosty-faraday-fa0037` (BOOT-MANIFEST, real
-   `persisted` in snapshots, +928 B)? It conflicts in 9 files with today's
-   work; I would resolve and retest.
+3. **Merge** BOOT-MANIFEST (real `persisted` in snapshots, +928 B)? The
+   9-file conflict is already resolved and host-tested (222 tests) on
+   `refs/heads/claude/merge-boot-manifest`; on approval I merge it into main,
+   flash and verify `persisted` on the board.
 4. **SD boot-slot demo:** may I install `apps/hello-autorun.fth` as a module
    and write a boot trial (changes the inactive SD source slot; revertible
    with `boot_revert`) to show reboot-into-application on the board?
