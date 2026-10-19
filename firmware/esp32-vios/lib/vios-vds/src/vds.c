@@ -319,8 +319,12 @@ static void compose(vds *v, int y, int x0, int x1) {
     memcpy(v->rows[y] + (x0 >> 1), line(v) + (x0 >> 1), (size_t)(x1 - x0) >> 1);
 }
 
-int vds_frame(vds *v, uint32_t budget) {
+int vds_frame(vds *v, uint32_t budget) { return vds_frame_within(v, budget, UINT32_MAX); }
+
+int vds_frame_within(vds *v, uint32_t budget, uint32_t budget_us) {
     if (!v->ndamage) return 1;
+    int timed = v->clock_us && budget_us != UINT32_MAX;
+    uint32_t started = timed ? v->clock_us(v->clock_ctx) : 0;
     ++v->stats.frames;
     int ymin = v->height, ymax = 0;
     for (unsigned i = 0; i < v->ndamage; ++i) {
@@ -353,7 +357,8 @@ int vds_frame(vds *v, uint32_t budget) {
         }
         ++v->stats.rows;
         if (v->row_written) v->row_written(v->row_ctx, (int16_t)y);
-        if (done >= budget && y + 1 < ymax) {                /* carry the rest over */
+        int late = timed && (uint32_t)(v->clock_us(v->clock_ctx) - started) >= budget_us;
+        if ((done >= budget || late) && y + 1 < ymax) {      /* carry the rest over */
             unsigned keep = 0;
             for (unsigned i = 0; i < v->ndamage; ++i) {
                 vds_rect d = v->damage[i];

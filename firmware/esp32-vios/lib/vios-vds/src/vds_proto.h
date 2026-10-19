@@ -121,6 +121,8 @@ int vds_proto_batch(vds_proto *p, const uint8_t *payload, size_t len);
  * changes are held for a COMMIT or the screen is raw. Returns vds_frame's
  * result (1 when nothing is left). */
 int vds_proto_frame(vds_proto *p, uint32_t elapsed_ms, uint32_t budget);
+/* With a time budget too (vds_frame_within). */
+int vds_proto_frame_within(vds_proto *p, uint32_t elapsed_ms, uint32_t budget, uint32_t budget_us);
 /* One reply packet (VDS_PACKET_REPLY) to the CPU, at most VDS_REPLY_MAX bytes. */
 void vds_proto_reply(vds_proto *p, const uint8_t *data, uint8_t n);
 /* Queue (or push) one event for the CPU: kind, window/widget id and up to 26 bytes. */

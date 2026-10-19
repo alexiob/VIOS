@@ -16,6 +16,8 @@ static uint8_t font[256 * 8];
 static vds_cell cells[4][60 * 80];
 static vds v;
 static int last_row;
+static uint32_t ticks;
+static uint32_t fake_clock(void *ctx) { (void)ctx; return ticks += 10; }   /* 10 us per reading */
 
 static void row_written(void *ctx, int16_t y) { (void)ctx; assert(y > last_row); last_row = y; }  /* beam order */
 static int frame(uint32_t budget) { last_row = -1; return vds_frame(&v, budget); }
@@ -247,6 +249,28 @@ int main(int argc, char **argv) {
         assert(vds_window_close(&v, 3));
     }
 
+    /* Time budgets: with a clock, a frame stops after the row that passes
+     * budget_us; at least one row per call; the result is exact. */
+    {
+        vds_damage_all(&v);
+        v.clock_us = fake_clock;
+        unsigned calls = 0;
+        uint32_t rows_before = v.stats.rows;
+        last_row = -1;
+        while (!vds_frame_within(&v, UINT32_MAX, 100)) {                /* 10 readings per frame: about 9 rows */
+            ++calls; last_row = -1;
+            assert(calls < 200);
+        }
+        assert(calls >= 40 && v.stats.rows - rows_before == 480);
+        matches_full_render();
+        vds_damage_all(&v); calls = 0; last_row = -1;
+        while (!vds_frame_within(&v, UINT32_MAX, 0)) { ++calls; last_row = -1; }   /* no time at all: still a row each */
+        assert(calls == 479);
+        matches_full_render();
+        v.clock_us = NULL;
+        vds_damage_all(&v); last_row = -1;
+        assert(vds_frame_within(&v, UINT32_MAX, 0));                    /* no clock: only pixels count */
+    }
     /* Random operations, partial frames and style switches. */
     static const char *words[] = {"DUP", "SWAP", ": SQUARE DUP * ;", "LOOP", "VIOS", "ok"};
     static const unsigned seeds[] = {12345, 7, 2024};

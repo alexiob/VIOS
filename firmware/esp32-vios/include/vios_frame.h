@@ -22,7 +22,7 @@ static volatile uint32_t vios_vblank_stamp;
 static volatile bool vios_vblank_pending;
 static std::atomic<uint32_t> vios_frames(0), vios_frame_start_max(0), vios_frame_work_max(0);
 static const unsigned VIOS_FRAME_CELLS = 2800; // ~4 ms at the measured 719 cells/ms
-static const uint32_t VIOS_GUI_FRAME_PIXELS = 28000;  // ~3.7 ms: the compositor measured 7.6 px/us on the board (160000 took 20.9 ms)
+static const uint32_t VIOS_GUI_FRAME_US = 3500;       // compositor time per frame: stops after the row that passes it (a row is <= ~85 us at the measured 7.6 px/us)
 
 void vios_display_lock() {
     if (!vios_display_mutex) vios_display_mutex = xSemaphoreCreateRecursiveMutex();
@@ -53,7 +53,7 @@ static void vios_frame_task(void *) {
         if (!vios_gui_hold_console()) vios_console_terminal.service(vios_console_renderer.budget() > 40 ? VIOS_FRAME_CELLS : 40);
         uint32_t now_ms = millis();
         if (now_ms - last_blink >= 50) { last_blink = now_ms; vios_console_terminal.tick(now_ms); }
-        vios_gui_frame(VIOS_GUI_FRAME_PIXELS);   // the display server, when it owns the screen
+        vios_gui_frame(UINT32_MAX, VIOS_GUI_FRAME_US);   // the display server, when it owns the screen: by time, robust to rate changes
         vios_display_unlock();
         vios_frame_raise(vios_frame_work_max, (uint32_t)esp_timer_get_time() - start);
         ++vios_frames;

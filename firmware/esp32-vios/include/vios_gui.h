@@ -105,6 +105,7 @@ bool vios_gui_start() {
             vios_display_unlock();
             return false;
         }
+        vios_gui_vds.clock_us = [](void *) -> uint32_t { return (uint32_t)esp_timer_get_time(); };   // frame time budgets
         vds_proto_init(vios_gui_proto, &vios_gui_vds, vios_gui_cell_memory, vios_gui_send, nullptr);
         vds_ui_init(vios_gui_ui, vios_gui_proto);
         if (!vios_gui_console_window()) { vios_display_unlock(); return false; }
@@ -192,7 +193,7 @@ bool vios_gui_hold_console() {
 }
 
 /* Each frame (frame task, display lock held): compose within the budget. */
-void vios_gui_frame(uint32_t budget_pixels) {
+void vios_gui_frame(uint32_t budget_pixels, uint32_t budget_us) {
     if (!vios_gui_on) return;
     if (!vios_gui_mode_ok()) return;      // a raw MODE change: wait for the VIOS display mode
     uint8_t **rows = (uint8_t **)VdpRows::table();
@@ -200,7 +201,7 @@ void vios_gui_frame(uint32_t budget_pixels) {
 
     uint32_t now = millis();
     uint32_t started = (uint32_t)esp_timer_get_time();
-    vds_proto_frame(vios_gui_proto, now - vios_gui_last_frame, budget_pixels);
+    vds_proto_frame_within(vios_gui_proto, now - vios_gui_last_frame, budget_pixels, budget_us);
     uint32_t spent = (uint32_t)esp_timer_get_time() - started;
     if (spent > vios_gui_frame_max) vios_gui_frame_max = spent;
     vios_gui_last_frame = now;
