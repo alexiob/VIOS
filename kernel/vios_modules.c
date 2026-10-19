@@ -78,13 +78,26 @@ int vios_module_save(const char *name,const char *path){
  if(path){size_t size;if(!encode_package(name,0,&size)||!immutable_write(path,package,size))return 0;}
  return 1;
 }
+/* Header, length and package CRC of a whole package file; NULL or why it is unusable. */
+static const char *package_check(const unsigned char *p,size_t size){
+ if(size<PACKAGE_HEADER+4||p[0]!='V'||p[1]!='I'||p[2]!='M'||p[3]!='1'||p[4]!=1||p[5]!=24)return "incompatible module package";
+ uint32_t length=vios_get32(p+108);
+ if(length>FORTH_MODULE_SOURCE_MAX||size!=PACKAGE_HEADER+(size_t)length+4||p[104]>4)return "invalid module package length";
+ return vios_get32(p+size-4)!=vios_crc32(p,size-4)?"module package CRC mismatch":0;
+}
+/* Read-only probe into the save scratch buffer: 1 verified package of that
+ * source CRC (version copied, <32 bytes), 0 unreadable, -1 corrupt/mismatched. */
+int vios_module_package_version(const char *path,uint32_t crc,char *version){
+ unsigned char *p=verify_package;size_t size=0;if(!storage_read_file(path,p,sizeof verify_package,&size))return 0;
+ if(package_check(p,size)||vios_get32(p+112)!=crc)return -1;
+ for(unsigned i=0;i<32;++i)if(!(version[i]=(char)p[40+i]))return 1;
+ return -1;
+}
 static int terminated(unsigned offset){for(unsigned i=0;i<32;++i)if(!package[offset+i])return 1;return 0;}
 int vios_module_load(const char *path){
  size_t size=0;if(!storage_read_file(path,package,sizeof package,&size))return error(storage_error());
- if(size<PACKAGE_HEADER+4||package[0]!='V'||package[1]!='I'||package[2]!='M'||package[3]!='1'||package[4]!=1||package[5]!=24)return error("incompatible module package");
+ const char *why=package_check(package,size);if(why)return error(why);
  uint32_t length=vios_get32(package+108);
- if(length>FORTH_MODULE_SOURCE_MAX||size!=PACKAGE_HEADER+(size_t)length+4||package[104]>4)return error("invalid module package length");
- if(vios_get32(package+size-4)!=vios_crc32(package,size-4))return error("module package CRC mismatch");
  if(!terminated(8)||!terminated(40)||!terminated(72))return error("unterminated package metadata");
  struct forth_module_dependency deps[4];
  for(unsigned i=0;i<package[104];++i){unsigned offset=116+i*36;if(!terminated(offset))return error("unterminated package dependency");deps[i].name=(char *)package+offset;deps[i].source_crc32=vios_get32(package+offset+32);}

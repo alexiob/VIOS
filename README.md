@@ -58,7 +58,7 @@ For the installed resident firmware, start one persistent host harness:
 .venv/bin/python tools/vios_harness.py --backend resident --tcp 127.0.0.1:8765
 ```
 
-Call its `connect` tool to attach without uploading an image. For MCP stdio, omit `--tcp`; the [harness runbook](docs/bring-up/vios-harness.md) includes client configuration for 61 tools, including 19 workbench tools. MCP/JSON/TCP run on the host, and a compact binary protocol runs over USB serial. The CH340 does not provide a native USB network interface.
+Call its `connect` tool to attach without uploading an image. For MCP stdio, omit `--tcp`; the [harness runbook](docs/bring-up/vios-harness.md) includes client configuration for 65 tools, including 19 workbench tools. MCP/JSON/TCP run on the host, and a compact binary protocol runs over USB serial. The CH340 does not provide a native USB network interface.
 
 A human CLI attaches to the existing TCP harness:
 

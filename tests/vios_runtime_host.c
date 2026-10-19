@@ -21,7 +21,9 @@ static unsigned ready;
 static unsigned fail_confirmation,tear_package;
 static void path(char *out,const char *p){assert(p[0]=='/'&&!strstr(p,".."));assert(strlen(root)+strlen(p)<768);strcpy(out,root);strcat(out,p);}
 static char console_capture[4096];static size_t console_used;
-void platform_console_putc(unsigned char c){putchar(c);if(console_used+1<sizeof console_capture){console_capture[console_used++]=(char)c;console_capture[console_used]=0;}}
+static char captured[2048];static size_t captured_length;static int capturing;
+void platform_console_putc(unsigned char c){putchar(c);if(console_used+1<sizeof console_capture){console_capture[console_used++]=(char)c;console_capture[console_used]=0;}
+ if(capturing&&captured_length+1<sizeof captured){captured[captured_length++]=(char)c;captured[captured_length]=0;}}
 int platform_console_getc(void){return -1;}
 void platform_console_init(void){}
 void platform_console_flush(void){}
@@ -75,6 +77,7 @@ int storage_stream_close(unsigned s){if(s>=STORAGE_STREAMS||!streams[s])return 0
 static unsigned record_previous(void){unsigned char a[32],b[32];size_t an=0,bn=0;int av=storage_read_file("/VIOS/BOOT0.REC",a,32,&an)&&an==32,bv=storage_read_file("/VIOS/BOOT1.REC",b,32,&bn)&&bn==32;assert(av||bv);return !av?b[6]:!bv?a[6]:vios_get32(a+12)>vios_get32(b+12)?a[6]:b[6];}
 static void reset(void){forth_init();assert(vios_runtime_init());}
 static void eval(const char *s){if(!forth_eval(s)){fprintf(stderr,"eval failed: %s: %s\n",s,forth_last_error());abort();}}
+static const char *manifest(void){captured_length=0;captured[0]=0;capturing=1;eval("BOOT-MANIFEST");platform_console_flush();capturing=0;assert(!fvm_depth);return captured;}
 int main(int argc,char **argv){
  assert(argc==2);assert(strlen(argv[1])<sizeof root);strcpy(root,argv[1]);reset();
  eval("MILLIS");assert(fvm_pop()==1234567);
@@ -103,7 +106,19 @@ int main(int argc,char **argv){
  assert(vios_boot_revert());reset();assert(vios_boot_startup());eval("VALUE");assert(fvm_pop()==11);
  /* A corrupted candidate cannot replace the confirmed source bundle. */
  assert(vios_boot_trial());assert(record_previous()==255);char corrupt='!';assert(storage_write_file("/VIOS/BOOT_B.VIB",&corrupt,1));
+ /* The manifest reports a corrupt candidate without failing or disturbing state. */
+ char line[160];const char *m=manifest();
+ assert(strstr(m,"manifest A confirmed modules 2 crc32 "));assert(strstr(m,"manifest B candidate error invalid/incompatible boot bundle\r\n"));
+ snprintf(line,sizeof line,"manifest-module A demo version 1 crc32 %lu package ok\r\n",(unsigned long)forth_module_crc32(source));assert(strstr(m,line));
+ snprintf(line,sizeof line,"manifest-module A extra version 1 crc32 %lu package ok\r\n",(unsigned long)forth_module_crc32(extra));assert(strstr(m,line));
+ assert(!strstr(m,"manifest-module B"));
  reset();assert(vios_boot_startup());eval("VALUE");assert(fvm_pop()==11);
+ m=manifest();assert(strstr(m,"manifest NONE candidate none\r\n"));
+ /* Package problems are per entry: a missing and a corrupt package still list name and CRC. */
+ char demo_path[128],extra_path[128];assert(vios_module_path("demo",demo_path,sizeof demo_path));assert(vios_module_path("extra",extra_path,sizeof extra_path));
+ assert(storage_remove(extra_path));assert(storage_write_file(demo_path,&corrupt,1));m=manifest();
+ snprintf(line,sizeof line,"manifest-module A demo version - crc32 %lu package bad\r\n",(unsigned long)forth_module_crc32(source));assert(strstr(m,line));
+ snprintf(line,sizeof line,"manifest-module A extra version - crc32 %lu package unreadable\r\n",(unsigned long)forth_module_crc32(extra));assert(strstr(m,line));
  /* Existing source files load unchanged, including nested INCLUDE. */
  const char child[]=": CHILD 37 ;";const char parent[]="INCLUDE /VIOS/CHILD.FTH\n: PARENT CHILD 5 + ;";
  assert(storage_write_file("/VIOS/CHILD.FTH",child,sizeof child-1));assert(storage_write_file("/VIOS/PARENT.FTH",parent,sizeof parent-1));
@@ -117,14 +132,16 @@ int main(int argc,char **argv){
  /* Stage 5: reboot into an application from SD. A module defining AUTORUN
   * goes into a boot trial; after the simulated reboot the confirmed slot is
   * loaded and AUTORUN starts as a console task without any host. */
- reset();assert(vios_boot_startup());
- {const char *app="VARIABLE APPRAN : AUTORUN 7 APPRAN ! .\" app running\" CR ;";
+ /* A fresh emulated card keeps this independent of the corruption tests above. */
+ {char saved_root[sizeof root];strcpy(saved_root,root);assert(strlen(root)+9<sizeof root);strcat(root,"/apptest");
+  assert(!mkdir(root,0700));reset();assert(storage_mkdir("/VIOS"));assert(vios_boot_startup());
+  assert(vios_autorun()==0&&"no AUTORUN on a fresh card");
+  const char *app="VARIABLE APPRAN : AUTORUN 7 APPRAN ! .\" app running\" CR ;";
   assert(forth_module_stage("app","1",NULL,0,app,""));assert(forth_module_activate("app"));
   assert(vios_boot_trial());reset();assert(vios_boot_startup());
   int id=vios_autorun();assert(id>=1);for(int i=0;i<20&&forth_tasks_run();++i){}
   eval("APPRAN @");assert(fvm_pop()==7);
-  /* Remove the app again: revert to the previously confirmed bundle. */
-  assert(vios_boot_revert());reset();assert(vios_boot_startup());assert(vios_autorun()==0);}
+  strcpy(root,saved_root);}
  /* Core library (Forth prelude) and compiler data/string words. */
  reset();
  {

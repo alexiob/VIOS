@@ -2,7 +2,7 @@
 
 The host harness exposes the running Forth system, source modules, boot selection and bounded hardware debug through MCP stdio or loopback NDJSON TCP. JSON, schemas and networking run on the Mac. The Agon executes Forth; the resident ESP32 application multiplexes console/control/status over USB serial while retaining its VDP. Integrated hardware acceptance is recorded in the [resident ledger](vios-resident-progress.md).
 
-The current interface has 61 tools, including 19 `wb_*` tools for shared live
+The current interface has 65 tools, including 19 `wb_*` tools for shared live
 browsing, exact source editing, inspection, stage/activate/save and display
 snapshots. See the [workbench runbook](vios-workbench.md). Full screen reads use
 one bounded native snapshot command and reject inconsistent surrounding state;
@@ -85,8 +85,9 @@ There are 29 tools. Schemas returned by `tools/list` are authoritative for argum
 | `last_error`, `trace` | Last runtime failure captured before unwind (word+offset, caller frames, stack) and single-step tracing of a word on any engine; CLI `:why`, `:trace W [N]` |
 | `handles` | Open handles (SD file streams, pipes, `/dev/null`, `/dev/cons`, `/dev/tasks`) with owner, direction, bytes and the last I/O error; see the [handle spec](../superpowers/specs/2026-10-18-vios-handles.md) |
 | `tasks`, `task_output` | Background task slots (state, word, slices, steps, depths, peaks, output, error) and draining a task output ring; see the [task spec](../superpowers/specs/2026-10-18-vios-tasks.md) |
-| `snapshot` | Read-only structured state record (modules, exact sources, draft, stacks, BASE, engine, boot slot) with a live/dirty/staged/persisted summary; restorable by `tools/vios_fast_display_state.py`, fails closed on a torn read; CLI `:snapshot [FILE]` |
+| `snapshot` | Read-only structured state record (modules, exact sources, draft, stacks, BASE, engine, boot slot) with a live/dirty/staged/persisted summary (`persisted` = exact name+CRC32 in the confirmed boot bundle, null when unknown; `in_candidate` likewise); restorable by `tools/vios_fast_display_state.py`, fails closed on a torn read; CLI `:snapshot [FILE]` |
 | `boot_status`, `boot_trial`, `boot_confirm`, `boot_revert` | A/B source-bundle trial and selection |
+| `boot_manifest` | Read-only `BOOT-MANIFEST`: name, version, source CRC32 and package health (`ok`/`bad`/`unreadable`) in the confirmed and candidate bundles, i.e. what a power cycle loads. Snapshot only issues it with an empty data stack, since older firmware rejects the unknown word and a Forth error clears the stack |
 | `debug_registers`, `memory_read`, `memory_write`, `resume` | Bounded ZDI inspection/write/readback and state-preserving resume |
 
 Notifications never invoke board tools. Results include a JSON-encoded text content item and `isError`. Language/runtime failures are tool errors; malformed RPC or arguments return JSON-RPC errors. Frames are limited to 1 MiB. Module metadata/dependencies are validated before transmission.

@@ -24,6 +24,7 @@ COMMANDS = {
     'MODULE-LOAD': 'MODULE-LOAD path: load, stage and activate a saved package.',
     'SAVE': 'SAVE name [path]: persist a module package (content-addressed by default).',
     'BOOT-STATUS': 'Show confirmed/candidate/current source slots.', 'BOOT-TRIAL': 'Write all active modules to the inactive slot as a pending trial.',
+    'BOOT-MANIFEST': 'List modules (name, version, CRC, package state) in the confirmed and candidate boot slots.',
     'BOOT-CONFIRM': 'Confirm the running trial slot.', 'BOOT-REVERT': 'Select the confirmed/previous slot (no reboot).',
     'VDP-INFO': 'Show display mode and console drop counter.',
     'TASKS': 'List background task slots (SPAWN PAUSE MS TASK-KILL TASK-STATE).',
