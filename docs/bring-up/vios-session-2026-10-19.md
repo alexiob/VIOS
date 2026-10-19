@@ -42,6 +42,9 @@ restored with `tools/vios_fast_display_state.py` after flashes.
 | Boot to the GUI | on the board (image gui-boot-9): mode 0, GUI first, Ctrl+Alt+F1 text console; fixes for a boot crash, mode 0 memory and the frame budget (9a87e0d) |
 | Stage 2a (ESP line editing) | on the board: key-to-console 0.125 ms idle and under load (was 27-34 ms under load) |
 | GUI soak | passed: 387 iterations, 30.1 min, 0 failures, 0 drops |
+| GUI acceptance on the board | **passed** (image gui-boot-10, `tools/vios_gui_accept.py`): window open/move/raise/close with pixel checks, Ctrl+S accelerator -> COMMAND event, input readback, button ACTIVATE, 0 protocol errors, vblank->start 87 us |
+| GUI under console flood | 6000 numbers in 2.95 s; compositor step <= 3.65 ms (time budget), frame work <= 4.6 ms, vblank->start <= 95 us, 0 errors |
+| Untethered boot (U6) | ESP user mode works without the wire, but this board's Quark MOS never talks to the VDP, so the SD boot stub never runs; the wire is back. Owner to choose: diagnose MOS, update MOS, or a flash loader |
 
 Every ESP image since the A/B work was installed as a trial and confirmed;
 one (the first CRC build) failed its trial and rolled back by itself, as

@@ -1,0 +1,8 @@
+{
+ "seconds": 2.95,
+ "gui": "GUI on windows 1 frames 673 rows 12986 carried 74 errors 0 style 0 batch_max_us 0 batch_op 31 frame_max_us 3648",
+ "frames": 269,
+ "vblank_start_max": 95,
+ "frame_work_max": 4602,
+ "parser_max": 16287
+}
