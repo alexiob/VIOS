@@ -1,8 +1,8 @@
 # VIOS untethered boot: booting without the ZDI wire
 
 Status: **owner chose path B on 2026-10-19:** automatic dev/user mode, the ESP
-image first, MOS text hidden. U1 and U2 are done and host-tested; nothing is
-flashed. See §9 and §10.
+image first, MOS text hidden. U1, U2 and U3 are done and host-tested; nothing is
+flashed. See §9 to §11.
 
 ## 1. Problem
 
@@ -299,4 +299,68 @@ design assumes. If a check fails, the design changes as described in its
 - **Next:** U3 (the stub), U4 (the SD layout and installer) and U5 (restart
   through 0, and re-handshake after an ESP restart). U6 is board acceptance
   with the wire removed.
+
+## 11. U3: the boot stub (implemented, host-tested, not on an SD card)
+
+`arch/ez80/viosboot.s` is built with `make viosboot` into `build/viosboot.bin`.
+It is 3,072 bytes: about 1 KB of code, a 1 KB CRC-32 plane table and a
+256-byte packet buffer. It is a MOS moslet at `0x0B0000` with the ADL MOS
+header.
+
+- **Use:**
+  - `viosboot`: the ESP image first, then the SD copy.
+  - `viosboot sd`: the SD copy first, then the ESP image.
+  - `viosboot force`: ignore the boot counter.
+- **The ESP path:**
+  1. Interrupts are turned off and UART0 is polled.
+  2. The stub sends `E8,0` and checks the manifest: version 1, block size
+     192, and a size from 1 to `0x6F000`.
+  3. It requests `min(VIOS_BOOT_BURST, blocks left)` blocks at a time, so it
+     never asks past the end.
+  4. Each block is checked for its kind, index, length and CRC. A failure
+     drains the line and asks again from that block, up to 3 tries; after
+     that the stub falls back.
+  5. RTS is asserted only while a packet is being read. While a block is
+     checked and copied, the ESP waits. Keyboard and other packets are skipped
+     by code, and stray bytes without the header bit are skipped too.
+- **The SD path:** `mos_load` reads `/vios/vios.man` (the same 16 bytes as the
+  manifest packet) and then `/vios/vios.bin`.
+- **Before the jump:** whichever path loaded it, the whole image must match the
+  manifest's CRC-32 and carry `MOS\0\1` at offset 64 before `jp 0x040000`,
+  which runs with interrupts off.
+- **Failure:** the stub prints why, turns interrupts back on, and returns to
+  the MOS prompt with IX, IY and SP restored and HL=0.
+- **Counter:** `/vios/boot.cnt` (1 byte) counts boots started. At 3 the stub
+  stays in MOS. With no card, or a read-only card, there is no counter. The
+  resident must clear it once healthy (U5).
+- **Defaults:**
+  - `VIOS_BOOT_BURST=1` until U0 item 10 (flow control) is measured on the
+    board.
+  - `VIOS_BOOT_TIMEOUT=12`, about 0.5 s per wait.
+- **Tests:** `tests/test_viosboot_native.py`, 11 tests. They run the linked
+  disassembly on the repository's eZ80 interpreter (`test_uart0_rx_native`
+  `UARTCPU`). The model ESP has a 16-byte FIFO with RTS gating, overrun
+  detection and interleaved keyboard packets. The model MOS has an in-memory
+  SD card. The cases:
+  - the packets match the C server byte for byte;
+  - burst sizes 1 and 4, and odd image sizes;
+  - corrupted blocks are asked for again;
+  - a silent ESP, or one that refuses the manifest, falls back to SD;
+  - `sd` and `force`;
+  - a corrupt SD image or one without the header is never run;
+  - the counter limit;
+  - no card;
+  - the MOS register state on return.
+  - Two mutations are caught: holding RTS asserted overruns the FIFO in bursts,
+    and skipping the block CRC is caught.
+- **Assumptions to confirm in U0:**
+  - the MOS API numbers and registers (`mos_load` 1, `mos_save` 2, `rst.lil
+    0x10` putch, the arguments in HL);
+  - that MOS runs `/mos/*.bin` at `0x0B0000`;
+  - that the ESP's UART TX honours the CPU's RTS, as the resident already
+    relies on.
+- **Estimated time on the board:** about 1 KB of code plus 2 × 158 KB of
+  CRC-32 at roughly 12 instructions per byte gives about 1.5–2 s of CRC. The
+  transfer at burst 1 is limited by the round trip per block. Measure both in
+  U6.
 

@@ -138,6 +138,21 @@ $(RESIDENT_UART_OBJECT): arch/ez80/uart0_raw.s
 	$(EZAS) -march=ez80+full --defsym VIOS_UART0_BAUD=$(VIOS_INTERNAL_BAUD) arch/ez80/uart0_raw.s -o $@
 .PHONY: vios-resident
 vios-resident: build/vios-resident.bin build/agon-stage0.bin build/agon-crc.bin
+# Untethered boot stub (/mos/viosboot.bin, a MOS moslet at 0x0B0000).
+VIOS_BOOT_BURST ?= 1
+VIOS_BOOT_TIMEOUT ?= 12
+viosboot: build/viosboot.bin
+build/viosboot_crc.inc: tools/crc32_planes.py
+	@mkdir -p build
+	.venv/bin/python tools/crc32_planes.py $@
+build/viosboot.o: arch/ez80/viosboot.s build/viosboot_crc.inc
+	$(EZAS) -march=ez80+full -I build --defsym VIOS_BOOT_BURST=$(VIOS_BOOT_BURST) --defsym VIOS_BOOT_TIMEOUT=$(VIOS_BOOT_TIMEOUT) $< -o $@
+build/viosboot.elf: build/viosboot.o
+	$(EZLD) -Ttext=0x0B0000 -e _viosboot -o $@ $<
+	$(EZNM) -u $@
+build/viosboot.bin: build/viosboot.elf
+	$(EZOBJCOPY) --only-section .text -O binary $< $@
+	.venv/bin/python -c 'from pathlib import Path;import hashlib;b=Path("$@").read_bytes();assert 0<len(b)<=0x8000 and b[64:69]==b"MOS\x00\x01";print("VIOS boot stub",len(b),"bytes",hashlib.sha256(b).hexdigest())'
 build/agon-stage0.o: arch/ez80/agon_stage0.s
 	@mkdir -p build
 	$(EZAS) -march=ez80+full $< -o $@
