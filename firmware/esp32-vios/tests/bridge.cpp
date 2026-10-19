@@ -17,6 +17,7 @@
 #define ZDI_BRK_CTL 0x10
 #define ZDI_MASTER_CTL 0x11
 #define HW_FLOWCTRL_DISABLE 0
+#define HW_FLOWCTRL_RTS 1
 #define HW_FLOWCTRL_CTS_RTS 3
 #define ZDI_IS2 0x23
 #define ZDI_IS1 0x24
@@ -301,7 +302,7 @@ static void check_mos_probe(){
     assert(regs[0]==0x00445A&&regs[7]==0x0012AB&&!cpu_paused);                          // nothing disturbed, running again
     for(int i=0;i<40;++i)vios_mos_capture((uint8_t)i);
     assert(control_text("MB\n",123).rfind("MOS BYTES 43 17 00 80 00 01",0)==0);
-    incoming("ML\n",124);{auto g=output_frames();assert(g.size()==2&&!memcmp(g[0].payload,"MOS LINK 384000\r\n",17));}assert(VDPSerial.baud==384000&&VDPSerial.flow==HW_FLOWCTRL_DISABLE&&link_state==LINK_MOS);
+    incoming("ML\n",124);{auto g=output_frames();assert(g.size()==2&&!memcmp(g[0].payload,"MOS LINK 384000\r\n",17));}assert(VDPSerial.baud==384000&&VDPSerial.flow==HW_FLOWCTRL_RTS&&link_state==LINK_MOS);
     vios_link_rate(1152000);output_frames();
 }
 
@@ -347,7 +348,7 @@ static void check_user_mode(){
     vios_bridge_service_vdp();assert(VDPSerial.output.size()==3&&VDPSerial.output[0]==0xFA);VDPSerial.output.clear();
     now+=999;vios_bridge_poll();assert(VDPSerial.baud==0&&link_state==LINK_PROBE);
     now+=1;vios_bridge_poll();f=output_frames();
-    assert(VDPSerial.baud==384000&&VDPSerial.flow==HW_FLOWCTRL_DISABLE&&link_state==LINK_MOS&&saw_event(f,"BOOT link 384000: sending ESC until MOS answers\r\n"));
+    assert(VDPSerial.baud==384000&&VDPSerial.flow==HW_FLOWCTRL_RTS&&link_state==LINK_MOS&&saw_event(f,"BOOT link 384000: sending ESC until MOS answers\r\n"));
     vios_bridge_poll();assert(VDPSerial.output.size()==1&&VDPSerial.output[0]==0x1B);            // at once
     now+=499;vios_bridge_poll();assert(VDPSerial.output.size()==1);
     now+=1;vios_bridge_poll();assert(VDPSerial.output.size()==2&&VDPSerial.output[1]==0x1B);    // again after 500 ms
