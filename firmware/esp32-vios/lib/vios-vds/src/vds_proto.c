@@ -307,7 +307,9 @@ int vds_proto_batch(vds_proto *p, const uint8_t *b, size_t len) {
     return 1;
 }
 
-int vds_proto_frame(vds_proto *p, uint32_t elapsed_ms, uint32_t budget) {
+int vds_proto_frame(vds_proto *p, uint32_t elapsed_ms, uint32_t budget) { return vds_proto_frame_within(p, elapsed_ms, budget, UINT32_MAX); }
+
+int vds_proto_frame_within(vds_proto *p, uint32_t elapsed_ms, uint32_t budget, uint32_t budget_us) {
     if (p->ui_tick) p->ui_tick(p->ui, elapsed_ms);
     vds_tick(p->v, elapsed_ms);
     if (p->raw) return 1;
@@ -316,5 +318,5 @@ int vds_proto_frame(vds_proto *p, uint32_t elapsed_ms, uint32_t budget) {
         if (p->held_ms < VDS_PROTO_HOLD_MS) return p->v->ndamage == 0;
         p->hold = 0;                                     /* a stalled client cannot hide output */
     }
-    return vds_frame(p->v, budget);
+    return vds_frame_within(p->v, budget, budget_us);
 }

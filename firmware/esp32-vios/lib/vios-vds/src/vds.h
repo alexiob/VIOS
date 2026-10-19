@@ -106,6 +106,8 @@ typedef struct vds {
     uint32_t blink_ms;          /* time since the last blink phase change */
     uint8_t blink_on;
     void (*row_written)(void *ctx, int16_t y);  /* optional probe hook */
+    uint32_t (*clock_us)(void *ctx);            /* optional microsecond clock (wraps) for time budgets */
+    void *clock_ctx;
     void *row_ctx;
 } vds;
 
@@ -166,6 +168,10 @@ void vds_damage_all(vds *v);
  * done, stopping only at a scanline boundary. Returns 1 when no damage is
  * left, 0 when the rest carries over to the next frame. */
 int vds_frame(vds *v, uint32_t budget);
+/* As vds_frame, also stopping once budget_us microseconds have passed by
+ * clock_us (checked after each row; without a clock only pixels count). At
+ * least one row is composed per call, so a frame always progresses. */
+int vds_frame_within(vds *v, uint32_t budget, uint32_t budget_us);
 
 #ifdef __cplusplus
 }
