@@ -19,6 +19,7 @@ unsigned vios_boot_block_reply(unsigned index,uint8_t *out);
 bool vios_boot_user_mode();
 bool vios_mos_phase();
 void vios_mos_phase_end();
+void vios_mos_phase_begin();   // MOS's general poll: a restart through 0 is booting MOS again
 
 bool vios_cpu_is_paused();
 void vios_unsupported(const char *feature);

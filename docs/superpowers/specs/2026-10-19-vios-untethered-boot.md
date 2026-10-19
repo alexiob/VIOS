@@ -236,7 +236,16 @@ design assumes. If a check fails, the design changes as described in its
    - *Check:* list the codes MOS sends (CLS, colours, mode).
    - *Expected:* the §10 filter covers them, and no VDU 22 mode change
      reaches the GUI.
-10. **Removing and refitting the wire.** With the board powered off, both
+10. **UART0 flow control under the stub.** This item can change U3's design.
+    - At 1,152,000 baud a byte arrives every ~8.7 µs, about 160 eZ80 cycles,
+      and the eZ80 UART FIFO holds 16 bytes. A 32-block burst is about 6.4 KB
+      back to back.
+    - *Check:* whether MOS leaves hardware flow control enabled, whether the
+      F92 asserts RTS on its own when the FIFO fills (or the stub must drive
+      it), and whether a DI polling loop keeps up.
+    - *If not:* a smaller `VIOS_BOOT_BURST` (down to 1, one request per
+      block), or the stub drives RTS around each block.
+11. **Removing and refitting the wire.** With the board powered off, both
     modes must cold-boot repeatedly: 20 boots each in U6.
 
 ## 10. U2: ESP user mode (implemented, host-tested, not flashed)
@@ -266,8 +275,10 @@ design assumes. If a check fails, the design changes as described in its
   158 KB takes 26 bursts, about 1.4 s at 1,152,000 baud. Other VDP packets,
   such as keyboard packets, may arrive between boot packets; the stub skips
   them by code.
-- **MOS phase.** Until the resident's first `VDU 23,0,E*` command other than
-  E8:
+- **MOS phase.** It starts at ESP start and starts again on MOS's general
+  poll (`VDU 23,0,&80`), which the resident never sends. So a restart through
+  0 (U5) is filtered as well. It lasts until the resident's first
+  `VDU 23,0,E*` command other than E8:
   - plain VDU text goes into the console window (`vios_console_feed`);
   - VDU codes that take arguments have those arguments swallowed;
   - `VDU 23` still reaches the parser, so MOS's poll, mode and RTC requests
@@ -281,6 +292,10 @@ design assumes. If a check fails, the design changes as described in its
   - `bridge.cpp` `check_user_mode` covers mode selection, the pins, deadline
     arming, a deadline miss without restarting and the trial fallback, and
     that dev mode returns with the wire.
+- **Status:** the control command `B` answers `BOOT USER waiting for the MOS
+  stub` in user mode before the manifest request.
+- **Not yet:** the "insert the boot SD" console message when user mode sees no
+  manifest request belongs to U4.
 - **Next:** U3 (the stub), U4 (the SD layout and installer) and U5 (restart
   through 0, and re-handshake after an ESP restart). U6 is board acceptance
   with the wire removed.

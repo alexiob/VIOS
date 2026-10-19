@@ -116,6 +116,7 @@ void VDUStreamProcessor::vdu_sys() {
 void VDUStreamProcessor::vdu_sys_video() {
 	auto mode = readByte_t();
 	if (mode >= 0xE0 && mode <= 0xEF && mode != VIOS_VDU_BOOT) vios_mos_phase_end();	// the resident is talking
+	else if (mode == VDP_GP) vios_mos_phase_begin();	// only MOS polls: it is booting (again)
 
 	switch (mode) {
         case VIOS_VDU_BOOT: {	// untethered boot stub: manifest or a burst of blocks

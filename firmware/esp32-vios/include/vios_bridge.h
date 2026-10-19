@@ -66,6 +66,7 @@ static std::atomic<bool> mos_phase(true);
 bool vios_boot_user_mode(){return boot_user_mode;}
 bool vios_mos_phase(){return mos_phase.load();}
 void vios_mos_phase_end(){mos_phase.store(false);}
+void vios_mos_phase_begin(){mos_phase.store(true);}
 static bool cpu_boot_ready;
 static unsigned long boot_started,boot_paused_at;
 static std::atomic<unsigned> boot_failures(0);
@@ -401,7 +402,8 @@ static void control_command(uint16_t sequence,const char *command,size_t length)
         snprintf(reply,sizeof reply,"ID %04X REV %02X STAT %02X\r\n",vios_zdi_id(),vios_zdi_revision(),vios_zdi_status());control_reply(sequence,reply);return;
     }
     if(length==1&&command[0]=='B') {
-        control_reply(sequence,cpu_paused||(!cpu_boot_ready&&!boot_deadline_armed)?"BOOT HALTED\r\n":boot_deadline_armed?"BOOT STARTING\r\n":"BOOT READY\r\n");return;
+        control_reply(sequence,boot_user_mode&&!cpu_paused&&!cpu_boot_ready&&!boot_deadline_armed?"BOOT USER waiting for the MOS stub\r\n":
+            cpu_paused||(!cpu_boot_ready&&!boot_deadline_armed)?"BOOT HALTED\r\n":boot_deadline_armed?"BOOT STARTING\r\n":"BOOT READY\r\n");return;
     }
     if(length==1&&command[0]=='H') {
         if(source_used){line_reply(source_sequence,"LINE ERR halted\r\n");source_used=0;}
