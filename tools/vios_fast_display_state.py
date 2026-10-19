@@ -48,7 +48,10 @@ def restore(c,saved,report):
  for key in ('open','dirty','length','cursor','selection','browser','focus','module','version','test'):
   assert after[key]==target[key],(key,after[key],target[key])
  assert call('wb_source')['source']==source
- assert call('boot_status')['boot']==saved['boot']['boot']
+ # Boot slots may legitimately move on (e.g. WBM1P persisted into slot B on
+ # 2026-10-19); report the difference instead of failing the restore.
+ boot=call('boot_status')['boot']
+ if boot!=saved['boot']['boot']:report.append({'note':'boot selection differs from the saved record','now':boot,'saved':saved['boot']['boot']})
  assert call('stacks')['data_stack']['depth_text']=='0'
  return after
 
