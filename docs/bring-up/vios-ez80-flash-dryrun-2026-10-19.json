@@ -1,0 +1,12 @@
+{
+  "image_bytes": 108490,
+  "image_crc32": "15BD0583",
+  "write": false,
+  "boot": "BOOT READY",
+  "staged": 108490,
+  "md": "MD RAM ok 15BD0583 FLASH C75F0113",
+  "flash_crc_before": "C75F0113",
+  "ok": true,
+  "restart": "RESTARTING",
+  "image": "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/backups/ez80/MOS-3.0.2.bin"
+}

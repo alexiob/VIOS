@@ -58,6 +58,10 @@ def run(session, image, write, restart=True):
     crc = zlib.crc32(image)
     log = {'image_bytes': len(image), 'image_crc32': f'{crc:08X}', 'write': write}
     boot = control(session, b'B')
+    deadline = time.monotonic() + 60       # opening the port restarts the ESP: VIOS reloads first
+    while boot == 'BOOT STARTING' and time.monotonic() < deadline:
+        time.sleep(1)
+        boot = control(session, b'B')
     log['boot'] = boot
     if boot != 'BOOT READY':
         raise RuntimeError('the board must have booted VIOS over the wire (BOOT READY), not ' + boot)
