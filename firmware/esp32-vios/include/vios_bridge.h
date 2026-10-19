@@ -88,7 +88,11 @@ static uint8_t mos_bytes[32];
 static std::atomic<unsigned> mos_count(0);
 static std::atomic<bool> mos_capturing(false);
 static void link_mos();
-static void mos_capture_start(){mos_count.store(0);mos_capturing.store(true);}
+static uint8_t mos_rx_bytes[48],mos_tx_codes[16][2];
+static std::atomic<unsigned> mos_rx_count(0),mos_tx_count(0);
+static void mos_capture_start(){mos_count.store(0);mos_rx_count.store(0);mos_tx_count.store(0);mos_capturing.store(true);}
+void vios_mos_rx(uint8_t c){if(!mos_capturing.load())return;unsigned i=mos_rx_count.fetch_add(1);if(i<sizeof mos_rx_bytes)mos_rx_bytes[i]=c;}
+void vios_mos_tx(uint8_t code,uint16_t len){if(!mos_capturing.load())return;unsigned i=mos_tx_count.fetch_add(1);if(i<16){mos_tx_codes[i][0]=code;mos_tx_codes[i][1]=(uint8_t)(len>255?255:len);}}
 void vios_mos_capture(uint8_t c){if(!mos_capturing.load())return;unsigned i=mos_count.fetch_add(1);if(i<sizeof mos_bytes)mos_bytes[i]=c;}
 static bool cpu_boot_ready;
 static unsigned long boot_started,boot_paused_at;
@@ -461,6 +465,14 @@ static void control_command(uint16_t sequence,const char *command,size_t length)
         control_reply(sequence,reply);return;
     }
     if(length==2&&command[0]=='M'&&command[1]=='L'){control_reply(sequence,"MOS LINK 384000\r\n");link_mos();return;}
+    if(length==2&&command[0]=='M'&&command[1]=='X'){
+        unsigned rx=mos_rx_count.load(),tx=mos_tx_count.load();
+        size_t n=(size_t)snprintf(reply,sizeof reply,"MOS RX %u",rx);
+        for(unsigned i=0;i<rx&&i<sizeof mos_rx_bytes;++i)n+=(size_t)snprintf(reply+n,sizeof reply-n," %02X",mos_rx_bytes[i]);
+        n+=(size_t)snprintf(reply+n,sizeof reply-n," TX %u",tx);
+        for(unsigned i=0;i<tx&&i<16;++i)n+=(size_t)snprintf(reply+n,sizeof reply-n," %02X/%u",mos_tx_codes[i][0]+0x80,mos_tx_codes[i][1]);
+        snprintf(reply+n,sizeof reply-n,"\r\n");control_reply(sequence,reply);return;
+    }
     if(length==2&&command[0]=='M'&&command[1]=='B'){
         unsigned count=mos_count.load(),shown=count<sizeof mos_bytes?count:(unsigned)sizeof mos_bytes;
         size_t n=(size_t)snprintf(reply,sizeof reply,"MOS BYTES %u",count);

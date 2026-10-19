@@ -295,6 +295,8 @@ static void check_mos_probe(){
     assert(control_text("MR\n",120)=="MOS RESET\r\n"&&zdi_resets==resets+1&&!cpu_paused&&!boot_deadline_armed&&vios_mos_phase());
     vios_mos_capture(0x17);vios_mos_capture(0x00);vios_mos_capture(0x80);
     assert(control_text("MB\n",121)=="MOS BYTES 3 17 00 80\r\n");
+    vios_mos_rx(0x17);vios_mos_rx(0x00);vios_mos_tx(0x00,1);
+    assert(control_text("MX\n",125)=="MOS RX 2 17 00 TX 1 80/1\r\n");
     regs[7]=0x0012AB;regs[0]=0x00445A;regs[6]=0x0BFF00;ports[0xC3]=0x03;ports[0xC4]=0x02;ports[0xC5]=0x60;ports[0xC6]=0x00;
     std::string sample=control_text("MS2\n",122);
     assert(sample.rfind("MOS PC 0012AB 0012AB STAT ",0)==0);
