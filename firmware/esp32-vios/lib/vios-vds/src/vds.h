@@ -39,7 +39,8 @@ enum {
     VDS_W_DECOR = 2,    /* frame and title per style */
     VDS_W_SHADOW = 4,
     VDS_W_ACTIVE = 8,
-    VDS_W_FREE_X = 16   /* never snap this window's x */
+    VDS_W_FREE_X = 16,  /* never snap this window's x */
+    VDS_W_MODAL = 32    /* the topmost visible modal window dims everything below it */
 };
 
 typedef struct {
@@ -121,6 +122,7 @@ int vds_window_open(vds *v, uint8_t id, uint8_t surface, int16_t x, int16_t y,
 int vds_window_move(vds *v, uint8_t id, int16_t x, int16_t y);
 int vds_window_resize(vds *v, uint8_t id, uint8_t cols, uint8_t rows);
 int vds_window_raise(vds *v, uint8_t id);
+int vds_window_lower(vds *v, uint8_t id);
 int vds_window_flags(vds *v, uint8_t id, uint8_t flags);
 int vds_window_scroll(vds *v, uint8_t id, uint8_t col, uint8_t row);
 int vds_window_title(vds *v, uint8_t id, const char *title);

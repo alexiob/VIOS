@@ -31,6 +31,7 @@
  *  55  id surface                        rebind client surface
  *  56  id col row                        client scroll offset
  *  57  id                                close
+ *  58  id                                focus (raise, activate; refused under a modal)
  *  74  key value(u16)                    config: 1 snap_x, 2 style
  *  76  id w h hot_x hot_y transparent    define a sprite (pixels from the pool)
  *  77  id offset(u16) n byte*n           sprite pixel data
@@ -65,6 +66,10 @@ typedef struct vds_proto {
     uint8_t raw, hold, errors, desync, event_seq;
     uint16_t epoch, generation;
     uint32_t held_ms;
+    /* Optional intrinsics (vds_ui sets these): CPU focus requests, closes. */
+    void *ui;
+    int (*ui_focus)(void *ui, uint8_t id);
+    void (*ui_forget)(void *ui, uint8_t id);
 } vds_proto;
 
 void vds_proto_init(vds_proto *p, vds *v, vds_cell *(*cells)(void *, uint8_t, uint16_t),

@@ -219,7 +219,7 @@ int main(int argc, char **argv) {
         case 5: case 6: vds_window_move(&v, id, (int16_t)(rnd(700) - 40), (int16_t)(rnd(520) - 30)); break;
         case 7: vds_window_resize(&v, id, (uint8_t)(1 + rnd(60)), (uint8_t)(1 + rnd(40))); break;
         case 8: vds_window_raise(&v, id); break;
-        case 9: vds_window_flags(&v, id, (uint8_t)rnd(32)); break;
+        case 9: vds_window_flags(&v, id, (uint8_t)rnd(rnd(4) ? 32 : 64)); break;   /* sometimes modal */
         case 10: vds_window_scroll(&v, id, (uint8_t)rnd(20), (uint8_t)rnd(20)); break;
         case 11: if (!rnd(4)) vds_window_close(&v, id); else vds_window_title(&v, id, words[rnd(6)]); break;
         case 14: if (rnd(2)) vds_cursor(&v, sid, (uint8_t)rnd(80), (uint8_t)rnd(60), (uint8_t)rnd(4), (uint8_t)rnd(2)); else vds_tick(&v, rnd(700)); break;

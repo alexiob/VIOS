@@ -23,7 +23,7 @@ static size_t op_size(const uint8_t *b, size_t n) {
     case 0x32: s = 5; break;
     case 0x50: s = 10; break;
     case 0x51: s = 8; break;
-    case 0x52: case 0x57: case 0x7A: s = 2; break;
+    case 0x52: case 0x57: case 0x58: case 0x7A: s = 2; break;
     case 0x53: case 0x55: case 0x79: s = 3; break;
     case 0x54: s = n < 3 ? 0 : 3u + b[2]; break;
     case 0x56: case 0x74: s = 4; break;
@@ -66,7 +66,11 @@ void vds_proto_init(vds_proto *p, vds *v, vds_cell *(*cells)(void *, uint8_t, ui
 
 static void reset(vds_proto *p) {
     vds *v = p->v;
-    while (v->count) vds_window_close(v, v->order[v->count - 1]);
+    while (v->count) {
+        uint8_t id = v->order[v->count - 1];
+        vds_window_close(v, id);
+        if (p->ui_forget) p->ui_forget(p->ui, id);
+    }
     for (uint8_t i = 0; i < VDS_MAX_SPRITES; ++i) vds_sprite_undefine(v, i);
     memset(v->surfaces, 0, sizeof v->surfaces);
     p->pool_used = 0;
@@ -176,7 +180,11 @@ static int apply(vds_proto *p, const uint8_t *b) {
     }
     case 0x55: return vds_window_surface(v, b[1], b[2]);
     case 0x56: return vds_window_scroll(v, b[1], b[2], b[3]);
-    case 0x57: return vds_window_close(v, b[1]);
+    case 0x57:
+        if (!vds_window_close(v, b[1])) return 0;
+        if (p->ui_forget) p->ui_forget(p->ui, b[1]);
+        return 1;
+    case 0x58: return p->ui_focus ? p->ui_focus(p->ui, b[1]) : 0;
     case 0x74: {
         uint16_t value = u16(b + 2);
         if (b[1] == 1) return value <= 255 && vds_set_snap(v, (uint8_t)value);

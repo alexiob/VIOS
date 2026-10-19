@@ -90,7 +90,9 @@ void vds_damage(vds *v, vds_rect r) {
 void vds_damage_all(vds *v) { v->ndamage = 0; vds_damage(v, rect(0, 0, v->width, v->height)); }
 
 static void damage_window(vds *v, uint8_t id) {
-    if (v->windows[id].flags & VDS_W_VISIBLE) vds_damage(v, vds_window_outer(v, id));
+    uint8_t f = v->windows[id].flags;
+    if ((f & (VDS_W_VISIBLE | VDS_W_MODAL)) == (VDS_W_VISIBLE | VDS_W_MODAL)) vds_damage_all(v);   /* dim changes */
+    else if (f & VDS_W_VISIBLE) vds_damage(v, vds_window_outer(v, id));
 }
 
 static void damage_surface(vds *v, uint8_t sid, int col, int row, int w, int h) {
@@ -276,6 +278,11 @@ static void compose(vds *v, int y, int x0, int x1) {
         vds_rect b = geom(v, w).body;
         if (has_row(b, y) && b.x <= x0 && b.x + b.w >= x1) start = i;
     }
+    int modal = -1;                                          /* topmost visible modal window */
+    for (int i = v->count - 1; i >= 0 && modal < 0; --i) {
+        const vds_window *w = &v->windows[v->order[i]];
+        if ((w->flags & (VDS_W_VISIBLE | VDS_W_MODAL)) == (VDS_W_VISIBLE | VDS_W_MODAL)) modal = i;
+    }
     if (start < 0) {
         uint8_t a = v->style.desktop_a, b = v->style.desktop_b;
         uint8_t pattern = (y & 1) ? (uint8_t)(a << 4 | b) : (uint8_t)(b << 4 | a);
@@ -284,6 +291,7 @@ static void compose(vds *v, int y, int x0, int x1) {
     }
     for (int i = start; i < v->count; ++i) {
         const vds_window *w = &v->windows[v->order[i]];
+        if (i == modal) shade(v, line(v), rect(x0, y, x1 - x0, 1), y, x0, x1);
         if (w->flags & VDS_W_VISIBLE) window_row(v, w, y, x0, x1);
     }
     for (unsigned i = 0; i < VDS_MAX_SPRITES; ++i) sprite_row(v, i, y, x0, x1);
@@ -512,6 +520,16 @@ int vds_window_raise(vds *v, uint8_t id) {
     while (v->order[i] != id) ++i;
     for (; i + 1 < v->count; ++i) v->order[i] = v->order[i + 1];
     v->order[v->count - 1] = id;
+    damage_window(v, id);
+    return 1;
+}
+
+int vds_window_lower(vds *v, uint8_t id) {
+    if (!window(v, id)) return 0;
+    unsigned i = 0;
+    while (v->order[i] != id) ++i;
+    for (; i > 0; --i) v->order[i] = v->order[i - 1];
+    v->order[0] = id;
     damage_window(v, id);
     return 1;
 }
