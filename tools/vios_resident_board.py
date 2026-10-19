@@ -288,3 +288,21 @@ class ResidentBoard(ViosBoard):
                 raise IOError('Malformed console row reply: ' + line)
             lines.append(line[8:])
         return {'rows': lines}
+
+    def esp_g0(self, mode=None, reset_gap=False):
+        """GUI gate G0 probe on the ESP: run it for VDP mode `mode` and return its lines,
+        or with reset_gap restart the VDP loop-gap maximum."""
+        if reset_gap:
+            return {'reply': self._esp(b'G0Z')}
+        if mode not in (0, 1, 129):
+            raise ValueError('mode must be 0, 1 or 129')
+        started = self._esp(b'G0%02X' % mode)
+        if started != 'G0 STARTED':
+            raise IOError(started)
+        deadline = time.monotonic() + 60
+        while self._esp(b'G0R0') == 'G0 BUSY':
+            if time.monotonic() > deadline:
+                raise TimeoutError('G0 probe did not finish')
+            time.sleep(0.5)
+        lines = [self._esp(b'G0R%d' % n)[4:] for n in range(6)]
+        return {'mode': mode, 'lines': [line for line in lines if line]}

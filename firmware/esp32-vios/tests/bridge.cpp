@@ -130,6 +130,12 @@ static void vios_zdi_read_memory(uint32_t address,unsigned n,uint8_t *data){
 struct {bool restarted=false;void restart(){restarted=true;}} ESP;
 #define VIOS_ZDI_EDGE_US 1 // Real transport lives in vios_zdi.h, faked above.
 static int64_t esp_timer_get_time(){return (int64_t)now*1000;}
+static bool g0_fake_busy;static int g0_fake_mode=-1;
+static bool vios_g0_request(uint8_t m){if(g0_fake_busy)return false;g0_fake_busy=true;g0_fake_mode=m;return true;}
+static bool vios_g0_busy(){return g0_fake_busy;}
+static void vios_g0_reset_gap(){}
+static uint32_t vios_g0_gap(){return 0;}
+static const char *vios_g0_line(unsigned n){return n==0?"G0 mode 0 fake":"";}
 static unsigned vios_console_row(unsigned y,char *out,unsigned capacity){return (unsigned)snprintf(out,capacity,"row %u",y);}
 #include "vios_bridge.h"
 static void note_usb(unsigned action){assert(usb_tx_mutex&&usb_tx_mutex->held);usb_actions.push_back(action);}
@@ -223,10 +229,13 @@ static void check_stage0_instrumentation(){
     for(unsigned i=1;i<=20;++i){vios_probe_glyph('A');vios_probe_key('B');vios_probe_key('A');now+=i;vios_probe_key('A');vios_probe_glyph('x');vios_probe_glyph('A');vios_probe_glyph('A');}
     assert(control_text("PR\n",78)=="PROBE n=20 min=1000 med=11000 p95=20000 max=20000\r\n");
     std::string stats=control_text("T\n",79);
-    assert(stats.rfind("STATS glyphs=80 ",0)==0&&stats.find(" injected=66 console_sync=0 console_queued=0\r\n")!=std::string::npos);
+    assert(stats.rfind("STATS glyphs=80 ",0)==0&&stats.find(" injected=66 console_sync=0 console_queued=0 loop_gap_max=0\r\n")!=std::string::npos);
     vios_usb_console_write((const uint8_t*)"abc",3);assert(console_out_drain(16)==1);output_frames();stats=control_text("T\n",80);
     assert(stats.find("console_bytes=3 console_writes=1 ")!=std::string::npos);
     assert(control_text("T0\n",81)=="STATS RESET\r\n"&&control_text("T\n",82).rfind("STATS glyphs=0 console_bytes=0",0)==0);
+    assert(control_text("G000\n",85)=="G0 STARTED\r\n"&&g0_fake_mode==0&&control_text("G081\n",86)=="ERR G0 busy\r\n");
+    assert(control_text("G0R0\n",87)=="G0 BUSY\r\n");g0_fake_busy=false;
+    assert(control_text("G0R0\n",88)=="G0R G0 mode 0 fake\r\n"&&control_text("G0Z\n",89)=="G0 GAP RESET\r\n");
     assert(control_text("CR05\n",83)=="CROW 05 row 5\r\n"&&control_text("CR3B\n",84).rfind("ERR",0)==0);
     probe_char.store(-1);
 }

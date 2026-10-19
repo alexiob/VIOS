@@ -1,0 +1,37 @@
+{
+ "idle": {
+  "loop_gap_max_us": 93,
+  "parser_max_us": 0,
+  "idle_baseline_us": 92
+ },
+ "typing": {
+  "loop_gap_max_us": 1051,
+  "parser_max_us": 325,
+  "idle_baseline_us": 91
+ },
+ "console_flood_1000": {
+  "loop_gap_max_us": 13391,
+  "parser_max_us": 13377,
+  "idle_baseline_us": 89
+ },
+ "wb_open": {
+  "loop_gap_max_us": 4773,
+  "parser_max_us": 4738,
+  "idle_baseline_us": 93
+ },
+ "wb_repaint": {
+  "loop_gap_max_us": 7885,
+  "parser_max_us": 4330,
+  "idle_baseline_us": 90
+ },
+ "wb_close": {
+  "loop_gap_max_us": 66214,
+  "parser_max_us": 66200,
+  "idle_baseline_us": 91
+ },
+ "wb_console_clear": {
+  "loop_gap_max_us": 5950,
+  "parser_max_us": 5100,
+  "idle_baseline_us": 93
+ }
+}

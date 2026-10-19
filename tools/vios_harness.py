@@ -87,6 +87,8 @@ TOOLS = [
          {'char':{'type':'string','minLength':1,'maxLength':1}}),
     tool('esp_console','Exact text of the VGA console as the ESP renders it (rows 0..57 plus the status row 58), read without disturbing the screen.',
          {'rows':{'type':'integer','minimum':1,'maximum':59}}),
+    tool('esp_g0','GUI windows gate G0 probe on the ESP: heap with compositor pools after a mode change (0, 1 or 129), and in mode 0 a 4 bpp blitter benchmark, the scanline map and a beam tear test. Draws probe glyphs, then restores mode 1 and the console. reset_gap=true restarts the VDP loop-gap maximum.',
+         {'mode':{'type':'integer','enum':[0,1,129]},'reset_gap':{'type':'boolean'}}),
     tool('esp_inject','Type 1..32 characters at the ESP PS/2 boundary as if on the Agon keyboard (printable, BS, TAB, CR, ESC). Lines typed this way appear in events.',
          {'text':{'type':'string','minLength':1,'maxLength':32}},['text']),
 ]

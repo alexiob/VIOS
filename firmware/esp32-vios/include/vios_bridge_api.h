@@ -39,3 +39,11 @@ void vios_console_view(uint8_t op);
 void vios_console_tick();
 /* Text of ESP console row y (0..57) without trailing spaces; status row 58. */
 unsigned vios_console_row(unsigned y,char *out,unsigned capacity);
+
+/* GUI windows gate G0 probe (vios_g0_probe.h). */
+void vios_g0_service();
+bool vios_g0_request(uint8_t mode);
+bool vios_g0_busy();
+void vios_g0_reset_gap();
+const char *vios_g0_line(unsigned n);
+uint32_t vios_g0_gap();

@@ -1,0 +1,20 @@
+{
+ "0": [
+  "G0 mode 0 videoMode 0 640x480 colours 16 pools ok",
+  "mode_only int_free=49160 int_largest=40948 psram_free=4176063",
+  "with_pools int_free=36856 int_largest=29684 psram_free=4137599",
+  "blit aligned_cells_per_ms=719 full_screen_us=6669 shifted_cells_per_ms=325 full_screen_us=14749",
+  "beam frame_us=16683 line_max=480 resets=3 lead_lines=2",
+  "tear full_4800: frames=60 torn=0 late_cell_rows=0 window_800: frames=60 torn=0 late_cell_rows=0 loop_gap_max_us=57982"
+ ],
+ "129": [
+  "G0 mode 129 videoMode 129 640x480 colours 4 pools ok",
+  "mode_only int_free=48600 int_largest=40948 psram_free=4187427",
+  "with_pools int_free=36296 int_largest=29684 psram_free=4148963"
+ ],
+ "1": [
+  "G0 mode 1 videoMode 1 640x480 colours 4 pools ok",
+  "mode_only int_free=125768 int_largest=110580 psram_free=4176063",
+  "with_pools int_free=113464 int_largest=98292 psram_free=4137599"
+ ]
+}

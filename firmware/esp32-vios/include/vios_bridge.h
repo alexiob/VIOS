@@ -107,7 +107,7 @@ void vios_probe_glyph(char c){
 void vios_parser_time(uint32_t us){stat_parser_us.fetch_add(us);stat_max(stat_parser_max,us);}
 static void stats_reset(){
     stat_glyphs=0;stat_console_bytes=0;stat_console_writes=0;stat_injected=0;
-    stat_usb_block_us=0;stat_usb_block_max=0;stat_parser_us=0;stat_parser_max=0;stat_console_sync=0;
+    stat_usb_block_us=0;stat_usb_block_max=0;stat_parser_us=0;stat_parser_max=0;stat_console_sync=0;vios_g0_reset_gap();
 }
 static void probe_report(char *line,size_t size){
     unsigned n=probe_count.load();uint32_t sorted[PROBE_SAMPLES];
@@ -281,11 +281,11 @@ static void control_command(uint16_t sequence,const char *command,size_t length)
     // Stage 0 instrumentation; safe while the CPU runs.
     uint32_t stage0_value;
     if(length==1&&command[0]=='T'){
-        snprintf(reply,sizeof reply,"STATS glyphs=%lu console_bytes=%lu console_writes=%lu usb_block_us=%lu usb_block_max=%lu parser_us=%lu parser_max=%lu injected=%lu console_sync=%lu console_queued=%u\r\n",
+        snprintf(reply,sizeof reply,"STATS glyphs=%lu console_bytes=%lu console_writes=%lu usb_block_us=%lu usb_block_max=%lu parser_us=%lu parser_max=%lu injected=%lu console_sync=%lu console_queued=%u loop_gap_max=%lu\r\n",
             (unsigned long)stat_glyphs.load(),(unsigned long)stat_console_bytes.load(),(unsigned long)stat_console_writes.load(),
             (unsigned long)stat_usb_block_us.load(),(unsigned long)stat_usb_block_max.load(),(unsigned long)stat_parser_us.load(),
             (unsigned long)stat_parser_max.load(),(unsigned long)stat_injected.load(),(unsigned long)stat_console_sync.load(),
-            console_out_queue?(unsigned)uxQueueMessagesWaiting(console_out_queue):0u);
+            console_out_queue?(unsigned)uxQueueMessagesWaiting(console_out_queue):0u,(unsigned long)vios_g0_gap());
         control_reply(sequence,reply);return;
     }
     if(length==2&&command[0]=='T'&&command[1]=='0'){stats_reset();control_reply(sequence,"STATS RESET\r\n");return;}
@@ -294,6 +294,15 @@ static void control_command(uint16_t sequence,const char *command,size_t length)
         control_reply(sequence,"PROBE ARMED\r\n");return;
     }
     if(length==2&&command[0]=='P'&&command[1]=='R'){probe_report(reply,sizeof reply);control_reply(sequence,reply);return;}
+    // GUI gate G0 probe: G0<mm> runs it on the VDP task, G0R<n> reads result line n, G0Z resets the loop gap.
+    if(length==4&&command[0]=='G'&&command[1]=='0'&&parse_hex(command+2,2,&stage0_value)){
+        control_reply(sequence,vios_g0_request((uint8_t)stage0_value)?"G0 STARTED\r\n":"ERR G0 busy\r\n");return;
+    }
+    if(length==3&&command[0]=='G'&&command[1]=='0'&&command[2]=='Z'){vios_g0_reset_gap();control_reply(sequence,"G0 GAP RESET\r\n");return;}
+    if(length==4&&command[0]=='G'&&command[1]=='0'&&command[2]=='R'&&command[3]>='0'&&command[3]<='5'){
+        if(vios_g0_busy()){control_reply(sequence,"G0 BUSY\r\n");return;}
+        snprintf(reply,sizeof reply,"G0R %s\r\n",vios_g0_line((unsigned)(command[3]-'0')));control_reply(sequence,reply);return;
+    }
     // Exact console text from the ESP terminal (no pixel matching), row hh 00..3A.
     if(length==4&&command[0]=='C'&&command[1]=='R'&&parse_hex(command+2,2,&stage0_value)&&stage0_value<=58){
         char text[96];vios_console_row((unsigned)stage0_value,text,sizeof text);
