@@ -24,7 +24,13 @@ static inline int vios_colour_source(uint8_t index) {
     if (index < 64) return 0;
     return index >= 128 && index <= 131 ? index - 127 : -1;
 }
-/* &99 reply, packet 0x01 (PACKET_KEYCODE): ascii, modifiers, vk, down. */
-static inline unsigned vios_key_state_reply(uint8_t *out, uint8_t vk, bool down) {
-    out[0] = 0; out[1] = 0; out[2] = vk; out[3] = down ? 1 : 0; return 4;
+/* Modifier byte of keyboard packets (agon_ps2.h): ctrl, shift, left alt,
+ * right alt, caps lock, num lock, scroll lock, GUI from bit 0 up. */
+static inline uint8_t vios_key_modifiers(bool ctrl, bool shift, bool lalt, bool ralt, bool caps, bool num, bool scroll, bool gui) {
+    return (uint8_t)(ctrl << 0 | shift << 1 | lalt << 2 | ralt << 3 | caps << 4 | num << 5 | scroll << 6 | gui << 7);
+}
+/* &99 reply, packet 0x01 (PACKET_KEYCODE): ascii, modifiers, vk, down, as the
+ * keyboard driver reports an injected key in 2.16.0. */
+static inline unsigned vios_key_state_reply(uint8_t *out, uint8_t ascii, uint8_t modifiers, uint8_t vk, bool down) {
+    out[0] = ascii; out[1] = modifiers; out[2] = vk; out[3] = down ? 1 : 0; return 4;
 }
