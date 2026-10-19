@@ -586,3 +586,26 @@ between G1 and G2.
    by `tools/gui_mockup.py`).
 5. **G0: approved.** It is handed to the session that owns the board and the ESP
    GUI work.
+
+---
+
+## G0 results (measured on the board, 2026-10-19)
+
+Full report: `docs/bring-up/vios-gui-g0-2026-10-19.md` (commit 308c464).
+
+| Gate | Result | Verdict |
+| --- | --- | --- |
+| Internal heap, mode 0, with pools | 36,856 B free, largest block 29,684 B | pass (floor 24 KB) |
+| Mode 129 / mode 1, with pools | 36,296 B / 113,464 B free | reference |
+| 4 bpp LUT blitter, aligned (§5.4) | 719 cells/ms, full screen 6.7 ms (estimate ~2 ms) | measured |
+| Free-x proxy (§5.2) | 325 cells/ms, full screen 14.7 ms | snap 8 default confirmed |
+| Beam (§5.5) | frame 16,683 us; ISR counter 0..480; lead 2 lines | as modelled |
+| Tear test, beam order from vblank, 60 frames each | 0 torn: full screen and 40x20 window | pass: mode 0 single-buffered; no mode 129 fallback |
+| VDP loop gap (vblank -> compositor start) | idle 0.09 ms, typing 1.1, repaint 7.9, console flood 13.4, **WB-CLOSE 66.2 ms** | G1 constraint |
+
+**G1 constraint from G0:** one VDU command can block the VDP loop for 66 ms
+(the Stage 1c console `show()` queues ~4,600 fabgl glyph primitives). G1 must
+draw surfaces with the direct blitter instead of fabgl primitives (a full
+console redraw is ~6.5 ms at the measured rate), bound per-command work and
+split large redraws across frames, and start frames from the vertical-blank
+notification instead of a loop poll.
