@@ -64,11 +64,51 @@ an optional pixel backing (A) for bitmap-heavy windows. Window *frames* are
 positioned in pixels, so windows overlap, cast shadows and move smoothly, while
 their text stays crisp on the 8×8 font grid.
 
-**Default theme:** Turbo Vision's visual language, with frames, title bars, drop
-shadows, a menu bar and a status line, rendered with real pixels: 1-pixel frames,
-a soft shadow and a focus ring. It also takes features from current open-source TUIs,
-such as Turbo Vision's magiblot port, Textual, notcurses and ratatui: a command
-palette, constraint layouts, themes and an always-visible focus indicator.
+**Look: Smalltalk by default, Turbo Vision as an alternative** (owner decision,
+§16). See [§2.1](#21-two-presentation-styles-one-toolkit).
+
+### 2.1 Two presentation styles, one toolkit
+
+Both styles run on the same compositor, widgets, command table, events and
+keyboard model. A *style* changes only how windows are decorated and how commands
+are presented:
+
+| Aspect | Smalltalk (default) | Turbo Vision |
+|---|---|---|
+| Desktop | Grey dithered pattern | Blue dithered pattern |
+| Window frame | 1 px black border (2 px when focused), white body | Double pixel frame on a blue body |
+| Title | Tab on the top-left edge | Centred in the top frame, with close and zoom boxes |
+| Shadow | Soft 4 px pixel shadow | 2-cell × 1-cell translucent drop shadow |
+| Selection | Inverted (black) in the focused pane, grey elsewhere | Green bar |
+| Commands | **Pop-up menus:** a per-pane menu (Shift+F10 or the Menu key) and a world menu (F10) | **Menu bar** with pulldowns (F10, Alt+letter) and a status line of key hints |
+| Typical tools | Multi-pane browsers (modules / categories / words / views over source), workspace, transcript, inspector | Editor windows, dialogs, lists |
+
+**Commands are defined once.** The CPU's command table (`CMD`/`MENU`) has the
+labels, accelerators and enabled state. The ESP presents the same tree as a menu
+bar (Turbo Vision) or as world and pane pop-ups (Smalltalk). Accelerators, the
+command palette, the CLI and MCP all invoke the same command ids in either style.
+
+**Memory and selection.**
+
+- A style is about 80 bytes of data (16 palette entries, 16 shade entries,
+  roughly 40 bytes of decoration parameters) plus its decoration and menu
+  presentation code.
+- *Estimate:* under 1 KB of ESP internal RAM for both styles together, and
+  6–10 KB of flash each. App0 flash has about 590 KB free (*measured* 716,752 B
+  of 1,310,720 B).
+- The CPU stores only the selected style id.
+- So **both styles are compiled in by default and switchable at run time**,
+  with `CONFIG style 0|1` and the Forth word `UI-STYLE`. A switch re-decorates
+  and repaints every window; no window state is lost.
+- Build flags `VIOS_UI_STYLE_SMALLTALK` and `VIOS_UI_STYLE_TURBO` (both on by
+  default) can drop a style if flash ever gets tight; the build fails if both are
+  off.
+- Each style ships with its own default palette. Indices 0–3 stay pinned in both
+  (§3).
+
+From current open-source TUIs (Turbo Vision's magiblot port, Textual, notcurses,
+ratatui), both styles take a command palette, constraint layouts, theming and an
+always-visible focus indicator.
 
 ---
 
@@ -343,7 +383,8 @@ resolves keys in this order:
 
 | Key | Action |
 |---|---|
-| F10, Alt alone | Activate the menu bar |
+| F10, Alt alone | Activate the menu bar (Turbo Vision) or open the world menu (Smalltalk) |
+| Shift+F10, Menu key | Pop-up menu for the focused pane or widget (both styles) |
 | Alt+letter | Open the menu, or press the control whose mnemonic is underlined |
 | ←/→, ↑/↓, Enter, Esc (in menus) | Move between menus, move between items, choose, close one level |
 | Tab, Shift+Tab | Next and previous control in the window's focus chain |
@@ -457,7 +498,7 @@ an op says cells. u16 values are little-endian.
 | `71 ANIMSTOP id prop` | Stop a tween |
 | `72 THEME role colour` | Theme role → palette index |
 | `73 SHADE idx shade-idx` | Entry in the shadow lookup table |
-| `74 CONFIG key value(u16)` | Compositor settings, e.g. `snap_x` (8 or 1) |
+| `74 CONFIG key value(u16)` | Compositor settings, e.g. `snap_x` (8 or 1), `style` (0 Smalltalk, 1 Turbo Vision) |
 
 New `F0` event kinds: `10 WIN`, `11 COMMAND`, `12 ANIMDONE`, `13 DRAG`. `07 POINTER`
 gains the window id and window-local coordinates.
@@ -502,8 +543,8 @@ Effort figures are rough, for one focused developer-agent.
 |---|---|---|---|
 | **G0: gates** | Heap after mode 0/129/1 with pools; 4 bpp blitter microbenchmark; vertical-blank hook prototype racing the beam; vertical-blank → compositor-start latency and ISR line lead | Heap ≥ 24 KB free in the chosen mode; blitter cells/ms measured; tear test passes or the fallback is chosen | 1–2 days |
 | **G1: compositor core** (replaces old 1b) | Mode 0 with palette 0–3 pinned; acceptance tools updated for 16 colours; windows plus cell surfaces, dirty rects, occlusion, shade table, pixel frames, 60 Hz frame loop; console and editor become two windows; `RAW` hand-back kept | B4 parity or better; B12; console acceptance unchanged | 1–2 weeks |
-| **G2: window manager** | Decorations, move/resize/raise/min/max, keyboard WM mode, focus cycling, modal dialogs, `WIN` events, geometry in `UI-SNAPSHOT` | B10; all §8 window keys | 1–2 weeks |
-| **G3: commands and menus** | Command table, menu bar, pulldowns, context menu, accelerators, mnemonics, palette, status line; workbench actions exposed as commands | B11; every workbench action reachable by menu, accelerator and palette | 1–2 weeks |
+| **G2: window manager** | Both decoration styles, switchable at run time; move/resize/raise/min/max, keyboard WM mode, focus cycling, modal dialogs, `WIN` events, geometry in `UI-SNAPSHOT` | B10; all §8 window keys | 1–2 weeks |
+| **G3: commands and menus** | Command table presented as world/pane pop-ups (Smalltalk) and as a menu bar with pulldowns (Turbo Vision); context menu, accelerators, mnemonics, palette, status line; workbench actions exposed as commands | B11; every workbench action reachable by menu, accelerator and palette | 1–2 weeks |
 | **G4: widgets and client** | Widget set and layout (§7); `kernel/vios_ui.c`; `UI` vocabulary; `/dev/win`; workbench panes ported (old Stage 3) | B7 and B14; CPU RAM reclaim per §11 | 2–3 weeks |
 | **G5: animation and graphics** | Tween engine, palette animation, Canvas display lists, sprites, icons via `A0` buffers | B13 | 1 week |
 | **G6: pointer** | Keyboard pointer and host injection first; physical mouse in the `user` build after the owner decides (§10) | Pointer B10/B11 variants; recovery behaviour documented | 3–5 days plus wiring |
@@ -537,11 +578,11 @@ between G1 and G2.
    injection until the owner revisits the hardware trade.
 3. **Horizontal snap: both, by configuration.** 8 px is the default, with free x
    available (§5.2).
-4. **Look: to be evaluated visually.** The owner suspects a Smalltalk-style look
-   may suit graphics mode better than Turbo Vision. Host-rendered mockups of both
-   at 640×480 in 16 colours, with the device's own 8×8 font, are in
-   [`docs/gui/mockups/`](../../gui/mockups/), produced by `tools/gui_mockup.py`.
-   Themes are data (`THEME`/`SHADE` ops plus decoration style), so G1/G2 do not
-   depend on this choice; the default theme is chosen before G2 ships.
+4. **Look: decided.** Smalltalk-style graphical UI is the default. Turbo Vision
+   stays available: both are compiled in and switchable at run time, because the
+   RAM cost is under 1 KB, and a build flag can drop either one (§2.1). The
+   choice was made from host-rendered mockups at 640×480 in 16 colours with the
+   device's own 8×8 font, in [`docs/gui/mockups/`](../../gui/mockups/) (produced
+   by `tools/gui_mockup.py`).
 5. **G0: approved.** It is handed to the session that owns the board and the ESP
    GUI work.
