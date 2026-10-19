@@ -68,3 +68,7 @@ unsigned vios_gui_status(char *out,unsigned capacity);
 bool vios_gui_key(uint8_t ascii,uint8_t modifiers,uint8_t vk,uint8_t down);
 int vios_gui_pixel(unsigned x,unsigned y);
 void vios_gui_batch(const uint8_t *payload,size_t length);
+
+/* Stage 2a cooked line editing on the ESP (vios_line.h, glue in vios_bridge.h). */
+void vios_line_mode(uint8_t flags);                       // VDU 23,0,E7,flags
+bool vios_line_key(uint8_t ascii,uint8_t vk,uint8_t down); // true: consumed, do not send 0x81

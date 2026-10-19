@@ -23,6 +23,10 @@ extern "C" {
 /* VIOS display setup: op 0 selects 640x480 16 colours (VDP mode 0) with logical
  * colours 0-3 pinned to mode 1's black/red/yellow/white, then reports the mode. */
 #define VIOS_VDU_DISPLAY 0xE6
+/* Physical line editing on the ESP (Stage 2a): flags bit 0 = the CPU awaits a
+ * line (REPL line mode), bit 1 = keys are routed raw to a CPU application
+ * (workbench). The ESP edits only when bit 0 is set and bit 1 is clear. */
+#define VIOS_VDU_LINE_MODE 0xE7
 #define VIOS_PACKET_CONSOLE 0xFE
 #define VIOS_PACKET_CLOCK 0xFD
 #define VIOS_PACKET_HOST 0xFC
