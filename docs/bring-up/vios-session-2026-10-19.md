@@ -20,7 +20,7 @@ restored with `tools/vios_fast_display_state.py` after flashes.
 | Host tools | snapshot, resync, complete/help, module_graph, develop, describe, events, sd_list/put/get, trace, last_error | 216 host tests |
 | Soak 1 | 342 clean mixed-load iterations (31.9 min, 0 console drops), then 3 bytes lost inside one 1-char USB console frame (open issue #2); harness failed closed | `vios-soak-2026-10-19.json` |
 | Echo coalescing | per-character echo held while input streams; REPL round trip 77.6 -> 35.9 ms; `resync` recovers wire loss without reboot | `vios-tasks-regress-2026-10-19.json` |
-| Soak 2 | rerun on the coalescing firmware | `vios-soak-2026-10-19b.json` |
+| Soak 2 | **passed**: 558 iterations / 45.1 min, 0 console drops, no wire loss (median iteration 4.8 s vs 5.5 s before). The VGA view's 512-byte ring dropped display-only output under continuous host traffic (expected; USB stream intact) | `vios-soak-2026-10-19b.json` |
 
 ## Questions and physical tests for the owner
 
