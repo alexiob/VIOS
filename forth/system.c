@@ -97,6 +97,31 @@ static struct {
 } foreground;
 static int running=-1,scheduling,yield_request;
 static fcell task_slice=FORTH_TASK_SLICE; /* instructions per background slice */
+/* Tick-sliced preemption at VM safe points (docs/superpowers/specs/
+ * 2026-10-19-vios-tasks.md, option B, stage B2). The board's tick ISR counts
+ * down the delay planned here; when it expires it moves fvm_budget into
+ * forth_budget_stolen, zeroes fvm_budget and sets forth_tick_pending, and
+ * repeats that on every later tick until the next plan (a steal lost to the
+ * engine's budget store is retried). The engine then stops before its next
+ * fetch with FE_BUDGET, and dispatch() turns that into a switch: a background
+ * slice ends, the foreground runs one scheduler round. The engine is unchanged.
+ * Without a registered arm hook (host builds, ZDI boots) nothing changes. */
+volatile unsigned char forth_tick_pending;
+volatile fcell forth_budget_stolen;
+static void (*preempt_arm)(unsigned delay_ms);  /* 0 disarms */
+static void (*tick_source)(void);                /* host tests: simulated ticks */
+static int (*interrupt_poll)(void);              /* Ctrl-C, checked at foreground ticks */
+#define PREEMPT_INTERRUPT_MS 50u                 /* foreground Ctrl-C check when nothing else is due */
+static unsigned char preempt_on=1,critical;
+static uint32_t preemptions,ticks_ignored;
+#define PREEMPT_SLICE_MS 4u                      /* a background slice */
+#define PREEMPT_QUANTUM_MS 4u                    /* foreground, while a task is ready */
+static void preempt_plan(void);
+static int tasks_live(void);
+static void preempt_clear(void){forth_tick_pending=0;forth_budget_stolen=0;}
+/* Take back a pending steal before C saves or replaces fvm_budget: the ISR
+ * keeps stealing until the next plan, also while C runs (gate, KEY, MS). */
+static void preempt_reclaim(void){if(forth_tick_pending&&forth_budget_stolen)fvm_budget=forth_budget_stolen;preempt_clear();}
 /* TRACE: foreground single-stepping via one-instruction budgets. */
 static uint32_t trace_left,trace_steps;static int tracing;
 static void trace_step(void);
@@ -284,6 +309,19 @@ static int dispatch(void) {
 #else
   result=fvm_reference_run();
 #endif
+  if(fvm_error==FE_BUDGET&&forth_tick_pending){
+   fcell stolen=forth_budget_stolen;preempt_clear();
+   if(stolen){   /* a tick, not real exhaustion: resume with the exact budget */
+    fvm_error=0;fvm_budget=stolen;
+    if(running<0&&interrupt_poll&&interrupt_poll()){preempt_plan();return fail("interrupted");}
+    if(!critical&&!tracing&&!transaction_active&&!observer_active){
+     if(running>=0){++preemptions;return 2;}
+     if(!scheduling&&current<0&&tasks_live()){++preemptions;if(preempt_arm)preempt_arm(0);forth_tasks_run();}
+     else ++ticks_ignored;
+    }else ++ticks_ignored;
+    preempt_plan();if(tick_source)tick_source();continue;
+   }
+  }
   if(transaction_active)transaction_budget=fvm_budget;
   if(observer_active)observer_budget=fvm_budget;
   if(running>=0&&fvm_error==FE_BUDGET){fvm_error=0;return 2;}
@@ -319,12 +357,17 @@ static int dispatch(void) {
   else if(!fvm_complex(code))return fail(vm_message());
   if(fvm_error)return fail(vm_message());
   if(running>=0&&yield_request){yield_request=0;return 2;}
+  if(tick_source)tick_source();
  }
 }
 static int execute_index(unsigned n) {
  fvm_error=0;fvm_rdepth=fvm_ldepth=0;
+ /* Clear before the budget is set: a steal after this is a pending tick, a
+  * steal before it is overwritten (never a budget left at 0 with no tick). */
+ preempt_clear();
  fvm_budget=observer_active?observer_budget:transaction_active?transaction_budget:1000000UL;
- fvm_ip=entry_ip(n);++executing;int result=dispatch();--executing;return result;
+ fvm_ip=entry_ip(n);++executing;preempt_plan();if(tick_source)tick_source();
+ int result=dispatch();--executing;preempt_plan();return result;
 }
 static void out(unsigned char c) {
  if(running<0||tasks[running].console){platform_console_putc(c);return;}
@@ -347,6 +390,7 @@ static void task_exited(unsigned id){if(task_exit_hook)task_exit_hook(id+1);}
 static void cells(fcell *to,const fcell *from,fcell n){for(fcell i=0;i<n;++i)to[i]=from[i];}
 static void run_slice(unsigned id) {
  struct task *t=&tasks[id];
+ if(preempt_arm)preempt_arm(0);preempt_reclaim();   /* the foreground's real budget, not a stolen 0 */
  foreground.depth=fvm_depth;foreground.rdepth=fvm_rdepth;foreground.ldepth=fvm_ldepth;foreground.ip=fvm_ip;
  foreground.error=fvm_error;foreground.budget=fvm_budget;foreground.ds_peak=fvm_ds_peak;foreground.rs_peak=fvm_rs_peak;
  cells(foreground.ds,fvm_ds,fvm_depth);cells(foreground.rs,fvm_rs,fvm_rdepth);cells(foreground.loops,fvm_loops,fvm_ldepth*2);
@@ -354,7 +398,8 @@ static void run_slice(unsigned id) {
  cells(fvm_ds,t->ds,t->depth);cells(fvm_rs,t->rs,t->rdepth);cells(fvm_loops,t->loops,t->ldepth*2);
  fvm_depth=t->depth;fvm_rdepth=t->rdepth;fvm_ldepth=t->ldepth;fvm_ip=t->ip;fvm_error=0;fvm_budget=task_slice;
  fvm_ds_peak=t->ds_peak;fvm_rs_peak=t->rs_peak;error_text[0]=0;
- running=(int)id;yield_request=0;int result=dispatch();running=-1;
+ running=(int)id;yield_request=0;preempt_clear();fvm_budget=task_slice;preempt_plan();if(tick_source)tick_source();
+ int result=dispatch();running=-1;preempt_clear();
  t->steps+=task_slice-fvm_budget;++t->slices;t->ds_peak=fvm_ds_peak;t->rs_peak=fvm_rs_peak;
  if(t->state==TS_KILLED){}
  else if(result==1&&t->out_handle&&t->out_count)t->finishing=1; /* drain, then done */
@@ -387,7 +432,37 @@ unsigned forth_tasks_run(void) {
   if(t->out_handle&&t->out_count>=OUT_HIGH)continue; /* consumer is behind: backpressure */
   run_slice(id);++ran;task_flush(id);
  }
- next_task=(next_task+1)%FORTH_TASKS_MAX;scheduling=0;return ran;
+ next_task=(next_task+1)%FORTH_TASKS_MAX;scheduling=0;preempt_plan();return ran;
+}
+/* Plan the next tick steal: a running slice ends after PREEMPT_SLICE_MS; the
+ * foreground is interrupted only when a task is ready (every
+ * PREEMPT_QUANTUM_MS) or a sleeper's wake time comes, so a foreground with
+ * nothing to share runs untouched. */
+static void preempt_plan(void){
+ if(!preempt_arm)return;
+ if(!preempt_on){preempt_arm(0);return;}
+ if(running>=0){preempt_arm(PREEMPT_SLICE_MS);return;}
+ uint32_t now=now_ms();unsigned delay=interrupt_poll&&executing?PREEMPT_INTERRUPT_MS:0;
+ for(unsigned i=0;i<FORTH_TASKS_MAX;++i){
+  unsigned d=0;
+  if(tasks[i].state==TS_READY)d=PREEMPT_QUANTUM_MS;
+  else if(tasks[i].state==TS_SLEEPING){int32_t w=(int32_t)(tasks[i].wake-now);d=w<=0?1u:w>60000?60000u:(unsigned)w;}
+  if(d&&(!delay||d<delay))delay=d;
+ }
+ preempt_arm(delay);
+}
+void forth_register_preempt(void (*arm)(unsigned delay_ms)){preempt_arm=arm;preempt_clear();preempt_plan();}
+void forth_register_tick_source(void (*hook)(void)){tick_source=hook;}
+void forth_register_interrupt(int (*poll)(void)){interrupt_poll=poll;}
+static int native_preempt(void){fcell f=fvm_pop();if(fvm_error)return fail(vm_message());preempt_on=f!=0;preempt_plan();return 1;}
+static int native_critical_begin(void){if(critical==255)return fail("CRITICAL( nested too deep");++critical;return 1;}
+static int native_critical_end(void){if(critical)--critical;return 1;}
+static int native_preempt_stats(void){
+ const char *s="preempt ";for(;*s;++s)out((unsigned char)*s);
+ s=preempt_arm?(preempt_on?"on":"off"):"none";for(;*s;++s)out((unsigned char)*s);
+ s=" switches ";for(;*s;++s)out((unsigned char)*s);number((fcell)preemptions);
+ s="ignored ";for(;*s;++s)out((unsigned char)*s);number((fcell)ticks_ignored);
+ s="critical ";for(;*s;++s)out((unsigned char)*s);number(critical);out('\r');out('\n');return 1;
 }
 void forth_register_clock(uint32_t (*hook)(void)){clock_hook=hook;}
 void forth_register_task_gate(int (*gate)(void)){task_gate=gate;}
@@ -438,7 +513,7 @@ static unsigned task_start(fcell xt,int console,unsigned in_handle,unsigned out_
   t->xt=xt;t->depth=t->rdepth=t->ldepth=0;t->ip=entry_ip((unsigned)(xt-1));t->ds_peak=t->rs_peak=0;
   t->wake=t->slices=t->steps=0;t->out_head=t->out_count=0;t->out_dropped=0;t->error[0]=0;t->console=(unsigned char)console;
   t->in_handle=(unsigned char)in_handle;t->out_handle=(unsigned char)out_handle;t->finishing=0;t->state=TS_READY;
-  return i+1;
+  preempt_plan();return i+1;   /* a ready task: arm the foreground quantum now */
  }
  return 0;
 }
@@ -495,7 +570,14 @@ static int native_pause(void) {if(running>=0)yield_request=1;else forth_tasks_ru
 static int native_ms(void) {
  fcell ms=fvm_pop();if(fvm_error)return fail(vm_message());uint32_t deadline=now_ms()+ms;
  if(running>=0){tasks[running].wake=deadline;tasks[running].state=TS_SLEEPING;yield_request=1;return 1;}
- while((int32_t)(now_ms()-deadline)<0)forth_tasks_run();return 1;
+ while((int32_t)(now_ms()-deadline)<0){if(interrupt_poll&&interrupt_poll())return fail("interrupted");forth_tasks_run();}return 1;
+}
+/* FRAME-WAIT: sleep to the next 60 Hz frame boundary (multiples of 50/3 ms
+ * on the task clock), so a render task wakes at a steady rate. */
+static int native_frame_wait(void) {
+ uint32_t now=now_ms(),deadline=(((now*3u)/50u+1u)*50u+2u)/3u;   /* rounded up: never before the boundary */if((int32_t)(deadline-now)<=0)++deadline;
+ if(running>=0){tasks[running].wake=deadline;tasks[running].state=TS_SLEEPING;yield_request=1;return 1;}
+ while((int32_t)(now_ms()-deadline)<0){if(interrupt_poll&&interrupt_poll())return fail("interrupted");forth_tasks_run();}return 1;
 }
 static int native_kill(void) {
  fcell id=fvm_pop();if(fvm_error)return fail(vm_message());if(!task_id(id))return 0;
@@ -892,6 +974,10 @@ void forth_init(void) {
  forth_register_native("SPAWN",native_spawn,FORTH_NATIVE_TASK);forth_register_native("SPAWN-CON",native_spawn_console,FORTH_NATIVE_TASK);forth_register_native("PAUSE",native_pause,FORTH_NATIVE_TASK);
  forth_register_native("MS",native_ms,FORTH_NATIVE_TASK);forth_register_native("TASK-KILL",native_kill,FORTH_NATIVE_TASK);
  forth_register_native("TASK-STATE",native_state,FORTH_NATIVE_TASK);
+ critical=0;preemptions=ticks_ignored=0;preempt_clear();
+ forth_register_native("PREEMPT",native_preempt,FORTH_NATIVE_TASK);forth_register_native("PREEMPT-STATS",native_preempt_stats,FORTH_NATIVE_TASK);
+ forth_register_native("FRAME-WAIT",native_frame_wait,FORTH_NATIVE_TASK);
+ forth_register_native("CRITICAL(",native_critical_begin,FORTH_NATIVE_TASK);forth_register_native(")CRITICAL",native_critical_end,FORTH_NATIVE_TASK);
  forth_register_native("TASK-INPUT",native_task_input,FORTH_NATIVE_TASK);forth_register_native("TASK-OUTPUT",native_task_output,FORTH_NATIVE_TASK);
  forth_eval(": 1+ 1 + ; : 1- 1 - ; : NEGATE 0 SWAP - ; : 2DUP OVER OVER ; : 2DROP DROP DROP ; : CELLS 3 * ; : CELL+ 3 + ; : TRUE -1 ; : FALSE 0 ; : HEX 16 BASE ! ; : DECIMAL 10 BASE ! ;");
 }

@@ -75,6 +75,26 @@ class SdInstallTests(unittest.TestCase):
         self.assertEqual(self.install()[0], 0)
         self.assertEqual((self.card/'autoexec.txt').read_bytes(), b'viosboot\r\n')
 
+    def test_an_obey_boot_file_gets_viosboot_too(self):
+        # MOS 3 runs the first of !boot.obey, autoexec.obey, autoexec.txt: with
+        # an obey file present, autoexec.txt alone would never start VIOS.
+        (self.card/'autoexec.obey').write_bytes(b'SET KEYBOARD 1\r\n')
+        (self.card/'!BOOT.OBEY').write_bytes(b'CD /bin\r\n')
+        code, report = self.install()
+        self.assertEqual((code, report['mos3_boot_file']), (0, '!BOOT.OBEY'))
+        self.assertEqual((self.card/'!BOOT.OBEY').read_bytes(), b'CD /bin\r\nviosboot\r\n')
+        self.assertEqual((self.card/'!BOOT.OBEY.vios-backup').read_bytes(), b'CD /bin\r\n')
+        self.assertEqual((self.card/'autoexec.obey').read_bytes(), b'SET KEYBOARD 1\r\n')       # MOS 3 never reaches it
+        self.assertIn(b'viosboot', (self.card/'AUTOEXEC.TXT').read_bytes())                   # MOS 1.x
+        self.assertEqual(self.run_tool('check', self.card)[1]['problems'], [])
+        (self.card/'!BOOT.OBEY').write_bytes(b'CD /bin\r\n')
+        self.assertEqual(self.run_tool('check', self.card)[1]['problems'], ['!boot.obey does not run viosboot'])
+
+    def test_no_obey_file_is_created(self):
+        code, report = self.install()
+        self.assertEqual((code, report['mos3_boot_file']), (0, 'AUTOEXEC.TXT'))
+        self.assertFalse(any(p.name.lower().endswith('.obey') for p in self.card.iterdir()))
+
     def test_dry_run_writes_nothing(self):
         before = sorted((p.relative_to(self.card), p.read_bytes()) for p in self.card.rglob('*') if p.is_file())
         code, report = self.install('--dry-run')

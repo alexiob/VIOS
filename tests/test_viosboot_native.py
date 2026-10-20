@@ -179,7 +179,7 @@ class Esp:
         self.rx.append(value)
         while True:                        # VDU 23,0,E8,op[,lo,hi,n]
             if len(self.rx) >= 4 and self.rx[:3] == b'\x17\x00\xe8':
-                need = 7 if self.rx[3] == 1 else 4
+                need = {1: 7, 3: 5}.get(self.rx[3], 4)
                 if len(self.rx) < need:
                     return
                 self.request(self.rx[3], bytes(self.rx[4:need]))
@@ -277,7 +277,7 @@ class Stub(UARTCPU):
 class ViosBootStubTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.stubs = {burst: build(burst) for burst in (1, 4)}
+        cls.stubs = {burst: build(burst) for burst in (1, 4, 32)}   # 32: the Makefile default
         cls.image = make_image(3000)
         cls.sd = {'/vios/vios.man': manifest(cls.image), '/vios/vios.bin': cls.image}
 
@@ -314,7 +314,7 @@ class ViosBootStubTests(unittest.TestCase):
         result, cpu = self.boot(esp, sd={})
         self.assert_vios(result, cpu)
         blocks = (len(self.image)+BLOCK-1)//BLOCK
-        self.assertEqual(esp.requests, [(2, b''), (0, b'')] + [(1, bytes((i, 0, 1))) for i in range(blocks)])
+        self.assertEqual(esp.requests, [(2, b''), (0, b'')] + [(1, bytes((i, 0, 1))) for i in range(blocks)] + [(3, b'\x01')])   # source: ESP
         self.assertEqual((esp.cpu_divisor, esp.esp_divisor, esp.garbled), (1, 1, 0))   # both at 1152000, nothing lost
         self.assertEqual(esp.overruns, 0)
         self.assertLessEqual(esp.sent_while_rts_low, len(esp.requests), 'at most one character after each RTS drop')
@@ -332,6 +332,16 @@ class ViosBootStubTests(unittest.TestCase):
             self.assertEqual(sum(counts), (size+BLOCK-1)//BLOCK)   # never asks past the end
             self.assertTrue(all(c == 4 for c in counts[:-1]))
 
+    def test_the_default_burst_of_32(self):
+        esp = Esp(self.image, corrupt={40})
+        result, cpu = self.boot(esp, sd={}, burst=32)
+        self.assert_vios(result, cpu)
+        self.assertEqual(esp.overruns, 0)
+        counts = [args[2] for op, args in esp.requests if op == 1]
+        self.assertEqual(counts[0], min(32, (len(self.image)+BLOCK-1)//BLOCK))
+        self.assertTrue(all(c <= 32 for c in counts))
+        self.assertEqual(esp.requests[-1], (3, b'\x01'))
+
     def test_a_corrupted_block_is_asked_for_again(self):
         esp = Esp(self.image, corrupt={2, 7}, garbage=True)
         result, cpu = self.boot(esp, sd={})
@@ -341,19 +351,23 @@ class ViosBootStubTests(unittest.TestCase):
         self.assertEqual(indices.count(7), 2)
 
     def test_silent_esp_falls_back_to_the_sd_image(self):
-        result, cpu = self.boot(Esp(self.image, silent=True), sd=self.sd)
+        esp = Esp(self.image, silent=True)
+        result, cpu = self.boot(esp, sd=self.sd)
         self.assert_vios(result, cpu)
         self.assertIn(b'no ESP image', cpu.console)
+        self.assertEqual(esp.requests[-1], (3, b'\x02'))           # the ESP learns the SD copy ran
 
     def test_a_refused_manifest_falls_back_to_sd(self):
-        result, cpu = self.boot(Esp(self.image, refuse_manifest=True), sd=self.sd)
+        esp = Esp(self.image, refuse_manifest=True)
+        result, cpu = self.boot(esp, sd=self.sd)
         self.assert_vios(result, cpu)
+        self.assertEqual(esp.requests[-1], (3, b'\x02'))
 
     def test_sd_first_does_not_ask_the_esp(self):
         esp = Esp(self.image)
         result, cpu = self.boot(esp, sd=self.sd, args='sd')
         self.assert_vios(result, cpu)
-        self.assertEqual(esp.requests, [(2, b'')])                  # only the rate switch
+        self.assertEqual(esp.requests, [(2, b''), (3, b'\x02')])    # the rate switch, then source: SD
 
     def test_a_corrupt_sd_image_is_never_run(self):
         bad = bytearray(self.image); bad[1000] ^= 1

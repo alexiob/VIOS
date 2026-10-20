@@ -906,3 +906,40 @@ cut by unplugging the board's USB cable. Logs: one JSON per boot or step in
 - Boot-source-aware trial confirmation (finding 4).
 - The no-SD console message.
 - `!boot.obey` instead of `autoexec.txt`.
+
+### 16.11 The §16.10 "Next" items, done (2026-10-20)
+
+All on the board without the wire; firmware `firmware-main-3`…`main-9` in
+`backups/app0-2026-10-18/`, install logs in `backups/ab-2026-10-20/`.
+
+- **E8 pacing found and removed.** A new USB event times the transfer:
+  `BOOT image sent: N blocks in T ms (build B ms, send S ms, slowest send X us)`.
+  It showed 12.5 s of the 13.3 s in `send_packet`: the VDP stream processor
+  wrote packets a byte at a time, and each `write(byte)` takes the UART
+  driver's lock (~75 µs). `send_packet` now writes a packet in one call
+  (`vdu_stream_processor.h`). Transfer: **13.3 s → 2.3 s** (burst 1), and
+  **1.8 s** with the stub's default burst raised to **32** (`Makefile`,
+  `VIOS_BOOT_BURST ?= 32`; the stub test covers burst 32). The burst-32 stub is
+  on the card (`vios-sd-stub-burst32-2026-10-20.json`, read back).
+- **Boot-source-aware trial confirmation.** The stub sends
+  `VDU 23,0,E8,3,source` just before jumping (1 ESP image, 2 SD copy; older
+  ESP firmware ignores op 3). A firmware on trial confirms only an ESP-sourced
+  boot; an SD-sourced one falls back. Board check with
+  `firmware-main-3-badcrc.bin`: `MOS: VIOSBOOT: no ESP image, trying
+  /vios/vios.bin`, `BOOT stub runs the SD copy`, `HEALTH flag 1`, then
+  `FIRMWARE rollback: the stub refused this image's resident and ran the SD
+  copy`; app0 boots again (`install-main-3-badcrc.log`).
+- **No-SD console message.** In user mode, when MOS answered but no stub asked
+  for the manifest within 12 s of power-on, the Console window shows "VIOS: no
+  boot SD card, or no viosboot on it. Insert the VIOS SD card and reset the
+  board." and USB gets `BOOT no stub request: insert the boot SD`. Not yet seen
+  on the board: it needs the card removed (owner).
+- **`!boot.obey`.** MOS 3 runs only the first of `!boot.obey`,
+  `autoexec.obey`, `autoexec.txt`. `vios_sd_install.py` now adds `viosboot` to
+  the first obey file when the card has one (and still to `autoexec.txt` for
+  MOS 1.x), and `check` verifies the file MOS 3 will run. It never creates an
+  obey file: that would hide `autoexec.txt`'s other lines. This board's card
+  has no obey file, so MOS 3 keeps running `AUTOEXEC.TXT` (`viosboot`).
+- **Boot time now** (port open = reset, `boot1` capture): ESP first event →
+  image sent 2.4 s → `HEALTH flag 0` 3.0 s → `HEALTH flag 1` **~5.5 s** after
+  the resident trims below (§ boot-speed Phase 2), against 19.0 s in §16.10.

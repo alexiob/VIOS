@@ -144,10 +144,15 @@ class FileServiceClient:
         return path if path.startswith('/') else '/' + path
 
     def _handle(self, path, mode):
-        out = self._module_commands([f'S" {path}" {mode} OPEN .'])
+        command = f'S" {path}" {mode} OPEN .'
+        out = self._module_commands([command])
         if not out.get('ok'):
             raise IOError(out.get('output', '')[-200:])
-        value = int(out['output'].replace('\r', '').split('\n')[1].split()[0])
+        # The value follows the command's echo; background output (a task's
+        # heartbeat) can come before the echo.
+        lines = out['output'].replace('\r', '').split('\n')
+        echo = next((i for i, line in enumerate(lines) if line.strip().endswith(command)), 0)
+        value = int(lines[echo + 1].split()[0])
         if value < 0:
             raise IOError(f'OPEN {path} failed with {value}')
         return value

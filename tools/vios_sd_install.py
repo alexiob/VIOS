@@ -9,6 +9,11 @@ docs/superpowers/specs/2026-10-19-vios-untethered-boot.md. The card gets:
                        'M' packet: 'M' 1 192 size:u32 crc32:u32 gui baud:u32
   /autoexec.txt        gains one `viosboot` line; every other line is kept
                        (the original is saved once as autoexec.txt.vios-backup)
+  /!boot.obey or       MOS 3 runs only the first of !boot.obey, autoexec.obey,
+  /autoexec.obey       autoexec.txt that exists: if the card has an obey boot
+                       file, the first one gains the `viosboot` line the same
+                       way (MOS 1.x still reads autoexec.txt). None is created:
+                       a new !boot.obey would hide autoexec.txt's other lines.
 
 /vios/boot.cnt (the unfinished-boot counter) is removed: a fresh install
 starts with a clean count. Files are written as temporaries and renamed, the
@@ -34,6 +39,7 @@ IMAGE_MAX = 0x6F000
 STUB_MAX = 0x8000
 MOS_HEADER = b'MOS\x00\x01'
 AUTOEXEC_LINE = 'viosboot'
+MOS3_BOOT_FILES = ('!boot.obey', 'autoexec.obey', 'autoexec.txt')   # MOS 3 runs the first that exists
 
 
 def manifest(image, gui, baud):
@@ -82,6 +88,15 @@ def autoexec_with_viosboot(text):
     return (body + '\r\n' if body else '') + AUTOEXEC_LINE + '\r\n'
 
 
+def mos3_boot_file(card):
+    """The boot file MOS 3 will run: the first of MOS3_BOOT_FILES on the card."""
+    for name in MOS3_BOOT_FILES:
+        path = find(card, name)
+        if path.exists():
+            return path
+    return find(card, 'autoexec.txt')
+
+
 def write_atomic(path, data, dry_run):
     if dry_run:
         return
@@ -103,17 +118,22 @@ def install(card, resident_path, stub_path, dry_run=False):
         target = find(card, name)
         write_atomic(target, data, dry_run)
         report['written'].append({'file': str(target.relative_to(card)), 'bytes': len(data)})
-    autoexec = find(card, 'autoexec.txt')
-    original = autoexec.read_text(encoding='latin-1') if autoexec.exists() else ''
-    updated = autoexec_with_viosboot(original)
-    if updated is None:
-        report['kept'].append(str(autoexec.relative_to(card)))
-    else:
-        backup = autoexec.with_name(autoexec.name + '.vios-backup')
-        if autoexec.exists() and not backup.exists() and not dry_run:
-            backup.write_bytes(autoexec.read_bytes())
-        write_atomic(autoexec, updated.encode('latin-1'), dry_run)
-        report['written'].append({'file': str(autoexec.relative_to(card)), 'bytes': len(updated)})
+    boot_files = [find(card, 'autoexec.txt')]
+    obey = mos3_boot_file(card)
+    if obey.name.lower() != 'autoexec.txt':
+        boot_files.append(obey)
+    for boot_file in boot_files:
+        original = boot_file.read_text(encoding='latin-1') if boot_file.exists() else ''
+        updated = autoexec_with_viosboot(original)
+        if updated is None:
+            report['kept'].append(str(boot_file.relative_to(card)))
+            continue
+        backup = boot_file.with_name(boot_file.name + '.vios-backup')
+        if boot_file.exists() and not backup.exists() and not dry_run:
+            backup.write_bytes(boot_file.read_bytes())
+        write_atomic(boot_file, updated.encode('latin-1'), dry_run)
+        report['written'].append({'file': str(boot_file.relative_to(card)), 'bytes': len(updated)})
+    report['mos3_boot_file'] = str(obey.relative_to(card))
     counter = find(card, 'vios/boot.cnt')
     if counter.exists():
         if not dry_run:
@@ -142,9 +162,9 @@ def check(card, resident_path=None):
             problems.append(f'the card does not carry {resident_path}')
     except (OSError, ValueError) as error:
         problems.append(f'image: {error}')
-    autoexec = find(card, 'autoexec.txt')
-    if not autoexec.exists() or autoexec_with_viosboot(autoexec.read_text(encoding='latin-1')) is not None:
-        problems.append('autoexec.txt does not run viosboot')
+    for boot_file in dict.fromkeys((find(card, 'autoexec.txt'), mos3_boot_file(card))):   # MOS 1.x, MOS 3
+        if not boot_file.exists() or autoexec_with_viosboot(boot_file.read_text(encoding='latin-1')) is not None:
+            problems.append(f'{boot_file.name.lower()} does not run viosboot')
     counter = find(card, 'vios/boot.cnt')
     if counter.exists():
         report['unfinished_boots'] = counter.read_bytes()[:1][0] if counter.stat().st_size else 0

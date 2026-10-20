@@ -28,6 +28,8 @@ struct forth_module_info {
  */
 void forth_modules_reset(void);
 uint32_t forth_module_crc32(const char *source);
+/* Raw CRC-32 update (start with 0xffffffff, finish with ~). */
+uint32_t forth_crc32_update(uint32_t crc,const unsigned char *p,size_t length);
 int forth_module_stage(const char *name,const char *version,
     const struct forth_module_dependency *dependencies,unsigned dependency_count,
     const char *source,const char *test_word);

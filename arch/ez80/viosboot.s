@@ -16,6 +16,8 @@
  *        and copied (the ESP honours the CPU's RTS). Other VDP packets
  *        (keyboard) are skipped by code.
  *   SD:  /vios/vios.man (the same 16-byte manifest) and /vios/vios.bin.
+ * Before the jump, VDU 23,0,E8,3,source tells the ESP where the image came
+ * from (1 ESP, 2 SD): a firmware on trial confirms only an ESP-sourced boot.
  * Either way the image must match the manifest's size and CRC-32 and carry the
  * ADL MOS header before it runs.
  *
@@ -60,19 +62,19 @@ viosboot_entry:
     or a, a
     jp nz, .Lsd_first
     call load_esp
-    jp nc, .Lrun
+    jp nc, .Lrun_esp
     ld hl, msg_esp
     call print
     call load_sd
-    jp nc, .Lrun
+    jp nc, .Lrun_sd
     jp .Lfail
 .Lsd_first:
     call load_sd
-    jp nc, .Lrun
+    jp nc, .Lrun_sd
     ld hl, msg_sd
     call print
     call load_esp
-    jp nc, .Lrun
+    jp nc, .Lrun_esp
 .Lfail:
     ld hl, msg_fail
     call print
@@ -87,8 +89,17 @@ viosboot_entry:
     pop ix
     ld hl, 0
     ret
+.Lrun_esp:
+    ld a, 1
+    jr .Lrun
+.Lrun_sd:
+    ld a, 2
 .Lrun:
     di
+    ld (req_source+4), a
+    ld hl, req_source
+    ld b, 5
+    call send_bytes
     ld hl, 0x56420B            /* VIOS_BOOT_MAGIC: the resident restarts through a CPU reset */
     jp IMAGE
 
@@ -649,6 +660,7 @@ print:
 
 req_manifest: .byte 23, 0, 0xE8, 0
 req_rate:     .byte 23, 0, 0xE8, 2
+req_source:   .byte 23, 0, 0xE8, 3, 0   /* sent whole: not followed by request bytes */
 req_blocks:   .byte 23, 0, 0xE8, 1
 req_index:    .byte 0, 0
 req_count:    .byte 0

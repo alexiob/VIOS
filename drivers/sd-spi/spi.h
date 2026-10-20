@@ -4,4 +4,6 @@
 void ez80_spi_init(unsigned char fast);
 void ez80_spi_select(unsigned char active);
 unsigned char ez80_spi_xfer(unsigned char transmit, unsigned char *receive);
+/* count bytes in (0xFF out) to receive; 1, or 0 on a fault. */
+unsigned char ez80_spi_read(unsigned char *receive, unsigned count);
 #endif

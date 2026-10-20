@@ -5,7 +5,7 @@
  */
 .assume ADL = 1
 .section .text
-.global _ez80_spi_init, _ez80_spi_select, _ez80_spi_xfer
+.global _ez80_spi_init, _ez80_spi_select, _ez80_spi_xfer, _ez80_spi_read
 _ez80_spi_init:
     in0 a,(0xdb)
     and 0xd7
@@ -82,5 +82,49 @@ _ez80_spi_xfer:
     add hl,sp
     ld hl,(hl)
     ld (hl),e
+    ld a,1
+    ret
+/* ez80_spi_read(buffer, count): clock count bytes in (sending 0xFF) to buffer.
+ * A = 1, or 0 on an SPI fault or a byte that never completes. One call per
+ * SD sector instead of one per byte: the per-byte C call cost ~8 ms a sector. */
+_ez80_spi_read:
+    ld hl,6
+    add hl,sp
+    ld bc,(hl)
+    ld hl,3
+    add hl,sp
+    ld hl,(hl)
+.Lspi_read_next:
+    ld a,b
+    or c
+    jr z,.Lspi_read_done
+    ld a,255
+    out0 (0xbc),a
+    push bc
+    ld bc,65535
+.Lspi_read_poll:
+    in0 a,(0xbb)
+    ld e,a
+    and 0x50
+    jr nz,.Lspi_read_fault
+    ld a,e
+    and 0x80
+    jr nz,.Lspi_read_byte
+    dec bc
+    ld a,b
+    or c
+    jr nz,.Lspi_read_poll
+.Lspi_read_fault:
+    pop bc
+    xor a
+    ret
+.Lspi_read_byte:
+    pop bc
+    in0 a,(0xbc)
+    ld (hl),a
+    inc hl
+    dec bc
+    jr .Lspi_read_next
+.Lspi_read_done:
     ld a,1
     ret

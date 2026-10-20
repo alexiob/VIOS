@@ -70,7 +70,13 @@ bool vios_mos_phase(){return mos_phase.load();}
 void vios_mos_phase_end(){mos_phase.store(false);}
 /* MOS's general poll: the CPU (re)started into MOS. Whatever the previous
  * resident set up on this side is gone with it: windows, line mode, route. */
-void vios_mos_phase_begin(){mos_phase.store(true);vios_line_mode(0);vios_gui_cpu_reset();}
+/* Where the stub's image came from (E8 op 3): 0 not told (older stub), 1 this
+ * firmware's embedded image, 2 the SD copy. A firmware on trial confirms only
+ * an ESP-sourced boot: after an SD fallback the CPU is healthy, but this
+ * image's resident was refused, so the trial must not stand. */
+enum { BOOT_SOURCE_UNKNOWN = 0, BOOT_SOURCE_ESP = 1, BOOT_SOURCE_SD = 2 };
+static std::atomic<uint8_t> boot_source(BOOT_SOURCE_UNKNOWN);
+void vios_mos_phase_begin(){mos_phase.store(true);boot_source.store(BOOT_SOURCE_UNKNOWN);vios_line_mode(0);vios_gui_cpu_reset();}
 static bool restart_notice; // user mode: tell a resident that may still be running (packet FA)
 /* User-mode link. The board's MOS (Agon Quark) runs UART0 at 384000 baud and
  * waits, without a timeout, for ESC from the VDP before it boots (spec §15).
@@ -730,15 +736,32 @@ static void link_service(){
         link_esc=millis();vios_vdp_tx_begin();VDPSerial.write((uint8_t)0x1B);vios_vdp_tx_end();
     }
 }
+/* User mode, no SD card (or no viosboot on it): MOS reaches its prompt and the
+ * stub never asks for the manifest. Say so in the console window once, so the
+ * screen is never just a MOS prompt (spec §5). MOS answers within ~2.2 s of
+ * power-on and the stub asks at ~2.8 s; 12 s leaves room for a slow card. */
+static const unsigned long NO_STUB_NOTICE_MS = 12000;
+static bool no_stub_noticed;
+static void no_stub_notice(){
+    if(no_stub_noticed||!boot_user_mode||!mos_phase.load()||!mos_count.load()||boot_deadline_armed||cpu_boot_ready||boot_source.load()!=BOOT_SOURCE_UNKNOWN)return;
+    if(millis()<NO_STUB_NOTICE_MS)return;
+    no_stub_noticed=true;
+    static const char text[]="\r\nVIOS: no boot SD card, or no viosboot on it.\r\nInsert the VIOS SD card and reset the board.\r\n";
+    vios_console_feed((const uint8_t *)text,sizeof text-1);
+    bridge_event("BOOT no stub request: insert the boot SD\r\n");
+}
 void vios_bridge_poll() {
     link_service();
+    no_stub_notice();
     if(source_used&&millis()-source_started>2000){line_reply(source_sequence,"LINE ERR timeout\r\n");source_used=0;}
     if(full_control.load()){
     int health=health_mailbox.exchange(-1);
     if(health>=0){
         char event[32];snprintf(event,sizeof event,"HEALTH flag %u\r\n",(unsigned)health);bridge_event(event);
         if(health==0){cpu_boot_ready=false;boot_started=millis();boot_deadline_armed=true;if(cpu_paused)boot_paused_at=boot_started;}
-        else {boot_deadline_armed=false;cpu_boot_ready=true;boot_failures=0;retain_failures(0);firmware_confirm();}
+        else {boot_deadline_armed=false;cpu_boot_ready=true;boot_failures=0;retain_failures(0);
+            if(firmware_trial&&boot_source.load()==BOOT_SOURCE_SD){firmware_fallback("the stub refused this image's resident and ran the SD copy");return;}
+            firmware_confirm();}
     }
     if(boot_deadline_armed&&!cpu_paused&&millis()-boot_started>=30000) {
         boot_deadline_armed=false;cpu_boot_ready=false;
@@ -836,6 +859,24 @@ unsigned vios_boot_manifest_reply(uint8_t *out){
     return vios_boot_manifest(out,vios_image_size,vios_image_crc,VIOS_GUI_BOOT,VIOS_INTERNAL_BAUD);
 }
 unsigned vios_boot_block_reply(unsigned index,uint8_t *out){return vios_boot_block(out,vios_image,vios_image_size,index);}
+void vios_boot_source(uint8_t source){
+    boot_source.store(source==BOOT_SOURCE_ESP||source==BOOT_SOURCE_SD?source:BOOT_SOURCE_UNKNOWN);
+    bridge_event(source==BOOT_SOURCE_ESP?"BOOT stub runs this firmware's image\r\n":source==BOOT_SOURCE_SD?"BOOT stub runs the SD copy\r\n":"BOOT stub source unknown\r\n");
+}
+/* Where the E8 transfer time goes: building blocks (flash read, CRC) versus
+ * writing them to the UART (blocks while the CPU holds RTS off or the TX ring
+ * is full); the gaps between are the stub's requests and the VDP loop. */
+static uint32_t boot_tx_first,boot_tx_build,boot_tx_send,boot_tx_send_max,boot_tx_blocks;
+void vios_boot_block_sent(unsigned index,uint32_t build_us,uint32_t send_us){
+    uint32_t now=(uint32_t)esp_timer_get_time();
+    if(index==0){boot_tx_first=now-build_us-send_us;boot_tx_build=boot_tx_send=boot_tx_send_max=boot_tx_blocks=0;}
+    boot_tx_build+=build_us;boot_tx_send+=send_us;if(send_us>boot_tx_send_max)boot_tx_send_max=send_us;++boot_tx_blocks;
+    if(index+1==vios_boot_blocks(vios_image_size)){
+        char event[128];snprintf(event,sizeof event,"BOOT image sent: %lu blocks in %lu ms (build %lu ms, send %lu ms, slowest send %lu us)\r\n",
+            (unsigned long)boot_tx_blocks,(unsigned long)((now-boot_tx_first)/1000),(unsigned long)(boot_tx_build/1000),(unsigned long)(boot_tx_send/1000),(unsigned long)boot_tx_send_max);
+        bridge_event(event);
+    }
+}
 void vios_bridge_boot() {
     cpu_boot_ready=false;boot_deadline_armed=false;
     ram_ready=false;memset(native_ram_map,0,sizeof native_ram_map);

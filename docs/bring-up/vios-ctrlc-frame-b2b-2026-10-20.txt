@@ -1,0 +1,111 @@
+hello: VIOS application started (TASKS / TASK-KILL)
+: SPIN BEGIN AGAIN ;
+
+ok
+vios> 
+after 3 s: {"output": "SPIN\r\nerror: execution budget exhausted\r\n\r\nerror\r\nvios> ", "ok": false, "compiling": false, "pending": false}
+inject {'reply': 'INJECTED'}
+state {"connected": true, "already_connected": true, "compiling": false, "pending": false, "identity": "untethered (no ZDI wire)"} after 3.19 s
+1 2 + .
+3 
+ok
+vios> 
+: FW 60 0 DO FRAME-WAIT LOOP ; TICKS FW TICKS SWAP - .
+992 
+ok
+vios> 
+PREEMPT-STATS IRQ-STATS
+preempt on switches 55 ignored 0 critical 0 
+irq tick on ms 7226 stray 0
+
+ok
+vios> 
+inject {'reply': 'INJECTED'} at 2.33
+SPIN result after 2.92 s: {"output": "hello: heartbeat 1 \r\nSPIN\r\nerror: execution budget exhausted\r\n\r\nerror\r\nvios> ", "ok": false, "compiling": false, "pending": false}
+hello: heartbeat 2 
+hello: heartbeat 3 
+hello: heartbeat 4 
+: SLOW BEGIN MILLIS DROP AGAIN ;
+
+ok
+vios> 
+after 4.07 s: {"output": "@51A6986B !03929C69 SLOW\r\n", "ok": false, "pending": true, "compiling": false, "remaining_source": "", "error": "Evaluation still pending; use console_input for KEY, then await_result"}
+inject {'reply': 'INJECTED'} took 0.01
+pending cleared after 4.17 s: {"connected": true, "already_connected": true, "compiling": false, "pending": true, "identity": "untethered (no ZDI wire)"}
+{'ok': True, 'events': [{'time': 1792485088.37, 'text': 'boot confirmed A\r\nautorun task 1\r\n\r\nVIOS Forth 24 / Agon Light 2\r\nvios> '}, {'time': 1792485088.419, 'text': 'hello: VIOS application started (TASKS / TASK-KILL)\r\n'}, {'time': 1792485107.202, 'text': 'hello: heartbeat 1 \r\n'}, {'time': 1792485128.624, 'text': 'hello: heartbeat 2 \r\nhello: heartbeat 3 \r\nhello: heartbeat 4 \r\n'}]}
+Traceback (most recent call last):
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/tools/vios_cli.py", line 120, in tool
+    data = json.loads(text)
+  File "/Users/alex/.pyenv/versions/3.14.6/lib/python3.14/json/__init__.py", line 352, in loads
+    return _default_decoder.decode(s)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "/Users/alex/.pyenv/versions/3.14.6/lib/python3.14/json/decoder.py", line 345, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/alex/.pyenv/versions/3.14.6/lib/python3.14/json/decoder.py", line 363, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "<stdin>", line 18, in <module>
+  File "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/tools/vios_cli.py", line 123, in tool
+    raise ToolError(text) from error
+vios_cli.ToolError: Board must be deployed, running and synchronized; await pending work or redeploy
+SLOW pending after 3 s: True
+SLOW result 0.066 s after Ctrl-C: {"output": "SLOW\r\nerror: interrupted\r\n\r\nerror\r\nvios> ", "ok": false, "compiling": false, "pending": false}
+600000 MS pending after 3 s: True
+600000 MS result 0.025 s after Ctrl-C: {"output": "\r\naborted\r\nvios> 600000 MS\r\nerror: interrupted\r\n\r\nerror\r\nvios> ", "ok": false, "compiling": false, "pending": false}
+
+aborted
+vios> 1 2 + . PREEMPT-STATS
+3 preempt on switches 59 ignored 0 critical 0 
+
+ok
+vios> 
+after Ctrl-C: {"output": "600000 MS\r\nerror: interrupted\r\n\r\nerror\r\nvios> ", "ok": false, "compiling": false, "pending": false}
+1 2 + .
+3 
+ok
+vios> 
+' RENDER SPAWN .
+2 
+ok
+vios> 
+idle 10 s frames: F @ .
+' BG SPAWN .
+3 
+ok
+vios> 
+busy task 10 s frames: F @ .
+0 F ! TICKS FG FG FG FG FG FG FG FG FG FG TICKS SWAP - . F @ .
+hello: heartbeat 3 
+hello: heartbeat 4 
+hello: heartbeat 5 
+hello: heartbeat 6 
+37255 2236 
+ok
+vios> 
+TASKS PREEMPT-STATS IRQ-STATS
+task-slice 1024
+task 1 state sleeping xt 241 name 4155544F52554E slices 7 steps 198 depth 0 rdepth 1 ds-peak 3 rs-peak 4 out 0 dropped 0 error -
+task 2 state sleeping xt 243 name 52454E444552 slices 3473 steps 41666 depth 0 rdepth 1 ds-peak 2 rs-peak 1 out 0 dropped 0 error -
+task 3 state ready xt 245 name 4247 slices 6328 steps 2681807 depth 1 rdepth 1 ds-peak 2 rs-peak 1 out 0 dropped 0 error -
+task 4 state free xt 0 name - slices 0 steps 0 depth 0 rdepth 0 ds-peak 0 rs-peak 0 out 0 dropped 0 error -
+preempt on switches 10758 ignored 0 critical 0 
+irq tick on ms 63153 stray 0
+
+ok
+vios> 
+render, idle: 60.1 frames/s
+render, busy task beside: 60.0 frames/s
+TASKS
+task-slice 1024
+task 1 state sleeping xt 241 name 4155544F52554E slices 10 steps 291 depth 0 rdepth 1 ds-peak 3 rs-peak 4 out 0 dropped 0 error -
+task 2 state sleeping xt 243 name 52454E444552 slices 1230 steps 14750 depth 0 rdepth 1 ds-peak 2 rs-peak 1 out 0 dropped 0 error -
+task 3 state ready xt 245 name 4247 slices 1889 steps 771811 depth 2 rdepth 0 ds-peak 2 rs-peak 1 out 0 dropped 0 error -
+task 4 state free xt 0 name - slices 0 steps 0 depth 0 rdepth 0 ds-peak 0 rs-peak 0 out 0 dropped 0 error -
+
+ok
+vios> 

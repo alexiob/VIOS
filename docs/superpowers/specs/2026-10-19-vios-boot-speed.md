@@ -290,3 +290,26 @@ in `tests/test_agon_crc.py` against `zlib.crc32`. Debug pause, registers, 10 RAM
 block reads matching `build/vios-resident.bin`, and resume all work at 1 us
 edges. Board: app1 = `firmware-bootcrc2.bin` (confirmed), app0 = Phase 1a build.
 Phase 2 (CPU tail after HEALTH) is not done.
+
+## Phase 2 result (2026-10-20, untethered boot)
+
+`BOOT-TIMES` (new word) prints each startup step from ESP-clock stamps in
+`vios_boot_startup`, with module loads split into read / check / compile.
+Measured `HEALTH 0 → 1` on the board, before → after:
+
+| Step | Before | After | Change |
+|---|---|---|---|
+| storage init | 81 ms | 42 ms | |
+| boot state | 302 | 142 | |
+| modules (5 loads) | 3,806 | 2,168 | read 1,103 → 526, check 811 → 180, compile 1,345 → 1,089 |
+| health | 6 | 6 | |
+| finish | 292 | 136 | |
+| **total** | **4,454 ms** | **2,497 ms** | |
+
+Changes: CRC-32 by a 256-entry table shared by `forth_module_crc32` and
+`vios_crc32` (was eight 32-bit shifts per byte; +1 KB), SD sectors read by one
+`ez80_spi_read` call per sector instead of a C call per byte, and the SD
+CRC-16 computed with the byte-wise XMODEM formula instead of a bit loop (same
+results; the card-model tests compute it bitwise). Next: compiling module
+source (1.1 s) is now the largest part; caching compiled modules would be the
+next step.

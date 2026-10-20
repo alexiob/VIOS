@@ -17,6 +17,8 @@ void vios_boot_health(uint8_t flag);
  * text from MOS is console text, never drawn on the framebuffer). */
 unsigned vios_boot_manifest_reply(uint8_t *out);
 unsigned vios_boot_block_reply(unsigned index,uint8_t *out);
+void vios_boot_source(uint8_t source); // E8 op 3 from the stub: 1 ESP image, 2 SD copy
+void vios_boot_block_sent(unsigned index,uint32_t build_us,uint32_t send_us); // E8 timing: one event once the last block is out
 bool vios_boot_user_mode();
 bool vios_mos_phase();
 void vios_mos_phase_end();
