@@ -1,0 +1,21 @@
+{
+  "selected": "app1",
+  "otadata": [
+    {
+      "sector": 0,
+      "seq": 97,
+      "state": "valid",
+      "crc_ok": true,
+      "valid": true,
+      "trial": false
+    },
+    {
+      "sector": 1,
+      "seq": 98,
+      "state": "valid",
+      "crc_ok": true,
+      "valid": true,
+      "trial": false
+    }
+  ]
+}

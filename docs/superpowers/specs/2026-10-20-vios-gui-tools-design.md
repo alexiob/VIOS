@@ -385,6 +385,28 @@ harness connect, before any tool opened (lock 46 ms, vblank start 8 ms), which
 points outside the tools; reported to the main session. Open: reproduce the
 spike with per-step stats inside one uninterrupted run.
 
+**Board runs 4–5** (firmware-gui-tools-7 on main `1647f8b`, per-section stats:
+[`run4.json`](../../bring-up/vios-gui-tools-accept-2026-10-20-run4.json),
+[`run5a.json`](../../bring-up/vios-gui-tools-accept-2026-10-20-run5a.json),
+[`run5b.json`](../../bring-up/vios-gui-tools-accept-2026-10-20-run5b.json)):
+all 17 functional checks pass on every run; read-back 0.43 s for 4000 B
+(9.4 KB/s), 0.26 s for 2000 B. Frame work ≤ 5.0 ms except one 8.1 ms frame in
+run 5a (the Workspace section, with a 5 ms lock wait). The vblank start check
+still fails, **intermittently, 1.1–2.7 ms, only in sections that open windows**,
+i.e. in sections with off-screen presents (Browser 1–2, Workspace 1,
+Inspector 2–3); sections without presents (read-back, close) stay at 20–30 µs,
+and the spike moves between sections from run to run. So it is tied to the
+off-screen present path (main's `vios_offscreen.h`/frame task), which large
+tool windows trigger more often than the 30×8-cell window of the plain GUI
+acceptance; handed to the main session.
+
+**Found in the Forth core (reported, not changed here):** when
+`CREATE X 4096 ALLOT` fails with "data space full", the new `X` header
+survives and points at the end of the data space; writing through it (`X 4000
+... FILL`) overruns into the resident's own BSS (on the board: "invalid opcode",
+the engine switched, `RESOURCES` data-bytes 0x78788E). The acceptance script now
+reuses its buffer and allots only 2 KB.
+
 Read-back at 0.65 s for a full module is acceptable
 for an explicit accept, so the chunked path stays (decision 2).
 

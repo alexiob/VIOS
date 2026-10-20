@@ -11,7 +11,7 @@ press them; the CPU only sees semantic events after the display server's nudge.
   inspector  Ctrl+Shift+I; tabs by Ctrl+Tab; memory pager; tasks report
   manager    Ctrl+Shift+M; boot report; an action asks first and Esc cancels
              (no boot slot is changed)
-  speed      TextView read-back of 4000 bytes (UI-TEXT@): seconds and bytes/s
+  speed      TextView read-back of 2000 bytes (UI-TEXT@): seconds and bytes/s
   health     no protocol errors, frame budgets
 Uses only the tool windows 20-24; closes them at the end.
 """
@@ -67,7 +67,7 @@ def main():
             def letter(ch, mods):
                 return press(ord(ch) - ord('a') + 1 if mods & CTRL else ord(ch), mods, VK_A + ord(ch) - ord('a'))
 
-            def text(view, limit=4000):
+            def text(view, limit=2000):
                 return result(f'{view} TT {limit} UI-TEXT@ TT SWAP TYPE')
 
             def status():
@@ -88,7 +88,10 @@ def main():
                 return out['ok']
             r['close_all_word'] = close_all()  # a clean start: no tool window open
             time.sleep(0.5)
-            ev('CREATE TT 4096 ALLOT')
+            # 2 KB of data space (of 8): a failed CREATE ... ALLOT would leave a TT header
+            # pointing past the data space (Forth core), so never risk it.
+            if not c.tool('evaluate', {'source': "' TT DROP", 'timeout': 20})['ok']:   # a second run reuses it
+                ev('CREATE TT 2048 ALLOT')
             check('gui_on', status().startswith('GUI on'), status())
             c.tool('esp_stats', {'reset': True})
 
@@ -157,12 +160,12 @@ def main():
 
             section('manager')
             # TextView read-back speed (open decision 2).
-            ev(f'TT 4000 CHAR x FILL  TT 4000 {W_TEXT} UI-TEXT')
+            ev(f'TT 2000 CHAR x FILL  TT 2000 {W_TEXT} UI-TEXT')
             t = time.perf_counter()
-            n = result(f'{W_TEXT} TT 4000 UI-TEXT@ .').split()
+            n = result(f'{W_TEXT} TT 2000 UI-TEXT@ .').split()
             dt = time.perf_counter() - t
-            r['readback'] = {'bytes': int(n[0]) if n else 0, 'seconds': round(dt, 3), 'bytes_per_s': round(4000 / dt) if dt else None}
-            check('readback_complete', n and n[0] == '4000', n)
+            r['readback'] = {'bytes': int(n[0]) if n else 0, 'seconds': round(dt, 3), 'bytes_per_s': round(2000 / dt) if dt else None}
+            check('readback_complete', n and n[0] == '2000', n)
 
             section('readback')
             # Close a tool with Ctrl+W, then the rest.
