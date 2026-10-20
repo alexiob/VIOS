@@ -10,8 +10,10 @@ import re
 import time
 try:
     from .vios_cli import RPCClient
+    from .vios_accept_autorun import pause_autorun, resume_autorun
 except ImportError:
     from vios_cli import RPCClient
+    from vios_accept_autorun import pause_autorun, resume_autorun
 
 
 def main():
@@ -47,11 +49,13 @@ def main():
                         return True
                     time.sleep(0.25)
                 return False
+            r['autorun_paused'] = pause_autorun(c)   # HELLO's sleeping task would never let wait_idle finish
             drops = lambda: int(re.search(r'console-dropped (\d+)', ev('VDP-INFO'))[1])
             r['dropped_before'] = drops()
             ev(': PSAY S" hello pipes" TYPE CR ; : PUP BEGIN KEY DUP -1 <> WHILE DUP 97 123 WITHIN IF 32 - THEN EMIT REPEAT DROP ;')
             ev("' PSAY ' PUP PIPELINE 2DROP")
             check('upper_done', wait_idle(30))
+            time.sleep(1.0)   # console-task text leaves once the REPL has been idle for 0.5 s
             seen.append(ev('VDP-INFO'))
             text = ''.join(seen)
             check('upper_output_on_console', 'HELLO PIPES' in text, text[-300:])
@@ -78,6 +82,7 @@ def main():
         r.update(status='failed', error=f'{type(error).__name__}: {error}')
         raise
     finally:
+        resume_autorun(r.get('autorun_paused'))
         a.output.write_text(json.dumps(r, indent=2) + '\n')
         print(json.dumps({k: r.get(k) for k in ('status', 'bulk', 'error')}))
 

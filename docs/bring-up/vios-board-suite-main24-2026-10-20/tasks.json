@@ -1,0 +1,79 @@
+{
+  "status": "failed",
+  "checks": {
+    "no_live_tasks_before": {
+      "ok": false,
+      "detail": [
+        {
+          "id": 1,
+          "state": "sleeping",
+          "xt": 264,
+          "name": "AUTORUN",
+          "slices": 4,
+          "steps": 105,
+          "depth": 0,
+          "rdepth": 1,
+          "ds_peak": 3,
+          "rs_peak": 4,
+          "output_bytes": 0,
+          "output_dropped": 0,
+          "error": "",
+          "base": 10
+        },
+        {
+          "id": 2,
+          "state": "free",
+          "xt": 0,
+          "name": "",
+          "slices": 0,
+          "steps": 0,
+          "depth": 0,
+          "rdepth": 0,
+          "ds_peak": 0,
+          "rs_peak": 0,
+          "output_bytes": 0,
+          "output_dropped": 0,
+          "error": "",
+          "base": 0
+        },
+        {
+          "id": 3,
+          "state": "free",
+          "xt": 0,
+          "name": "",
+          "slices": 0,
+          "steps": 0,
+          "depth": 0,
+          "rdepth": 0,
+          "ds_peak": 0,
+          "rs_peak": 0,
+          "output_bytes": 0,
+          "output_dropped": 0,
+          "error": "",
+          "base": 0
+        },
+        {
+          "id": 4,
+          "state": "free",
+          "xt": 0,
+          "name": "",
+          "slices": 0,
+          "steps": 0,
+          "depth": 0,
+          "rdepth": 0,
+          "ds_peak": 0,
+          "rs_peak": 0,
+          "output_bytes": 0,
+          "output_dropped": 0,
+          "error": "",
+          "base": 0
+        }
+      ]
+    }
+  },
+  "connect": {
+    "connected": true,
+    "identity": "untethered (no ZDI wire)"
+  },
+  "error": "AssertionError: no_live_tasks_before: [{'id': 1, 'state': 'sleeping', 'xt': 264, 'name': 'AUTORUN', 'slices': 4, 'steps': 105, 'depth': 0, 'rdepth': 1, 'ds_peak': 3, 'rs_peak': 4, 'output_bytes': 0, 'output_dropped': 0, 'error': '', 'base': 10}, {'id': 2, 'state': 'free', 'xt': 0, 'name': '', 'slices': 0, 'steps': 0, 'depth': 0, 'rdepth': 0, 'ds_peak': 0, 'rs_peak': 0, 'output_bytes': 0, 'output_dropped': 0, 'error': '', 'base': 0}, {'id': 3, 'state': 'free', 'xt': 0, 'name': '', 'slices': 0, 'steps': 0, 'depth': 0, 'rdepth': 0, 'ds_peak': 0, 'rs_peak': 0, 'output_bytes': 0, 'output_dropped': 0, 'error': '', 'base': 0}, {'id': 4, 'state': 'free', 'xt': 0, 'name': '', 'slices': 0, 'steps': 0, 'depth': 0, 'rdepth': 0, 'ds_peak': 0, 'rs_peak': 0, 'output_bytes': 0, 'output_dropped': 0, 'error': '', 'base': 0}]"
+}

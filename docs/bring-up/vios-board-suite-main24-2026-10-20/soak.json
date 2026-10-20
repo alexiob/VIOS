@@ -1,0 +1,13 @@
+{
+  "status": "failed",
+  "iterations": 0,
+  "failures": [],
+  "error": "ToolError: Board must be deployed, running and synchronized; await pending work or redeploy",
+  "summary": {
+    "iterations": 0,
+    "minutes": 0.0,
+    "iteration_ms_median": null,
+    "iteration_ms_max": null
+  },
+  "latency_ms_tail": []
+}

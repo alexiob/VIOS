@@ -1,0 +1,71 @@
+{
+ "passed": false,
+ "results": [
+  {
+   "check": "gui",
+   "status": "failed",
+   "seconds": 11.8,
+   "detail": [
+    "AssertionError: frame_budget: {'frames': 245, 'vblank_start_max': 1652, 'frame_work_max': 4881, 'present_frames': 1, 'present_work_max': 6791}"
+   ]
+  },
+  {
+   "check": "gui_tools",
+   "status": "passed",
+   "seconds": 12.0,
+   "detail": []
+  },
+  {
+   "check": "console",
+   "status": "passed",
+   "seconds": 10.6,
+   "detail": []
+  },
+  {
+   "check": "audio",
+   "status": "failed",
+   "seconds": 5.5,
+   "detail": [
+    "}"
+   ]
+  },
+  {
+   "check": "core_words",
+   "status": "failed",
+   "seconds": 0.4,
+   "detail": [
+    "vios>"
+   ]
+  },
+  {
+   "check": "tasks",
+   "status": "failed",
+   "seconds": 0.2,
+   "detail": [
+    "AssertionError: no_live_tasks_before: [{'id': 1, 'state': 'sleeping', 'xt': 264, 'name': 'AUTORUN', 'slices': 4, 'steps': 105, 'depth': 0, 'rdepth': 1, 'ds_peak': 3, 'rs_peak': 4, 'output_bytes': 0, 'output_dropped': 0, 'error': '', 'base': 10}, {'id': 2, 'state': 'free', 'xt': 0, 'name': '', 'slices': 0, 'steps': 0, 'depth': 0, 'rdepth': 0, 'ds_peak': 0, 'rs_peak': 0, 'output_bytes': 0, 'output_dropped': 0, 'error': '', 'base': 0}, {'id': 3, 'state': 'free', 'xt': 0, 'name': '', 'slices': 0, 'steps': 0, 'depth': 0, 'rdepth': 0, 'ds_peak': 0, 'rs_peak': 0, 'output_bytes': 0, 'output_dropped': 0, 'error': '', 'base': 0}, {'id': 4, 'state': 'free', 'xt': 0, 'name': '', 'slices': 0, 'steps': 0, 'depth': 0, 'rdepth': 0, 'ds_peak': 0, 'rs_peak': 0, 'output_bytes': 0, 'output_dropped': 0, 'error': '', 'base': 0}]"
+   ]
+  },
+  {
+   "check": "pipeline",
+   "status": "failed",
+   "seconds": 30.3,
+   "detail": [
+    "AssertionError: upper_done: None"
+   ]
+  },
+  {
+   "check": "handles",
+   "status": "passed",
+   "seconds": 3.4,
+   "detail": []
+  },
+  {
+   "check": "tools",
+   "status": "failed",
+   "seconds": 0.1,
+   "detail": [
+    "vios>"
+   ]
+  }
+ ]
+}

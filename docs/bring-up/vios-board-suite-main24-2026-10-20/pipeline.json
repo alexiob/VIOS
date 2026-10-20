@@ -1,0 +1,11 @@
+{
+  "status": "failed",
+  "checks": {
+    "upper_done": {
+      "ok": false,
+      "detail": null
+    }
+  },
+  "dropped_before": 0,
+  "error": "AssertionError: upper_done: None"
+}

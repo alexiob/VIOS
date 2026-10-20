@@ -12,8 +12,10 @@ import statistics
 import time
 try:
     from .vios_cli import RPCClient
+    from .vios_accept_autorun import pause_autorun, resume_autorun
 except ImportError:
     from vios_cli import RPCClient
+    from vios_accept_autorun import pause_autorun, resume_autorun
 
 
 def main():
@@ -42,6 +44,7 @@ def main():
                     assert '3 ' in out['output']
                 return {'median_ms': round(statistics.median(times), 2), 'max_ms': round(max(times), 2)}
             r['connect'] = {k: v for k, v in c.tool('connect').items() if k in ('connected', 'identity')}
+            r['autorun_paused'] = pause_autorun(c)   # HELLO's heartbeat would count as a live task
             tasks = c.tool('tasks')['tasks']
             check('no_live_tasks_before', not any(t['state'] in ('ready', 'sleeping') for t in tasks), tasks)
             drops = lambda: int(re.search(r'console-dropped (\d+)', ev('VDP-INFO')['output'])[1])
@@ -84,6 +87,7 @@ def main():
         r.update(status='failed', error=f'{type(error).__name__}: {error}')
         raise
     finally:
+        resume_autorun(r.get('autorun_paused'))
         a.output.write_text(json.dumps(r, indent=2) + '\n')
         print(json.dumps({k: r.get(k) for k in ('status', 'latency_no_tasks', 'latency_two_tasks', 'throughput', 'error')}, indent=1))
 

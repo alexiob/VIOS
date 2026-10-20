@@ -10,8 +10,10 @@ from pathlib import Path
 import time
 try:
     from .vios_cli import RPCClient
+    from .vios_accept_autorun import pause_autorun, resume_autorun
 except ImportError:
     from vios_cli import RPCClient
+    from vios_accept_autorun import pause_autorun, resume_autorun
 
 CASES = [('3 2 >', -1), ('2 3 >', 0), ('-1 0<', -1), ('5 0>', -1), ('4 4 <>', 0), ('1 2 3 ROT', 1),
          ('1 2 3 -ROT DROP DROP', 3), ('1 2 NIP', 2), ('-7 ABS', 7), ('3 9 MAX', 9), ('-5 2 MIN', -5),
@@ -29,6 +31,8 @@ def main():
     try:
         with RPCClient(timeout=120) as c:
             c.initialize()
+            c.tool('connect', {})
+            r['autorun_paused'] = pause_autorun(c)   # ENGINE switches are refused while tasks live
 
             def ev(s):
                 out = c.tool('evaluate', {'source': s, 'timeout': 60})
@@ -62,6 +66,7 @@ def main():
         r.update(status='failed', error=f'{type(error).__name__}: {error}')
         raise
     finally:
+        resume_autorun(r.get('autorun_paused'))
         a.output.write_text(json.dumps(r, indent=2) + '\n')
         print(json.dumps(r))
 

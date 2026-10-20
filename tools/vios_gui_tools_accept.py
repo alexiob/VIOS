@@ -68,7 +68,7 @@ def main():
                 return press(ord(ch) - ord('a') + 1 if mods & CTRL else ord(ch), mods, VK_A + ord(ch) - ord('a'))
 
             def text(view, limit=2000):
-                return result(f'{view} TT {limit} UI-TEXT@ TT SWAP TYPE')
+                return result(f'{view} GT-BUF {limit} UI-TEXT@ GT-BUF SWAP TYPE')
 
             def status():
                 return c.tool('esp_gui')['status']
@@ -88,10 +88,10 @@ def main():
                 return out['ok']
             r['close_all_word'] = close_all()  # a clean start: no tool window open
             time.sleep(0.5)
-            # 2 KB of data space (of 8): a failed CREATE ... ALLOT would leave a TT header
+            # 2 KB of data space (of 8): a failed CREATE ... ALLOT would leave a GT-BUF header
             # pointing past the data space (Forth core), so never risk it.
-            if not c.tool('evaluate', {'source': "' TT DROP", 'timeout': 20})['ok']:   # a second run reuses it
-                ev('CREATE TT 2048 ALLOT')
+            if not c.tool('evaluate', {'source': "' GT-BUF DROP", 'timeout': 20})['ok']:   # a second run reuses it
+                ev('CREATE GT-BUF 2048 ALLOT')
             check('gui_on', status().startswith('GUI on'), status())
             c.tool('esp_stats', {'reset': True})
 
@@ -107,7 +107,7 @@ def main():
             modules = result('MODULES')
             r['modules'] = modules
             press(vk=VK_DOWN); press(vk=VK_DOWN)
-            sel = result(f'{B_MODULES} TT UI-WGET DROP .').split()
+            sel = result(f'{B_MODULES} GT-BUF UI-WGET DROP .').split()
             check('module_selected', sel and sel[0] == '2', sel)
             code = text(B_CODE)
             r['browser_code_head'] = code[:80]
@@ -135,7 +135,7 @@ def main():
             check('inspector_key', letter('i', CTRL | SHIFT))
             press(9, CTRL, VK_TAB)                      # Memory
             press(vk=VK_UP)                             # past the top: a page event
-            tabs = result(f'{I_TABS} TT UI-WGET DROP .').split()
+            tabs = result(f'{I_TABS} GT-BUF UI-WGET DROP .').split()
             check('memory_tab', tabs and tabs[0] == '1', tabs)
             press(9, CTRL, VK_TAB)                      # Tasks
             tasks = text(I_DETAIL)
@@ -160,9 +160,9 @@ def main():
 
             section('manager')
             # TextView read-back speed (open decision 2).
-            ev(f'TT 2000 CHAR x FILL  TT 2000 {W_TEXT} UI-TEXT')
+            ev(f'GT-BUF 2000 CHAR x FILL  GT-BUF 2000 {W_TEXT} UI-TEXT')
             t = time.perf_counter()
-            n = result(f'{W_TEXT} TT 2000 UI-TEXT@ .').split()
+            n = result(f'{W_TEXT} GT-BUF 2000 UI-TEXT@ .').split()
             dt = time.perf_counter() - t
             r['readback'] = {'bytes': int(n[0]) if n else 0, 'seconds': round(dt, 3), 'bytes_per_s': round(2000 / dt) if dt else None}
             check('readback_complete', n and n[0] == '2000', n)

@@ -1192,15 +1192,19 @@ int forth_transaction_rollback(void) {
  checkpoint_restore(&activation_before,1,1);have_activation=0;catalog_changed();return 1;
 }
 void forth_repl(void) {
- char line[256];unsigned used=0;int overflow=0,cr=0,changed=1;
+ char line[256];unsigned used=0;int overflow=0,cr=0,changed=1;uint32_t idle_since=now_ms();
  print("\r\nVIOS Forth 24 / Agon Light 2\r\nvios> ");
  if(line_mode_hook)line_mode_hook(1);
  for(;;) {
   int c=platform_console_getc();
   if(c<0){if(!used&&current<0){if(idle_hook){idle_hook(changed);changed=0;}forth_tasks_run();
-    /* Background console-task text: on its own lines, then the prompt again. */
+    /* Background console-task text, on a fresh line, once the REPL has been
+     * idle for a moment: never inside a reply, never just after one (a host
+     * still reading the reply sees a quiet prompt). No second prompt: a
+     * reprinted prompt would put the next command's echo on its line. */
     int held=0;for(unsigned i=0;i<FORTH_TASKS_MAX;++i)held|=tasks[i].console&&tasks[i].out_count;
-    if(held){print("\r\n");forth_console_tasks_flush();print("vios> ");}}continue;}
+    if(held&&(int32_t)(now_ms()-idle_since)>=500){print("\r\n");forth_console_tasks_flush();}}continue;}
+  idle_since=now_ms();
   if(c=='\n'&&cr){cr=0;continue;}cr=0;
   if(c=='\r'||c=='\n') {
    cr=c=='\r';print("\r\n");line[used]=0;
@@ -1230,7 +1234,7 @@ void forth_repl(void) {
    if(line_mode_hook)line_mode_hook(1);
    if(tagged){print("\r\n@");print(nonce);print("\r\n");}
    if(success)print("ok\r\n");else if(tagged)print("error\r\n");
-   used=0;overflow=0;changed=1;print(current>=0?"compile> ":"vios> ");
+   used=0;overflow=0;changed=1;print(current>=0?"compile> ":"vios> ");idle_since=now_ms();   /* the reply just ended */
   }else if(c==8||c==127){if(used&&!overflow){--used;print("\b \b");}}
   else if(c==3){rollback();fvm_reset();used=0;overflow=0;changed=1;print("\r\naborted\r\nvios> ");}
   else if(c>=32&&c<127&&!overflow){if(used+1<sizeof line){line[used++]=(char)c;platform_console_putc((unsigned char)c);}else overflow=1;}

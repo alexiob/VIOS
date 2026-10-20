@@ -62,7 +62,7 @@ def run(c, a, r, check):
     # VDP CHAR@ matches glyphs against the *current* text colours; the
     # blinking cursor can leave them inverse, so reset them first.
     ev(': ROW? 80 0 DO I OVER CHAR@ DUP 32 < IF DROP 46 THEN EMIT LOOP DROP CR ; : SCR 3 COLOUR 128 COLOUR 0 DO I ROW? LOOP ;')
-    ev(': FILL 0 DO I . CR LOOP ;')
+    ev(': CFILL 0 DO I . CR LOOP ;')
 
     def screen(rows=12, settle=1.5):
         # The console is rendered on the ESP (GUI Stage 1c): read its exact
@@ -90,7 +90,7 @@ def run(c, a, r, check):
     for i in range(a.round_trips):
         t = time.perf_counter()
         ev('WB-OPEN')
-        ev('30 FILL')          # output while the editor is visible
+        ev('30 CFILL')          # output while the editor is visible
         ev('WB-CLOSE')
         times.append(round((time.perf_counter() - t) * 1000))
     r['round_trip_ms'] = times

@@ -57,8 +57,11 @@ def main():
                     raise AssertionError(f'{source!r}: {out["output"][-200:]}')
                 lines = out['output'].split('\r\n')
                 for i, line in enumerate(lines):
-                    if line.strip() == source.strip() and i + 1 < len(lines):
-                        return lines[i + 1].strip()
+                    if line.strip().endswith(source.strip()):
+                        # The answer follows the echo; skip a background task's line.
+                        rest = [l.strip() for l in lines[i + 1:] if l.strip() and not re.match(r'^[a-z][\w-]*: ', l)]
+                        if rest:
+                            return rest[0]
                 return lines[-1].strip()
 
             result('-1 STOP 127 VOLUME')
@@ -105,6 +108,16 @@ def main():
     except Exception as e:
         r['status'] = 'failed'
         r['error'] = str(e)
+    finally:
+        # Never leave a sound playing, whatever happened above (a failed check
+        # once left the looping test tune running).
+        try:
+            with RPCClient(timeout=60) as c:
+                c.initialize()
+                c.tool('connect', {})
+                c.tool('evaluate', {'source': '-1 STOP 127 VOLUME', 'timeout': 20})
+        except Exception as e:
+            r['stop_error'] = str(e)
     a.output.write_text(json.dumps(r, indent=2) + '\n')
     print(json.dumps({k: r[k] for k in r if k != 'samples'}, indent=2))
     return 0 if r['status'] == 'passed' else 1
