@@ -77,6 +77,8 @@ static int host_serve(const unsigned char *r,size_t length,unsigned char *o,unsi
 unsigned platform_console_dropped(void){return 0;}
 void platform_boot_ready(void){++ready;}
 static unsigned esp_epoch_fake;unsigned platform_vdp_epoch(void){return esp_epoch_fake;}
+int platform_vdp_nudged(void){return 0;}
+void (*platform_console_divert(void (*sink)(unsigned char)))(unsigned char){(void)sink;return 0;}
 void platform_boot_trial(void){}
 int storage_init(void){return 1;}
 const char *storage_error(void){return error;}
@@ -105,7 +107,7 @@ int storage_stream_read(unsigned s,void *b,size_t n,size_t *got){*got=fread(b,1,
 int storage_stream_write(unsigned s,const void *b,size_t n,size_t *put){*put=fwrite(b,1,n,streams[s]);return *put==n;}
 int storage_stream_close(unsigned s){if(s>=STORAGE_STREAMS||!streams[s])return 0;int ok=!fclose(streams[s]);streams[s]=NULL;return ok;}
 static unsigned record_previous(void){unsigned char a[32],b[32];size_t an=0,bn=0;int av=storage_read_file("/VIOS/BOOT0.REC",a,32,&an)&&an==32,bv=storage_read_file("/VIOS/BOOT1.REC",b,32,&bn)&&bn==32;assert(av||bv);return !av?b[6]:!bv?a[6]:vios_get32(a+12)>vios_get32(b+12)?a[6]:b[6];}
-static void reset(void){forth_init();assert(vios_runtime_init());}
+static void reset(void){forth_init();if(!vios_runtime_init()){fprintf(stderr,"runtime init: %s\n",forth_last_error());abort();}}
 static void eval(const char *s){if(!forth_eval(s)){fprintf(stderr,"eval failed: %s: %s\n",s,forth_last_error());abort();}}
 static const char *manifest(void){captured_length=0;captured[0]=0;capturing=1;eval("BOOT-MANIFEST");platform_console_flush();capturing=0;assert(!fvm_depth);return captured;}
 /* Simulated ticks (tasks design B2): after test_every instructions while armed. */

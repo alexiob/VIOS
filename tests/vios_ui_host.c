@@ -175,9 +175,28 @@ int main(int argc, char **argv) {
     assert(fvm_pop() == FVM_MASK && fvm_pop() == 1 && fvm_pop() == 2 && fvm_pop() == 2);   /* ACTIVATE widget 2 in window 1 */
     eval("1 UI-WDELETE 0 UI-WDELETE");
     assert(!u.widgets[0].used && !u.widgets[2].used);
-    fails("48 1 UI-LABEL UI-NONE 0 0 1 1 0 UI-WIDGET");
-    fails("5 1 9 UI-NONE 0 0 1 1 0 UI-WIDGET");
+    fails("64 1 UI-LABEL UI-NONE 0 0 1 1 0 UI-WIDGET");
+    fails("5 1 11 UI-NONE 0 0 1 1 0 UI-WIDGET");
     fails("5 TXT UI-WGET");
+
+    /* Tool widgets from Forth: a table, a TextView, read-back, the key policy. */
+    p.errors = 0;                                                                   /* UI-WGET of widget 5 above */
+    eval("10 1 UI-LIST UI-NONE 0 0 40 4 0 UI-WIDGET  8 12 2 10 UI-COLUMNS  S\" ID\tNAME\" 10 UI-WTEXT");
+    eval("S\" 1\tSQUARE\" 10 UI-ROW  S\" 2\tCUBE\" 10 UI-ROW  10 700 UI-ITEMS  S\" far\" 10 699 UI-ITEM");
+    assert(!p.errors && u.widgets[10].count == 700 && u.widgets[10].ncols == 2 && !strcmp(u.items[u.widgets[10].first + 699], "far"));
+    eval("11 1 UI-TEXTVIEW UI-NONE 0 5 40 6 0 UI-WIDGET  S\" : SQ DUP * ;\" 11 UI-TEXT  S\"  3 SQ .\" 11 UI-TEXT+");
+    eval("11 12 12 UI-SELECT  S\"  9\" 11 UI-INSERT  CREATE BIG 64 ALLOT  11 BIG 64 UI-TEXT@");
+    assert(fvm_pop() == 21 && !p.errors);
+    eval("BIG 12 + C@ BIG 13 + C@");
+    assert(fvm_pop() == '9' && fvm_pop() == ' ');
+    eval("11 BIG 5 UI-TEXT@");
+    assert(fvm_pop() == 5);
+    eval("1 1 UI-KEYS");
+    assert(u.key_policy[1] == 1);
+    fails("1 2 UI-KEYS");
+    fails("10 1 2 3 4 5 6 7 8 9 9 10 UI-COLUMNS");
+    fails("S\" x\" 10 1024 UI-ITEM");
+    eval("10 UI-WDELETE 11 UI-WDELETE 1 0 UI-KEYS");
 
     /* Turbo Vision from Forth: the menu bar and the status line appear. */
     eval("1 UI-STYLE");

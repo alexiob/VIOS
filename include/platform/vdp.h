@@ -14,4 +14,6 @@ void platform_boot_trial(void);
 /* Counts ESP restarts seen while running (packet FA): the display server's
  * state (windows, surfaces) is gone after each; callers that own some redo it. */
 unsigned platform_vdp_epoch(void);
+/* 1 once per display-server nudge (packet F0: events are waiting); no traffic. */
+int platform_vdp_nudged(void);
 #endif

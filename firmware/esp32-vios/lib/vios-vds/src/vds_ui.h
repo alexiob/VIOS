@@ -62,24 +62,52 @@ enum { VDS_EASE_LINEAR = 0, VDS_EASE_IN_OUT = 1, VDS_EASE_OUT = 2, VDS_EASE_SPRI
 
 /* Widgets (G4): rendered by the ESP into their window's surface; events to
  * the CPU: 02 ACTIVATE id=widget args: window; 03 SELECT id=widget args:
- * index(u16) window; 04 CHANGE id=widget args: value(s16) window. */
-enum { VDS_EVENT_ACTIVATE = 0x02, VDS_EVENT_SELECT = 0x03, VDS_EVENT_CHANGE = 0x04 };
-enum { VDS_WK_BOX = 1, VDS_WK_LABEL, VDS_WK_BUTTON, VDS_WK_CHECK, VDS_WK_RADIO, VDS_WK_INPUT, VDS_WK_LIST, VDS_WK_PROGRESS };
-enum { VDS_WF_HIDDEN = 1, VDS_WF_DISABLED = 2, VDS_WF_FILL = 4 };   /* FILL: a root box covering the client area */
+ * index(u16) window; 04 CHANGE id=widget args: value(s16) window (TextView:
+ * once when it becomes dirty); 05 TEXT id=TextView args: what sel_start(u16)
+ * sel_end(u16) window (what: 1 accept Ctrl+S, 2 do it Ctrl+D, 3 print it
+ * Ctrl+P, 4 inspect it Ctrl+I); 08 EXPAND id=tree list args: index(u16)
+ * window open (Right 1, Left 0); 09 PAGE id=pager list args: dir(s8) window
+ * (moving past the first/last row, PgUp/PgDn at an edge).
+ *
+ * Lists keep their rows in a pool shared by all lists (VDS_LIST_POOL rows of
+ * VDS_ITEM_TEXT bytes). With column widths (op 93) a list is a table: '\t'
+ * separates the cells of a row and of the header (the widget text). Tabs show
+ * the widget text split at '|'; value is the selected tab. A TextView owns
+ * one of VDS_TEXT_SLOTS buffers and is edited locally; the CPU reads it back. */
+enum { VDS_EVENT_ACTIVATE = 0x02, VDS_EVENT_SELECT = 0x03, VDS_EVENT_CHANGE = 0x04, VDS_EVENT_TEXT = 0x05,
+       VDS_EVENT_EXPAND = 0x08, VDS_EVENT_PAGE = 0x09 };
+enum { VDS_TEXT_ACCEPT = 1, VDS_TEXT_DO = 2, VDS_TEXT_PRINT = 3, VDS_TEXT_INSPECT = 4 };
+enum { VDS_WK_BOX = 1, VDS_WK_LABEL, VDS_WK_BUTTON, VDS_WK_CHECK, VDS_WK_RADIO, VDS_WK_INPUT, VDS_WK_LIST, VDS_WK_PROGRESS,
+       VDS_WK_TEXT, VDS_WK_TABS };
+enum { VDS_WF_HIDDEN = 1, VDS_WF_DISABLED = 2, VDS_WF_FILL = 4,   /* FILL: a root box covering the client area */
+       VDS_WF_READONLY = 8, VDS_WF_TREE = 16, VDS_WF_PAGER = 32 };
 enum { VDS_LAYOUT_NONE = 0, VDS_LAYOUT_COLUMN = 1, VDS_LAYOUT_ROW = 2 };
-#define VDS_MAX_WIDGETS 48
-#define VDS_WIDGET_TEXT 32
-#define VDS_LIST_POOL 64                /* list items held on the ESP, shared by all lists */
-#define VDS_ITEM_TEXT 24
+enum { VDS_KEYS_FORWARD = 0, VDS_KEYS_DROP = 1 };   /* key policy of a window (op 5A) */
+#define VDS_MAX_WIDGETS 64
+#define VDS_WIDGET_TEXT 48
+#define VDS_LIST_POOL 1024              /* list rows held on the ESP, shared by all lists */
+#define VDS_ITEM_TEXT 32
+#define VDS_TABLE_COLS 8
+#define VDS_TEXT_SLOTS 4
+#define VDS_TEXT_MAX 4096               /* the module source limit */
+#define VDS_CLIP_MAX 1024
 typedef struct {
     uint8_t used, window, kind, parent, flags, layout, gap, fixed, weight;
     uint16_t seq;                       /* creation order: layout and Tab follow it */
     uint8_t col, row, w, h;             /* placement in window client cells (computed under a box) */
-    int16_t value;                      /* check/radio 0/1, progress 0..100, list selection, input caret */
-    uint8_t top;                        /* first visible list item / input scroll */
-    uint8_t count, first;               /* list: item count and first pool slot */
+    int16_t value;                      /* check/radio 0/1, progress 0..100, list selection, input caret, tab */
+    uint16_t top;                       /* first visible list row / input scroll */
+    uint16_t count, first;              /* list: row count and first pool slot */
+    uint8_t slot;                       /* TextView buffer, VDS_NONE if none */
+    uint8_t pending;                    /* drawn at the next flush (wire ops defer drawing) */
+    uint8_t ncols, cols[VDS_TABLE_COLS];   /* table column widths */
     char text[VDS_WIDGET_TEXT];
 } vds_widget;
+typedef struct {                        /* a TextView buffer */
+    uint8_t used, widget, dirty;
+    uint16_t len, caret, anchor, top, left, rev;   /* top: offset of the first visible line */
+    char buf[VDS_TEXT_MAX];
+} vds_text;
 enum { VDS_WIN_MOVED = 1, VDS_WIN_CLOSE = 2, VDS_WIN_ZOOMED = 3, VDS_WIN_RESTORED = 4 };
 enum { VDS_FROM_MENU = 1, VDS_FROM_ACCELERATOR = 2, VDS_FROM_PALETTE = 3 };
 
@@ -125,7 +153,18 @@ typedef struct vds_ui {
     vds_widget widgets[VDS_MAX_WIDGETS];
     uint8_t widget_focus[VDS_MAX_WINDOWS];  /* focused widget per window, VDS_NONE */
     char items[VDS_LIST_POOL][VDS_ITEM_TEXT];
-    uint8_t items_used, caret_widget;
+    uint16_t items_used;
+    uint8_t caret_widget;
+    vds_text texts[VDS_TEXT_SLOTS];
+    char clip[VDS_CLIP_MAX];
+    uint16_t clip_len;
+    uint8_t key_policy[VDS_MAX_WINDOWS];
+    /* While wire ops are applied, widgets are laid out at once but drawn only
+     * at the end of the batch (or the next frame while a batch is held), so
+     * building a window, appending rows or setting text draws each widget
+     * once, not once per op. */
+    uint8_t deferring, pending_any;
+    uint64_t repaint;                       /* windows to repaint in full */
     uint16_t widget_seq;
     uint8_t widget_cols[VDS_MAX_WINDOWS], widget_rows[VDS_MAX_WINDOWS];   /* size at the last layout */
     uint8_t pointer_mode, buttons;
@@ -163,15 +202,34 @@ int vds_ui_widget_text(vds_ui *u, uint8_t id, const char *text, size_t n);
 int vds_ui_widget_value(vds_ui *u, uint8_t id, int16_t value);
 int vds_ui_widget_layout(vds_ui *u, uint8_t id, uint8_t layout, uint8_t gap);
 int vds_ui_widget_size(vds_ui *u, uint8_t id, uint8_t fixed, uint8_t weight);
-int vds_ui_widget_item(vds_ui *u, uint8_t id, uint8_t index, const char *text, size_t n);
-int vds_ui_widget_count(vds_ui *u, uint8_t id, uint8_t count);
+int vds_ui_widget_item(vds_ui *u, uint8_t id, uint16_t index, const char *text, size_t n);
+int vds_ui_widget_count(vds_ui *u, uint8_t id, uint16_t count);
+/* Append a row to a list (count + 1). */
+int vds_ui_widget_append(vds_ui *u, uint8_t id, const char *text, size_t n);
+/* Table column widths (n <= VDS_TABLE_COLS; 0 makes it a plain list again). */
+int vds_ui_widget_columns(vds_ui *u, uint8_t id, const uint8_t *widths, uint8_t n);
+/* TextView: replace (append 0) or extend (append 1) the text; caret and
+ * selection (anchor == caret: none); insert at the caret replacing the
+ * selection, which then covers the inserted text. */
+int vds_ui_text_set(vds_ui *u, uint8_t id, int append, const char *text, size_t n);
+int vds_ui_text_select(vds_ui *u, uint8_t id, uint16_t caret, uint16_t anchor);
+int vds_ui_text_insert(vds_ui *u, uint8_t id, const char *text, size_t n);
+const vds_text *vds_ui_text(vds_ui *u, uint8_t id);
+/* Key policy of a window (op 5A): VDS_KEYS_DROP keeps the keys no intrinsic
+ * or widget uses from the CPU (F1 still goes through). */
+int vds_ui_key_policy(vds_ui *u, uint8_t window, uint8_t policy);
 int vds_ui_widget_delete(vds_ui *u, uint8_t id);
 int vds_ui_widget_focus(vds_ui *u, uint8_t id);
 /* Lay out and redraw every widget of a window (after resize or style change). */
 void vds_ui_widgets_refresh(vds_ui *u, uint8_t window);
+/* Draw what deferred drawing left pending (wire ops call it themselves). */
+void vds_ui_widgets_flush(vds_ui *u);
 /* Internal to vds_ui.c: keys and clicks for widgets; 1 when consumed. */
 int vds_ui_widget_key(vds_ui *u, uint8_t ascii, uint8_t modifiers, uint8_t vk);
 int vds_ui_widget_click(vds_ui *u, uint8_t window, int col, int row);
+int vds_ui_text_key(vds_ui *u, uint8_t id, uint8_t ascii, uint8_t modifiers, uint8_t vk);
+void vds_ui_text_render(vds_ui *u, uint8_t id);
+void vds_ui_text_release(vds_ui *u, uint8_t id);
 void vds_ui_widgets_forget(vds_ui *u, uint8_t window);
 /* Re-render the menu bar, status line and open menus (after style changes). */
 void vds_ui_refresh(vds_ui *u);

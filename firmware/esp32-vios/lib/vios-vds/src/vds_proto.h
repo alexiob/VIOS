@@ -46,7 +46,9 @@
  *                                        prop 0 x, 1 y, 2 scroll row, 3 scroll col;
  *                                        easing 0 linear, 1 in-out, 2 out, 3 spring)
  *  71  target id prop                    stop a tween where it is
- *  74  key value(u16)                    config: 1 snap_x, 2 style
+ *  5A  id policy                         key policy (0 unused keys to the CPU, 1 dropped)
+ *  74  key value(u16)                    config: 1 snap_x, 2 style, 3 nudge (1: one 1-byte event
+ *                                        packet announces queued events until the next poll)
  *  76  id w h hot_x hot_y transparent    define a sprite (pixels from the pool)
  *  77  id offset(u16) n byte*n           sprite pixel data
  *  78  id x(s16) y(s16)                  move a sprite (hotspot position)
@@ -55,7 +57,9 @@
  *  7B  x(s16) y(s16) buttons             pointer position and buttons (host or keyboard
  *                                        pointer; a press focuses the window under it)
  *  80  id window kind parent col row w h flags   widget (kinds: 1 box, 2 label, 3 button,
- *                                        4 check, 5 radio, 6 input, 7 list, 8 progress)
+ *                                        4 check, 5 radio, 6 input, 7 list, 8 progress, 9 TextView,
+ *                                        10 tabs; flags 1 hidden, 2 disabled, 4 fill, 8 read-only,
+ *                                        16 tree, 32 pager)
  *  81  id n ch*n                         widget text ('&' marks a mnemonic)
  *  82  id value(s16)                     widget value
  *  83  id layout gap                     box layout (0 none, 1 column, 2 row)
@@ -65,6 +69,16 @@
  *  87  id                                delete a widget and its children
  *  88  id                                focus a widget
  *  89  id                                reply 89 id value(s16) n ch*n (text, at most 25)
+ *  8A  id mode n ch*n                    TextView text: mode 0 replace, 1 append
+ *  8B  id caret(u16) anchor(u16)         TextView caret and selection
+ *  8C  id offset(u16) n                  reply 8C id offset(u16) n ch*n (n <= 25)
+ *  8D  id n ch*n                         TextView insert at the caret (replaces and then
+ *                                        selects the inserted text)
+ *  8E  id                                reply 8E id len(u16) caret(u16) anchor(u16) rev(u16) dirty
+ *  90  id index(u16) n ch*n              list row (u16 index)
+ *  91  id count(u16)                     list length (u16)
+ *  92  id k (n ch*n)*k                   append k rows to a list
+ *  93  id n width*n                      table column widths (n <= 8, 0: plain list)
  */
 #ifndef VIOS_VDS_PROTO_H
 #define VIOS_VDS_PROTO_H
@@ -102,6 +116,9 @@ typedef struct vds_proto {
     /* Events are queued for the CPU to poll (op 36) unless push_events is set,
      * in which case each one is sent at once as a VDS_PACKET_EVENT. */
     uint8_t push_events, event_head, event_count, event_lost;
+    /* Nudge (config 3): one 1-byte VDS_PACKET_EVENT when an event is queued
+     * and none was announced since the last poll, so the CPU polls on demand. */
+    uint8_t nudge, nudged;
     uint8_t event_len[VDS_EVENT_QUEUE], events[VDS_EVENT_QUEUE][VDS_EVENT_MAX];
     /* Optional intrinsics (vds_ui sets these): CPU focus requests, closes. */
     void *ui;

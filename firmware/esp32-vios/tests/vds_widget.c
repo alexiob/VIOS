@@ -167,8 +167,8 @@ int main(int argc, char **argv) {
     uint8_t get[] = {0x89, NAME};
     assert(vds_proto_batch(&p, get, sizeof get));
     assert(last_reply[0] == 0x89 && last_reply[1] == NAME && last_reply[4] == 3 && !memcmp(last_reply + 5, "BM1", 3));
-    for (int i = 0; i < 40; ++i) key((uint8_t)('a' + i % 26), 0, 0);
-    assert(strlen(w[NAME].text) == VDS_WIDGET_TEXT - 1 && w[NAME].top == 0);  /* full; fits the 40-cell field */
+    for (int i = 0; i < 50; ++i) key((uint8_t)('a' + i % 26), 0, 0);
+    assert(strlen(w[NAME].text) == VDS_WIDGET_TEXT - 1 && w[NAME].top == VDS_WIDGET_TEXT - 40);  /* full; scrolled in the 40-cell field */
     assert(vds_ui_widget(&u, 40, 1, VDS_WK_INPUT, VDS_NONE, 45, 6, 8, 1, 0));    /* a narrow field scrolls */
     assert(vds_ui_widget_text(&u, 40, "0123456789ABCDEFGHIJ", 20) && vds_ui_widget_focus(&u, 40));
     assert(key(0, 0, VDS_VK_END) && w[40].value == 20 && w[40].top == 13 && v.surfaces[0].cur_col == 45 + 7);
@@ -248,7 +248,7 @@ int main(int argc, char **argv) {
     for (uint8_t i = 0; i < 20; ++i) { char s[8]; snprintf(s, sizeof s, "L%u", i); assert(vds_ui_widget_item(&u, 30, i, s, strlen(s))); }
     assert(vds_ui_widget_count(&u, LIST, 30));                              /* grows past list 30 */
     assert(!strcmp(u.items[w[LIST].first], "LIVE1D") && !strcmp(u.items[w[30].first + 19], "L19"));
-    assert(!vds_ui_widget_count(&u, 30, 40));                               /* pool full: refused, unchanged */
+    assert(!vds_ui_widget_count(&u, 30, VDS_LIST_POOL - 29));               /* pool full: refused, unchanged */
     assert(w[30].count == 20 && !strcmp(u.items[w[30].first + 19], "L19"));
     assert(vds_ui_widget_delete(&u, LIST) && u.items_used == 20 && !strcmp(u.items[w[30].first], "L0"));
     matches_full_render();
@@ -278,9 +278,9 @@ int main(int argc, char **argv) {
                                   VDS_VK_PAGEUP, VDS_VK_PAGEDOWN, VDS_VK_RETURN, VDS_VK_BACKSPACE, VDS_VK_DELETE, 0, 0, 0};
     for (int step = 0; step < 6000; ++step) {
         uint8_t id = (uint8_t)rnd(VDS_MAX_WIDGETS);
-        switch (rnd(12)) {
-        case 0: vds_ui_widget(&u, id, 1, (uint8_t)(1 + rnd(8)), rnd(3) ? VDS_NONE : (uint8_t)rnd(VDS_MAX_WIDGETS),
-                              (uint8_t)rnd(40), (uint8_t)rnd(25), (uint8_t)rnd(30), (uint8_t)rnd(6), (uint8_t)rnd(8)); break;
+        switch (rnd(13)) {
+        case 0: vds_ui_widget(&u, id, 1, (uint8_t)(1 + rnd(10)), rnd(3) ? VDS_NONE : (uint8_t)rnd(VDS_MAX_WIDGETS),
+                              (uint8_t)rnd(40), (uint8_t)rnd(25), (uint8_t)rnd(30), (uint8_t)rnd(6), (uint8_t)rnd(64)); break;
         case 1: vds_ui_widget_text(&u, id, "Some &text here", rnd(16)); break;
         case 2: vds_ui_widget_value(&u, id, (int16_t)rnd(120)); break;
         case 3: vds_ui_widget_layout(&u, id, (uint8_t)rnd(3), (uint8_t)rnd(3)); break;
@@ -290,7 +290,16 @@ int main(int argc, char **argv) {
         case 7: { vds_geometry g = {(int16_t)rnd(400), (int16_t)rnd(300), (uint8_t)(1 + rnd(60)), (uint8_t)(1 + rnd(30))};
                   vds_window_resize(&v, 1, g.cols, g.rows); uint8_t b[] = {0x30}; vds_proto_batch(&p, b, 1); break; }
         case 8: vds_ui_pointer(&u, (int16_t)rnd(640), (int16_t)rnd(480), (uint8_t)rnd(2)); break;
-        default: key((uint8_t)(rnd(3) ? 0 : 'a' + rnd(26)), (uint8_t)(rnd(4) ? 0 : VDS_MOD_SHIFT), vks[rnd(sizeof vks)]); break;
+        case 9:                                                 /* the tool widgets' ops */
+            switch (rnd(5)) {
+            case 0: vds_ui_text_set(&u, id, (int)rnd(2), "one\ntwo lines\r\n", rnd(17)); break;
+            case 1: vds_ui_text_select(&u, id, (uint16_t)rnd(40), (uint16_t)rnd(40)); break;
+            case 2: vds_ui_text_insert(&u, id, "ins\n", rnd(5)); break;
+            case 3: { uint8_t c[3] = {(uint8_t)rnd(9), (uint8_t)rnd(9), (uint8_t)rnd(9)}; vds_ui_widget_columns(&u, id, c, (uint8_t)rnd(4)); break; }
+            default: vds_ui_widget_append(&u, id, "a\tb\tc", rnd(6)); break;
+            }
+            break;
+        default: key((uint8_t)(rnd(3) ? 0 : 'a' + rnd(26)), (uint8_t)(rnd(4) ? 0 : rnd(2) ? VDS_MOD_SHIFT : VDS_MOD_CTRL), vks[rnd(sizeof vks)]); break;
         }
         assert(u.items_used <= VDS_LIST_POOL);
         for (unsigned i = 0; i < VDS_MAX_WIDGETS; ++i)

@@ -4,6 +4,7 @@
 #include "vios/workbench.h"
 #include "vios/text_screen.h"
 #include "vios/runtime.h"
+#include "vios/tools.h"
 #include "platform/vdp.h"
 #include "platform/input.h"
 extern unsigned short platform_timer_read(void);
@@ -145,7 +146,7 @@ static void esp_restarted(void){
  if(vios_workbench_active()&&display_repaint()){vios_text_show();vios_workbench_compose();}
 }
 void vios_workbench_idle(int changed){
- esp_restarted();
+ esp_restarted();vios_tools_idle();
  if(con_open){console_idle();return;}
  if(!vios_workbench_active())return;
  /* The event poll pauses RX; only then interpret console output for the

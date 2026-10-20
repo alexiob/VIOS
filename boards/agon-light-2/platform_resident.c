@@ -71,7 +71,10 @@ void platform_console_flush(void) {
  send_bytes(header,sizeof header);send_bytes(output,output_used);
  output_used=0;
 }
+static void (*console_sink)(unsigned char);
+void (*platform_console_divert(void (*sink)(unsigned char)))(unsigned char) {void (*old)(unsigned char)=console_sink;console_sink=sink;return old;}
 void platform_console_putc(unsigned char c) {
+ if(console_sink){console_sink(c);return;}
  if(console_tap)console_tap(c);
  if(!in_echo&&(shown_length||rx.local_erase))foreign_output=1;
  output[output_used++]=c;
@@ -133,6 +136,7 @@ static void esp_restart_check(void){
  ++esp_epoch;esp_line_flags=0xFF;esp_line_update();
 }
 unsigned platform_vdp_epoch(void){esp_restart_check();return esp_epoch;}
+int platform_vdp_nudged(void){unsigned char b[4];unsigned n;ez80_uart0_rx_pause();poll();return vdp_transport_packet(&rx,0xF0,b,sizeof b,&n);}
 void platform_keyboard_route(int enabled) {
  rx_pause();vdp_transport_keyboard_route(&rx,enabled);poll();esp_line_update();
 }

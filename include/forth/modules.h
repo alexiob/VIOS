@@ -14,7 +14,9 @@ struct forth_module_info {
     unsigned words;
     size_t token_bytes,direct_bytes,data_bytes;
 };
-/* One pending source, eight names, two resident generations per name.
+/* One pending source, eight names, two tracked generations per name (current
+ * and previous); activating again retires the older one, whose code and source
+ * stay allocated until restart, so repeated accepts use the pools.
  * Source is exact ASCII (CRC32 is an integrity check, not authentication).
  * Stage uses a decimal, checked reference VM and leaves live state untouched.
  * Optional tests return exactly one true flag; their data writes are discarded.

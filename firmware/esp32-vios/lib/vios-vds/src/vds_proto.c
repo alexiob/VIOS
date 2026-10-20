@@ -37,7 +37,7 @@ static size_t op_size(const uint8_t *b, size_t n) {
     case 0x76: s = 7; break;
     case 0x77: s = n < 5 ? 0 : 5u + b[4]; break;
     case 0x78: s = 6; break;
-    case 0x59: s = 3; break;
+    case 0x59: case 0x5A: s = 3; break;
     case 0x60: s = n < 8 ? 0 : 8u + b[7]; break;
     case 0x61: s = n < 4 || n < 4u + b[2] ? 0 : 4u + b[2] + 2u * b[3 + b[2]]; break;
     case 0x62: s = 4; break;
@@ -49,7 +49,19 @@ static size_t op_size(const uint8_t *b, size_t n) {
     case 0x82: case 0x83: case 0x84: s = 4; break;
     case 0x85: s = n < 4 ? 0 : 4u + b[3]; break;
     case 0x86: s = 3; break;
-    case 0x87: case 0x88: case 0x89: s = 2; break;
+    case 0x87: case 0x88: case 0x89: case 0x8E: s = 2; break;
+    case 0x8A: s = n < 4 ? 0 : 4u + b[3]; break;
+    case 0x8B: s = 6; break;
+    case 0x8C: s = 5; break;
+    case 0x8D: s = n < 3 ? 0 : 3u + b[2]; break;
+    case 0x90: s = n < 5 ? 0 : 5u + b[4]; break;
+    case 0x91: s = 4; break;
+    case 0x92:                                          /* id k (n ch*n)*k */
+        if (n < 3) return 0;
+        s = 3;
+        for (unsigned k = 0; k < b[2]; ++k) { if (s >= n) return 0; s += 1u + b[s]; }
+        break;
+    case 0x93: s = n < 3 ? 0 : 3u + b[2]; break;
     default: s = 0; break;
     }
     return s && s <= n ? s : 0;
@@ -74,6 +86,11 @@ void vds_proto_event(vds_proto *p, uint8_t kind, uint8_t id, const uint8_t *args
     unsigned slot = (p->event_head + p->event_count++) % VDS_EVENT_QUEUE;
     memcpy(p->events[slot], data, n + 3u);
     p->event_len[slot] = (uint8_t)(n + 3);
+    if (p->nudge && !p->nudged && p->send) {             /* one wake-up until the next poll */
+        uint8_t waiting = p->event_count;
+        p->nudged = 1;
+        p->send(p->ctx, VDS_PACKET_EVENT, &waiting, 1);
+    }
 }
 
 /* Reply 36 left n (len event)*n: as many queued events as fit. A loss is
@@ -100,6 +117,7 @@ static void poll_events(vds_proto *p, uint8_t max) {
         --p->event_count;
     }
     r[1] = p->event_count;
+    p->nudged = 0;
     reply(p, r, (uint8_t)at);
 }
 
@@ -160,7 +178,7 @@ static int reserved(const uint8_t *b) {
         return b[1] >= VDS_PROTO_SURFACES;
     case 0x50: case 0x55:
         return b[1] >= VDS_PROTO_WINDOWS || (b[2] != VDS_NONE && b[2] >= VDS_PROTO_SURFACES);
-    case 0x51: case 0x52: case 0x53: case 0x54: case 0x56: case 0x57: case 0x58: case 0x59:
+    case 0x51: case 0x52: case 0x53: case 0x54: case 0x56: case 0x57: case 0x58: case 0x59: case 0x5A:
         return b[1] >= VDS_PROTO_WINDOWS;
     }
     return 0;
@@ -171,7 +189,7 @@ static int apply(vds_proto *p, const uint8_t *b) {
     uint8_t op = b[0];
     if (op != 0x10 && op != 0x11) p->more_ok = 0;
     if (reserved(b)) return 0;
-    if ((op >= 0x59 && op <= 0x62) || op == 0x70 || op == 0x71 || op == 0x7B || (op >= 0x80 && op <= 0x89))
+    if ((op >= 0x59 && op <= 0x62) || op == 0x70 || op == 0x71 || op == 0x7B || (op >= 0x80 && op <= 0x93))
         return p->ui_op ? p->ui_op(p->ui, b) : 0;
     switch (op) {
     case 0x01: {
@@ -265,6 +283,7 @@ static int apply(vds_proto *p, const uint8_t *b) {
         uint16_t value = u16(b + 2);
         if (b[1] == 1) return value <= 255 && vds_set_snap(v, (uint8_t)value);
         if (b[1] == 2) return value <= 255 && vds_set_style(v, (uint8_t)value);
+        if (b[1] == 3) { p->nudge = value != 0; p->nudged = 0; return 1; }
         return 0;
     }
     case 0x76: return define_sprite(p, b);
@@ -298,7 +317,7 @@ int vds_proto_batch(vds_proto *p, const uint8_t *b, size_t len) {
     for (size_t at = 0; at < len;) {
         size_t s = op_size(b + at, len - at);
         uint8_t op = b[at];
-        if (op != 0x30 && op != 0x31 && op != 0x32 && op != 0x33 && op != 0x36 && op != 0x89 && !p->hold) { p->hold = 1; p->held_ms = 0; }
+        if (op != 0x30 && op != 0x31 && op != 0x32 && op != 0x33 && op != 0x36 && op != 0x89 && op != 0x8C && op != 0x8E && !p->hold) { p->hold = 1; p->held_ms = 0; }
         if (!apply(p, b + at)) error(p, op, at);
         at += s;
     }
