@@ -362,7 +362,18 @@ Fix (firmware-gui-tools-4): wire ops lay widgets out at once but draw them only
 at the end of the batch, or at the next frame while a batch is held. On the host
 the worst batch of a tools session drops from ~100 µs to ~30 µs and the total
 from 1.2 ms to 0.2 ms; scaled to the board, the first build should take ~9 ms.
-Board re-measure pending. Read-back at 0.65 s for a full module is acceptable
+**Board run 2** (firmware-gui-tools-4,
+[`vios-gui-tools-accept-2026-10-20-run2.json`](../../bring-up/vios-gui-tools-accept-2026-10-20-run2.json)):
+17 of 18 checks pass. Building a tool window now holds a batch for 4.0–5.6 ms
+(was 29 ms); frame work ≤ 4.9 ms and lock wait ≤ 0.1 ms (budget met). The one
+check still failing is **vblank start latency: up to 2.9 ms against 1 ms**; the
+plain GUI acceptance on the same firmware gives 87 µs. Cause: a key kicks an
+extra frame between vblanks, and in a tool that frame composes a large area
+(the code pane and info list after a selection, up to ~4.4 ms, inside the 4 ms
+compose budget plus overhead); when it overlaps the next vblank, that frame
+starts late. Options, not yet chosen: split the kicked frame's work with the
+existing time budget (`vds_frame_within`), or skip the kick when large damage
+waits for the next vblank anyway. Read-back at 0.65 s for a full module is acceptable
 for an explicit accept, so the chunked path stays (decision 2).
 
 **Traffic (host test, the whole tool session):** 48 nudges, 64 requests,
