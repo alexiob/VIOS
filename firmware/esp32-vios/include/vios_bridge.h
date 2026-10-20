@@ -211,7 +211,7 @@ void vios_probe_glyphs(const char *text,size_t count){
 void vios_parser_time(uint32_t us){stat_parser_us.fetch_add(us);stat_max(stat_parser_max,us);}
 static void stats_reset(){
     stat_glyphs=0;stat_console_bytes=0;stat_console_writes=0;stat_injected=0;
-    (void)vios_console_feed_max_us(true);(void)vios_gui_key_max_us(true);
+    (void)vios_console_feed_max_us(true);(void)vios_gui_key_max_us(true);(void)vios_gui_hold_max_us(true);
     stat_usb_block_us=0;stat_usb_block_max=0;stat_parser_us=0;stat_parser_max=0;stat_console_sync=0;vios_g0_reset_gap();for(auto &m:stat_section_max)m=0;vios_frame_stats_reset();vios_vga_isr_gap_max=0;vios_vga_isr_late=0;
 }
 static void probe_report(char *line,size_t size){
@@ -474,7 +474,7 @@ static void run_cpu(bool fresh,uint16_t sequence) {
 }
 static void line_reply(uint16_t sequence,const char *text);
 static void control_command(uint16_t sequence,const char *command,size_t length) {
-    char reply[960];   /* STATS worst case 931 bytes; GS 579; host limit 1024 */
+    char reply[1000];   /* STATS worst case 957 bytes; GS 579; host limit 1024 */
     if(length==1&&command[0]=='Z') {
         // Force restart abandons queued UART bytes; do not wait on a wedged VDP lock.
         // During bootstrap main still owns ZDI, so the restricted supervisor only resets ESP.
@@ -490,7 +490,7 @@ static void control_command(uint16_t sequence,const char *command,size_t length)
     uint32_t stage0_value;
     if(length==1&&command[0]=='T'){
         uint32_t frame_stats[3];vios_frame_stats(frame_stats,frame_stats+1,frame_stats+2);uint32_t parts[3];vios_frame_parts(parts,parts+1,parts+2);uint32_t presents[2];vios_frame_presents(presents,presents+1);uint32_t late[5];vios_frame_late(late);
-        snprintf(reply,sizeof reply,"STATS glyphs=%lu console_bytes=%lu console_writes=%lu usb_block_us=%lu usb_block_max=%lu parser_us=%lu parser_max=%lu injected=%lu console_sync=%lu console_queued=%u loop_gap_max=%lu host_service_max=%lu console_max=%lu keyboard_max=%lu frames=%lu vblank_start_max=%lu frame_work_max=%lu vga_isr_gap_max_us=%lu vga_isr_late=%lu top_black_frames=%lu frame_lock_max=%lu frame_service_max=%lu frame_gui_max=%lu present_frames=%lu present_work_max=%lu console_empty_in=%lu console_empty_out=%lu console_canary=%lu link_requests=%lu link_resent=%lu link_gone=%lu late_us=%lu late_cause=%lu late_prev_kind=%lu late_prev_us=%lu kick_skipped=%lu feed_max=%lu key_max=%lu\r\n",
+        snprintf(reply,sizeof reply,"STATS glyphs=%lu console_bytes=%lu console_writes=%lu usb_block_us=%lu usb_block_max=%lu parser_us=%lu parser_max=%lu injected=%lu console_sync=%lu console_queued=%u loop_gap_max=%lu host_service_max=%lu console_max=%lu keyboard_max=%lu frames=%lu vblank_start_max=%lu frame_work_max=%lu vga_isr_gap_max_us=%lu vga_isr_late=%lu top_black_frames=%lu frame_lock_max=%lu frame_service_max=%lu frame_gui_max=%lu present_frames=%lu present_work_max=%lu console_empty_in=%lu console_empty_out=%lu console_canary=%lu link_requests=%lu link_resent=%lu link_gone=%lu late_us=%lu late_cause=%lu late_prev_kind=%lu late_prev_us=%lu kick_skipped=%lu feed_max=%lu key_max=%lu batch_hold_max=%lu\r\n",
             (unsigned long)stat_glyphs.load(),(unsigned long)stat_console_bytes.load(),(unsigned long)stat_console_writes.load(),
             (unsigned long)stat_usb_block_us.load(),(unsigned long)stat_usb_block_max.load(),(unsigned long)stat_parser_us.load(),
             (unsigned long)stat_parser_max.load(),(unsigned long)stat_injected.load(),(unsigned long)stat_console_sync.load(),
@@ -501,7 +501,7 @@ static void control_command(uint16_t sequence,const char *command,size_t length)
             (unsigned long)parts[0],(unsigned long)parts[1],(unsigned long)parts[2],(unsigned long)presents[0],(unsigned long)presents[1],
             (unsigned long)stat_console_empty_in.load(),(unsigned long)stat_console_empty_out.load(),(unsigned long)stat_console_canary.load(),
             (unsigned long)stat_link_requests.load(),(unsigned long)stat_link_resent.load(),(unsigned long)stat_link_gone.load(),
-            (unsigned long)late[0],(unsigned long)late[1],(unsigned long)late[2],(unsigned long)late[3],(unsigned long)late[4],(unsigned long)vios_console_feed_max_us(false),(unsigned long)vios_gui_key_max_us(false));
+            (unsigned long)late[0],(unsigned long)late[1],(unsigned long)late[2],(unsigned long)late[3],(unsigned long)late[4],(unsigned long)vios_console_feed_max_us(false),(unsigned long)vios_gui_key_max_us(false),(unsigned long)vios_gui_hold_max_us(false));
         control_reply(sequence,reply);return;
     }
     if(length==2&&command[0]=='T'&&command[1]=='0'){stats_reset();control_reply(sequence,"STATS RESET\r\n");return;}

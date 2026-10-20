@@ -20,6 +20,7 @@ static SemaphoreHandle_t vios_display_mutex;
 static TaskHandle_t vios_frame_handle;
 static volatile uint32_t vios_vblank_stamp;
 static volatile bool vios_vblank_pending;
+static volatile bool vios_frame_wants_lock;
 static std::atomic<uint32_t> vios_frames(0), vios_frame_start_max(0), vios_frame_work_max(0);
 static std::atomic<uint32_t> vios_frames_skipped(0);   // kicked frames left to the vblank frame (too close to it)
 /* Where a long frame goes: waiting for the display lock, console service, GUI step. */
@@ -107,9 +108,11 @@ static void vios_frame_task(void *) {
             vblank_last = vios_vblank_stamp;
             vios_vblank_pending = false;
         }
+        vios_frame_wants_lock = true;   // a GUI batch hands the lock over at its next op (vios_gui.h)
         TaskHandle_t holder = vios_display_mutex ? xSemaphoreGetMutexHolder(vios_display_mutex) : nullptr;
         void *holder_site = holder ? vios_lock_site : nullptr;   // the holder's outermost lock call
         vios_display_lock();
+        vios_frame_wants_lock = false;
         uint32_t locked = (uint32_t)esp_timer_get_time();
         if (locked - start > vios_wait_us) {   // who made the longest wait (nobody: the wait was not the lock)
             vios_wait_us = locked - start;vios_wait_site = holder_site;
@@ -144,7 +147,9 @@ static void vios_frame_task(void *) {
     }
 }
 
-bool vios_frame_waiting() { return vios_vblank_pending; }
+/* The frame task waits for the display lock. (vblank_pending is cleared as
+ * soon as the task wakes, before it waits, so it cannot say this.) */
+bool vios_frame_waiting() { return vios_frame_wants_lock; }
 /* Wake the frame task outside vertical blank (small, tear-free updates). */
 void vios_frame_kick() { if (vios_frame_handle) xTaskNotifyGive(vios_frame_handle); }
 

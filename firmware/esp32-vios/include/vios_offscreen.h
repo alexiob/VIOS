@@ -74,8 +74,10 @@ public:
      * presents the rows it wrote in one copy. */
     /* present_ok: the frame started at vertical blank, so a long present
      * copy cannot run into the next one; otherwise a finished pass waits
-     * (at most one frame) for a frame that did. */
-    template <class Compose> int frame(vds *v, Compose compose, bool present_ok = true) {
+     * (at most one frame) for a frame that did. sync_budget_us caps the
+     * screen -> shadow copy in this frame (a frame kicked between vblanks has
+     * less time than sync_us; a 3 ms copy there delayed the next vblank). */
+    template <class Compose> int frame(vds *v, Compose compose, bool present_ok = true, uint32_t sync_budget_us = UINT32_MAX) {
         /* A finished pass presents at the start of a frame, with no compositing
          * in that frame: the copy (9-14 ms) then fits before the next vblank. */
         if (state == ON && ready) {
@@ -88,7 +90,7 @@ public:
             v->no_blit = 1;   // scrolls recompose during the pass: no screen moves under the copy, no row copies in PSRAM
         }
         if (state == SYNC) {   // composition starts the frame after the copy: one or the other per frame
-            if (sync(v)) begin(v);
+            if (sync(v, sync_budget_us < sync_us ? sync_budget_us : sync_us)) begin(v);
             else if (++frames >= max_frames) { state = IDLE; v->no_blit = 0; ++abandoned; cooling = true; }
             return v->ndamage == 0;
         }
@@ -121,14 +123,14 @@ private:
         if (p->saved_hook) p->saved_hook(p->saved_ctx, y);
     }
     /* Copy the next rows of the screen; true once the shadow is complete. */
-    bool sync(vds *v) {
+    bool sync(vds *v, uint32_t budget_us) {
         if (v->stats.blits != blits_at) { synced = 0; blits_at = v->stats.blits; }   // the screen moved under the copy
         uint32_t started = v->clock_us ? v->clock_us(v->clock_ctx) : 0;
         int limit = v->clock_us ? rows_n : synced + sync_rows;
         while (synced < rows_n && synced < limit) {
             memcpy(shadow[synced], scr[synced], (size_t)bytes);
             ++synced;
-            if (v->clock_us && (uint32_t)(v->clock_us(v->clock_ctx) - started) >= sync_us) break;
+            if (v->clock_us && (uint32_t)(v->clock_us(v->clock_ctx) - started) >= budget_us) break;
         }
         if (frames + 1 > sync_frames_max) sync_frames_max = frames + 1;
         return synced == rows_n;

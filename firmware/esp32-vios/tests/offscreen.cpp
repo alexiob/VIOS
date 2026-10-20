@@ -162,6 +162,21 @@ int main(int argc, char **argv) {
     assert(vds_window_close(&v, 26));
     run(true);
 
+    /* sync_budget_us caps the screen copy per frame: with a clock advancing
+     * 20 us per read, a 1 ms budget copies ~50 rows a frame, so the 480-row
+     * copy needs ~10 frames (the default 3 ms would need ~4). */
+    {static uint32_t now;v.clock_us = [](void *) -> uint32_t { return now += 20; };
+     vds_damage_all(&v);
+     unsigned frames = 0;
+     while (!p.composing_offscreen()) {
+         p.frame(&v, [&]() { return vds_frame_within(&v, BUDGET, UINT32_MAX); }, true, 1000);
+         assert(++frames < 30);
+     }
+     assert(frames >= 8);
+     v.clock_us = nullptr;
+     run(true);
+     matches_reference();}
+
     /* Without shadow memory the presenter is the plain compositor. */
     Presenter plain;
     plain.reset(&v, screen_rows);

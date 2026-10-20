@@ -90,7 +90,7 @@ def main():
                 sections[name] = {k: st.get(k) for k in ('vblank_start_max', 'frame_work_max', 'frame_lock_max', 'frame_gui_max',
                                                          'present_frames', 'present_work_max', 'keyboard_max', 'parser_max',
                                                          # newer firmware: the worst vblank start's cause, the longest display-lock hold
-                                                         'late_us', 'late_cause', 'late_prev_kind', 'late_prev_us', 'feed_max', 'key_max',
+                                                         'late_us', 'late_cause', 'late_prev_kind', 'late_prev_us', 'feed_max', 'key_max', 'batch_hold_max', 'loop_gap_max', 'usb_block_max',
                                                          'batch_max_us', 'ops_us', 'after_us', 'style_us', 'hold_us', 'wait_us', 'key_us', 'frame_wait', 'frame_wait_by', 'frame_wait_at')}
                 for k in worst:
                     worst[k] = max(worst[k], st.get(k) or 0)
