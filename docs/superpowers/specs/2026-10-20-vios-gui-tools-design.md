@@ -315,7 +315,35 @@ surfaces (it renumbers the reserved menu surfaces).
 
 (filled in as stages land)
 
-## 9. Open decisions for the owner
+## 9. Builder calls (settled without the owner, from the design review)
+
+- **eZ80 code lives in RAM** (the resident is loaded to 0x40000), so the tool
+  engine's code counts against the 45.7 KB gap. If it runs over budget, cut in
+  this order: Firmware tab, Handles tab, memory pager, Manager module actions.
+- **Runaway snippets**: Workspace evaluation is what typing the line at the
+  REPL does, so the existing foreground execution budget applies ("execution
+  budget exhausted"); the error is inserted in the workspace. No new watchdog.
+- **Feeders exist**: `forth_inspect_word` gives each word's retained source,
+  module, kind and sizes; `forth_module_info`/`_dependency_at`/`_source` give
+  modules, their dependencies with CRCs (live CRC = the active module's
+  `source_crc32`); "used by" is a scan over all modules' dependencies.
+- **Defaults of §10 are shipped** as stated; none blocks T1. Read-back is built
+  chunked and measured; a bulk path would be an added op, not a change.
+- **Compatibility**: CPU and ESP builds are always paired (the `vios-resident.gui`
+  sidecar rule). The nudge is switched on by the CPU (`CONFIG 3 1`); the 1 s
+  fallback poll is kept and tested so a lost nudge only delays.
+- **No text-input dialog**: Manager "load" picks from a list of `/VIOS` files
+  (`DIR` capture); Inspector "go to address" takes the top of the data stack
+  (set in the Workspace, Smalltalk-style). Firmware tab: display server epoch,
+  errors, frame stats (op 31/33) and `BOOT-STATUS`; nothing new in the resident.
+- **Console/Transcript** is the server-owned window 32 and always exists; do-it
+  output shows there even when it is behind other windows. Print-it with no
+  printed output inserts the values the evaluation left, in the current BASE,
+  separated by spaces, and leaves them on the stack.
+- **Widget ids**: Browser 7, Workspace 2, Inspector 4, Manager 4, dialog 4 =
+  21 of 24. The Manager has no TextView.
+
+## 10. Open decisions for the owner
 
 1. Tools in C now (chosen) vs a Forth tool module later (§2.1).
 2. TextView read-back speed: chunked 26-byte replies vs a bulk reply path (§4.2).
