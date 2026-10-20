@@ -296,13 +296,13 @@ static int ui_pointer(void) {                           /* ( x y buttons -- ) */
     return 1;
 }
 
-/* Widgets (G4). Widget ids 0..47; text up to 31 characters, list items 23. */
-static int widget_id(fcell id) { return range(id, 47, "UI widget id 0..47"); }
+/* Widgets (G4). Widget ids 0..63; text up to 47 characters, list rows 31. */
+static int widget_id(fcell id) { return range(id, VIOS_UI_WIDGETS - 1, "UI widget id 0..63"); }
 static int ui_widget(void) {                            /* ( id window kind parent col row w h flags -- ) */
     fcell a[9];
-    if (!pop(a, 9) || !widget_id(a[0]) || !window_id(a[1]) || !a[2] || !range(a[2], 8, "UI-WIDGET kind 1..8") ||
+    if (!pop(a, 9) || !widget_id(a[0]) || !window_id(a[1]) || !a[2] || !range(a[2], 10, "UI-WIDGET kind 1..10") ||
         (a[3] != 255 && !widget_id(a[3])))
-        return fvm_error ? 0 : forth_error("UI-WIDGET kind 1..8");
+        return fvm_error ? 0 : forth_error("UI-WIDGET kind 1..10");
     unsigned char o[10] = {0x80};
     for (unsigned i = 0; i < 9; ++i) o[1 + i] = b(a[i]);
     op(o, sizeof o);
@@ -311,8 +311,8 @@ static int ui_widget(void) {                            /* ( id window kind pare
 static int ui_wtext(void) {                             /* ( addr len id -- ) */
     fcell a[3];
     if (!pop(a, 3) || !widget_id(a[2])) return 0;
-    unsigned char o[3 + 31] = {0x81, b(a[2]), b(a[1])};
-    if (!text(a[0], a[1], o + 3, 31)) return 0;
+    unsigned char o[3 + 47] = {0x81, b(a[2]), b(a[1])};
+    if (!text(a[0], a[1], o + 3, 47)) return 0;
     op(o, 3 + (unsigned)a[1]);
     return 1;
 }
@@ -335,18 +335,113 @@ static int ui_layout(void) { return widget_triple(0x83, "UI-LAYOUT: layout 0..2,
 static int ui_wsize(void) { return widget_triple(0x84, "UI-WSIZE: fixed and weight 0..255"); }
 static int ui_item(void) {                              /* ( addr len id index -- ) */
     fcell a[4];
-    if (!pop(a, 4) || !widget_id(a[2]) || !range(a[3], 63, "UI-ITEM index 0..63")) return 0;
-    unsigned char o[4 + 23] = {0x85, b(a[2]), b(a[3]), b(a[1])};
-    if (!text(a[0], a[1], o + 4, 23)) return 0;
-    op(o, 4 + (unsigned)a[1]);
+    if (!pop(a, 4) || !widget_id(a[2]) || !range(a[3], VIOS_UI_ROWS - 1, "UI-ITEM index 0..1023")) return 0;
+    unsigned char o[5 + 31] = {0x90, b(a[2]), b(a[3]), (unsigned char)(a[3] >> 8), b(a[1])};
+    if (!text(a[0], a[1], o + 5, 31)) return 0;
+    op(o, 5 + (unsigned)a[1]);
     return 1;
 }
 static int ui_items(void) {                             /* ( id count -- ) */
     fcell a[2];
-    if (!pop(a, 2) || !widget_id(a[0]) || !range(a[1], 64, "UI-ITEMS count 0..64")) return 0;
-    unsigned char o[] = {0x86, b(a[0]), b(a[1])};
+    if (!pop(a, 2) || !widget_id(a[0]) || !range(a[1], VIOS_UI_ROWS, "UI-ITEMS count 0..1024")) return 0;
+    unsigned char o[] = {0x91, b(a[0]), b(a[1]), (unsigned char)(a[1] >> 8)};
     op(o, sizeof o);
     return 1;
+}
+static int ui_row(void) {                               /* ( addr len id -- ) append a row */
+    fcell a[3];
+    if (!pop(a, 3) || !widget_id(a[2])) return 0;
+    unsigned char o[4 + 31] = {0x92, b(a[2]), 1, b(a[1])};
+    if (!text(a[0], a[1], o + 4, 31)) return 0;
+    op(o, 4 + (unsigned)a[1]);
+    return 1;
+}
+static int ui_columns(void) {                           /* ( w1 .. wn n id -- ) table columns */
+    fcell id = fvm_pop(), n = fvm_pop();
+    if (fvm_error || !widget_id(id) || !range(n, 8, "UI-COLUMNS: at most 8")) return 0;
+    unsigned char o[3 + 8] = {0x93, b(id), b(n)};
+    for (unsigned i = (unsigned)n; i--;) { fcell w = fvm_pop(); if (fvm_error || !range(w, 80, "UI-COLUMNS width 0..80")) return 0; o[3 + i] = b(w); }
+    op(o, 3 + (unsigned)n);
+    return 1;
+}
+static int ui_keys(void) { return window_pair(0x5A, 1, "UI-KEYS: 0 forward or 1 drop"); }
+
+/* TextView (kind 9): the text travels in 8A runs; read back 25 bytes a reply. */
+void vios_ui_text(unsigned char id, const char *s, size_t n, int append) {
+    unsigned char o[4 + 200] = {0x8A, id};
+    size_t done = 0;
+    do {
+        unsigned k = n - done > 200 ? 200u : (unsigned)(n - done);
+        o[2] = (unsigned char)(append || done);
+        o[3] = (unsigned char)k;
+        for (unsigned i = 0; i < k; ++i) o[4 + i] = (unsigned char)s[done + i];
+        op(o, 4 + k);
+        done += k;
+    } while (done < n);
+}
+static int forth_text(unsigned char code) {             /* ( addr len id -- ): 0 replace, 1 append, 2 insert */
+    fcell a[3];
+    if (!pop(a, 3) || !widget_id(a[2])) return 0;
+    if (a[1] > VIOS_UI_TEXT_MAX) return forth_error("UI text: at most 4096 bytes");
+    unsigned char o[4 + 200] = {code == 2 ? 0x8D : 0x8A, b(a[2])};
+    fcell done = 0;
+    do {
+        unsigned k = a[1] - done > 200 ? 200u : (unsigned)(a[1] - done), at = code == 2 ? 3u : 4u;
+        if (code == 2) { o[0] = 0x8D; o[2] = (unsigned char)k; if (done) return forth_error("UI-INSERT: at most 200 bytes"); }
+        else { o[2] = (unsigned char)(code || done); o[3] = (unsigned char)k; }
+        if (!text(a[0] + done, k, o + at, 200)) return 0;
+        op(o, at + k);
+        done += k;
+    } while (done < a[1]);
+    return 1;
+}
+static int ui_text(void) { return forth_text(0); }
+static int ui_text_more(void) { return forth_text(1); }
+static int ui_insert(void) { return forth_text(2); }
+static int ui_select(void) {                            /* ( id caret anchor -- ) */
+    fcell a[3];
+    if (!pop(a, 3) || !widget_id(a[0])) return 0;
+    unsigned char o[6] = {0x8B, b(a[0])};
+    le16(o + 2, (int32_t)(a[1] > 0xFFFF ? 0xFFFF : a[1]));
+    le16(o + 4, (int32_t)(a[2] > 0xFFFF ? 0xFFFF : a[2]));
+    op(o, sizeof o);
+    return 1;
+}
+int vios_ui_text_info(unsigned char id, struct vios_ui_text_info *out) {
+    unsigned char o[] = {0x8E, id}, r[32];
+    unsigned n = 0;
+    if (!request(o, sizeof o, r, sizeof r, &n) || n < 11 || r[1] != id) return 0;
+    out->length = (unsigned)(r[2] | r[3] << 8); out->caret = (unsigned)(r[4] | r[5] << 8);
+    out->anchor = (unsigned)(r[6] | r[7] << 8); out->revision = (unsigned)(r[8] | r[9] << 8); out->dirty = r[10];
+    return 1;
+}
+/* Copy text [offset, offset + n) of TextView id to sink in reply-sized runs. */
+int vios_ui_text_read(unsigned char id, unsigned offset, unsigned n, void (*sink)(void *, const char *, unsigned), void *ctx) {
+    while (n) {
+        unsigned char o[5] = {0x8C, id, (unsigned char)offset, (unsigned char)(offset >> 8), (unsigned char)(n > 25 ? 25 : n)}, r[32];
+        unsigned got = 0;
+        if (!request(o, sizeof o, r, sizeof r, &got) || got < 5 || r[1] != id || (unsigned)(r[2] | r[3] << 8) != offset || 5u + r[4] > got) return 0;
+        if (!r[4]) return 0;                            /* shorter than asked */
+        sink(ctx, (const char *)r + 5, r[4]);
+        offset += r[4];
+        n -= r[4];
+    }
+    return 1;
+}
+struct forth_sink { fcell addr; unsigned at; };
+static void to_forth(void *ctx, const char *s, unsigned n) {
+    struct forth_sink *f = ctx;
+    for (unsigned i = 0; i < n && !fvm_error; ++i) fvm_write8(f->addr + f->at++, (unsigned char)s[i]);
+}
+static int ui_text_get(void) {                          /* ( id addr max -- len ) */
+    fcell a[3];
+    struct vios_ui_text_info info;
+    if (!pop(a, 3) || !widget_id(a[0])) return 0;
+    if (!vios_ui_text_info(b(a[0]), &info)) return forth_error("UI-TEXT@: no such TextView");
+    unsigned n = info.length < a[2] ? info.length : (unsigned)a[2];
+    struct forth_sink f = {a[1], 0};
+    if (!vios_ui_text_read(b(a[0]), 0, n, to_forth, &f) || fvm_error) return fvm_error ? 0 : forth_error("UI-TEXT@: read failed");
+    return fvm_push(n);
 }
 static int widget_op(unsigned char code) { fcell id = fvm_pop(); if (fvm_error || !widget_id(id)) return 0; unsigned char o[] = {code, b(id)}; op(o, 2); return 1; }
 static int ui_wdelete(void) { return widget_op(0x87); }
@@ -363,6 +458,16 @@ static int ui_wget(void) {                              /* ( id addr -- value le
 
 static int ui_begin(void) { batching = 1; return 1; }
 static int ui_commit(void) { unsigned char o[] = {0x30}; batching = 0; op(o, 1); return 1; }
+
+/* C clients (kernel/vios_tools.c) use the same encoder, batches and requests. */
+void vios_ui_op(const unsigned char *bytes, unsigned n) { op(bytes, n); }
+int vios_ui_request(const unsigned char *bytes, unsigned n, unsigned char *reply, unsigned capacity, unsigned *length) {
+    return n <= 8 && request(bytes, n, reply, capacity, length);
+}
+void vios_ui_begin(void) { batching = 1; }
+void vios_ui_commit(void) { (void)ui_commit(); }
+static int (*claim)(const unsigned char *event, unsigned len);
+void vios_ui_claim(int (*hook)(const unsigned char *event, unsigned len)) { claim = hook; }
 
 static int ui_sync(void) {                              /* ( -- epoch generation errors ) */
     static unsigned char seq;
@@ -383,6 +488,7 @@ static int poll_events(void) {
         for (unsigned at = 3, k = 0; k < r[2] && at < n; ++k) {
             unsigned len = r[at++];
             if (at + len > n || len > VIOS_UI_EVENT_MAX) break;
+            if (claim && claim(r + at, len)) { at += len; continue; }   /* a tool's own event */
             unsigned slot = (event_head + event_count++) % EVENT_RING;
             for (unsigned i = 0; i < len; ++i) events[slot][i] = r[at + i];
             event_len[slot] = (unsigned char)len;
@@ -392,6 +498,8 @@ static int poll_events(void) {
     }
     return 1;
 }
+
+int vios_ui_poll(void) { return poll_events(); }
 
 static int take(unsigned char *out, unsigned *len) {
     if (!event_count && !poll_events()) return -1;
@@ -436,12 +544,14 @@ int vios_ui_init(void) {
         {"UI-WIDGET", ui_widget}, {"UI-WTEXT", ui_wtext}, {"UI-WVALUE", ui_wvalue}, {"UI-LAYOUT", ui_layout}, {"UI-WSIZE", ui_wsize},
         {"UI-ITEM", ui_item}, {"UI-ITEMS", ui_items}, {"UI-WDELETE", ui_wdelete}, {"UI-WFOCUS", ui_wfocus}, {"UI-WGET", ui_wget},
         {"UI-BEGIN", ui_begin}, {"UI-COMMIT", ui_commit},
+        {"UI-ROW", ui_row}, {"UI-COLUMNS", ui_columns}, {"UI-KEYS", ui_keys}, {"UI-TEXT", ui_text}, {"UI-TEXT+", ui_text_more},
+        {"UI-INSERT", ui_insert}, {"UI-SELECT", ui_select}, {"UI-TEXT@", ui_text_get},
         {"UI-SYNC", ui_sync}, {"UI-EVENT", ui_event}, {"UI-NEXT", ui_next}};
     batch_used = batching = event_head = event_count = 0;
     /* Words that only send bytes may run in background tasks; requests wait
      * for a reply and stay in the foreground. */
     for (unsigned i = 0; i < sizeof words / sizeof words[0]; ++i) {
-        int foreground = words[i].fn == ui_sync || words[i].fn == ui_event || words[i].fn == ui_next || words[i].fn == ui_wget;
+        int foreground = words[i].fn == ui_sync || words[i].fn == ui_event || words[i].fn == ui_next || words[i].fn == ui_wget || words[i].fn == ui_text_get;
         if (!forth_register_native(words[i].name, words[i].fn, foreground ? 0 : FORTH_NATIVE_TASK)) return 0;
     }
     return forth_eval(
@@ -458,5 +568,7 @@ int vios_ui_init(void) {
         "1 CONSTANT UI-BOX 2 CONSTANT UI-LABEL 3 CONSTANT UI-BUTTON 4 CONSTANT UI-CHECK 5 CONSTANT UI-RADIO "
         "6 CONSTANT UI-INPUT 7 CONSTANT UI-LIST 8 CONSTANT UI-PROGRESS 1 CONSTANT UI-HIDDEN 2 CONSTANT UI-DISABLED "
         "4 CONSTANT UI-WF-FILL 1 CONSTANT UI-COLUMN 2 CONSTANT UI-ROW 255 CONSTANT UI-NONE "
-        "2 CONSTANT UI-EV-ACTIVATE 3 CONSTANT UI-EV-SELECT 4 CONSTANT UI-EV-CHANGE");
+        "2 CONSTANT UI-EV-ACTIVATE 3 CONSTANT UI-EV-SELECT 4 CONSTANT UI-EV-CHANGE "
+        "9 CONSTANT UI-TEXTVIEW 10 CONSTANT UI-TABS 8 CONSTANT UI-READONLY 16 CONSTANT UI-TREE 32 CONSTANT UI-PAGER "
+        "5 CONSTANT UI-EV-TEXT 8 CONSTANT UI-EV-EXPAND 9 CONSTANT UI-EV-PAGE");
 }

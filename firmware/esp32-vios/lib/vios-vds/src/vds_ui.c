@@ -797,6 +797,10 @@ static int route(vds_ui *u, uint8_t ascii, uint8_t modifiers, uint8_t vk) {
         return 1;
     }
     if (vds_ui_widget_key(u, ascii, modifiers, vk)) return 1;
+    if (vk == VDS_VK_ESCAPE && (v->windows[u->focus].flags & VDS_W_MODAL)) {   /* Esc leaves a dialog: a close request */
+        win_event(u, VDS_WIN_CLOSE, u->focus);
+        return 1;
+    }
     return u->focus < VDS_MAX_WINDOWS && u->key_policy[u->focus] == VDS_KEYS_DROP && vk != VDS_VK_F1;
 }
 

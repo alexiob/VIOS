@@ -71,12 +71,13 @@ void vds_ui_text_render(vds_ui *u, uint8_t id) {
         if (has_line && t->caret >= at && t->caret <= end) { caret_row = r; caret_col = t->caret - at - t->left; }
         /* Runs of one colour: the selection, and the text around it. */
         int c = 0;
-        while (c < w->w) {
+        if (w->row + r >= v->surfaces[s].rows) break;            /* clipped to the surface */
+        while (c < w->w && w->col + c < v->surfaces[s].cols) {
             uint16_t i = (uint16_t)(at + t->left + c);
             int chosen = has_line && i >= lo && i < hi && (i < end || (i == end && c == (int)(end - at - t->left)));
             uint8_t a = chosen ? sel : base;
             int n = 0;
-            while (c + n < w->w) {
+            while (c + n < w->w && n < (int)sizeof run) {
                 uint16_t j = (uint16_t)(at + t->left + c + n);
                 int jt = has_line && j < end, js = has_line && j >= lo && j < hi && (j < end || (j == end && c + n == (int)(end - at - t->left)));
                 if ((js ? sel : base) != a) break;
@@ -173,6 +174,31 @@ static uint16_t vertical(const vds_text *t, uint16_t at, int lines) {
     return (uint16_t)(start + col > end ? end : start + col);
 }
 
+/* Ctrl+[ / Ctrl+]: two spaces more / fewer at the start of every line the
+ * selection touches (the caret's line without one). */
+static int indent(vds_text *t, int add) {
+    uint16_t hi = sel_hi(t), lo = sel_lo(t), ls = line_start(t, lo);
+    int keep = t->caret != t->anchor && lo == ls;              /* a selection from a line start keeps it */
+    if (hi > sel_lo(t) && hi == line_start(t, hi)) --hi;       /* a selection ending at a line start */
+    int changed = 0;
+    for (;;) {
+        unsigned k = 0;
+        if (add) { if (t->len + 2 > VDS_TEXT_MAX) break; k = 2; memmove(t->buf + ls + 2, t->buf + ls, (size_t)(t->len - ls)); t->buf[ls] = t->buf[ls + 1] = ' '; t->len = (uint16_t)(t->len + 2); }
+        else { while (k < 2 && ls + k < t->len && t->buf[ls + k] == ' ') ++k; memmove(t->buf + ls, t->buf + ls + k, (size_t)(t->len - ls - k)); t->len = (uint16_t)(t->len - k); }
+        if (k) {
+            changed = 1;
+            uint16_t *pos[2] = {&t->caret, &t->anchor};
+            for (unsigned i = 0; i < 2; ++i)
+                if (add ? *pos[i] > ls || (*pos[i] == ls && !(keep && *pos[i] == lo)) : *pos[i] > ls) *pos[i] = (uint16_t)(add ? *pos[i] + 2 : *pos[i] - (*pos[i] - ls < k ? *pos[i] - ls : k));
+            hi = (uint16_t)(add ? hi + 2 : hi - k);
+        }
+        uint16_t end = line_end(t, ls);
+        if (end >= t->len || end + 1 > hi) break;
+        ls = (uint16_t)(end + 1);
+    }
+    return changed;
+}
+
 int vds_ui_text_key(vds_ui *u, uint8_t id, uint8_t ascii, uint8_t modifiers, uint8_t vk) {
     vds_text *t = text_of(u, id);
     vds_widget *w = &u->widgets[id];
@@ -199,6 +225,11 @@ int vds_ui_text_key(vds_ui *u, uint8_t id, uint8_t ascii, uint8_t modifiers, uin
     if (moved) {
         t->caret = to;
         if (!shift) t->anchor = to;
+        vds_ui_text_render(u, id);
+        return 1;
+    }
+    if (ctrl && vk != VDS_VK_ESCAPE && (ascii == 27 || ascii == '[' || ascii == 29 || ascii == ']')) {
+        if (!ro && indent(t, ascii == 27 || ascii == '[')) edited(u, id, t, 1);
         vds_ui_text_render(u, id);
         return 1;
     }

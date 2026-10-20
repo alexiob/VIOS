@@ -175,6 +175,19 @@ int main(int argc, char **argv) {
     assert(ctrl('a') && x->anchor == 0 && x->caret == x->len && key('z', 0, 0) && x->len == 1 && x->buf[0] == 'z');
     matches_full_render();
 
+    /* Indentation: Ctrl+[ adds two spaces to each touched line, Ctrl+] removes up to two. */
+    assert(vds_ui_text_set(&u, EDIT, 0, "a\nb\n c\nd", 8) && vds_ui_text_select(&u, EDIT, 0, 6));   /* lines a, b, c */
+    assert(key(27, VDS_MOD_CTRL, 0) && !memcmp(x->buf, "  a\n  b\n   c\nd", 14) && x->len == 14);
+    assert(x->caret == 0 && x->anchor == 12 && x->dirty);
+    assert(key(29, VDS_MOD_CTRL, 0));
+    assert(key(29, VDS_MOD_CTRL, 0));
+    assert(!memcmp(x->buf, "a\nb\nc\nd", 7) && x->len == 7);
+    assert(vds_ui_text_select(&u, EDIT, 6, 6) && key(']', VDS_MOD_CTRL, 0) && x->len == 7);   /* nothing to remove */
+    assert(key('[', VDS_MOD_CTRL, 0) && !memcmp(x->buf, "a\nb\nc\n  d", 9) && x->caret == 8);   /* the caret's line */
+    assert(vds_ui_text_select(&u, EDIT, 0, 2));
+    int r27 = key(27, VDS_MOD_CTRL, 0);
+    assert(!memcmp(x->buf, "  a\nb", 5) && x->anchor == 4 && r27);   /* a selection ending at a line start */
+
     /* Evaluation keys: the selection, else the caret's line (then selected). */
     assert(vds_ui_text_set(&u, EDIT, 0, "1 2 +\r\n3 4 *\n", 13) && x->len == 12 && !x->dirty);   /* '\r' dropped */
     assert(vds_ui_text_select(&u, EDIT, 8, 8));
@@ -271,6 +284,12 @@ int main(int argc, char **argv) {
     assert(p.errors == 1);
     p.errors = 0;
 
+    /* Esc in a modal window is a close request. */
+    assert(vds_window_flags(&v, 1, VDS_W_VISIBLE | VDS_W_DECOR | VDS_W_MODAL) && key(0, 0, VDS_VK_ESCAPE));
+    e = next_event(0x10);
+    assert(e && e[2] == 1 && e[3] == VDS_WIN_CLOSE);
+    assert(vds_window_flags(&v, 1, VDS_W_VISIBLE | VDS_W_DECOR) && key(0, 0, VDS_VK_ESCAPE) && !next_event(0x10));   /* dropped by the policy */
+
     /* Nudge: one packet per batch of queued events, re-armed by a poll. */
     drain();
     uint8_t nudge_on[] = {0x74, 3, 1, 0};
@@ -297,7 +316,7 @@ int main(int argc, char **argv) {
         uint8_t id = (uint8_t)rnd(12);
         switch (rnd(12)) {
         case 0: vds_ui_widget(&u, id, 1, (uint8_t)(rnd(3) ? VDS_WK_TEXT + rnd(2) : VDS_WK_LIST), rnd(3) ? VDS_NONE : (uint8_t)rnd(12),
-                              (uint8_t)rnd(40), (uint8_t)rnd(25), (uint8_t)rnd(40), (uint8_t)rnd(12), (uint8_t)rnd(64)); break;
+                              (uint8_t)rnd(40), (uint8_t)rnd(25), (uint8_t)(rnd(4) ? rnd(40) : rnd(256)), (uint8_t)rnd(12), (uint8_t)rnd(64)); break;
         case 1: vds_ui_widget_text(&u, id, "One|Two|Three\tx", rnd(16)); break;
         case 2: { static const char sample[] = "abc def\nghi\r\n\n jkl mno pqr stu vwx yz 0123456789 abcdefghij\n";
                   vds_ui_text_set(&u, id, (int)rnd(2), sample, rnd(sizeof sample)); break; }
@@ -309,7 +328,7 @@ int main(int argc, char **argv) {
         case 8: vds_window_resize(&v, 1, (uint8_t)(1 + rnd(60)), (uint8_t)(1 + rnd(30))); { uint8_t b[] = {0x30}; batch(b, 1); } break;
         default: {
             uint8_t mods = (uint8_t)(rnd(3) ? 0 : rnd(2) ? VDS_MOD_SHIFT : VDS_MOD_CTRL);
-            uint8_t ascii = (uint8_t)(rnd(3) ? 0 : mods == VDS_MOD_CTRL ? 1 + rnd(26) : 'a' + rnd(26));
+            uint8_t ascii = (uint8_t)(rnd(3) ? 0 : mods == VDS_MOD_CTRL ? 1 + rnd(29) : 'a' + rnd(26));   /* 27, 29: indentation */
             key(ascii, mods, vks[rnd(sizeof vks)]);
         }
         }

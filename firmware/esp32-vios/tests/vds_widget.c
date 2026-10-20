@@ -167,8 +167,8 @@ int main(int argc, char **argv) {
     uint8_t get[] = {0x89, NAME};
     assert(vds_proto_batch(&p, get, sizeof get));
     assert(last_reply[0] == 0x89 && last_reply[1] == NAME && last_reply[4] == 3 && !memcmp(last_reply + 5, "BM1", 3));
-    for (int i = 0; i < 40; ++i) key((uint8_t)('a' + i % 26), 0, 0);
-    assert(strlen(w[NAME].text) == VDS_WIDGET_TEXT - 1 && w[NAME].top == 0);  /* full; fits the 40-cell field */
+    for (int i = 0; i < 50; ++i) key((uint8_t)('a' + i % 26), 0, 0);
+    assert(strlen(w[NAME].text) == VDS_WIDGET_TEXT - 1 && w[NAME].top == VDS_WIDGET_TEXT - 40);  /* full; scrolled in the 40-cell field */
     assert(vds_ui_widget(&u, 40, 1, VDS_WK_INPUT, VDS_NONE, 45, 6, 8, 1, 0));    /* a narrow field scrolls */
     assert(vds_ui_widget_text(&u, 40, "0123456789ABCDEFGHIJ", 20) && vds_ui_widget_focus(&u, 40));
     assert(key(0, 0, VDS_VK_END) && w[40].value == 20 && w[40].top == 13 && v.surfaces[0].cur_col == 45 + 7);

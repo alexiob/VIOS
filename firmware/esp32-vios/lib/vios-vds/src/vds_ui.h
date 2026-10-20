@@ -84,7 +84,7 @@ enum { VDS_WF_HIDDEN = 1, VDS_WF_DISABLED = 2, VDS_WF_FILL = 4,   /* FILL: a roo
 enum { VDS_LAYOUT_NONE = 0, VDS_LAYOUT_COLUMN = 1, VDS_LAYOUT_ROW = 2 };
 enum { VDS_KEYS_FORWARD = 0, VDS_KEYS_DROP = 1 };   /* key policy of a window (op 5A) */
 #define VDS_MAX_WIDGETS 64
-#define VDS_WIDGET_TEXT 32
+#define VDS_WIDGET_TEXT 48
 #define VDS_LIST_POOL 1024              /* list rows held on the ESP, shared by all lists */
 #define VDS_ITEM_TEXT 32
 #define VDS_TABLE_COLS 8
