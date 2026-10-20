@@ -1,0 +1,14 @@
+{
+  "status": "failed",
+  "iterations": 0,
+  "failures": [],
+  "dropped_before": 0,
+  "error": "ToolError: Module WBM1P source CRC does not match inventory",
+  "summary": {
+    "iterations": 0,
+    "minutes": 0.0,
+    "iteration_ms_median": null,
+    "iteration_ms_max": null
+  },
+  "latency_ms_tail": []
+}
