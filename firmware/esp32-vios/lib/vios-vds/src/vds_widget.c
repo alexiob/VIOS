@@ -2,6 +2,7 @@
  * window's surface (coordinates are surface cells), take keys and clicks
  * locally, and tell the CPU what happened with ACTIVATE / SELECT / CHANGE. */
 #include "vds_ui.h"
+#include <stddef.h>
 #include <string.h>
 
 static vds *core(vds_ui *u) { return u->p->v; }
@@ -21,7 +22,24 @@ static int shown(vds_ui *u, const vds_widget *w) {             /* it and every a
 }
 
 static int interactive(uint8_t kind) {
-    return kind == VDS_WK_BUTTON || kind == VDS_WK_CHECK || kind == VDS_WK_RADIO || kind == VDS_WK_INPUT || kind == VDS_WK_LIST;
+    return kind == VDS_WK_BUTTON || kind == VDS_WK_CHECK || kind == VDS_WK_RADIO || kind == VDS_WK_INPUT || kind == VDS_WK_LIST ||
+           kind == VDS_WK_TEXT || kind == VDS_WK_TABS;
+}
+
+/* Tabs: label k of the '|'-separated widget text; returns its length. */
+static size_t tab_label(const vds_widget *w, unsigned k, const char **at) {
+    const char *t = w->text;
+    for (; k && *t; ++t) if (*t == '|') --k;
+    if (k) { *at = t; return 0; }
+    size_t n = 0;
+    while (t[n] && t[n] != '|') ++n;
+    *at = t;
+    return n;
+}
+static unsigned tab_count(const vds_widget *w) {
+    unsigned n = 1;
+    for (const char *t = w->text; *t; ++t) n += *t == '|';
+    return w->text[0] ? n : 0;
 }
 
 static int focusable(vds_ui *u, const vds_widget *w) {
@@ -127,6 +145,29 @@ static void put(vds *v, uint8_t s, int col, int row, int width, uint8_t a, const
 
 static void caret_off(vds_ui *u);
 
+/* One list row: plain text, or table cells split at '\t' into column widths. */
+static void row_text(vds *v, uint8_t s, const vds_widget *w, int row, uint8_t a, const char *t) {
+    char line[VDS_MAX_WIDTH / 8];
+    int width = w->w, k = 0;
+    if (width > (int)sizeof line) width = (int)sizeof line;
+    line[k++] = ' ';
+    if (!w->ncols) {
+        while (*t && k < width) line[k++] = *t++;
+    } else {
+        int start = 1;
+        for (unsigned c = 0; c < w->ncols && k < width; ++c) {
+            int end = start + w->cols[c];
+            while (*t && *t != '\t' && k < end - 1 && k < width) line[k++] = *t++;   /* one blank between cells */
+            while (*t && *t != '\t') ++t;              /* clipped */
+            if (*t == '\t') ++t;
+            while (k < end && k < width) line[k++] = ' ';
+            start = end;
+        }
+    }
+    vds_fill(v, s, w->col, (uint8_t)row, w->w, 1, ' ', a);
+    vds_put(v, s, w->col, (uint8_t)row, a, line, (size_t)k);
+}
+
 static void render(vds_ui *u, uint8_t id) {
     vds *v = core(u);
     vds_widget *w = &u->widgets[id];
@@ -139,6 +180,7 @@ static void render(vds_ui *u, uint8_t id) {
     char text[VDS_WIDGET_TEXT + 8], line[VDS_WIDGET_TEXT + 8];
     int m;
     size_t n = plain(w->text, text, VDS_WIDGET_TEXT, &m);
+    if (w->kind == VDS_WK_TEXT) { vds_ui_text_render(u, id); return; }
     if (w->h > 1 && w->kind != VDS_WK_LIST) vds_fill(v, s, w->col, (uint8_t)(w->row + 1), w->w, (uint8_t)(w->h - 1), ' ', base);
     switch (w->kind) {
     case VDS_WK_LABEL:
@@ -173,22 +215,39 @@ static void render(vds_ui *u, uint8_t id) {
         else if (u->caret_widget == id) caret_off(u);
         break;
     }
-    case VDS_WK_LIST:
-        if (w->value >= w->count) w->value = w->count ? (int16_t)(w->count - 1) : 0;
+    case VDS_WK_LIST: {
+        int header = w->ncols && w->text[0], rows = w->h - header;
+        if (w->value >= (int)w->count) w->value = w->count ? (int16_t)(w->count - 1) : 0;
         if (w->value < 0) w->value = 0;
-        if (w->value < w->top) w->top = (uint8_t)w->value;
-        if (w->value >= w->top + w->h) w->top = (uint8_t)(w->value - w->h + 1);
-        for (int r = 0; r < w->h; ++r) {
+        if (rows > 0 && w->value < w->top) w->top = (uint16_t)w->value;
+        if (rows > 0 && w->value >= w->top + rows) w->top = (uint16_t)(w->value - rows + 1);
+        if (w->top && w->top + rows > w->count) w->top = (uint16_t)(w->count > rows ? w->count - rows : 0);
+        if (header) row_text(v, s, w, w->row, attr(st->menu_fg, st->menu_bg), w->text);
+        for (int r = 0; r < rows; ++r) {
             int item = w->top + r;
             int chosen = item == w->value && item < w->count;
             uint8_t a = chosen ? (focused ? sel : attr(st->menu_fg, st->desktop_a)) : base;   /* unfocused: a grey bar */
-            const char *t = item < w->count ? u->items[w->first + item] : "";
-            line[0] = ' ';
-            size_t k = 1 + strlen(t);
-            memcpy(line + 1, t, k - 1);
-            put(v, s, w->col, w->row + r, w->w, a, line, item < w->count ? k : 0);
+            row_text(v, s, w, w->row + header + r, a, item < w->count ? u->items[w->first + item] : "");
         }
         break;
+    }
+    case VDS_WK_TABS: {
+        unsigned n = tab_count(w), at = w->col;
+        vds_fill(v, s, w->col, w->row, w->w, 1, ' ', base);
+        for (unsigned k = 0; k < n && at < (unsigned)(w->col + w->w); ++k) {
+            const char *label;
+            size_t len = tab_label(w, k, &label);
+            uint8_t a = (int)k == w->value ? (focused ? sel : attr(st->menu_fg, st->desktop_a)) : attr(st->menu_fg, st->menu_bg);
+            line[0] = ' ';
+            if (len > VDS_WIDGET_TEXT) len = VDS_WIDGET_TEXT;
+            memcpy(line + 1, label, len);
+            line[len + 1] = ' ';
+            size_t room = (unsigned)(w->col + w->w) - at;
+            vds_put(v, s, (uint8_t)at, w->row, a, line, len + 2 < room ? len + 2 : room);
+            at += (unsigned)len + 3;
+        }
+        break;
+    }
     case VDS_WK_PROGRESS: {
         int value = w->value < 0 ? 0 : w->value > 100 ? 100 : w->value, filled = w->w * value / 100;
         char pct[6];
@@ -244,7 +303,7 @@ int vds_ui_widget(vds_ui *u, uint8_t id, uint8_t window, uint8_t kind, uint8_t p
                   uint8_t col, uint8_t row, uint8_t w, uint8_t h, uint8_t flags) {
     vds *v = core(u);
     if (id >= VDS_MAX_WIDGETS || window >= VDS_UI_FIRST_WINDOW || !v->windows[window].used ||
-        kind < VDS_WK_BOX || kind > VDS_WK_PROGRESS) return 0;
+        kind < VDS_WK_BOX || kind > VDS_WK_TABS) return 0;
     /* Replace first: the new widget then has no children, so whatever parent
      * survives the deletion cannot be one of its descendants (no cycles). */
     if (u->widgets[id].used) vds_ui_widget_delete(u, id);
@@ -253,7 +312,12 @@ int vds_ui_widget(vds_ui *u, uint8_t id, uint8_t window, uint8_t kind, uint8_t p
     vds_widget *x = &u->widgets[id];
     memset(x, 0, sizeof *x);
     x->used = 1; x->window = window; x->kind = kind; x->parent = parent; x->flags = flags;
-    x->col = col; x->row = row; x->w = w; x->h = h; x->weight = 1;
+    x->col = col; x->row = row; x->w = w; x->h = h; x->weight = 1; x->slot = VDS_NONE;
+    if (kind == VDS_WK_TEXT) {                                  /* a free text buffer, else refused */
+        for (uint8_t i = 0; i < VDS_TEXT_SLOTS && x->slot == VDS_NONE; ++i)
+            if (!u->texts[i].used) { memset(&u->texts[i], 0, offsetof(vds_text, buf)); u->texts[i].used = 1; u->texts[i].widget = id; x->slot = i; }
+        if (x->slot == VDS_NONE) { x->used = 0; return 0; }
+    }
     x->seq = u->widget_seq++;
     if (!u->widget_seq) {                                       /* wrapped: renumber in order */
         uint16_t n = 0;
@@ -298,7 +362,9 @@ int vds_ui_widget_value(vds_ui *u, uint8_t id, int16_t value) {
     vds_widget *w = widget(u, id);
     if (!w) return 0;
     if (w->kind == VDS_WK_RADIO && value) { select_radio(u, id); return 1; }
-    if (w->kind == VDS_WK_LIST) value = value < 0 ? 0 : value >= w->count ? (int16_t)(w->count ? w->count - 1 : 0) : value;
+    if (w->kind == VDS_WK_LIST) value = value < 0 ? 0 : value >= (int)w->count ? (int16_t)(w->count ? w->count - 1 : 0) : value;
+    if (w->kind == VDS_WK_TABS) value = value < 0 ? 0 : value >= (int)tab_count(w) ? (int16_t)(tab_count(w) ? tab_count(w) - 1 : 0) : value;
+    if (w->kind == VDS_WK_TEXT) { u->texts[w->slot].dirty = value != 0; return 1; }
     w->value = value;
     render(u, id);
     return 1;
@@ -323,7 +389,7 @@ int vds_ui_widget_size(vds_ui *u, uint8_t id, uint8_t fixed, uint8_t weight) {
 }
 
 static void compact(vds_ui *u) {                                   /* close gaps left by recounts */
-    uint8_t used = 0;
+    uint16_t used = 0;
     for (;;) {
         int next = -1;
         for (unsigned i = 0; i < VDS_MAX_WIDGETS; ++i) {
@@ -335,7 +401,7 @@ static void compact(vds_ui *u) {                                   /* close gaps
         vds_widget *w = &u->widgets[next];
         if (w->first != used) memmove(u->items[used], u->items[w->first], (size_t)w->count * VDS_ITEM_TEXT);
         w->first = used;
-        used = (uint8_t)(used + w->count);
+        used = (uint16_t)(used + w->count);
     }
     u->items_used = used;
 }
@@ -351,7 +417,7 @@ static void reverse_rows(vds_ui *u, unsigned a, unsigned b) {   /* rows [a, b) *
     }
 }
 
-int vds_ui_widget_count(vds_ui *u, uint8_t id, uint8_t count) {
+int vds_ui_widget_count(vds_ui *u, uint8_t id, uint16_t count) {
     vds_widget *w = widget(u, id);
     if (!w || w->kind != VDS_WK_LIST || count > VDS_LIST_POOL) return 0;
     if (count > w->count) {
@@ -364,25 +430,51 @@ int vds_ui_widget_count(vds_ui *u, uint8_t id, uint8_t count) {
             reverse_rows(u, start, end);
             for (unsigned i = 0; i < VDS_MAX_WIDGETS; ++i) {
                 vds_widget *o = &u->widgets[i];
-                if (o->used && o->kind == VDS_WK_LIST && o != w && o->count && o->first > start) o->first = (uint8_t)(o->first - len);
+                if (o->used && o->kind == VDS_WK_LIST && o != w && o->count && o->first > start) o->first = (uint16_t)(o->first - len);
             }
         }
-        w->first = (uint8_t)(end - len);
+        w->first = (uint16_t)(end - len);
         for (unsigned i = len; i < count; ++i) u->items[w->first + i][0] = 0;
-        u->items_used = (uint8_t)(w->first + count);
+        u->items_used = (uint16_t)(w->first + count);
     }
     w->count = count;
     render(u, id);
     return 1;
 }
 
-int vds_ui_widget_item(vds_ui *u, uint8_t id, uint8_t index, const char *text, size_t n) {
+int vds_ui_widget_item(vds_ui *u, uint8_t id, uint16_t index, const char *text, size_t n) {
     vds_widget *w = widget(u, id);
     if (!w || w->kind != VDS_WK_LIST || index >= w->count) return 0;
     if (n >= VDS_ITEM_TEXT) n = VDS_ITEM_TEXT - 1;
     memcpy(u->items[w->first + index], text, n);
     u->items[w->first + index][n] = 0;
     render(u, id);
+    return 1;
+}
+
+int vds_ui_widget_append(vds_ui *u, uint8_t id, const char *text, size_t n) {
+    vds_widget *w = widget(u, id);
+    if (!w || w->kind != VDS_WK_LIST || w->count >= VDS_LIST_POOL) return 0;
+    if (!(w->count && w->first + w->count == u->items_used && u->items_used < VDS_LIST_POOL)) {   /* not at the pool end */
+        uint16_t count = w->count;
+        if (!vds_ui_widget_count(u, id, (uint16_t)(count + 1))) return 0;
+        return vds_ui_widget_item(u, id, count, text, n);
+    }
+    if (n >= VDS_ITEM_TEXT) n = VDS_ITEM_TEXT - 1;               /* fast path: grow in place */
+    memcpy(u->items[u->items_used], text, n);
+    u->items[u->items_used][n] = 0;
+    ++u->items_used;
+    ++w->count;
+    render(u, id);
+    return 1;
+}
+
+int vds_ui_widget_columns(vds_ui *u, uint8_t id, const uint8_t *widths, uint8_t n) {
+    vds_widget *w = widget(u, id);
+    if (!w || w->kind != VDS_WK_LIST || n > VDS_TABLE_COLS) return 0;
+    w->ncols = n;
+    memcpy(w->cols, widths, n);
+    redraw_window_of(u, id);
     return 1;
 }
 
@@ -398,6 +490,7 @@ int vds_ui_widget_delete(vds_ui *u, uint8_t id) {
     if (s != VDS_NONE && w->kind != VDS_WK_BOX && w->w && w->h)
         vds_fill(core(u), s, w->col, w->row, w->w, w->h, ' ', attr(core(u)->style.title_fg, core(u)->style.body));
     if (w->kind == VDS_WK_LIST) { w->count = 0; compact(u); }
+    if (w->kind == VDS_WK_TEXT) vds_ui_text_release(u, id);
     if (u->widget_focus[window] == id) {
         u->widget_focus[window] = VDS_NONE;
         for (uint8_t i = next_widget(u, window, ANY_PARENT, VDS_NONE); i != VDS_NONE; i = next_widget(u, window, ANY_PARENT, i))
@@ -410,7 +503,10 @@ int vds_ui_widget_delete(vds_ui *u, uint8_t id) {
 void vds_ui_widgets_forget(vds_ui *u, uint8_t window) {
     if (u->caret_widget != VDS_NONE && u->widgets[u->caret_widget].window == window) u->caret_widget = VDS_NONE;
     for (unsigned i = 0; i < VDS_MAX_WIDGETS; ++i)
-        if (u->widgets[i].used && u->widgets[i].window == window) u->widgets[i].used = 0;
+        if (u->widgets[i].used && u->widgets[i].window == window) {
+            if (u->widgets[i].kind == VDS_WK_TEXT) vds_ui_text_release(u, (uint8_t)i);
+            u->widgets[i].used = 0;
+        }
     if (window < VDS_MAX_WINDOWS) u->widget_focus[window] = VDS_NONE;
     compact(u);
 }
@@ -441,7 +537,7 @@ static void list_select(vds_ui *u, uint8_t id, int index) {
     vds_widget *w = &u->widgets[id];
     if (!w->count) return;
     if (index < 0) index = 0;
-    if (index >= w->count) index = w->count - 1;
+    if (index >= (int)w->count) index = w->count - 1;
     if (index == w->value) return;
     w->value = (int16_t)index;
     render(u, id);
@@ -487,15 +583,34 @@ static int press(vds_ui *u, uint8_t id) {
     return 0;
 }
 
+/* Ctrl+Tab / Ctrl+Shift+Tab: next/previous tab of the window's first tabs widget. */
+static int switch_tab(vds_ui *u, uint8_t window, int backwards) {
+    uint8_t id = VDS_NONE;
+    for (uint8_t i = next_widget(u, window, ANY_PARENT, VDS_NONE); i != VDS_NONE && id == VDS_NONE; i = next_widget(u, window, ANY_PARENT, i))
+        if (u->widgets[i].kind == VDS_WK_TABS && focusable(u, &u->widgets[i])) id = i;
+    if (id == VDS_NONE) return 0;
+    vds_widget *w = &u->widgets[id];
+    unsigned n = tab_count(w);
+    if (n < 2) return 1;
+    w->value = (int16_t)((w->value + (backwards ? n - 1 : 1)) % n);
+    render(u, id);
+    event(u, VDS_EVENT_SELECT, id, w->value, 1);
+    return 1;
+}
+
 int vds_ui_widget_key(vds_ui *u, uint8_t ascii, uint8_t modifiers, uint8_t vk) {
     uint8_t window = u->focus;
-    if (window == VDS_NONE || (modifiers & (VDS_MOD_CTRL | VDS_MOD_LALT | VDS_MOD_RALT))) return 0;
+    int ctrl = (modifiers & VDS_MOD_CTRL) != 0;
+    if (window == VDS_NONE || (modifiers & (VDS_MOD_LALT | VDS_MOD_RALT))) return 0;
     if (u->widget_cols[window] != core(u)->windows[window].cols || u->widget_rows[window] != core(u)->windows[window].rows)
         vds_ui_widgets_refresh(u, window);
-    if (vk == VDS_VK_TAB || ascii == 9) return tab(u, window, (modifiers & VDS_MOD_SHIFT) != 0);
+    if (vk == VDS_VK_TAB || (ascii == 9 && !vk)) return ctrl ? switch_tab(u, window, (modifiers & VDS_MOD_SHIFT) != 0)
+                                                             : tab(u, window, (modifiers & VDS_MOD_SHIFT) != 0);
     uint8_t id = u->widget_focus[window];
     vds_widget *w = widget(u, id);
     if (!w || !focusable(u, w)) return 0;
+    if (w->kind == VDS_WK_TEXT) return vds_ui_text_key(u, id, ascii, modifiers, vk);
+    if (ctrl) return 0;
     int space = ascii == ' ' || vk == VDS_VK_SPACE, enter = vk == VDS_VK_RETURN || vk == VDS_VK_KP_ENTER;
     switch (w->kind) {
     case VDS_WK_INPUT: return input_key(u, id, ascii, vk);
@@ -512,22 +627,50 @@ int vds_ui_widget_key(vds_ui *u, uint8_t ascii, uint8_t modifiers, uint8_t vk) {
             return 1;
         }
         return 0;
-    case VDS_WK_LIST:
+    case VDS_WK_TABS: {
+        int n = (int)tab_count(w), to = w->value;
+        if (vk == VDS_VK_LEFT || vk == VDS_VK_KP_LEFT) to = w->value - 1;
+        else if (vk == VDS_VK_RIGHT || vk == VDS_VK_KP_RIGHT) to = w->value + 1;
+        else return 0;
+        if (to >= 0 && to < n) { w->value = (int16_t)to; render(u, id); event(u, VDS_EVENT_SELECT, id, w->value, 1); }
+        return 1;
+    }
+    case VDS_WK_LIST: {
+        int page = w->h - (w->ncols && w->text[0]), last = w->count ? w->count - 1 : 0;
+        if (page < 1) page = 1;
+        if (w->flags & VDS_WF_PAGER) {                              /* past an edge: ask the CPU for rows */
+            int dir = 0;
+            if ((vk == VDS_VK_UP || vk == VDS_VK_KP_UP) && w->value <= 0) dir = -1;
+            else if ((vk == VDS_VK_DOWN || vk == VDS_VK_KP_DOWN) && w->value >= last) dir = 1;
+            else if ((vk == VDS_VK_PAGEUP || vk == VDS_VK_KP_PAGEUP) && w->value <= 0) dir = -2;
+            else if ((vk == VDS_VK_PAGEDOWN || vk == VDS_VK_KP_PAGEDOWN) && w->value >= last) dir = 2;
+            if (dir) { uint8_t a[2] = {(uint8_t)(int8_t)dir, w->window}; vds_proto_event(u->p, VDS_EVENT_PAGE, id, a, 2); return 1; }
+        }
+        if ((w->flags & VDS_WF_TREE) && w->count &&
+            (vk == VDS_VK_LEFT || vk == VDS_VK_KP_LEFT || vk == VDS_VK_RIGHT || vk == VDS_VK_KP_RIGHT)) {
+            uint8_t a[4] = {(uint8_t)w->value, (uint8_t)((uint16_t)w->value >> 8), w->window,
+                            (uint8_t)(vk == VDS_VK_RIGHT || vk == VDS_VK_KP_RIGHT)};
+            vds_proto_event(u->p, VDS_EVENT_EXPAND, id, a, 4);
+            return 1;
+        }
         switch (vk) {
         case VDS_VK_UP: case VDS_VK_KP_UP: list_select(u, id, w->value - 1); return 1;
         case VDS_VK_DOWN: case VDS_VK_KP_DOWN: list_select(u, id, w->value + 1); return 1;
-        case VDS_VK_PAGEUP: case VDS_VK_KP_PAGEUP: list_select(u, id, w->value - w->h); return 1;
-        case VDS_VK_PAGEDOWN: case VDS_VK_KP_PAGEDOWN: list_select(u, id, w->value + w->h); return 1;
+        case VDS_VK_PAGEUP: case VDS_VK_KP_PAGEUP: list_select(u, id, w->value - page); return 1;
+        case VDS_VK_PAGEDOWN: case VDS_VK_KP_PAGEDOWN: list_select(u, id, w->value + page); return 1;
         case VDS_VK_HOME: case VDS_VK_KP_HOME: list_select(u, id, 0); return 1;
         case VDS_VK_END: case VDS_VK_KP_END: list_select(u, id, w->count - 1); return 1;
         }
         if (enter) { event(u, VDS_EVENT_ACTIVATE, id, 0, 0); return 1; }
         if (ascii > 32 && ascii < 127)                               /* type-ahead */
-            for (int k = 1; k <= w->count; ++k) {
+            for (int k = 1; k <= (int)w->count; ++k) {
                 int item = (w->value + k) % w->count;
-                if (lower((uint8_t)u->items[w->first + item][0]) == lower(ascii)) { list_select(u, id, item); return 1; }
+                const char *t = u->items[w->first + item];
+                while (*t == ' ' || *t == '+' || *t == '-') ++t;          /* tree rows: past the indent */
+                if (lower((uint8_t)*t) == lower(ascii)) { list_select(u, id, item); return 1; }
             }
         return 0;
+    }
     }
     return 0;
 }
@@ -539,7 +682,12 @@ int vds_ui_widget_click(vds_ui *u, uint8_t window, int col, int row) {
             continue;
         vds_ui_widget_focus(u, (uint8_t)i);
         if (w->kind == VDS_WK_INPUT) { w->value = (int16_t)(w->top + col - w->col); render(u, (uint8_t)i); return 1; }
-        if (w->kind == VDS_WK_LIST) { if (w->top + row - w->row < w->count) list_select(u, (uint8_t)i, w->top + row - w->row); return 1; }
+        if (w->kind == VDS_WK_LIST) {
+            int r = row - w->row - (w->ncols && w->text[0]);
+            if (r >= 0 && w->top + r < w->count) list_select(u, (uint8_t)i, w->top + r);
+            return 1;
+        }
+        if (w->kind == VDS_WK_TEXT || w->kind == VDS_WK_TABS) return 1;
         return press(u, (uint8_t)i) || 1;
     }
     return 0;

@@ -796,7 +796,14 @@ static int route(vds_ui *u, uint8_t ascii, uint8_t modifiers, uint8_t vk) {
         win_event(u, VDS_WIN_CLOSE, u->focus);
         return 1;
     }
-    return vds_ui_widget_key(u, ascii, modifiers, vk);
+    if (vds_ui_widget_key(u, ascii, modifiers, vk)) return 1;
+    return u->focus < VDS_MAX_WINDOWS && u->key_policy[u->focus] == VDS_KEYS_DROP && vk != VDS_VK_F1;
+}
+
+int vds_ui_key_policy(vds_ui *u, uint8_t window, uint8_t policy) {
+    if (window >= VDS_UI_FIRST_WINDOW || policy > VDS_KEYS_DROP) return 0;
+    u->key_policy[window] = policy;
+    return 1;
 }
 
 int vds_ui_key(vds_ui *u, uint8_t ascii, uint8_t modifiers, uint8_t vk, uint8_t down) {
@@ -836,6 +843,7 @@ static int op_hook(void *ui, const uint8_t *b) {
     vds_ui *u = (vds_ui *)ui;
     switch (b[0]) {
     case 0x59: return vds_ui_window_menu(u, b[1], b[2]);
+    case 0x5A: return vds_ui_key_policy(u, b[1], b[2]);
     case 0x60: {
         char label[VDS_LABEL_MAX];
         size_t n = b[7] < VDS_LABEL_MAX - 1 ? b[7] : VDS_LABEL_MAX - 1;
@@ -866,6 +874,40 @@ static int op_hook(void *ui, const uint8_t *b) {
     case 0x83: return vds_ui_widget_layout(u, b[1], b[2], b[3]);
     case 0x84: return vds_ui_widget_size(u, b[1], b[2], b[3]);
     case 0x85: return vds_ui_widget_item(u, b[1], b[2], (const char *)b + 4, b[3]);
+    case 0x90: return vds_ui_widget_item(u, b[1], (uint16_t)(b[2] | b[3] << 8), (const char *)b + 5, b[4]);
+    case 0x91: return vds_ui_widget_count(u, b[1], (uint16_t)(b[2] | b[3] << 8));
+    case 0x92: {
+        unsigned at = 3;
+        for (unsigned k = 0; k < b[2]; ++k) {
+            if (!vds_ui_widget_append(u, b[1], (const char *)b + at + 1, b[at])) return 0;
+            at += 1u + b[at];
+        }
+        return 1;
+    }
+    case 0x93: return vds_ui_widget_columns(u, b[1], b + 3, b[2]);
+    case 0x8A: return vds_ui_text_set(u, b[1], b[2] != 0, (const char *)b + 4, b[3]);
+    case 0x8B: return vds_ui_text_select(u, b[1], (uint16_t)(b[2] | b[3] << 8), (uint16_t)(b[4] | b[5] << 8));
+    case 0x8D: return vds_ui_text_insert(u, b[1], (const char *)b + 3, b[2]);
+    case 0x8C: {
+        const vds_text *t = vds_ui_text(u, b[1]);
+        uint16_t off = (uint16_t)(b[2] | b[3] << 8);
+        uint8_t r[VDS_REPLY_MAX] = {0x8C, b[1], b[2], b[3], 0};
+        if (!t || off > t->len) return 0;
+        unsigned n = b[4] < VDS_REPLY_MAX - 5 ? b[4] : VDS_REPLY_MAX - 5;
+        if (n > (unsigned)(t->len - off)) n = (unsigned)(t->len - off);
+        r[4] = (uint8_t)n;
+        memcpy(r + 5, t->buf + off, n);
+        vds_proto_reply(u->p, r, (uint8_t)(5 + n));
+        return 1;
+    }
+    case 0x8E: {
+        const vds_text *t = vds_ui_text(u, b[1]);
+        if (!t) return 0;
+        uint8_t r[11] = {0x8E, b[1], (uint8_t)t->len, (uint8_t)(t->len >> 8), (uint8_t)t->caret, (uint8_t)(t->caret >> 8),
+                         (uint8_t)t->anchor, (uint8_t)(t->anchor >> 8), (uint8_t)t->rev, (uint8_t)(t->rev >> 8), t->dirty};
+        vds_proto_reply(u->p, r, sizeof r);
+        return 1;
+    }
     case 0x86: return vds_ui_widget_count(u, b[1], b[2]);
     case 0x87: return vds_ui_widget_delete(u, b[1]);
     case 0x88: return vds_ui_widget_focus(u, b[1]);
