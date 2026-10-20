@@ -1,0 +1,181 @@
+{
+  "status": "passed",
+  "checks": {
+    "gui_on": {
+      "ok": true,
+      "detail": "GUI on windows 1 frames 595 rows 15293 carried 443 errors 0 style 0 batch_max_us 0 batch_op 57 frame_max_us 26 presents 14 deferred 0 forced 2 abandoned 0 present_us_max 9747 sync_frames_max 5 slow_us 9097 slow_px 0 slow_rows 0 slow_nd 0 slow_phase 2>0"
+    },
+    "browser_key": {
+      "ok": true,
+      "detail": null
+    },
+    "browser_window_drawn": {
+      "ok": true,
+      "detail": [
+        [
+          5
+        ],
+        [
+          3
+        ]
+      ]
+    },
+    "module_selected": {
+      "ok": true,
+      "detail": [
+        "2"
+      ]
+    },
+    "module_source_shown": {
+      "ok": true,
+      "detail": [
+        "DEFER LIVE1-S : LIVE1-C LIVE1-S ;",
+        "module LIVE1I version 11 crc32 4203863728 bytes 33 deps 0 ac"
+      ]
+    },
+    "workspace_key": {
+      "ok": true,
+      "detail": null
+    },
+    "print_it": {
+      "ok": true,
+      "detail": "\\ Ctrl+D do it, Ctrl+P print it, Ctrl+I inspect it\n3 4 + .\n6 7 * 42"
+    },
+    "indent": {
+      "ok": true,
+      "detail": "\\ Ctrl+D do it, Ctrl+P print it, Ctrl+I inspect it\n3 4 + .\n  6 7 * 42"
+    },
+    "deindent": {
+      "ok": true,
+      "detail": "\\ Ctrl+D do it, Ctrl+P print it, Ctrl+I inspect it\n3 4 + .\n6 7 * 42"
+    },
+    "inspector_key": {
+      "ok": true,
+      "detail": null
+    },
+    "memory_tab": {
+      "ok": true,
+      "detail": [
+        "1"
+      ]
+    },
+    "tasks_report": {
+      "ok": true,
+      "detail": "task-slice 1024\ntask 1 state sleeping xt 264 name 4155544F52554E slices 4 steps 74 depth 0 rdepth 1 ds-peak 3 rs-peak 4 "
+    },
+    "system_report": {
+      "ok": true,
+      "detail": "engine DIRECT words 267/512 token-bytes 1645 direct-bytes 4047 data-bytes 2223 source-bytes 1672 data-peak 10 return-peak 1\ndisplay epoch 20 errors 0 frames 874 ESP restarts 0\n"
+    },
+    "manager_key": {
+      "ok": true,
+      "detail": null
+    },
+    "boot_report": {
+      "ok": true,
+      "detail": "Enter: run the selected action\nboot confirmed A candidate NONE state CLEAN current A generation 15\nmanifest A confirmed modules 5 crc32 3568491093\nmanifest-module A LIVE1I version 11 crc32 4203863728 "
+    },
+    "readback_complete": {
+      "ok": true,
+      "detail": [
+        "2000"
+      ]
+    },
+    "no_protocol_errors": {
+      "ok": true,
+      "detail": [
+        "0",
+        "629",
+        "20"
+      ]
+    },
+    "frame_budget": {
+      "ok": true,
+      "detail": {
+        "vblank_start_max": 231,
+        "frame_work_max": 4535
+      }
+    }
+  },
+  "close_all_word": true,
+  "browser_open_s": 0.364,
+  "modules": "module LIVE1I version 11 crc32 4203863728 bytes 33 deps 0 active 1 previous 0",
+  "browser_code_head": "DEFER LIVE1-S : LIVE1-C LIVE1-S ;",
+  "workspace_text": "\\ Ctrl+D do it, Ctrl+P print it, Ctrl+I inspect it\n3 4 + .\n6 7 * 42",
+  "tasks_report": "task-slice 1024\ntask 1 state sleeping xt 264 name 4155544F52554E slices 4 steps 74 depth 0 rdepth 1 ds-peak 3 rs-peak 4 out 0 dropped 0 error - base 10\ntask 2 state free xt 0 name - slices 0 steps 0 d",
+  "system_report": "engine DIRECT words 267/512 token-bytes 1645 direct-bytes 4047 data-bytes 2223 source-bytes 1672 data-peak 10 return-peak 1\ndisplay epoch 20 errors 0 frames 874 ESP restarts 0\n",
+  "boot_report": "Enter: run the selected action\nboot confirmed A candidate NONE state CLEAN current A generation 15\nmanifest A confirmed modules 5 crc32 3568491093\nmanifest-module A LIVE1I version 11 crc32 4203863728 package ok\nmanifest-module A LIVE1P version 11 crc32 2732385733 package ok\nmanifest-module A LIVE1D ",
+  "dialog_status": "GUI on windows 6 frames 969 rows 25507 carried 769 errors 0 style 0 batch_max_us 2736 batch_op 58 frame_max_us 3519 presents 23 deferred 0 forced 3 abandoned 0 present_us_max 9747 sync_frames_max 5 slow_us 8845 slow_px 0 slow_rows 0 slow_nd 0 slow_phase 2>0",
+  "readback": {
+    "bytes": 2000,
+    "seconds": 0.266,
+    "bytes_per_s": 7520
+  },
+  "sync": [
+    "0",
+    "629",
+    "20"
+  ],
+  "sections": {
+    "browser": {
+      "vblank_start_max": 28,
+      "frame_work_max": 4487,
+      "frame_lock_max": 386,
+      "frame_gui_max": 4423,
+      "present_frames": 1,
+      "present_work_max": 9113,
+      "keyboard_max": 4252
+    },
+    "workspace": {
+      "vblank_start_max": 231,
+      "frame_work_max": 4239,
+      "frame_lock_max": 85,
+      "frame_gui_max": 3204,
+      "present_frames": 1,
+      "present_work_max": 9127,
+      "keyboard_max": 4039
+    },
+    "inspector": {
+      "vblank_start_max": 28,
+      "frame_work_max": 4434,
+      "frame_lock_max": 1171,
+      "frame_gui_max": 3384,
+      "present_frames": 4,
+      "present_work_max": 10317,
+      "keyboard_max": 8452
+    },
+    "manager": {
+      "vblank_start_max": 29,
+      "frame_work_max": 4535,
+      "frame_lock_max": 14,
+      "frame_gui_max": 3523,
+      "present_frames": 4,
+      "present_work_max": 8875,
+      "keyboard_max": 8930
+    },
+    "readback": {
+      "vblank_start_max": 25,
+      "frame_work_max": 4020,
+      "frame_lock_max": 9,
+      "frame_gui_max": 3634,
+      "present_frames": 0,
+      "present_work_max": 0,
+      "keyboard_max": 3255
+    },
+    "close": {
+      "vblank_start_max": 20,
+      "frame_work_max": 3870,
+      "frame_lock_max": 7,
+      "frame_gui_max": 3074,
+      "present_frames": 0,
+      "present_work_max": 0,
+      "keyboard_max": 3176
+    }
+  },
+  "frames": {
+    "vblank_start_max": 231,
+    "frame_work_max": 4535
+  },
+  "gui": "GUI on windows 1 frames 1030 rows 26586 carried 825 errors 0 style 0 batch_max_us 203 batch_op 57 frame_max_us 3059 presents 24 deferred 0 forced 4 abandoned 0 present_us_max 9747 sync_frames_max 5 slow_us 0 slow_px 0 slow_rows 0 slow_nd 0 slow_phase 0>0",
+  "resources": "engine DIRECT words 267/512 token-bytes 1645 direct-bytes 4047 data-bytes 2223 source-bytes 1672 data-peak 10 return-peak 1"
+}

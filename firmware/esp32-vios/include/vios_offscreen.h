@@ -97,7 +97,7 @@ public:
         if (state == ON) {
             if (v->stats.blits != blits_at) all_dirty = true;     // a scroll blit moved shadow rows
             if (clear) ready = true;   // present in the next frame that starts at vblank
-            else if (++frames >= max_frames) { ++forced; cooling = true; present(v); }
+            else if (++frames >= max_frames) { ++forced; cooling = true; ready = true; }   // also in a frame of its own
         }
         if (clear) cooling = false;
         return result;
