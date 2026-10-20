@@ -373,7 +373,19 @@ extra frame between vblanks, and in a tool that frame composes a large area
 compose budget plus overhead); when it overlaps the next vblank, that frame
 starts late. Options, not yet chosen: split the kicked frame's work with the
 existing time budget (`vds_frame_within`), or skip the kick when large damage
-waits for the next vblank anyway. Read-back at 0.65 s for a full module is acceptable
+waits for the next vblank anyway. **Board run 3** (firmware-gui-tools-5 on main `14259b3`, kicked frames capped
+at 0.7 ms, [`run3.json`](../../bring-up/vios-gui-tools-accept-2026-10-20-run3.json)):
+17 of 18 checks pass again; frame work ≤ 5.3 ms (budget met); read-back of
+4000 B now 0.45 s (8.9 KB/s, main's interrupt-driven UART receive helps). The
+vblank start check failed again (6.8 ms peak) during the full run, but **no
+single step reproduces it** when profiled one at a time after the run, nor the
+first build of each tool after a fresh boot: every step stays under 100 µs except
+one tab switch at 1.2 ms. The large values seen were right after boot and
+harness connect, before any tool opened (lock 46 ms, vblank start 8 ms), which
+points outside the tools; reported to the main session. Open: reproduce the
+spike with per-step stats inside one uninterrupted run.
+
+Read-back at 0.65 s for a full module is acceptable
 for an explicit accept, so the chunked path stays (decision 2).
 
 **Traffic (host test, the whole tool session):** 48 nudges, 64 requests,
