@@ -1,14 +1,14 @@
 {
   "firmware": "firmware/esp32-vios/.pio/build/esp32-vios/firmware.bin",
   "size": 780400,
-  "sha256": "5ebcd5cc0db585711b6e06f57d62a68bf0e78aadfcc68a25396054c952042d58",
+  "sha256": "f25e7f069b8e4a4c673a359d49533b54baec040a6f27ee3d09fc8a291d6328c4",
   "app0_offset": 65536,
   "app0_limit": 1310720,
   "embedded_vios": {
     "path": "build/vios-resident.bin",
     "size": 166828,
-    "sha256": "3e3fe5cdde168b3b1e1fb85927664ce44fc5c9537eecc368efe81e24fad4449d",
-    "crc32": "81ee5204",
+    "sha256": "118ca5cdf4712135a6482b781d30f9ac407d93b30444ce959445a22817d55015",
+    "crc32": "38087fe1",
     "internal_baud": 1152000,
     "gui": 1
   },
@@ -67,7 +67,7 @@
     "firmware/esp32-vios/include/vios_line.h": "7ecbf95cdcbbe788ef6fae60a2055c9522dc600546b52c8dad8d9eacc05e4234",
     "firmware/esp32-vios/include/vios_console_vdp.h": "8673d141215f565b29d41e0f13accb57bd562df04bc0dadd3226b609e680b8c7",
     "firmware/esp32-vios/include/vios_offscreen.h": "906fe6fac6084443b97bdbe5997dcf46a29fa89986fa12a52d4e3d85288ea20f",
-    "firmware/esp32-vios/include/vios_image.h": "e8e4c70610280b61325c3369fbb9d4301726143e1da3daef2143bac77a1e8aa6",
+    "firmware/esp32-vios/include/vios_image.h": "bbbd3338459813fcfd02ceafe3f3f3257e6f77866e4c161499e3753d5c7c8407",
     "firmware/esp32-vios/include/vios_gui.h": "06d4d734ef259e4dea2314577aa6b0689d646484d083e10bb3016c51a629603b",
     "firmware/esp32-vios/include/vios_bridge_api.h": "a37d79d3d632730b5802d41ec3e59c20e61157d19aa29a7060a41ddb49cd2d6e",
     "firmware/esp32-vios/include/vios_console_vds.h": "feb60cf3ad684bd7166a41bd6062d628e8a5ed4f922b8112a4ef7adedd45bf94",

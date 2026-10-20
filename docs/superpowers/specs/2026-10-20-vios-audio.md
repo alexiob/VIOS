@@ -104,7 +104,8 @@ PSRAM free heap. The board check and the host test read the same fields.
 
 `BEEP ( freq ms -- flag )` stays for compatibility (blocking 0x85 reply).
 Arguments are masked to bytes/words on the CPU; the ESP range-checks. Natives
-are at 92 of `NATIVES_MAX` 96, so it rises to 104 (+48 B).
+were at 92 of `NATIVES_MAX` 96; with main's B2 words they are 102, so it rises to
+112 (+96 B), leaving 10 for the GUI work.
 
 ## 6. Budget
 
@@ -114,6 +115,8 @@ PSRAM: tune texts only. ESP CPU: one generator call per sample, 3 voice updates.
 Measured numbers are in §8.
 
 ## 7. Open decisions
+
+0. To hear the buzzer, jumper `BUZ_EN1` must be closed; the jack works regardless.
 
 1. Dropping VDP 1.04 samples/envelopes/extra channels by default (flag restores).
 2. `BEEP` kept (blocking); retiring it saves its code and one word.
@@ -128,7 +131,7 @@ Build-time, against base e03260a (same toolchains):
 | | base | audio | delta |
 | --- | --- | --- | --- |
 | eZ80 resident image | 163,683 B | 164,450 B | +767 B (vios_audio.o 574 code + 117 rodata + 8 data; VTYPE loop shared) |
-| eZ80 BSS | — | — | +48 B (`NATIVES_MAX` 96 → 104) |
+| eZ80 BSS | — | — | +96 B (`NATIVES_MAX` 96 → 112) |
 | eZ80 free below the 4 KB stack | 39,984 B | 39,167 B | −817 B |
 | ESP static RAM (pio) | 63,020 B | 63,116 B | +96 B (engine + generator) |
 | ESP flash | 785,781 B | 777,653 B | −8,128 B (VDP 1.04 engine out) |
