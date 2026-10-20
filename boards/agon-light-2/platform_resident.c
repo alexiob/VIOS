@@ -12,6 +12,25 @@ static struct vdp_transport rx;
 static unsigned char output[128];
 static unsigned output_used;
 static unsigned char incoming[32];
+/* Tasks B3: once the tick runs (MOS booted this run), UART0 RX is
+ * interrupt-driven. arch/ez80/irq.s moves FIFO bytes into a 256-byte ring
+ * and drops RTS at 192 bytes; these wrappers read the ring, so RTS stays up
+ * and C no longer opens 1 ms listening windows (the task gate and the Ctrl-C
+ * check become ring checks). Before that, and after a ZDI boot: the polled,
+ * RTS-gated path. */
+extern volatile unsigned char vios_rx_ring[256],vios_rx_head,vios_rx_tail;
+extern void vios_uart0_isr_enable(void);
+static int rx_isr;
+static void rx_pause(void){if(!rx_isr)ez80_uart0_rx_pause();}
+static void rx_resume(void){if(!rx_isr||(unsigned char)(vios_rx_head-vios_rx_tail)<64u)ez80_uart0_rx_resume();}
+static unsigned rx_drain(unsigned char *buffer){
+ if(!rx_isr)return ez80_uart0_rx_drain(buffer);
+ unsigned n=0;unsigned char tail=vios_rx_tail;
+ while(n<32&&tail!=vios_rx_head){buffer[n++]=vios_rx_ring[tail];tail=(unsigned char)(tail+1);}
+ vios_rx_tail=tail;
+ if((unsigned char)(vios_rx_head-tail)<64u)ez80_uart0_rx_resume();   /* the ISR dropped RTS at 192: room again */
+ return n;
+}
 static void poll(void);
 static void esp_restart_check(void);
 /* Console output tap for the VGA console view: RAM only, never VDP I/O. */
@@ -28,7 +47,7 @@ static void send_bytes(const unsigned char *data,size_t length) {
   data+=count;length-=count;
   /* A stalled peer may need to send before asserting CTS; service that window
    * on every retry, leaving RX paused again before returning to the caller. */
-  if(!count)ez80_uart0_rx_resume();
+  if(!count)rx_resume();
  }
  poll();
 }
@@ -41,11 +60,11 @@ static void send_bytes(const unsigned char *data,size_t length) {
 static unsigned idle_polls;
 static void poll(void) {
  /* Native collection precedes parsing; the peer obeys RTS while C runs. */
- unsigned count=ez80_uart0_rx_drain(incoming);
+ unsigned count=rx_drain(incoming);
  if(count)idle_polls=0;
  for(unsigned i=0;i<count;++i)vdp_transport_feed(&rx,incoming[i]);
 }
-void platform_console_init(void) {ez80_uart0_raw_init();ez80_uart0_rx_pause();ez80_uart0_rx_overruns=0;vdp_transport_init(&rx);output_used=0;}
+void platform_console_init(void) {ez80_uart0_raw_init();rx_pause();ez80_uart0_rx_overruns=0;vdp_transport_init(&rx);output_used=0;}
 void platform_console_flush(void) {
  if(!output_used)return;
  unsigned char header[]={23,0,0xE0,(unsigned char)output_used};
@@ -87,13 +106,13 @@ static void echo_local(void) {
  platform_console_flush();
 }
 int platform_console_getc(void) {
- ez80_uart0_rx_pause();
+ rx_pause();
  int c=vdp_transport_getc(&rx);if(c>=0){echo_local();return c;}
  poll();esp_restart_check();c=vdp_transport_getc(&rx);echo_local();if(c>=0)return c;
  if(idle_polls<ECHO_IDLE_POLLS)++idle_polls;else platform_console_flush();
- ez80_uart0_rx_resume();return -1;
+ rx_resume();return -1;
 }
-void platform_input_resume(void) {ez80_uart0_rx_resume();}
+void platform_input_resume(void) {rx_resume();}
 /* Stage 2a: the ESP edits physical lines while the REPL awaits one and keys
  * are not routed to an application; tell it whenever that changes. Pending
  * console output goes first so its echo stays in order. */
@@ -115,17 +134,17 @@ static void esp_restart_check(void){
 }
 unsigned platform_vdp_epoch(void){esp_restart_check();return esp_epoch;}
 void platform_keyboard_route(int enabled) {
- ez80_uart0_rx_pause();vdp_transport_keyboard_route(&rx,enabled);poll();esp_line_update();
+ rx_pause();vdp_transport_keyboard_route(&rx,enabled);poll();esp_line_update();
 }
 int platform_keyboard_event(struct platform_key_event *out) {
- ez80_uart0_rx_pause();
+ rx_pause();
  if(!out)return 0;
  if(vdp_transport_keyboard_event(&rx,out))return 1;
  poll();esp_restart_check();if(vdp_transport_keyboard_event(&rx,out))return 1;
  return 0;
 }
 unsigned platform_keyboard_dropped(void) {return rx.key_dropped;}
-int platform_keyboard_hotkey(void) {ez80_uart0_rx_pause();poll();int k=rx.hotkey;rx.hotkey=0;return k;}
+int platform_keyboard_hotkey(void) {rx_pause();poll();int k=rx.hotkey;rx.hotkey=0;return k;}
 void platform_console_tap(void (*tap)(unsigned char)) {console_tap=tap;}
 void platform_vdp_send(const void *data,size_t length) {
  platform_console_flush();send_bytes(data,length);
@@ -138,7 +157,7 @@ int platform_vdp_request(const void *command,size_t length,unsigned char reply,v
  do {
   poll();if(vdp_transport_packet(&rx,reply,data,capacity,actual))return 1;
   unsigned short now=platform_timer_read();elapsed+=(unsigned short)(previous-now);previous=now;
-  if(elapsed<PLATFORM_TIMER_HZ)ez80_uart0_rx_resume();
+  if(elapsed<PLATFORM_TIMER_HZ)rx_resume();
  }while(elapsed<PLATFORM_TIMER_HZ);
  if(actual)*actual=0;return 0;
 }
@@ -153,7 +172,7 @@ int platform_host_request(const void *request,size_t length,void *reply,size_t c
  do {
   poll();if(vdp_transport_host_reply(&rx,reply,(unsigned)capacity,actual))return 1;
   unsigned short now=platform_timer_read();elapsed+=(unsigned short)(previous-now);previous=now;
-  if(elapsed<PLATFORM_TIMER_HZ)ez80_uart0_rx_resume();
+  if(elapsed<PLATFORM_TIMER_HZ)rx_resume();
  }while(elapsed<PLATFORM_TIMER_HZ);
  if(actual)*actual=0;return 0;
 }
@@ -168,20 +187,28 @@ void platform_console_line_mode(int awaiting_line) {vdp_transport_line_mode(&rx,
  * byte or key event defers tasks to the console. Otherwise pause RX so the
  * peer holds new input for the whole slice (the FIFO is not drained then). */
 int platform_console_quiet(void) {
+ if(rx_isr){poll();return rx.head==rx.tail&&!rx.key_count;}   /* B3: a ring check, no listening window */
  unsigned short start=platform_timer_read();
  /* Each drain pauses RX again, so reopen the window on every iteration. */
  while((unsigned short)(start-platform_timer_read())<PLATFORM_TIMER_HZ/1000u){
-  ez80_uart0_rx_resume();poll();if(rx.head!=rx.tail||rx.key_count){ez80_uart0_rx_pause();return 0;}
+  rx_resume();poll();if(rx.head!=rx.tail||rx.key_count){rx_pause();return 0;}
  }
- ez80_uart0_rx_pause();poll();return rx.head==rx.tail&&!rx.key_count;
+ rx_pause();poll();return rx.head==rx.tail&&!rx.key_count;
 }
 /* Ctrl-C check at a foreground tick (tasks B2). RX is paused (RTS off) while a
  * command runs, so a Ctrl-C would wait in the ESP: open RX for up to 0.25 ms,
  * like the task gate's listen. Other bytes stay queued in the transport. */
 int platform_console_interrupt(void){
+ if(rx_isr){poll();return vdp_transport_take_interrupt(&rx);}
  unsigned short start=platform_timer_read();
- while((unsigned short)(start-platform_timer_read())<PLATFORM_TIMER_HZ/4000u){ez80_uart0_rx_resume();poll();if(rx.interrupt)break;}
- ez80_uart0_rx_pause();poll();return vdp_transport_take_interrupt(&rx);
+ while((unsigned short)(start-platform_timer_read())<PLATFORM_TIMER_HZ/4000u){rx_resume();poll();if(rx.interrupt)break;}
+ rx_pause();poll();return vdp_transport_take_interrupt(&rx);
+}
+/* Called once, with interrupts disabled, when the tick starts (kernel/vios_irq.c):
+ * what is already in the FIFO goes to the parser, then the ISR takes over. */
+void platform_console_rx_interrupts(void){
+ unsigned n;while((n=ez80_uart0_rx_drain(incoming))!=0)for(unsigned i=0;i<n;++i)vdp_transport_feed(&rx,incoming[i]);
+ vios_rx_head=vios_rx_tail=0;rx_isr=1;vios_uart0_isr_enable();
 }
 void platform_boot_ready(void) {static const unsigned char command[]={23,0,0xE2,1};platform_vdp_send(command,sizeof command);}
 void platform_boot_trial(void) {static const unsigned char command[]={23,0,0xE2,0};platform_vdp_send(command,sizeof command);}

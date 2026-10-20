@@ -16,6 +16,15 @@ static int stall_cts,stall_tx;
 static int rts;
 static unsigned burst_calls,drain_calls;
 volatile unsigned ez80_uart0_rx_overruns;
+/* B3 ring, filled here by fake_isr() as arch/ez80/irq.s would. */
+volatile unsigned char vios_rx_ring[256],vios_rx_head,vios_rx_tail;
+static int isr_mode,isr_enabled;
+void vios_uart0_isr_enable(void){isr_enabled=1;rts=1;}
+void platform_console_rx_interrupts(void);
+static void fake_isr(const unsigned char *bytes,unsigned n){
+ for(unsigned i=0;i<n;++i){vios_rx_ring[vios_rx_head]=bytes[i];vios_rx_head=(unsigned char)(vios_rx_head+1);}
+ if((unsigned char)(vios_rx_head-vios_rx_tail)>=192)rts=0;
+}
 static void arrive(void) {
  if(next_wire<wire_length){
   unsigned char byte=incoming[next_wire++];
@@ -45,7 +54,7 @@ unsigned ez80_uart0_rx_drain(unsigned char *buffer) {
 }
 void actual_feed(struct vdp_transport *,unsigned char);
 void vdp_transport_feed(struct vdp_transport *transport,unsigned char byte) {
- assert(!rts); /* A slow parser must never run with peer transmission enabled. */
+ assert(isr_mode||!rts); /* Polled: a slow parser must never run with peer transmission enabled (B3: the ISR guards the FIFO). */
  for(unsigned i=0;i<100;++i)wire_tick();
  actual_feed(transport,byte);
 }
@@ -158,6 +167,22 @@ int main(int argc,char **argv) {
   fprintf(stderr,"coalesce: %u frames for %u echoed bytes\n",frames,bytes);
   assert(got==41&&bytes==41&&frames<=6);
   puts("resident echo coalesces streamed input");return 0;
+ }
+ if(!strcmp(argv[1],"rx-isr")){
+  /* B3: once switched, input comes from the ISR ring with RTS left up; the
+   * task gate is an instant ring check; RTS dropped at 192 comes back below 64. */
+  wire_length=0;platform_console_init();isr_mode=1;platform_console_rx_interrupts();
+  assert(isr_enabled&&rts);
+  unsigned before=timer_reads;assert(platform_console_quiet()==1&&rts);assert(timer_reads==before&&"no listening window");
+  const unsigned char line[]={0xFE,3,'A','B','\r'};fake_isr(line,sizeof line);
+  assert(platform_console_quiet()==0);
+  unsigned got=0;for(unsigned i=0;i<50&&got<3;++i){int c=platform_console_getc();if(c>=0)assert(c==(int)line[2+got++]);}
+  assert(got==3&&rts);
+  static unsigned char many[200];for(unsigned i=0;i<sizeof many;i+=2){many[i]=0xFE;many[i+1]=0;}   /* empty host packets */
+  fake_isr(many,sizeof many);assert(!rts&&"the ISR dropped RTS at 192");
+  for(unsigned i=0;i<20;++i)(void)platform_console_getc();
+  assert(rts&&vios_rx_head==vios_rx_tail&&"drained below 64: RTS up again");
+  puts("resident receive by interrupt: ring input, instant gate, RTS hysteresis");return 0;
  }
  if(!strcmp(argv[1],"gate")){
   /* Quiet line: tasks admitted with RX paused. A host byte inside the ~1 ms
