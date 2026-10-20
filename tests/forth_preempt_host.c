@@ -28,6 +28,8 @@ static void sim_tick(void){
  unsigned k=every?every:1u+(unsigned)(rand()%(int)seeded);
  if(fvm_budget>k){forth_budget_stolen=fvm_budget-k;fvm_budget=k;forth_tick_pending=1;++ticks;}
 }
+static unsigned ctrl_c_after;
+static int ctrl_c(void){return ctrl_c_after&&!--ctrl_c_after;}
 static void eval(const char *s){output_used=0;output[0]=0;if(!forth_eval(s)){fprintf(stderr,"eval failed: %s: %s\n",s,forth_last_error());assert(0);}}
 static fcell value(const char *s){eval(s);fcell v=fvm_pop();assert(!fvm_error);return v;}
 static void fresh(void){forth_register_clock(fake_clock);forth_init();forth_register_preempt(arm);forth_register_tick_source(sim_tick);forth_register_task_gate(gate);}
@@ -69,6 +71,22 @@ int main(void){
  for(unsigned i=0;i<20;++i)forth_tasks_run();
  eval("TASKS");assert(strstr(output,"SPIN")||strstr(output,"state ready"));
  eval("PREEMPT-STATS");assert(strstr(output,"preempt on"));
+ /* Ctrl-C: with nothing to share, the foreground still gets a 50 ms check,
+  * and a request fails the running command at the next safe point. */
+ eval("2 TASK-KILL 3 TASK-KILL 4 TASK-KILL");for(unsigned i=0;i<10;++i)forth_tasks_run();
+ forth_register_interrupt(ctrl_c);ctrl_c_after=5;every=200;
+ output_used=0;assert(!forth_eval(": SPIN2 BEGIN AGAIN ; SPIN2"));assert(strstr(forth_last_error(),"interrupted"));
+ assert(value("1 2 +")==3&&"the REPL keeps working after an interrupt");
+ /* A foreground MS or FRAME-WAIT wait (C, not the VM) is interruptible too:
+  * the clock does not move here, so only Ctrl-C can end these waits. */
+ ctrl_c_after=3;assert(!forth_eval("100000 MS"));assert(strstr(forth_last_error(),"interrupted"));
+ ctrl_c_after=3;assert(!forth_eval("FRAME-WAIT"));assert(strstr(forth_last_error(),"interrupted"));
+ forth_register_interrupt(0);
+ /* FRAME-WAIT: a task sleeps to the next 50/3 ms boundary. */
+ clock_ms=1000;eval(": FRAMER FRAME-WAIT 1 Q ! ;");eval("0 Q !");assert(value("' FRAMER SPAWN")>0);
+ forth_tasks_run();assert(value("Q @")==0);
+ clock_ms=1016;forth_tasks_run();assert(value("Q @")==0);
+ clock_ms=1017;forth_tasks_run();assert(value("Q @")==1&&"woke at the 61st frame boundary, 1016.67 ms");
  printf("tick preemption: foreground rounds, determinism, CRITICAL and slice ends passed (%u arms)\n",arms);
  return 0;
 }

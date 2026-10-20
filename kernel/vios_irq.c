@@ -9,6 +9,7 @@
  * Valid only when MOS booted this run (the stub's VIOS_BOOT_MAGIC): after a
  * ZDI load MOS never filled its RAM table. */
 #include "vios/runtime.h"
+#include "platform/console.h"
 extern unsigned char platform_irq_i(void);
 extern unsigned char platform_io_read(unsigned port);
 extern unsigned platform_boot_source;
@@ -100,6 +101,6 @@ static int irq_stats(void){
  vios_out(" stray ");vios_uint((unsigned)(vios_irq_stray[0]|vios_irq_stray[1]<<8));vios_out("\r\n");return 1;
 }
 int vios_board_init(void){
- if(ticking){forth_register_clock(tick_clock);forth_register_preempt(preempt_arm);}   /* MS deadlines; tick preemption (B2) */
+ if(ticking){forth_register_clock(tick_clock);forth_register_interrupt(platform_console_interrupt);forth_register_preempt(preempt_arm);}   /* MS deadlines; tick preemption and Ctrl-C (B2) */
  return forth_register_native("IRQ-PROBE",irq_probe,0)&&forth_register_native("TICKS",ticks,FORTH_NATIVE_TASK)&&forth_register_native("IRQ-STATS",irq_stats,0);
 }

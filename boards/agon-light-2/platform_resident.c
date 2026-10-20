@@ -175,6 +175,14 @@ int platform_console_quiet(void) {
  }
  ez80_uart0_rx_pause();poll();return rx.head==rx.tail&&!rx.key_count;
 }
+/* Ctrl-C check at a foreground tick (tasks B2). RX is paused (RTS off) while a
+ * command runs, so a Ctrl-C would wait in the ESP: open RX for up to 0.25 ms,
+ * like the task gate's listen. Other bytes stay queued in the transport. */
+int platform_console_interrupt(void){
+ unsigned short start=platform_timer_read();
+ while((unsigned short)(start-platform_timer_read())<PLATFORM_TIMER_HZ/4000u){ez80_uart0_rx_resume();poll();if(rx.interrupt)break;}
+ ez80_uart0_rx_pause();poll();return vdp_transport_take_interrupt(&rx);
+}
 void platform_boot_ready(void) {static const unsigned char command[]={23,0,0xE2,1};platform_vdp_send(command,sizeof command);}
 void platform_boot_trial(void) {static const unsigned char command[]={23,0,0xE2,0};platform_vdp_send(command,sizeof command);}
 const char *platform_identity(void) {return "VIOS / Agon Light 2 / native24 / VDP+USB multiplex / SD SPI";}

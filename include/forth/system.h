@@ -39,6 +39,9 @@ extern volatile unsigned char forth_tick_pending;
 extern volatile fcell forth_budget_stolen;
 void forth_register_preempt(void (*arm)(unsigned delay_ms));
 void forth_register_tick_source(void (*hook)(void));
+/* Ctrl-C at foreground ticks: poll returns 1 once per request; the running
+ * command then fails with "interrupted" at the next safe point. */
+void forth_register_interrupt(int (*poll)(void));
 /* Task-aware I/O for kernel services: forth_emit uses the console in the
  * foreground and the running task's output ring in a background slice. */
 void forth_emit(unsigned char c);

@@ -3,7 +3,7 @@
 void vdp_transport_init(struct vdp_transport *p) {
  p->state=p->head=p->tail=0;p->dropped=0;
  p->key_head=p->key_count=p->key_route=0;p->key_dropped=0;
- p->line_mode=p->host_open=p->local_pending=p->local_used=0;p->local_dropped=0;p->local_cursor=p->local_erase=p->hotkey=0;p->host_length=p->host_ready=0;p->history_count=p->history_next=p->history_pos=0;
+ p->line_mode=p->host_open=p->local_pending=p->local_used=0;p->local_dropped=0;p->local_cursor=p->local_erase=p->hotkey=p->interrupt=0;p->host_length=p->host_ready=0;p->history_count=p->history_next=p->history_pos=0;
  for(unsigned i=0;i<8;++i)p->replies[i].valid=p->replies[i].type=0;
 }
 void vdp_transport_keyboard_route(struct vdp_transport *p,int enabled) {
@@ -33,6 +33,7 @@ static void flush_local(struct vdp_transport *p) {
  input(p,'\r');p->local_used=p->local_cursor=0;p->local_pending=0;p->local_erase=1;
 }
 static void host(struct vdp_transport *p,unsigned char byte) {
+ if(byte==3&&!p->host_open&&!p->line_mode){p->interrupt=1;return;}   /* while a command runs; never inside a request line */
  input(p,byte);p->host_open=!(byte=='\r'||byte=='\n'||byte==3);flush_local(p);
 }
 static void remember(struct vdp_transport *p) {
@@ -59,7 +60,7 @@ static void erase_at(struct vdp_transport *p,unsigned at) {
 /* Cooked line editor: insert at cursor, Left/Right/Home/End, Backspace and
  * Delete, Esc/Ctrl-C clear, Up/Down history. Raw mode passes ASCII through. */
 static void local(struct vdp_transport *p,unsigned char c,unsigned char key) {
- if(!p->line_mode){if(c)input(p,c);return;}
+ if(!p->line_mode){if(c==3){p->interrupt=1;return;}if(c)input(p,c);return;}   /* a command runs: Ctrl-C interrupts it (and is not also input) */
  if(p->local_pending){++p->local_dropped;return;}
  if(key==PLATFORM_KEY_RETURN||key==PLATFORM_KEY_KP_ENTER||c=='\r'||c=='\n'){remember(p);p->history_pos=0;p->local_pending=1;flush_local(p);}
  else if(key==PLATFORM_KEY_LEFT||key==PLATFORM_KEY_KP_LEFT){if(p->local_cursor)--p->local_cursor;}
@@ -70,7 +71,7 @@ static void local(struct vdp_transport *p,unsigned char c,unsigned char key) {
  else if(key==PLATFORM_KEY_DOWN||key==PLATFORM_KEY_KP_DOWN)recall(p,0);
  else if(key==PLATFORM_KEY_DELETE){if(p->local_cursor<p->local_used)erase_at(p,p->local_cursor);}
  else if(key==PLATFORM_KEY_BACKSPACE||c==8||c==127){if(p->local_cursor){--p->local_cursor;erase_at(p,p->local_cursor);}}
- else if(key==PLATFORM_KEY_ESCAPE||c==3||c==27){p->local_used=p->local_cursor=0;p->history_pos=0;}
+ else if(key==PLATFORM_KEY_ESCAPE||c==3||c==27){p->local_used=p->local_cursor=0;p->history_pos=0;}   /* at the prompt: clears the line only */
  else if(c>=32&&c<127&&p->local_used<sizeof p->local){
   for(unsigned i=p->local_used;i>p->local_cursor;--i)p->local[i]=p->local[i-1];
   p->local[p->local_cursor++]=c;++p->local_used;
@@ -102,6 +103,7 @@ void vdp_transport_feed(struct vdp_transport *p,unsigned char byte) {
  r->type=p->type;r->length=p->length;r->valid=1;
  for(unsigned i=0;i<r->length;++i)r->data[i]=p->scratch[i];
 }
+int vdp_transport_take_interrupt(struct vdp_transport *p){int hit=p->interrupt;p->interrupt=0;return hit;}
 int vdp_transport_getc(struct vdp_transport *p) {
  if(p->head==p->tail){flush_local(p);if(p->head==p->tail)return -1;}
  int c=p->input[p->head];p->head=(unsigned short)((p->head+1)&511);return c;

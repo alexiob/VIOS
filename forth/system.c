@@ -110,11 +110,14 @@ volatile unsigned char forth_tick_pending;
 volatile fcell forth_budget_stolen;
 static void (*preempt_arm)(unsigned delay_ms);  /* 0 disarms */
 static void (*tick_source)(void);                /* host tests: simulated ticks */
+static int (*interrupt_poll)(void);              /* Ctrl-C, checked at foreground ticks */
+#define PREEMPT_INTERRUPT_MS 50u                 /* foreground Ctrl-C check when nothing else is due */
 static unsigned char preempt_on=1,critical;
 static uint32_t preemptions,ticks_ignored;
 #define PREEMPT_SLICE_MS 4u                      /* a background slice */
 #define PREEMPT_QUANTUM_MS 4u                    /* foreground, while a task is ready */
 static void preempt_plan(void);
+static int tasks_live(void);
 static void preempt_clear(void){forth_tick_pending=0;forth_budget_stolen=0;}
 /* Take back a pending steal before C saves or replaces fvm_budget: the ISR
  * keeps stealing until the next plan, also while C runs (gate, KEY, MS). */
@@ -310,9 +313,10 @@ static int dispatch(void) {
    fcell stolen=forth_budget_stolen;preempt_clear();
    if(stolen){   /* a tick, not real exhaustion: resume with the exact budget */
     fvm_error=0;fvm_budget=stolen;
+    if(running<0&&interrupt_poll&&interrupt_poll()){preempt_plan();return fail("interrupted");}
     if(!critical&&!tracing&&!transaction_active&&!observer_active){
      if(running>=0){++preemptions;return 2;}
-     if(!scheduling&&current<0){++preemptions;if(preempt_arm)preempt_arm(0);forth_tasks_run();}
+     if(!scheduling&&current<0&&tasks_live()){++preemptions;if(preempt_arm)preempt_arm(0);forth_tasks_run();}
      else ++ticks_ignored;
     }else ++ticks_ignored;
     preempt_plan();if(tick_source)tick_source();continue;
@@ -362,8 +366,8 @@ static int execute_index(unsigned n) {
   * steal before it is overwritten (never a budget left at 0 with no tick). */
  preempt_clear();
  fvm_budget=observer_active?observer_budget:transaction_active?transaction_budget:1000000UL;
- preempt_plan();if(tick_source)tick_source();
- fvm_ip=entry_ip(n);++executing;int result=dispatch();--executing;return result;
+ fvm_ip=entry_ip(n);++executing;preempt_plan();if(tick_source)tick_source();
+ int result=dispatch();--executing;preempt_plan();return result;
 }
 static void out(unsigned char c) {
  if(running<0||tasks[running].console){platform_console_putc(c);return;}
@@ -438,7 +442,7 @@ static void preempt_plan(void){
  if(!preempt_arm)return;
  if(!preempt_on){preempt_arm(0);return;}
  if(running>=0){preempt_arm(PREEMPT_SLICE_MS);return;}
- uint32_t now=now_ms();unsigned delay=0;
+ uint32_t now=now_ms();unsigned delay=interrupt_poll&&executing?PREEMPT_INTERRUPT_MS:0;
  for(unsigned i=0;i<FORTH_TASKS_MAX;++i){
   unsigned d=0;
   if(tasks[i].state==TS_READY)d=PREEMPT_QUANTUM_MS;
@@ -449,6 +453,7 @@ static void preempt_plan(void){
 }
 void forth_register_preempt(void (*arm)(unsigned delay_ms)){preempt_arm=arm;preempt_clear();preempt_plan();}
 void forth_register_tick_source(void (*hook)(void)){tick_source=hook;}
+void forth_register_interrupt(int (*poll)(void)){interrupt_poll=poll;}
 static int native_preempt(void){fcell f=fvm_pop();if(fvm_error)return fail(vm_message());preempt_on=f!=0;preempt_plan();return 1;}
 static int native_critical_begin(void){if(critical==255)return fail("CRITICAL( nested too deep");++critical;return 1;}
 static int native_critical_end(void){if(critical)--critical;return 1;}
@@ -565,7 +570,14 @@ static int native_pause(void) {if(running>=0)yield_request=1;else forth_tasks_ru
 static int native_ms(void) {
  fcell ms=fvm_pop();if(fvm_error)return fail(vm_message());uint32_t deadline=now_ms()+ms;
  if(running>=0){tasks[running].wake=deadline;tasks[running].state=TS_SLEEPING;yield_request=1;return 1;}
- while((int32_t)(now_ms()-deadline)<0)forth_tasks_run();return 1;
+ while((int32_t)(now_ms()-deadline)<0){if(interrupt_poll&&interrupt_poll())return fail("interrupted");forth_tasks_run();}return 1;
+}
+/* FRAME-WAIT: sleep to the next 60 Hz frame boundary (multiples of 50/3 ms
+ * on the task clock), so a render task wakes at a steady rate. */
+static int native_frame_wait(void) {
+ uint32_t now=now_ms(),deadline=(((now*3u)/50u+1u)*50u+2u)/3u;   /* rounded up: never before the boundary */if((int32_t)(deadline-now)<=0)++deadline;
+ if(running>=0){tasks[running].wake=deadline;tasks[running].state=TS_SLEEPING;yield_request=1;return 1;}
+ while((int32_t)(now_ms()-deadline)<0){if(interrupt_poll&&interrupt_poll())return fail("interrupted");forth_tasks_run();}return 1;
 }
 static int native_kill(void) {
  fcell id=fvm_pop();if(fvm_error)return fail(vm_message());if(!task_id(id))return 0;
@@ -964,6 +976,7 @@ void forth_init(void) {
  forth_register_native("TASK-STATE",native_state,FORTH_NATIVE_TASK);
  critical=0;preemptions=ticks_ignored=0;preempt_clear();
  forth_register_native("PREEMPT",native_preempt,FORTH_NATIVE_TASK);forth_register_native("PREEMPT-STATS",native_preempt_stats,FORTH_NATIVE_TASK);
+ forth_register_native("FRAME-WAIT",native_frame_wait,FORTH_NATIVE_TASK);
  forth_register_native("CRITICAL(",native_critical_begin,FORTH_NATIVE_TASK);forth_register_native(")CRITICAL",native_critical_end,FORTH_NATIVE_TASK);
  forth_register_native("TASK-INPUT",native_task_input,FORTH_NATIVE_TASK);forth_register_native("TASK-OUTPUT",native_task_output,FORTH_NATIVE_TASK);
  forth_eval(": 1+ 1 + ; : 1- 1 - ; : NEGATE 0 SWAP - ; : 2DUP OVER OVER ; : 2DROP DROP DROP ; : CELLS 3 * ; : CELL+ 3 + ; : TRUE -1 ; : FALSE 0 ; : HEX 16 BASE ! ; : DECIMAL 10 BASE ! ;");
