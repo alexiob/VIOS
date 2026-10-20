@@ -17,6 +17,9 @@
 #include "buffers.h"
 #include "types.h"
 
+#if !VIOS_VDP_AUDIO
+#include "vios_audio_vdu.h"
+#else
 // Audio VDU command support (VDU 23, 0, &85, <args>)
 //
 void VDUStreamProcessor::vdu_sys_audio() {
@@ -235,4 +238,6 @@ void VDUStreamProcessor::setFrequencyEnvelope(uint8_t channel, uint8_t type) {
 	}
 }
 
+void VDUStreamProcessor::vios_audio_vdu() {}
+#endif // VIOS_VDP_AUDIO
 #endif // VDU_AUDIO_H

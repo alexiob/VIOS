@@ -452,6 +452,9 @@ static void control_command(uint16_t sequence,const char *command,size_t length)
     if(length==2&&command[0]=='G'&&command[1]=='S'){
         char text[300];vios_gui_status(text,sizeof text);snprintf(reply,sizeof reply,"%s\r\n",text);control_reply(sequence,reply);return;
     }
+    if(length==2&&command[0]=='A'&&command[1]=='S'){
+        char text[400];vios_audio_status_line(text,sizeof text);snprintf(reply,sizeof reply,"%s\r\n",text);control_reply(sequence,reply);return;
+    }
     if(length==10&&command[0]=='G'&&command[1]=='K'){
         uint32_t k[4];for(unsigned i=0;i<4;++i)if(!parse_hex(command+2+2*i,2,&k[i])){control_reply(sequence,"ERR GK hex\r\n");return;}
         control_reply(sequence,vios_gui_key((uint8_t)k[0],(uint8_t)k[1],(uint8_t)k[2],(uint8_t)k[3])?"GK used\r\n":"GK unused\r\n");return;

@@ -5,6 +5,9 @@
 #include "forth/modules.h"
 int vios_runtime_init(void);
 int vios_services_init(void);
+/* Send n bytes of VM memory from address a to the VDP (VTYPE, TUNE). */
+int vios_vdp_copy(fcell a,fcell n);
+int vios_audio_init(void); /* TONE TUNE PLAY STOP VOLUME SOUND? (kernel/vios_audio.c) */
 int vios_user_startup(void); /* LOAD /VIOS/USER.FTH if present: 1 ok, 0 absent, -1 failed */
 int vios_autorun(void); /* spawn AUTORUN as a console task; returns its id or 0 */
 int vios_prelude_init(void); /* core library words in Forth (kernel/vios_prelude.c) */

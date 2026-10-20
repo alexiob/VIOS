@@ -41,10 +41,11 @@ static int file_write(void){
 }
 static int file_remove(void){fcell n=fvm_pop(),a=fvm_pop();char path[128];if(fvm_error||!path_from(a,n,path))return 0;return fvm_push(storage_remove(path)?0:1);}
 static int vdu(void){fcell c=fvm_pop();if(fvm_error)return 0;unsigned char b=(unsigned char)c;platform_vdp_send(&b,1);return 1;}
-static int vtype(void){
- fcell n=fvm_pop(),a=fvm_pop();unsigned char b[64];if(fvm_error)return 0;
+int vios_vdp_copy(fcell a,fcell n){
+ unsigned char b[64];
  while(n){unsigned count=n>sizeof b?sizeof b:(unsigned)n;for(unsigned i=0;i<count;++i){b[i]=fvm_read8(a++);if(fvm_error)return 0;}platform_vdp_send(b,count);n-=count;}return 1;
 }
+static int vtype(void){fcell n=fvm_pop(),a=fvm_pop();return !fvm_error&&vios_vdp_copy(a,n);}
 static int mode_info(unsigned char *data){static const unsigned char command[]={23,0,0x86};unsigned n;return platform_vdp_request(command,sizeof command,0x86,data,8,&n)&&n==8;}
 static int info(void){
  unsigned char data[8];if(!mode_info(data))return forth_error("VDP mode timeout");
