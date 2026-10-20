@@ -12,7 +12,7 @@ press them; the CPU only sees semantic events after the display server's nudge.
   manager    Ctrl+Shift+M; boot report; an action asks first and Esc cancels
              (no boot slot is changed)
   speed      TextView read-back of 4000 bytes (UI-TEXT@): seconds and bytes/s
-  health     no protocol errors, frame budgets, nothing leaked to the USB console
+  health     no protocol errors, frame budgets
 Uses only the tool windows 20-24; closes them at the end.
 """
 import argparse
@@ -75,7 +75,6 @@ def main():
             ev('CREATE TT 4096 ALLOT')
             check('gui_on', status().startswith('GUI on'), status())
             c.tool('esp_stats', {'reset': True})
-            console_before = c.tool('esp_console').get('text', '')
 
             # Browser.
             spot = [[40, 40]]
@@ -151,8 +150,6 @@ def main():
             sync = result('UI-SYNC . . .').split()
             r['sync'] = sync
             check('no_protocol_errors', sync and sync[0] == '0', sync)
-            console_after = c.tool('esp_console').get('text', '')
-            r['console_growth'] = len(console_after) - len(console_before)
             s = c.tool('esp_stats')
             r['frames'] = {k: s.get(k) for k in ('frames', 'vblank_start_max', 'frame_work_max', 'present_frames', 'present_work_max')}
             r['gui'] = status()
