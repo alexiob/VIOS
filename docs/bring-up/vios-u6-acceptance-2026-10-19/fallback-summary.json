@@ -1,0 +1,53 @@
+{
+ "boots": 3,
+ "ready": 3,
+ "failed": [],
+ "interrupted_power_ons": [],
+ "ready_s": {
+  "min": 22.234,
+  "median": 22.241,
+  "max": 22.265,
+  "mean": 22.247
+ },
+ "milestone_median_s": {
+  "esp_banner": 2.175,
+  "firmware": 2.175,
+  "user_mode": 2.175,
+  "mos_answered": 2.175,
+  "mos_banner": 2.231,
+  "stub_rate": 2.769,
+  "stub_loading": 2.77,
+  "stub_fallback": 16.45,
+  "stub_message": 16.45,
+  "health0": 17.84,
+  "ready": 22.241,
+  "boot_confirmed": 21.973,
+  "forth_banner": 22.394
+ },
+ "per_run": [
+  {
+   "run": 1,
+   "class": "ready",
+   "outcome": "ready",
+   "ready": 22.241,
+   "firmware": "FIRMWARE app1 valid",
+   "fallback": true
+  },
+  {
+   "run": 2,
+   "class": "ready",
+   "outcome": "ready",
+   "ready": 22.265,
+   "firmware": "FIRMWARE app1 valid",
+   "fallback": true
+  },
+  {
+   "run": 3,
+   "class": "ready",
+   "outcome": "ready",
+   "ready": 22.234,
+   "firmware": "FIRMWARE app1 valid",
+   "fallback": true
+  }
+ ]
+}

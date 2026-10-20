@@ -1,0 +1,38 @@
+{
+  "running_before": "app0",
+  "target": "app1",
+  "image": "../../../backups/app0-2026-10-18/firmware-mos3-2-badcrc.bin",
+  "image_sha256": "35cc6b5c9eb9467db6e982209648342884c70f7820a22721053bd856ebed2682",
+  "backup_dir": "../../../backups/ab-2026-10-20",
+  "stamp": "20261020-074541",
+  "otadata_sector": 1,
+  "otadata_entry": {
+    "sector": 1,
+    "seq": 62,
+    "state": "valid",
+    "crc_ok": true,
+    "valid": true,
+    "trial": true
+  },
+  "verdict": "FIRMWARE confirmed",
+  "events": [
+    "BOOT VIOS VDP 1.04 mux-v1 zdi-edge 1us",
+    "BOOT retained failures 0",
+    "FIRMWARE app1 valid trial",
+    "BOOT user mode: no ZDI; MOS and its stub load the resident",
+    "BOOT link: MOS answered at the internal rate",
+    "MOS: Agon Platform MOS Version 3.0.2 Arthur",
+    "BOOT link: stub switched to 1152000",
+    "BOOT stub loading the resident over the UART",
+    "MOS: VIOSBOOT: no ESP image, trying /vios/vios.bin",
+    "HEALTH flag 0",
+    "HEALTH flag 1",
+    "FIRMWARE confirmed"
+  ],
+  "fault": {
+    "base": "firmware-mos3-2.bin",
+    "tool": "tools/vios_esp_fault_image.py",
+    "manifest_crc32": "e872aae4",
+    "resident_crc32": "e872aae5"
+  }
+}

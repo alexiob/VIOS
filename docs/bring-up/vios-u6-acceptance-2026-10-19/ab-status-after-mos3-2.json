@@ -1,0 +1,31 @@
+{
+  "slots": {
+    "app0": {
+      "offset": "0x10000",
+      "size": 1310720
+    },
+    "app1": {
+      "offset": "0x150000",
+      "size": 1310720
+    }
+  },
+  "otadata": [
+    {
+      "sector": 0,
+      "seq": 61,
+      "state": "valid",
+      "crc_ok": true,
+      "valid": true,
+      "trial": false
+    },
+    {
+      "sector": 1,
+      "seq": 60,
+      "state": "valid",
+      "crc_ok": true,
+      "valid": true,
+      "trial": false
+    }
+  ],
+  "boots": "app0"
+}
