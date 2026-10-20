@@ -1,6 +1,6 @@
 # VIOS untethered boot: booting without the ZDI wire
 
-Status: **owner chose path B on 2026-10-19:** automatic dev/user mode, the ESP
+Status: **working on the board without the wire (2026-10-19, §16.9).** Owner chose path B on 2026-10-19: automatic dev/user mode, the ESP
 image first, MOS text hidden. U1 to U5 are done and host-tested; nothing is flashed
 and no card has been written. See §9 to §13.
 
@@ -582,3 +582,327 @@ options are `--resident` (default `build/vios-resident.bin` with its
 4. **Tests:** ESP rate and ESC selection by reset reason, the op-2 handshake,
    and the stub's divisor switch on the interpreter.
 
+### 15.1 Implemented (host-tested, not on the board yet)
+
+- **ESP link probe** (`vios_bridge.h` `link_service`). In user mode, every
+  boot:
+  1. The ESP sends `FA` at the internal rate.
+  2. If a resident answers with any `VDU 23,0,E*` command within 1 s, the link
+     stays at the internal rate. This covers an ESP-only restart, such as USB
+     DTR or an A/B install.
+  3. Otherwise it switches to 384,000 and sends ESC every 500 ms until MOS
+     sends anything.
+
+  A board power-on with no wire therefore boots MOS. The events are `BOOT link
+  …`. The reset-reason heuristic is gone; `FA` goes out in all user-mode
+  boots.
+- **`E8` op 2:**
+  - The ESP replies `'R'` with the baud (`vios_boot_rate_reply`), drains its
+    TX, then switches to `VIOS_INTERNAL_BAUD` (`vios_link_rate`).
+  - The stub (`rate_switch`, run once after the counter and before both load
+    paths) sends op 2. On an `'R'` it sets the UART0 divisor to 1 under DLAB,
+    keeping LCR, and waits about 2 ms. Without an answer it keeps the rate.
+  - The load and VIOS then run at 1,152,000.
+- **Tests:**
+  - `bridge.cpp` covers the probe answered (no switch), the probe unanswered
+    (384,000, ESC at once and every 500 ms, stopping when MOS talks), the op 2
+    reply bytes, and that dev mode does neither.
+  - `test_viosboot_native.py` models both ends' divisors: a byte at mismatched
+    rates is garbled. It checks the switch (both at divisor 1, nothing
+    garbled), another VDP firmware that ignores op 2 (the stub stays at
+    384,000 and still boots), and the request order (op 2 first).
+  - Leaving DLAB set fails 5 tests.
+- **Card:** `/mos/viosboot.bin` must be replaced with this build.
+
+### 15.2 Board runs (2026-10-19 evening)
+
+1. **Run 2 (no wire), `firmware-untethered-2`:** the ESP hung entirely in user
+   mode. MOS never asserts RTS, so with CTS/RTS flow control a flush blocked the
+   control task. Fixed in `0640382`, with no CTS wait at 384,000.
+2. **Run 3 (no wire, `firmware-untethered-4`, which adds MOS-text events):**
+   MOS answered the ESC for the first time and printed `Agon Quark MOS Version
+   1.02`, then stopped.
+3. **With the wire, `MR` + `ML` reproduce the MOS boot.** The PC samples sat
+   at `0x0910`–`0x0915` and `0x062A`. That is MOS's RST 10 output loop: it
+   waits for port D bit 3, its CTS, which is the ESP's RTS. Fixed in
+   `dc3c736`: MOS's rate runs with RTS only.
+4. **After that fix, MOS gets one byte further and crashes** (`MX`, `MS`,
+   `firmware-untethered-7`):
+   - It sends its banner plus a single `0x17` (the start of a VDU 23), while
+     the ESP has sent it no packet at all (`TX 0`).
+   - It is then found out of ADL mode (STAT `8C`), cycling between `0xEDF3`
+     and `0x0038` (RST 38 over erased flash).
+   - So the crash happens inside MOS 1.02 itself, before any VDP reply.
+
+**Conclusion:** this board's MOS 1.02, the earliest Agon MOS, does not complete
+its own boot here. Path B depends on a working MOS, so it needs one of:
+- a current MOS in eZ80 flash (option 2);
+- path C, a VIOS loader in eZ80 flash (option 3).
+
+Both are flash writes that need the owner's approval. The ESP side is ready
+for either: user mode, ESC at 384,000, `E8` with its rate switch, and the
+diagnostics `MR`/`ML`/`MS`/`MB`/`MX`.
+
+## 16. Plan: update the eZ80 to Agon MOS 3.0.2 (option 2, owner-approved direction, nothing written yet)
+
+### 16.1 Versions (AgonPlatform release pages, checked 2026-10-19)
+
+- **MOS:** the latest is **3.0.2 "Arthur"**. Its minimum is VDP 1.04; it
+  works best with VDP 2.14.1 or later. Some features need a newer VDP:
+  shift-to-skip-boot needs VDP 2.11, temporary paged mode needs 2.14. The
+  boot file order is `!boot.obey`, then `autoexec.obey`, then
+  `autoexec.txt`, and moslets still run from `/mos/`.
+- **VDP:** the latest is **2.16.0 "Bistromathics"**, which works with any MOS
+  from 1.04 on, MOS 3.0.1 or later recommended. Ours is a heavily modified
+  **VDP 1.04**: the VIOS bridge, GUI, frame task, vdp-gl patches and E0–E8.
+- **`agon-flash`** (the usual in-system updater) needs a working MOS 1.03 or
+  later, so it can't be used here. **`envenomator/agon-recovery`** (MIT) is
+  the matching ZDI route: an ESP32 drives the eZ80 over the same two GPIO wires,
+  loads `MOS.bin` plus a small `flash.bin` into RAM, runs it, and checks CRCs
+  after the RAM write and after the flash write.
+
+### 16.2 What VDP 2.16 means for us
+
+- **MOS 3.0.2 runs on a 1.04-level VDP.** The base protocol (1,152,000 baud,
+  general poll `&80`, mode `&86`, RTC, keyboard packets) is what our firmware
+  already answers. Updating MOS does **not** require a new VDP.
+- **Rebasing VIOS onto VDP 2.16 is a separate, large project:**
+  - About 20 vendored files carry VIOS changes: `video.ino`, `vdu_sys.h`,
+    `vdu.h`, `vdu_stream_processor.h`, vdp-gl's VGA16 controller and memory
+    reserve.
+  - Upstream gives us MOS-side niceties: full-duplex flow control, OTA
+    `agon-flash`, the newer VDU features, and hardware sprites (which
+    VIOS's own compositor doesn't use).
+  - It also means a newer arduino-esp32 and vdp-gl, and re-validating the
+    frame budget, the 60 fps vblank task and the console blitter on the
+    board.
+  - Recommended as a follow-up evaluation, not a prerequisite.
+- **To keep in mind:** MOS 3 enables extended VDP features only when the VDP
+  reports them. Against our 1.04-level VDP it falls back cleanly; that is the
+  compatibility the release notes promise.
+
+### 16.3 ESP changes for MOS 3
+
+The user-mode link (§15.1) was built for MOS 1.02: 384,000 baud and ESC.
+MOS 1.03 and later run at 1,152,000 and start with the VDP general poll. So:
+
+1. **Probe order:** after `FA`, **listen at the internal rate for MOS's `&80`
+   poll** for about 3 s. Only then fall back to 384,000 plus ESC (kept for an
+   old MOS, and harmless).
+2. **The stub's `E8` op 2** then finds both ends already at 1,152,000. The
+   `'R'` reply is a no-op switch, so the stub needs no change.
+3. **Flow control:** check whether MOS 3 drives RTS. Full-duplex flow
+   control arrived with VDP 2.11, so against 1.04 MOS 3 may not. Keep RTS-only
+   until the stub switches, as now.
+
+### 16.4 How the flash gets written
+
+Keep our proven ZDI path and borrow only the eZ80-side flasher:
+
+1. **Host stages files:** `MOS.bin` 3.0.2 (from the release assets, sha256
+   recorded) and `flash.bin` (built from agon-recovery `src_flash`, MIT,
+   notice kept) into `backups/ez80/`.
+2. **With the wire, the ESP halts the CPU** and uploads both into external RAM
+   (`MOS.bin` at a staging address, `flash.bin` where it expects to run). It
+   uses the existing CRC'd RAM-write path (`W`), and the CPU's own CRC32 stage
+   verifies the RAM copy.
+3. **The ESP runs `flash.bin` through ZDI** and waits for its completion flag.
+   The flash is unlocked, erased by page and programmed with its own
+   controller sequence, as agon-recovery does.
+4. **Verify:** read all 128 KB of flash back through ZDI. Its CRC32 must
+   equal `MOS.bin`'s, with any tail bytes left erased (`FF`).
+5. **Reboot with the wire:** VIOS still loads over ZDI as before.
+   `MR` + `MX` then show MOS 3 booting: banner, `&80` poll, `autoexec.txt`,
+   and `viosboot` running its `E8` requests.
+6. **Then the wire-off run** (U6 again).
+
+A new ESP control command, about `MF <len> <crc>`, does steps 3–4. Steps 1–2
+reuse existing commands. The host tool is `tools/vios_ez80_flash.py`, which
+writes a JSON report next to the backup.
+
+### 16.5 Recovery
+
+- **Backup:** the original flash is `backups/ez80/original-2026-10-16.bin`
+  (131,072 bytes, sha256 `e396bfff…`). It was read twice over ZDI and the two
+  reads are identical.
+- **If anything fails,** reflash that same image with the same tool. ZDI
+  doesn't depend on flash contents: an erased or half-programmed eZ80 can
+  still be halted and loaded. The ESP's A/B slots are untouched by this, and
+  `agon-recovery` remains an independent second route.
+- **Abort rules:**
+  - Stop before any erase if the RAM CRC of either file mismatches.
+  - Never run with the wire absent; dev mode is required.
+  - Report and keep retrying the write and verify while the ESP is up; the
+    image is still in RAM.
+
+### 16.6 Steps, each with an owner checkpoint
+
+1. Fetch and pin `MOS.bin` 3.0.2 and the agon-recovery flasher; build and
+   unit-test (the interpreter runs `flash.bin` against a flash-controller
+   model); write `MF` and the host tool. No board.
+2. Dry run on the board with the wire: upload both files to RAM, verify the
+   CRCs, **don't run the flasher**.
+3. **Owner approval, then the flash write** (step 3 of §16.4) and readback
+   verification.
+4. Boot checks with the wire (VIOS over ZDI; MOS 3 under `MR`/`MX`), then
+   wire-off cold boots.
+
+### 16.7 MOS 3.0.2 written to the eZ80 flash (2026-10-19, owner-approved)
+
+1. **First `MF` attempt: failed, stage derailed.**
+   - The flasher started, but the ESP's done-flag poll read memory through
+     ZDI, which moves PC. So the stage resumed at the flag's address and
+     never finished ("did not finish in 60 s").
+   - The flash was left part-erased (CRC `95C7B7B2`). VIOS still loaded over
+     ZDI, with internal RAM at its reset address `FFE000`.
+   - Fixed in `e43fd3c`: PC is saved and restored around the poll, and the
+     fake stage now needs several resumes and derails on a wrong PC.
+2. **Second `MF` attempt (`firmware-ez80flash-2`): succeeded.**
+   - `MF OK 12610 ms FLASH 15BD0583 REST erased`: the readback CRC equals
+     MOS 3.0.2's, and the rest of the flash is erased. Report:
+     `docs/bring-up/vios-ez80-flash-mos302-2026-10-19.json`.
+3. **VIOS over ZDI still works:** internal RAM is back at `B7E000` (set by
+   MOS 3), `VIOREADY` and health 1 arrive, and `BOOT READY`.
+4. **MOS 3 under `MR`, with the wire and the link at 1,152,000:**
+   - MOS sends `&80` (poll), `&F8` (feature flag), `&99`, `&86` (mode),
+     `&94`, then its banner `Agon Platform MOS Version 3.0.2 Arthur`.
+   - Only `&80` and `&86` are answered (`TX 2`).
+   - It then stops with `RST $38 panic`: PC `0BFF30`, which equals IY and
+     points into the stack area.
+   - The unanswered commands are exactly the §3.3 backport list of the VDP
+     2.16 evaluation (`claude/wonderful-colden-a77701`). Whether one of them
+     causes the panic, or something later in the boot does, is the next thing
+     to establish.
+
+**Next:** backport `&F8`/`&F9`, `&99` and `&94` (with 2.16.0's reply formats),
+then repeat `MR`/`MX`. Then comes the wire-off boot: `autoexec.txt`, then
+`viosboot`.
+
+### 16.8 MOS 3 boots VIOS through the stub (wire attached, `MR`), 2026-10-19
+
+1. **Queries answered.** With `&94`, `&99` and `&F8`/`&F9` answered
+   (`9dfac53`; replies in VDP 2.16.0 formats, host-tested against MOS 3's
+   recorded boot stream), MOS 3 still panicked, with identical registers.
+   So the queries weren't the cause.
+2. **The real cause was the old `autoexec.txt`.** It ran the 2026-10-16
+   bring-up diagnostic (`LOAD console.bin` / `RUN`, built for the old MOS),
+   with BC=DE=`040000`. The file is now just `viosboot`; the original is in
+   `backups/sd-u6-2026-10-19`.
+3. **Then the whole chain ran:** `MR`, MOS 3.0.2 banner, `autoexec.txt`,
+   `viosboot`, the `E8` rate switch (`BOOT link: stub switched to 1152000`),
+   825 `E8` block packets, VIOS starts, health 0 at 16 s, health 1 at 20 s,
+   `BOOT READY`, and HELLO's heartbeats. Log:
+   `docs/bring-up/vios-mos3-stub-boot-wired-2026-10-19.jsonl`.
+4. **Next:** the wire-off cold boot.
+
+### 16.9 First untethered boot of VIOS (wire removed), 2026-10-19
+
+- **Setup:** wires removed with the board powered off. ESP `firmware-mos3-1`
+  in app1, eZ80 MOS 3.0.2, card `autoexec.txt` = `viosboot`.
+- **Events** (`docs/bring-up/vios-untethered-boot-mos3-wireoff-2026-10-19.jsonl`):
+  `BOOT user mode: no ZDI`, then `BOOT link: MOS answered at the internal
+  rate` (no ESC fallback needed), the MOS 3.0.2 banner, `BOOT link: stub
+  switched to 1152000`, `BOOT stub loading the resident over the UART`, and
+  finally `BOOT READY`.
+- **Console window:** MOS banner, then `boot confirmed A`, autorun task 1,
+  `VIOS Forth 24`, and HELLO running. The GUI reports 0 protocol errors.
+- **U6 acceptance:** done in §16.10, except `!boot.obey` instead of
+  `autoexec.txt` (MOS 3's preferred boot file), which is still open.
+
+
+### 16.10 U6 acceptance without the wire, 2026-10-20
+
+Board: wire off throughout. eZ80 MOS 3.0.2 (flash not written). ESP app1 =
+`firmware-mos3-1` at the start and at the end. Resident `build/vios-resident.bin`,
+158,434 bytes, CRC-32 `e872aae5`, embedded in every ESP image used. Power is
+cut by unplugging the board's USB cable. Logs: one JSON per boot or step in
+`docs/bring-up/vios-u6-acceptance-2026-10-19/`.
+
+**Tools (new):**
+- `tools/vios_coldboot_capture.py` waits for the USB port to vanish and come
+  back. t=0 is the device node reappearing ("USB power-on as the host sees
+  it", not the plug contact; the first byte is read about 0.3 s later, after
+  the port opens, and anything sent before the open is lost). It opens the
+  port at once with DTR/RTS low, sends nothing, and logs every
+  channel 3 event (including the `MOS:` lines that MOS and the stub print) and
+  every console line. READY is `HEALTH flag 1`, the moment `B` turns to `BOOT
+  READY` (`vios_bridge.h`). Frames end only with a zero byte, so the ESP ROM's
+  power-on text runs into the first frame; the decoder retries suffixes.
+  A power-on that drops before the ESP's first event (a bouncing connector:
+  7 of 27 cycles) is recorded as `interrupted`, not counted as a boot.
+- `tools/vios_sd_refresh.py` writes `/vios/vios.bin`, `/vios/vios.man` and
+  optionally `/mos/viosboot.bin` through the resident's SD handles (the
+  harness's `sd_put` path without its 64 KiB cap). There is no rename, so it
+  zeroes `vios.man` first, then writes the image, then the real manifest: an
+  interrupted refresh leaves a manifest the stub refuses. It reads `vios.man`
+  back fully and `vios.bin`'s first 64 KiB. 158 KB takes about 4.5 minutes.
+- `tools/vios_esp_fault_image.py` turns a built ESP image into a "resident
+  mismatch" image: the one copy of `vios_image_crc` is XORed with 1 and the
+  ESP image checksum and SHA-256 are recomputed (esptool `image-info`: valid).
+
+**Results:**
+
+| Test | Boots | READY (s from USB power-on) | Log |
+|---|---|---|---|
+| Cold boot, ESP image, burst 1 | 20/20 | median 21.14, 21.10–21.54 | `coldboot-NN.json`, `coldboot-summary.json` |
+| Bad ESP image, SD fallback | 3/3 | median 22.24, 22.23–22.27 | `fallback-*.json` |
+| Burst 4 | 3/3 | median 20.57 | `burst4-*.json` |
+| Burst 32 | 3/3 | median 20.42 | `burst32-*.json` |
+| No SD card | — | never (expected) | `nosd-01.json` |
+
+1. **Cold boots, phase by phase** (medians of 20): ESP first event 2.16 s;
+   MOS answered at the internal rate and its banner 2.19–2.22 s; stub rate
+   switch and manifest request 2.77 s; `HEALTH flag 0` (resident running)
+   16.72 s; `boot confirmed A` 20.88 s; `HEALTH flag 1` 21.14 s. The two
+   slowest boots (21.52, 21.54 s) started 0.4 s later at the ESP (USB
+   enumeration), not in the stub. No ESC fallback, no deadline, no retry.
+2. **Where the time goes.** The ESP transfer is about 13.9 s of the 21 s. The
+   SD path shows that loading and CRC-checking the whole image and starting
+   the resident takes only 1.4 s (`VIOSBOOT: no ESP image` at 16.45 s to
+   `HEALTH flag 0` at 17.85 s). Then 4.4 s from `HEALTH flag 0` to `1` is the
+   resident's own start-up (boot bundle, modules, autorun).
+3. **ESP A/B in user mode:** `firmware-mos3-2` written to app0 as a trial
+   (`ab-install-mos3-2.json`): `FIRMWARE app0 valid trial`, the whole chain,
+   `HEALTH flag 1`, `FIRMWARE confirmed`. `status` afterwards: app0 boots,
+   both otadata entries VALID, trial marker cleared (`ab-status-after-mos3-2.json`).
+4. **Bad ESP image** (`firmware-mos3-2-badcrc.bin`, manifest CRC `e872aae4`;
+   `ab-install-badcrc.json`, then `fallback-*.json` as plain cold boots): the
+   stub loads all 826 blocks, the whole-image CRC fails, it prints `VIOSBOOT:
+   no ESP image, trying /vios/vios.bin` at 16.45 s and VIOS boots from the
+   card. Before this the card was refreshed from the same resident
+   (`sd-refresh.json`; its old manifest was already byte-identical).
+   - **Finding: the bad image's trial was confirmed.** The CPU reported
+     health, so the ESP cleared the trial marker although its own embedded
+     resident was never used. A trial verdict should also require that the
+     stub booted the ESP's image, for example a boot-source flag in the
+     resident's health report (`HL = VIOS_BOOT_MAGIC` already reaches
+     `start.s`; the stub could pass ESP or SD in another register).
+   - Afterwards: rollback to app0, then `firmware-mos3-1` reinstalled into
+     app1 as a trial and confirmed (`ab-restore-mos3-1.json`). The board is
+     back to app1 = `mos3-1`, app0 = `mos3-2`; the bad image is gone.
+5. **No SD card** (`nosd-01.json`, `B` polled every 5 s): MOS 3.0.2's banner,
+   `MOS: Could not find path`, the MOS prompt. The ESP answers `BOOT USER
+   waiting for the MOS stub` for 45 s; no deadline is armed (only the stub's
+   manifest request arms it) and nothing is reported as an error. The "insert
+   the boot SD" console message of §5 is still not implemented.
+6. **Burst size** (stubs built with `make viosboot VIOS_BOOT_BURST=4` and
+   `=32`, written with `vios_sd_refresh.py --stub-only`, read back
+   byte-identical): every boot READY, no fallback, so RTS gating holds with up
+   to 32 packets in flight. But the gain is small: 0.57 s (burst 4) and 0.72 s
+   (burst 32) of 13.9 s. A block costs about 16 ms whatever the burst, while
+   its 199 bytes take 1.7 ms on the wire. That is close to one block per
+   60 Hz frame, so the limit is how fast the ESP emits boot packets (the VDP
+   loop or `send_packet`), not the stub's request round trip. Fixing that
+   side could bring the transfer near the 1.4 s of §10. The card is back on
+   the burst-1 stub (sha256 `11374a8c…`, identical to before the test).
+7. **Backups:** the slot and otadata copies taken before each of the three
+   ESP writes are in `backups/ab-2026-10-20/`; the bad image is
+   `backups/app0-2026-10-18/firmware-mos3-2-badcrc.bin` (labelled there; do
+   not install it except to repeat this test).
+
+**Next:**
+- Find what paces E8 packets on the ESP (one block per frame) and remove it;
+  then raise `VIOS_BOOT_BURST` (32 is safe on this board).
+- Boot-source-aware trial confirmation (finding 4).
+- The no-SD console message.
+- `!boot.obey` instead of `autoexec.txt`.

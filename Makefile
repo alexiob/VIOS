@@ -137,7 +137,14 @@ $(RESIDENT_UART_OBJECT): arch/ez80/uart0_raw.s
 	@mkdir -p $(dir $@)
 	$(EZAS) -march=ez80+full --defsym VIOS_UART0_BAUD=$(VIOS_INTERNAL_BAUD) arch/ez80/uart0_raw.s -o $@
 .PHONY: vios-resident
-vios-resident: build/vios-resident.bin build/agon-stage0.bin build/agon-crc.bin
+vios-resident: build/vios-resident.bin build/agon-stage0.bin build/agon-crc.bin build/agon-flash.bin
+# eZ80 flash programmer run over ZDI by the ESP (MF); see arch/ez80/agon_flash.s.
+build/agon-flash.o: arch/ez80/agon_flash.s
+	@mkdir -p build
+	$(EZAS) -march=ez80+full $< -o $@
+build/agon-flash.bin: build/agon-flash.o
+	$(EZOBJCOPY) --only-section .text -O binary $< $@
+	.venv/bin/python -c 'from pathlib import Path;import hashlib;b=Path("$@").read_bytes();assert 0<len(b)<=256;print("Agon flash stage",len(b),"bytes",hashlib.sha256(b).hexdigest())'
 # Untethered boot stub (/mos/viosboot.bin, a MOS moslet at 0x0B0000).
 VIOS_BOOT_BURST ?= 1
 VIOS_BOOT_TIMEOUT ?= 12

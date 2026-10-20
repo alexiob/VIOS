@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <vios_wire.h>
 #include "vios_bootserve.h"
+#include "vios_mos_queries.h"
 void vios_bridge_poll();
 void vios_bridge_boot();
 void vios_usb_console_write(const uint8_t *data,size_t length);
@@ -21,7 +22,11 @@ bool vios_mos_phase();
 void vios_mos_phase_end();
 void vios_mos_phase_begin();   // MOS's general poll: a restart through 0 is booting MOS again
 void vios_gui_cpu_reset();
-void vios_mos_capture(uint8_t c);  // MOS diagnostics: bytes the CPU sends after MR     // drop the GUI state a previous resident created (vios_gui.h)
+void vios_mos_capture(uint8_t c);
+void vios_link_rate(uint32_t baud);
+void vios_mos_line_byte(uint8_t c);
+void vios_mos_rx(uint8_t c);                 // MX: raw CPU bytes after MR/ML
+void vios_mos_tx(uint8_t code,uint16_t len); // MX: packets sent after MR/ML   // MOS phase text, echoed to USB events by line   // E8 op 2: both ends to the internal rate  // MOS diagnostics: bytes the CPU sends after MR     // drop the GUI state a previous resident created (vios_gui.h)
 
 bool vios_cpu_is_paused();
 void vios_unsupported(const char *feature);

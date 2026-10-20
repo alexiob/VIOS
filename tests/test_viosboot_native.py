@@ -72,10 +72,16 @@ def make_image(size, seed=1):
 
 class Esp:
     """UART0 as the stub sees it, with the ESP behind it."""
-    def __init__(self, image, *, period=16, silent=False, corrupt=(), refuse_manifest=False, keyboard=True, garbage=False):
+    def __init__(self, image, *, period=16, silent=False, corrupt=(), refuse_manifest=False, keyboard=True, garbage=False, old_firmware=False):
         self.image, self.period, self.silent = image, period, silent
         self.corrupt, self.refuse_manifest = set(corrupt), refuse_manifest
         self.keyboard, self.garbage = keyboard, garbage
+        self.old_firmware = old_firmware
+        self.lcr = 0x03
+        self.cpu_divisor = self.esp_divisor = 3   # 384000 at 18.432 MHz: MOS's rate
+        self.latch = [3, 0]
+        self.switch_after = None                  # bytes still to send before the ESP switches
+        self.garbled = 0
         self.out = deque()                 # bytes the ESP still has to send
         self.fifo = deque()                # the CPU's 16-byte RX FIFO
         self.mctl = 0
@@ -94,6 +100,12 @@ class Esp:
     def request(self, op, args):
         self.requests.append((op, args))
         if self.silent:
+            return
+        if op == 2:
+            if self.old_firmware:
+                return
+            self.packet(b'R' + (1152000).to_bytes(4, 'little'))
+            self.switch_after = len(self.out)      # after the reply has left
             return
         if op == 0:
             m = manifest(self.image)
@@ -121,12 +133,18 @@ class Esp:
         if not self.mctl & 2:
             self.sent_while_rts_low += 1
             self.inflight = False
-        if len(self.fifo) == 16:
+        byte = self.out.popleft()
+        if self.esp_divisor != self.cpu_divisor:
+            self.garbled += 1                      # a byte at the wrong rate
+        elif len(self.fifo) == 16:
             self.overruns += 1
             self.error = True
-            self.out.popleft()
         else:
-            self.fifo.append(self.out.popleft())
+            self.fifo.append(byte)
+        if self.switch_after is not None:          # the rate changes once the reply has left
+            self.switch_after -= 1
+            if not self.switch_after:
+                self.switch_after, self.esp_divisor = None, 1
     def read(self, port):
         if port == 0xc4:
             return self.mctl
@@ -136,6 +154,8 @@ class Esp:
             return result
         if port == 0xc6:
             return 0x10                    # CTS: the ESP accepts input
+        if port == 0xc3:
+            return self.lcr
         assert port == 0xc0 and self.fifo, f'unexpected UART read {port:x}'
         return self.fifo.popleft()
     def write(self, port, value):
@@ -144,11 +164,22 @@ class Esp:
                 self.inflight = bool(self.out)
             self.mctl = value
             return
+        if port == 0xc3:
+            if self.lcr & 0x80 and not value & 0x80:
+                self.cpu_divisor = self.latch[0] | self.latch[1] << 8
+            self.lcr = value
+            return
+        if port in (0xc0, 0xc1) and self.lcr & 0x80:
+            self.latch[port - 0xc0] = value
+            return
         assert port == 0xc0, f'unexpected UART write {port:x}'
+        if self.esp_divisor != self.cpu_divisor:
+            self.garbled += 1
+            return
         self.rx.append(value)
         while True:                        # VDU 23,0,E8,op[,lo,hi,n]
             if len(self.rx) >= 4 and self.rx[:3] == b'\x17\x00\xe8':
-                need = 4 if self.rx[3] == 0 else 7
+                need = 7 if self.rx[3] == 1 else 4
                 if len(self.rx) < need:
                     return
                 self.request(self.rx[3], bytes(self.rx[4:need]))
@@ -283,7 +314,8 @@ class ViosBootStubTests(unittest.TestCase):
         result, cpu = self.boot(esp, sd={})
         self.assert_vios(result, cpu)
         blocks = (len(self.image)+BLOCK-1)//BLOCK
-        self.assertEqual(esp.requests, [(0, b'')] + [(1, bytes((i, 0, 1))) for i in range(blocks)])
+        self.assertEqual(esp.requests, [(2, b''), (0, b'')] + [(1, bytes((i, 0, 1))) for i in range(blocks)])
+        self.assertEqual((esp.cpu_divisor, esp.esp_divisor, esp.garbled), (1, 1, 0))   # both at 1152000, nothing lost
         self.assertEqual(esp.overruns, 0)
         self.assertLessEqual(esp.sent_while_rts_low, len(esp.requests), 'at most one character after each RTS drop')
         self.assertEqual(cpu.sd['/vios/boot.cnt'], b'\x01')
@@ -321,7 +353,7 @@ class ViosBootStubTests(unittest.TestCase):
         esp = Esp(self.image)
         result, cpu = self.boot(esp, sd=self.sd, args='sd')
         self.assert_vios(result, cpu)
-        self.assertEqual(esp.requests, [])
+        self.assertEqual(esp.requests, [(2, b'')])                  # only the rate switch
 
     def test_a_corrupt_sd_image_is_never_run(self):
         bad = bytearray(self.image); bad[1000] ^= 1
@@ -349,6 +381,12 @@ class ViosBootStubTests(unittest.TestCase):
         result, cpu = self.boot(Esp(self.image), sd={}, sd_writable=False)
         self.assert_vios(result, cpu)
         self.assertNotIn('/vios/boot.cnt', cpu.sd)
+
+    def test_another_vdp_firmware_keeps_the_rate(self):
+        esp = Esp(self.image, old_firmware=True)       # ignores op 2: the stub stays at 384000 and still loads
+        result, cpu = self.boot(esp, sd={})
+        self.assert_vios(result, cpu)
+        self.assertEqual((esp.cpu_divisor, esp.garbled), (3, 0))
 
     def test_returns_to_mos_with_its_stack_and_registers(self):
         cpu = Stub(self.stubs[1], Esp(self.image, silent=True), {})

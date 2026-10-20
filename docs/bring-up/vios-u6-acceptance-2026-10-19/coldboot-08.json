@@ -1,0 +1,15 @@
+{
+ "run": 8,
+ "label": "coldboot",
+ "mode": "vanish",
+ "wall_start": "2026-10-20T07:19:13",
+ "t0": "usb port reappeared",
+ "opened_at": 0.016,
+ "first_byte": 0.278,
+ "raw_bytes": 219,
+ "frame_errors": 1,
+ "milestones": {},
+ "events": [],
+ "console": [],
+ "outcome": "port lost: SerialException"
+}

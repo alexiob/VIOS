@@ -1,0 +1,15 @@
+{
+ "run": 11,
+ "label": "coldboot",
+ "mode": "vanish",
+ "wall_start": "2026-10-20T07:20:38",
+ "t0": "usb port reappeared",
+ "opened_at": null,
+ "first_byte": null,
+ "raw_bytes": 0,
+ "frame_errors": 0,
+ "milestones": {},
+ "events": [],
+ "console": [],
+ "outcome": "could not open the port"
+}

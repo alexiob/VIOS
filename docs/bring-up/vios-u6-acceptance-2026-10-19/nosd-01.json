@@ -1,0 +1,83 @@
+{
+ "run": 1,
+ "label": "nosd",
+ "mode": "vanish",
+ "wall_start": "2026-10-20T08:00:22",
+ "t0": "usb port reappeared",
+ "opened_at": 0.016,
+ "first_byte": 0.285,
+ "raw_bytes": 951,
+ "frame_errors": 1,
+ "milestones": {
+  "esp_banner": 2.139,
+  "firmware": 2.19,
+  "user_mode": 2.19,
+  "mos_answered": 2.19,
+  "mos_banner": 2.244
+ },
+ "events": [
+  [
+   2.139,
+   "BOOT VIOS VDP 1.04 mux-v1 zdi-edge 1us"
+  ],
+  [
+   2.19,
+   "BOOT retained failures 0"
+  ],
+  [
+   2.19,
+   "FIRMWARE app1 valid"
+  ],
+  [
+   2.19,
+   "BOOT user mode: no ZDI; MOS and its stub load the resident"
+  ],
+  [
+   2.19,
+   "BOOT link: MOS answered at the internal rate"
+  ],
+  [
+   2.244,
+   "MOS: Agon Platform MOS Version 3.0.2 Arthur"
+  ],
+  [
+   2.244,
+   "MOS: Could not find path"
+  ],
+  [
+   5.077,
+   "reply: BOOT USER waiting for the MOS stub"
+  ],
+  [
+   10.077,
+   "reply: BOOT USER waiting for the MOS stub"
+  ],
+  [
+   15.106,
+   "reply: BOOT USER waiting for the MOS stub"
+  ],
+  [
+   20.14,
+   "reply: BOOT USER waiting for the MOS stub"
+  ],
+  [
+   25.149,
+   "reply: BOOT USER waiting for the MOS stub"
+  ],
+  [
+   30.195,
+   "reply: BOOT USER waiting for the MOS stub"
+  ],
+  [
+   35.241,
+   "reply: BOOT USER waiting for the MOS stub"
+  ],
+  [
+   40.27,
+   "reply: BOOT USER waiting for the MOS stub"
+  ]
+ ],
+ "console": [],
+ "outcome": "timeout",
+ "class": "failed"
+}

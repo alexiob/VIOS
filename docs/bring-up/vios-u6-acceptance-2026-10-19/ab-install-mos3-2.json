@@ -1,0 +1,31 @@
+{
+  "running_before": "app1",
+  "target": "app0",
+  "image": "../../../backups/app0-2026-10-18/firmware-mos3-2.bin",
+  "image_sha256": "c388ae65c9e7273bd98880c00781f1a5d8d013647c3eda45542d499a9c72ff4e",
+  "backup_dir": "../../../backups/ab-2026-10-20",
+  "stamp": "20261020-073335",
+  "otadata_sector": 0,
+  "otadata_entry": {
+    "sector": 0,
+    "seq": 61,
+    "state": "valid",
+    "crc_ok": true,
+    "valid": true,
+    "trial": true
+  },
+  "verdict": "FIRMWARE confirmed",
+  "events": [
+    "BOOT VIOS VDP 1.04 mux-v1 zdi-edge 1us",
+    "BOOT retained failures 0",
+    "FIRMWARE app0 valid trial",
+    "BOOT user mode: no ZDI; MOS and its stub load the resident",
+    "BOOT link: MOS answered at the internal rate",
+    "MOS: Agon Platform MOS Version 3.0.2 Arthur",
+    "BOOT link: stub switched to 1152000",
+    "BOOT stub loading the resident over the UART",
+    "HEALTH flag 0",
+    "HEALTH flag 1",
+    "FIRMWARE confirmed"
+  ]
+}

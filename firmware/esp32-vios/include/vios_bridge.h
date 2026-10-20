@@ -12,6 +12,7 @@
 #endif
 #include "vios_line.h"
 #include "vios_stage0.h"
+#include "vios_flash_stage.h"
 #include "vios/internal_uart.h"
 #include <atomic>
 #ifndef VIOS_BRIDGE_TEST_RUNTIME
@@ -70,7 +71,30 @@ void vios_mos_phase_end(){mos_phase.store(false);}
 /* MOS's general poll: the CPU (re)started into MOS. Whatever the previous
  * resident set up on this side is gone with it: windows, line mode, route. */
 void vios_mos_phase_begin(){mos_phase.store(true);vios_line_mode(0);vios_gui_cpu_reset();}
-static bool restart_notice; // user mode after a non-power-on ESP restart: tell a running resident
+static bool restart_notice; // user mode: tell a resident that may still be running (packet FA)
+/* User-mode link. The board's MOS (Agon Quark) runs UART0 at 384000 baud and
+ * waits, without a timeout, for ESC from the VDP before it boots (spec §15).
+ * A resident that kept running across an ESP-only restart (USB DTR, A/B
+ * install) talks at the internal rate instead. So: probe first at the
+ * internal rate (FA; a resident answers with a VDU 23,0,E* command within
+ * LINK_PROBE_MS), else switch to MOS's rate and send ESC every LINK_ESC_MS
+ * until MOS talks. The stub moves both ends to the internal rate (E8 op 2). */
+static const uint32_t VIOS_MOS_BAUD=384000;
+static const unsigned long LINK_PROBE_MS=3000,LINK_ESC_MS=500;   // MOS 1.03+ talks at the internal rate within this
+enum {LINK_SETTLED,LINK_PROBE,LINK_MOS};
+static uint8_t link_state=LINK_SETTLED;
+static unsigned long link_since,link_esc;
+/* The bytes the CPU sends to the VDU parser after MR (top-level VDU codes). */
+static uint8_t mos_bytes[32];
+static std::atomic<unsigned> mos_count(0);
+static std::atomic<bool> mos_capturing(false);
+static void link_mos();
+static uint8_t mos_rx_bytes[48],mos_tx_codes[16][2];
+static std::atomic<unsigned> mos_rx_count(0),mos_tx_count(0);
+static void mos_capture_start(){mos_count.store(0);mos_rx_count.store(0);mos_tx_count.store(0);mos_capturing.store(true);}
+void vios_mos_rx(uint8_t c){if(!mos_capturing.load())return;unsigned i=mos_rx_count.fetch_add(1);if(i<sizeof mos_rx_bytes)mos_rx_bytes[i]=c;}
+void vios_mos_tx(uint8_t code,uint16_t len){if(!mos_capturing.load())return;unsigned i=mos_tx_count.fetch_add(1);if(i<16){mos_tx_codes[i][0]=code;mos_tx_codes[i][1]=(uint8_t)(len>255?255:len);}}
+void vios_mos_capture(uint8_t c){if(!mos_capturing.load())return;unsigned i=mos_count.fetch_add(1);if(i<sizeof mos_bytes)mos_bytes[i]=c;}
 static bool cpu_boot_ready;
 static unsigned long boot_started,boot_paused_at;
 static std::atomic<unsigned> boot_failures(0);
@@ -308,13 +332,53 @@ static bool parse_hex(const char *s,size_t n,uint32_t *value) {
     }
     return true;
 }
+/* eZ80 flash update (spec §16): the host stages the image at 0x050000 with W;
+ * MD checks it and the current flash (no writes); MF runs the flash stage
+ * (arch/ez80/agon_flash.s) and reads the whole flash back. CPU halted, dev mode. */
+static const uint32_t FLASH_SIZE=0x20000,FLASH_IMAGE=0x050000,FLASH_STAGE=0x040000,FLASH_LENGTH=0x070000,FLASH_DONE=0x070003;
+static uint32_t zdi_crc(uint32_t address,uint32_t count){
+    uint8_t data[256];uint32_t crc=0;
+    for(uint32_t at=0;at<count;at+=sizeof data){unsigned n=count-at>sizeof data?(unsigned)sizeof data:(unsigned)(count-at);vios_zdi_read_memory(address+at,n,data);crc=vios_boot_crc32(crc,data,n);}
+    return crc;
+}
+static bool zdi_erased(uint32_t address,uint32_t count){
+    uint8_t data[256];
+    for(uint32_t at=0;at<count;at+=sizeof data){unsigned n=count-at>sizeof data?(unsigned)sizeof data:(unsigned)(count-at);vios_zdi_read_memory(address+at,n,data);for(unsigned i=0;i<n;++i)if(data[i]!=0xFF)return false;}
+    return true;
+}
+static void flash_command(bool write,uint32_t length,uint32_t crc,uint16_t sequence){
+    char line[120];
+    if(boot_user_mode||!ram_ready){control_reply(sequence,"ERR flash needs the wire and a mapped RAM (dev boot)\r\n");return;}
+    if(!length||length>FLASH_SIZE){control_reply(sequence,"ERR flash length\r\n");return;}
+    uint32_t pc=vios_zdi_cpu_read(REG_PC),ram=zdi_crc(FLASH_IMAGE,length);
+    if(!write){
+        uint32_t flash=zdi_crc(0,FLASH_SIZE);vios_zdi_cpu_write(REG_PC,pc);
+        snprintf(line,sizeof line,"MD RAM %s %08lX FLASH %08lX\r\n",ram==crc?"ok":"BAD",(unsigned long)ram,(unsigned long)flash);
+        control_reply(sequence,line);return;
+    }
+    if(ram!=crc){vios_zdi_cpu_write(REG_PC,pc);snprintf(line,sizeof line,"ERR MF RAM image CRC %08lX; nothing written\r\n",(unsigned long)ram);control_reply(sequence,line);return;}
+    uint8_t stage[256],check[256];memcpy_P(stage,vios_flash_stage,vios_flash_stage_size);
+    vios_zdi_write_memory(FLASH_STAGE,vios_flash_stage_size,stage);vios_zdi_read_memory(FLASH_STAGE,vios_flash_stage_size,check);
+    if(memcmp(stage,check,vios_flash_stage_size)){control_reply(sequence,"ERR MF stage readback; nothing written\r\n");return;}
+    uint8_t args[4]={(uint8_t)length,(uint8_t)(length>>8),(uint8_t)(length>>16),0};
+    vios_zdi_write_memory(FLASH_LENGTH,sizeof args,args);
+    bridge_event("FLASH writing the eZ80 flash: do not reset or unplug\r\n");
+    vios_zdi_di();vios_zdi_cpu_write(REG_PC,FLASH_STAGE);vios_zdi_write_register(ZDI_BRK_CTL,0);cpu_paused=false;
+    unsigned long start=millis();bool done=false;
+    while(!done&&millis()-start<60000){
+        delay(200);if(!cpu_halt())continue;
+        /* A ZDI memory read moves PC: keep the stage's PC (first board run
+         * derailed the stage here and left the flash half-written). */
+        uint32_t at=vios_zdi_cpu_read(REG_PC);uint8_t flag;
+        vios_zdi_read_memory(FLASH_DONE,1,&flag);vios_zdi_cpu_write(REG_PC,at);done=flag==1;
+        if(!done){vios_zdi_write_register(ZDI_BRK_CTL,0);cpu_paused=false;}
+    }
+    if(!done){cpu_halt();control_reply(sequence,"ERR MF stage did not finish in 60 s; flash state unknown, retry MF\r\n");return;}
+    uint32_t flash=zdi_crc(0,length);bool rest=zdi_erased(length,FLASH_SIZE-length);
+    snprintf(line,sizeof line,"%s %lu ms FLASH %08lX REST %s\r\n",flash==crc&&rest?"MF OK":"ERR MF verify",millis()-start,(unsigned long)flash,rest?"erased":"NOT ERASED");
+    control_reply(sequence,line);
+}
 static bool ram_range(uint32_t address,uint32_t count,uint32_t end) {return count&&count<=256&&address>=0x40000&&address<end&&count<=end-address;}
-/* The bytes the CPU sends to the VDU parser after MR (top-level VDU codes). */
-static uint8_t mos_bytes[32];
-static std::atomic<unsigned> mos_count(0);
-static std::atomic<bool> mos_capturing(false);
-static void mos_capture_start(){mos_count.store(0);mos_capturing.store(true);}
-void vios_mos_capture(uint8_t c){if(!mos_capturing.load())return;unsigned i=mos_count.fetch_add(1);if(i<sizeof mos_bytes)mos_bytes[i]=c;}
 /* IN0 A,(port) on the halted CPU, every register restored afterwards. */
 static uint8_t zdi_port_in(uint8_t port,const uint32_t saved[8]){
     uint8_t in[3]={port,0x38,0xED};vios_zdi_write_registers(ZDI_IS2,3,in);delayMicroseconds(10);
@@ -419,6 +483,7 @@ static void control_command(uint16_t sequence,const char *command,size_t length)
     }
     if(length==2&&command[0]=='F'&&command[1]=='R'){control_reply(sequence,"FIRMWARE ROLLBACK\r\n");firmware_trial=true;firmware_fallback("host request");return;}
     if(length==1&&command[0]=='I') {
+        if(boot_user_mode){control_reply(sequence,"ID FFFF REV FF STAT 00 USER\r\n");return;}   // no ZDI wire: nothing to read
         snprintf(reply,sizeof reply,"ID %04X REV %02X STAT %02X\r\n",vios_zdi_id(),vios_zdi_revision(),vios_zdi_status());control_reply(sequence,reply);return;
     }
     if(length==1&&command[0]=='B') {
@@ -447,6 +512,15 @@ static void control_command(uint16_t sequence,const char *command,size_t length)
         for(unsigned r=0;r<7;++r)n+=(size_t)snprintf(reply+n,sizeof reply-n," %06lX",(unsigned long)first[r]);
         snprintf(reply+n,sizeof reply-n," LCR %02X MCR %02X LSR %02X MSR %02X\r\n",uart[0],uart[1],uart[2],uart[3]);
         control_reply(sequence,reply);return;
+    }
+    if(length==2&&command[0]=='M'&&command[1]=='L'){control_reply(sequence,"MOS LINK 384000\r\n");link_mos();return;}
+    if(length==2&&command[0]=='M'&&command[1]=='X'){
+        unsigned rx=mos_rx_count.load(),tx=mos_tx_count.load();
+        size_t n=(size_t)snprintf(reply,sizeof reply,"MOS RX %u",rx);
+        for(unsigned i=0;i<rx&&i<sizeof mos_rx_bytes;++i)n+=(size_t)snprintf(reply+n,sizeof reply-n," %02X",mos_rx_bytes[i]);
+        n+=(size_t)snprintf(reply+n,sizeof reply-n," TX %u",tx);
+        for(unsigned i=0;i<tx&&i<16;++i)n+=(size_t)snprintf(reply+n,sizeof reply-n," %02X/%u",mos_tx_codes[i][0]+0x80,mos_tx_codes[i][1]);
+        snprintf(reply+n,sizeof reply-n,"\r\n");control_reply(sequence,reply);return;
     }
     if(length==2&&command[0]=='M'&&command[1]=='B'){
         unsigned count=mos_count.load(),shown=count<sizeof mos_bytes?count:(unsigned)sizeof mos_bytes;
@@ -485,6 +559,11 @@ static void control_command(uint16_t sequence,const char *command,size_t length)
     }
 #endif
     if(length==1&&command[0]=='S'){register_reply(sequence);return;}
+    if(length==16&&command[0]=='M'&&(command[1]=='D'||command[1]=='F')){
+        uint32_t len,want;
+        if(!parse_hex(command+2,6,&len)||!parse_hex(command+8,8,&want)){control_reply(sequence,"ERR syntax\r\n");return;}
+        flash_command(command[1]=='F',len,want,sequence);return;
+    }
     if(length==1&&command[0]=='D') {
 #if VIOS_ZDI_EARLY_PROBE
         uint8_t map[4]={cpu_in(CS0_LBR),cpu_in(CS0_UBR),cpu_in(CS0_CTL),cpu_in(CS0_BMC)};
@@ -612,7 +691,47 @@ static void usb_dispatch(const struct vios_wire_message *message) {
         }
     }
 }
+/* Both ends to `baud` (E8 op 2 after its reply, or the probe's fallback). */
+/* The board's MOS never asserts its RTS, so the ESP must not wait on CTS
+ * (U6 run 2: a flush hung the whole control task); but MOS's RST 10 output
+ * waits for its own CTS, the ESP's RTS (port D bit 3, flash 0x0910; U6 run 3
+ * stalled right after the banner). MOS's rate therefore runs with RTS only;
+ * the internal rate (VIOS, the stub's reads) with both. */
+void vios_link_rate(uint32_t baud){
+    VDPSerial.flush();VDPSerial.updateBaudRate(baud);
+    VDPSerial.setHwFlowCtrlMode(HW_FLOWCTRL_CTS_RTS,64);link_state=LINK_SETTLED;
+    char event[48];snprintf(event,sizeof event,"BOOT link: stub switched to %lu\r\n",(unsigned long)baud);bridge_event(event);
+}
+/* MOS phase text also goes to USB as events, a line at a time (at most 40 lines
+ * per boot), so a headless capture sees what MOS and the stub print. */
+static char mos_line[80];static unsigned mos_line_used,mos_lines;
+void vios_mos_line_byte(uint8_t c){
+    if(c=='\r')return;
+    if(c!='\n'&&mos_line_used<sizeof mos_line-1){if(c>=32&&c<127)mos_line[mos_line_used++]=(char)c;return;}
+    if(mos_line_used&&mos_lines<40){char line[96];snprintf(line,sizeof line,"MOS: %.*s\r\n",(int)mos_line_used,mos_line);bridge_event(line);++mos_lines;}
+    mos_line_used=0;
+}
+/* ML (dev, wire attached, after MR): talk to MOS as user mode does. */
+static void link_mos(){
+    vios_vdp_tx_begin();VDPSerial.setHwFlowCtrlMode(HW_FLOWCTRL_RTS,64);VDPSerial.flush();VDPSerial.updateBaudRate(VIOS_MOS_BAUD);vios_vdp_tx_end();
+    mos_capture_start();link_state=LINK_MOS;link_esc=millis()-LINK_ESC_MS;
+    bridge_event("BOOT link 384000: sending ESC until MOS answers\r\n");
+}
+static void link_service(){
+    if(link_state==LINK_PROBE){
+        if(!mos_phase.load()){link_state=LINK_SETTLED;bridge_event("BOOT link: a resident answered at the internal rate\r\n");return;}
+        if(mos_count.load()){link_state=LINK_SETTLED;bridge_event("BOOT link: MOS answered at the internal rate\r\n");return;}   // MOS 1.03 and later
+        if(millis()-link_since<LINK_PROBE_MS)return;
+        link_mos();
+    }
+    if(link_state==LINK_MOS){
+        if(mos_count.load()){link_state=LINK_SETTLED;bridge_event("BOOT link: MOS answered\r\n");return;}
+        if(millis()-link_esc<LINK_ESC_MS)return;
+        link_esc=millis();vios_vdp_tx_begin();VDPSerial.write((uint8_t)0x1B);vios_vdp_tx_end();
+    }
+}
 void vios_bridge_poll() {
+    link_service();
     if(source_used&&millis()-source_started>2000){line_reply(source_sequence,"LINE ERR timeout\r\n");source_used=0;}
     if(full_control.load()){
     int health=health_mailbox.exchange(-1);
@@ -726,7 +845,7 @@ void vios_bridge_boot() {
     firmware_status(retry_event,sizeof retry_event);bridge_event(retry_event);
     if(vios_zdi_id()!=0x0007||vios_zdi_revision()!=0xAA){   // no wire: user mode
         boot_user_mode=true;pinMode(ZDI_TCK,INPUT);pinMode(ZDI_TDI,INPUT);
-        restart_notice=esp_reset_reason()!=ESP_RST_POWERON;
+        restart_notice=true;link_state=LINK_PROBE;link_since=millis();mos_capture_start();
         bridge_event("BOOT user mode: no ZDI; MOS and its stub load the resident\r\n");return;
     }
     boot_user_mode=false;

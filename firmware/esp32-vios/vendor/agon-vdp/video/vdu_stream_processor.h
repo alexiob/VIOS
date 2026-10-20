@@ -103,7 +103,9 @@ class VDUStreamProcessor {
 		}
 		inline uint8_t readByte() {
 			vios_vdp_wait_running();
-			return inputStream->read();
+			uint8_t b = inputStream->read();
+			vios_mos_rx(b);		// MOS diagnostics (MX): raw bytes from the CPU
+			return b;
 		}
 		inline void writeByte(uint8_t b) {
 			if (outputStream) {
@@ -121,6 +123,7 @@ class VDUStreamProcessor {
 
 		void wait_eZ80();
 		void sendModeInformation();
+		void vios_send_colour(uint8_t colour);
 };
 
 // Read an unsigned byte from the serial port, with a timeout
@@ -245,6 +248,7 @@ uint32_t VDUStreamProcessor::discardBytes(uint32_t length, uint16_t timeout = CO
 void VDUStreamProcessor::send_packet(uint8_t code, uint16_t len, uint8_t data[]) {
 	// VIOS Stage 2a: the ESP edits physical lines while the CPU awaits one.
 	if (code == PACKET_KEYCODE && len >= 4 && vios_line_key(data[0], data[2], data[3])) return;
+	vios_mos_tx(code, len);	// MOS diagnostics (MX): packets to the CPU
 	vios_vdp_tx_begin();
 	writeByte(code + 0x80);
 	writeByte(len);

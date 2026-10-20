@@ -122,6 +122,7 @@ void VDUStreamProcessor::vdu_sys_video() {
         case VIOS_VDU_BOOT: {	// untethered boot stub: manifest or a burst of blocks
             auto op=readByte_t();uint8_t reply[3+VIOS_BOOT_BLOCK+4];
             if(op==0){send_packet(VIOS_BOOT_PACKET,(uint8_t)vios_boot_manifest_reply(reply),reply);break;}
+            if(op==2){send_packet(VIOS_BOOT_PACKET,(uint8_t)vios_boot_rate_reply(reply,VIOS_INTERNAL_BAUD),reply);vios_link_rate(VIOS_INTERNAL_BAUD);break;}
             if(op!=1)break;
             auto lo=readByte_t(),hi=readByte_t(),count=readByte_t();
             if(lo<0||hi<0||count<1||count>(int)VIOS_BOOT_BURST)break;
@@ -196,6 +197,26 @@ void VDUStreamProcessor::vdu_sys_video() {
 		}	break;		
 		case VDP_AUDIO: {				// VDU 23, 0, &85, channel, command, <args>
 			vdu_sys_audio();
+		}	break;
+		/* VIOS: the three VDP queries Agon MOS 3.0.2 makes while booting,
+		 * answered as AgonPlatform VDP 2.16.0 does (untethered-boot spec §16.7). */
+		case 0x94: {					// VDU 23, 0, &94, index: read a colour
+			auto index = readByte_t();
+			if (index >= 0) vios_send_colour((uint8_t)index);
+		}	break;
+		case 0x99: {					// VDU 23, 0, &99, vk: resend a key's state
+			auto vk = readByte_t();
+			if (vk >= 0) {
+				uint8_t packet[4];
+				send_packet(PACKET_KEYCODE, vios_key_state_reply(packet, (uint8_t)vk, getKeyboard()->isVKDown((fabgl::VirtualKey)vk)), packet);
+			}
+		}	break;
+		case 0xF8: {					// VDU 23, 0, &F8, flag; value;  set a VDP variable
+			auto flag = readWord_t(); if (flag < 0) return;
+			readWord_t();				// accepted: VIOS links always run CTS/RTS flow control
+		}	break;
+		case 0xF9: {					// VDU 23, 0, &F9, flag;  clear a VDP variable
+			readWord_t();
 		}	break;
 		case VDP_MODE: {				// VDU 23, 0, &86
 			sendModeInformation();		// Send mode information (screen dimensions, etc)
@@ -291,6 +312,18 @@ void VDUStreamProcessor::sendScreenChar(uint16_t x, uint16_t y) {
 
 // VDU 23, 0, &84: Send a pixel value back to MOS
 //
+/* VDU 23, 0, &94: a palette entry (index < 64) or an active colour (128 text
+ * foreground, 129 text background, 130 graphics foreground, 131 graphics
+ * background) as a pixel packet {R, G, B, index}; unknown indices get no reply. */
+void VDUStreamProcessor::vios_send_colour(uint8_t colour) {
+	static RGB888 *const active[] = {nullptr, &tfg, &tbg, &gfg, &gbg};
+	int source = vios_colour_source(colour);
+	if (source < 0) return;
+	RGB888 pixel = source ? *active[source] : colourLookup[palette[colour % getVGAColourDepth()]];
+	uint8_t packet[4];
+	send_packet(PACKET_SCRPIXEL, vios_colour_reply(packet, pixel.R, pixel.G, pixel.B, source ? getPaletteIndex(pixel) : colour), packet);
+}
+
 void VDUStreamProcessor::sendScreenPixel(uint16_t x, uint16_t y) {
 	waitPlotCompletion();
 	RGB888 pixel = getPixel(x, y);

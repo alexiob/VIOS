@@ -53,5 +53,13 @@ stage_content+=f'static const unsigned vios_crc_stage_size = {len(crc_stage)};\n
 stage_content+='static const uint8_t vios_crc_stage[] PROGMEM = {'+','.join(f'0x{x:02x}' for x in crc_stage)+'};\n'
 stage_out=project/'include/vios_stage0.h'
 if not stage_out.exists() or stage_out.read_text()!=stage_content:stage_out.write_text(stage_content)
+flash_stage=(root/'build/agon-flash.bin').read_bytes() if (root/'build/agon-flash.bin').is_file() else b''
+if not flash_stage or len(flash_stage)>256:
+    raise RuntimeError('Build bounded build/agon-flash.bin before the VDP image')
+flash_content='/* Generated eZ80 flash programmer (arch/ez80/agon_flash.s), run only by MF over ZDI. */\n#pragma once\n#include <stdint.h>\n'
+flash_content+=f'static const unsigned vios_flash_stage_size = {len(flash_stage)};\n'
+flash_content+='static const uint8_t vios_flash_stage[] PROGMEM = {'+','.join(f'0x{x:02x}' for x in flash_stage)+'};\n'
+flash_out=project/'include/vios_flash_stage.h'
+if not flash_out.exists() or flash_out.read_text()!=flash_content:flash_out.write_text(flash_content)
 (project/'include/vios_stage0.json').write_text(json.dumps({'path':'build/agon-stage0.bin','size':len(stage),'sha256':hashlib.sha256(stage).hexdigest(),
     'crc_stage':{'path':'build/agon-crc.bin','size':len(crc_stage),'sha256':hashlib.sha256(crc_stage).hexdigest()}},indent=2)+'\n')

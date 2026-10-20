@@ -7,6 +7,7 @@
  *
  *   VDU 23,0,E8,0                       manifest request
  *   VDU 23,0,E8,1,index_lo,index_hi,n   send blocks index..index+n-1 (n 1..32)
+ *   VDU 23,0,E8,2                       rate switch: reply 'R', then both ends at the internal rate
  *
  * Every reply is one VDP packet with code VIOS_BOOT_PACKET (the CPU sees 0xFB);
  * its first byte says what it is:
@@ -14,6 +15,7 @@
  *   'M' ver block size:u32 crc32:u32 gui baud:u32     manifest (16 bytes)
  *   'B' index:u16 data[<=block] crc32(data):u32       one block
  *   'E' index:u16                                    no such block (end/range)
+ *   'R' baud:u32                                     op 2: switching to baud now
  *
  * All integers are little endian. CRCs are the standard CRC-32 (zlib),
  * so the whole-image CRC equals vios_image_crc. Portable: no Arduino.
@@ -60,6 +62,9 @@ static inline unsigned vios_boot_block(uint8_t *out, const uint8_t *image, unsig
     vios_boot_put32(out + 3 + n, vios_boot_crc32(0, out + 3, n));
     return 3 + n + 4;
 }
+
+/* The op 2 reply: the rate both ends use after it (5 bytes). */
+static inline unsigned vios_boot_rate_reply(uint8_t *out, uint32_t baud) { out[0] = 'R'; vios_boot_put32(out + 1, baud); return 5; }
 
 /* MOS phase (before the resident's first VDU 23,0,E* command): how many
  * argument bytes follow VDU code c (BBC/Agon VDU table), so they can be

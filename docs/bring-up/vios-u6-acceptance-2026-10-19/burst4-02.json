@@ -1,0 +1,86 @@
+{
+ "run": 2,
+ "label": "burst4",
+ "mode": "vanish",
+ "wall_start": "2026-10-20T08:06:39",
+ "t0": "usb port reappeared",
+ "opened_at": 0.032,
+ "first_byte": 0.306,
+ "raw_bytes": 887,
+ "frame_errors": 1,
+ "milestones": {
+  "esp_banner": 2.185,
+  "firmware": 2.185,
+  "user_mode": 2.185,
+  "mos_answered": 2.185,
+  "mos_banner": 2.24,
+  "stub_rate": 2.774,
+  "stub_loading": 2.774,
+  "health0": 16.182,
+  "boot_confirmed": 20.3,
+  "ready": 20.568,
+  "forth_banner": 20.725
+ },
+ "events": [
+  [
+   2.185,
+   "BOOT VIOS VDP 1.04 mux-v1 zdi-edge 1us"
+  ],
+  [
+   2.185,
+   "BOOT retained failures 0"
+  ],
+  [
+   2.185,
+   "FIRMWARE app1 valid"
+  ],
+  [
+   2.185,
+   "BOOT user mode: no ZDI; MOS and its stub load the resident"
+  ],
+  [
+   2.185,
+   "BOOT link: MOS answered at the internal rate"
+  ],
+  [
+   2.24,
+   "MOS: Agon Platform MOS Version 3.0.2 Arthur"
+  ],
+  [
+   2.774,
+   "BOOT link: stub switched to 1152000"
+  ],
+  [
+   2.774,
+   "BOOT stub loading the resident over the UART"
+  ],
+  [
+   16.182,
+   "HEALTH flag 0"
+  ],
+  [
+   20.568,
+   "HEALTH flag 1"
+  ]
+ ],
+ "console": [
+  [
+   20.3,
+   "boot confirmed A"
+  ],
+  [
+   20.673,
+   "autorun task 1"
+  ],
+  [
+   20.725,
+   "VIOS Forth 24 / Agon Light 2"
+  ],
+  [
+   20.725,
+   "vios> hello: VIOS application started (TASKS / TASK-KILL)"
+  ]
+ ],
+ "outcome": "ready",
+ "class": "ready"
+}

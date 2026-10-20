@@ -1,0 +1,8 @@
+{"t": 0.0, "kind": "open", "text": "listening; power-cycle the board now"}
+{"t": 2.19, "kind": "event", "text": "BOOT VIOS VDP 1.04 mux-v1 zdi-edge 1us"}
+{"t": 2.19, "kind": "event", "text": "BOOT retained failures 0"}
+{"t": 2.19, "kind": "event", "text": "FIRMWARE app0 valid trial"}
+{"t": 2.19, "kind": "event", "text": "BOOT user mode: no ZDI; MOS and its stub load the resident"}
+{"t": 3.13, "kind": "event", "text": "BOOT link 384000: sending ESC until MOS answers"}
+{"t": 3.23, "kind": "event", "text": "BOOT link: MOS answered"}
+{"t": 3.23, "kind": "event", "text": "MOS: Agon Quark MOS Version 1.02"}
