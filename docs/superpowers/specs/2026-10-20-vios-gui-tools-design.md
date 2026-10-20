@@ -341,6 +341,30 @@ calls). Further reductions, in order of value: move tool layouts/strings to an
 ESP template op (presentation only), shorten strings (~0.4 KB), drop the
 dependency/used-by scan (~0.3 KB).
 
+**Board run 1 (2026-10-20, firmware-gui-tools-3 on main `46d6805`,
+[`vios-gui-tools-accept-2026-10-20.json`](../../bring-up/vios-gui-tools-accept-2026-10-20.json)):**
+all 17 functional checks pass (open all four tools by keyboard, module source in
+the Browser, print it, Ctrl+[ / Ctrl+], memory pager, tasks and system reports,
+boot report, dialog cancelled with Esc, 4000-byte read-back), no protocol
+errors.
+
+| Measurement | Value |
+|---|---|
+| Ctrl+Shift+B → Browser on screen | 0.37 s |
+| TextView read-back, 4000 B (UI-TEXT@, 160 round trips) | 0.65 s, ≈6.1 KB/s |
+| Compositor work per frame (all tool actions) | ≤ 3.5 ms |
+| Frame work while using the tools (already built) | ≤ 4.6 ms (budget 6 ms) |
+| **First build of a tool window** | **display lock held up to 29 ms** (frame budget failed) |
+
+Cause of the failure: every widget op re-laid out and re-rendered the whole
+window, and every appended row re-rendered its list, all inside one E4 batch.
+Fix (firmware-gui-tools-4): wire ops lay widgets out at once but draw them only
+at the end of the batch, or at the next frame while a batch is held. On the host
+the worst batch of a tools session drops from ~100 µs to ~30 µs and the total
+from 1.2 ms to 0.2 ms; scaled to the board, the first build should take ~9 ms.
+Board re-measure pending. Read-back at 0.65 s for a full module is acceptable
+for an explicit accept, so the chunked path stays (decision 2).
+
 **Traffic (host test, the whole tool session):** 48 nudges, 64 requests,
 10.2 KB CPU→ESP. Idle with no events: no polls (no UART bytes); with a tool
 open, one poll per second as the fallback.
