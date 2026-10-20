@@ -1,0 +1,31 @@
+{
+  "status": "failed",
+  "iterations": 16,
+  "failures": [],
+  "dropped_before": 0,
+  "error": "ToolError: Malformed module source hex",
+  "summary": {
+    "iterations": 16,
+    "minutes": 1.0,
+    "iteration_ms_median": 3674,
+    "iteration_ms_max": 4305
+  },
+  "latency_ms_tail": [
+    4285,
+    3658,
+    3684,
+    3650,
+    3666,
+    3674,
+    3643,
+    3677,
+    3675,
+    3667,
+    4305,
+    3658,
+    3676,
+    3710,
+    3671,
+    3688
+  ]
+}

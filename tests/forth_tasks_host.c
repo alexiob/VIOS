@@ -70,7 +70,7 @@ int main(void){
  fails("' FOREVER SPAWN","no free task slot");
  eval("1 TASK-KILL 2 TASK-KILL 3 TASK-KILL 4 TASK-KILL");fails("0 TASK-STATE","invalid task id");
  /* SPAWN-CON output goes to the shared console, not the ring. */
- eval(": HELLO 72 EMIT 105 EMIT ;");{fcell id=value("' HELLO SPAWN-CON");output_used=0;output[0]=0;forth_tasks_run();
+ eval(": HELLO 72 EMIT 105 EMIT ;");{fcell id=value("' HELLO SPAWN-CON");output_used=0;output[0]=0;forth_tasks_run();forth_console_tasks_flush();
   assert(has("Hi"));struct forth_task_info t;assert(forth_task_info((unsigned)id,&t)&&t.output_bytes==0&&t.state==3);}
  /* The slice length is a runtime policy. */
  eval("TASK-SLICE 256");eval("0 A !");assert(value("' CA SPAWN")>=1);forth_tasks_run();

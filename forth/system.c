@@ -373,19 +373,22 @@ static int execute_index(unsigned n) {
  if(!executing&&running<0)critical=0;   /* a command that failed inside CRITICAL( cannot leave ticks ignored */
  preempt_plan();return result;
 }
-/* A console task (SPAWN-CON) prints straight to the console between
- * commands. While a foreground command runs, a preempting console task would
- * interleave its text mid-line with the command's output (found on the board
- * with the HELLO heartbeat), so its bytes wait in its ring and leave, in
- * order, once the command is over (console_tasks_flush). */
+/* A console task's (SPAWN-CON) bytes always wait in its ring and leave from
+ * the idle REPL, on their own lines, followed by a fresh prompt
+ * (forth_console_tasks_flush), like a shell's background-job messages. Printed
+ * when the task ran, a preempting task interleaved its text mid-line with a
+ * command's output, also inside C commands such as MODULE-SOURCE (board soaks
+ * 2026-10-20 with the HELLO heartbeat). */
 static void console_task_flush(struct task *t){
  while(t->out_count){platform_console_putc(t->out[t->out_head]);t->out_head=(unsigned short)((t->out_head+1)%FORTH_TASK_OUT);--t->out_count;}
 }
-static void console_tasks_flush(void){for(unsigned i=0;i<FORTH_TASKS_MAX;++i)if(tasks[i].console)console_task_flush(&tasks[i]);}
+unsigned forth_console_tasks_flush(void){
+ unsigned n=0;for(unsigned i=0;i<FORTH_TASKS_MAX;++i)if(tasks[i].console){n+=tasks[i].out_count;console_task_flush(&tasks[i]);}
+ return n;
+}
 static void out(unsigned char c) {
  if(running<0){platform_console_putc(c);return;}
  struct task *t=&tasks[running];
- if(t->console&&!executing){console_task_flush(t);platform_console_putc(c);return;}
  if(t->console){if(t->out_count==FORTH_TASK_OUT)++t->out_dropped;else{t->out[(t->out_head+t->out_count)%FORTH_TASK_OUT]=c;++t->out_count;}return;}
  if(t->out_count==FORTH_TASK_OUT){++t->out_dropped;return;}
  t->out[(t->out_head+t->out_count)%FORTH_TASK_OUT]=c;++t->out_count;
@@ -436,7 +439,6 @@ static void run_slice(unsigned id) {
 unsigned forth_tasks_run(void) {
  /* Sample the clock on every call so MS deadlines see gaps the gate skips. */
  uint32_t now=now_ms();
- if(!executing&&running<0)console_tasks_flush();   /* held console-task output, now that no command runs */
  if(scheduling||running>=0||current>=0||transaction_active||observer_active||!tasks_live())return 0;
  if(task_gate&&!task_gate())return 0;
  scheduling=1;unsigned ran=0;
@@ -528,6 +530,7 @@ static unsigned task_start(fcell xt,int console,unsigned in_handle,unsigned out_
  for(unsigned i=0;i<FORTH_TASKS_MAX;++i) {
   struct task *t=&tasks[i];
   if(t->state==TS_READY||t->state==TS_SLEEPING||(int)i==running)continue;
+  if(t->console&&t->out_count)continue;   /* its held console text has not been printed yet */
   t->xt=xt;t->depth=t->rdepth=t->ldepth=0;t->ip=entry_ip((unsigned)(xt-1));t->ds_peak=t->rs_peak=0;
   t->wake=t->slices=t->steps=0;t->out_head=t->out_count=0;t->out_dropped=0;t->error[0]=0;t->console=(unsigned char)console;
   t->in_handle=(unsigned char)in_handle;t->out_handle=(unsigned char)out_handle;t->finishing=0;t->state=TS_READY;
@@ -1194,7 +1197,10 @@ void forth_repl(void) {
  if(line_mode_hook)line_mode_hook(1);
  for(;;) {
   int c=platform_console_getc();
-  if(c<0){if(!used&&current<0){if(idle_hook){idle_hook(changed);changed=0;}forth_tasks_run();}continue;}
+  if(c<0){if(!used&&current<0){if(idle_hook){idle_hook(changed);changed=0;}forth_tasks_run();
+    /* Background console-task text: on its own lines, then the prompt again. */
+    int held=0;for(unsigned i=0;i<FORTH_TASKS_MAX;++i)held|=tasks[i].console&&tasks[i].out_count;
+    if(held){print("\r\n");forth_console_tasks_flush();print("vios> ");}}continue;}
   if(c=='\n'&&cr){cr=0;continue;}cr=0;
   if(c=='\r'||c=='\n') {
    cr=c=='\r';print("\r\n");line[used]=0;
@@ -1221,9 +1227,6 @@ void forth_repl(void) {
    if(overflow) {print("error: input line too long\r\n");rollback();}
    else if(request_ok&&line_mode_hook)line_mode_hook(0);
    if(!overflow&&(!request_ok||!(success=forth_eval(request)))){print("error: ");print(forth_last_error());print("\r\n");}
-   /* Console-task text held during the command, on its own line(s) before the
-    * reply ends: never mid-line, and never after the prompt. */
-   {int held=0;for(unsigned i=0;i<FORTH_TASKS_MAX;++i)held|=tasks[i].console&&tasks[i].out_count;if(held){print("\r\n");console_tasks_flush();}}
    if(line_mode_hook)line_mode_hook(1);
    if(tagged){print("\r\n@");print(nonce);print("\r\n");}
    if(success)print("ok\r\n");else if(tagged)print("error\r\n");

@@ -39,6 +39,8 @@ extern volatile unsigned char forth_tick_pending;
 extern volatile fcell forth_budget_stolen;
 void forth_register_preempt(void (*arm)(unsigned delay_ms));
 void forth_register_tick_source(void (*hook)(void));
+/* Console tasks' held output, printed now (the REPL does this when idle); bytes printed. */
+unsigned forth_console_tasks_flush(void);
 /* Ctrl-C at foreground ticks: poll returns 1 once per request; the running
  * command then fails with "interrupted" at the next safe point. */
 void forth_register_interrupt(int (*poll)(void));

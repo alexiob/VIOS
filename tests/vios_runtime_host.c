@@ -222,6 +222,7 @@ int main(int argc,char **argv){
  eval(": SAY S\" hello pipes\" TYPE CR ; : UPPER BEGIN KEY DUP -1 <> WHILE DUP 97 123 WITHIN IF 32 - THEN EMIT REPEAT DROP ;");
  console_used=0;console_capture[0]=0;eval("' SAY ' UPPER PIPELINE 2DROP");
  for(int i=0;i<200&&forth_tasks_run();++i){}
+ forth_console_tasks_flush();   /* console-task text leaves from the idle REPL */
  assert(strstr(console_capture,"HELLO PIPES")&&"pipeline output reached the console");
  {struct forth_task_info a,b;assert(forth_task_info(1,&a)&&forth_task_info(2,&b));assert(a.state==3&&b.state==3);}
  eval("VARIABLE GOT : BIG 1000 0 DO 65 EMIT LOOP ; : CNT 0 GOT ! BEGIN KEY -1 <> WHILE 1 GOT +! REPEAT ;");

@@ -113,7 +113,7 @@ int main(void){
  eval("0 CTN ! PR");
  {const char *a=strchr(output,'A');assert(a&&!strncmp(a,"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",40)&&"the command's output is not interleaved");}
  assert(value("CTN @")>0&&"the console task did run during the command");
- output_used=0;output[0]=0;forth_tasks_run();assert(strchr(output,'B')&&"held console-task output follows");
+ output_used=0;output[0]=0;forth_console_tasks_flush();assert(strchr(output,'B')&&"held console-task output follows");
  {char kill[32];snprintf(kill,sizeof kill,"%u TASK-KILL",(unsigned)ct);eval(kill);}
  /* A CREATE whose first ALLOT fails leaves no word behind (found by the GUI
   * tools on the board: the header pointed past the end of data space). */
