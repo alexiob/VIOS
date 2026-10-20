@@ -315,7 +315,7 @@ def make_tcp_server(address, backend):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--port',default='/dev/cu.usbserial-22430')
+    parser.add_argument('--port',default='/dev/cu.usbserial-224130')
     parser.add_argument('--image',help='VIOS binary; defaults to build/vios.bin (ram) or build/vios-resident.bin (resident) in this checkout')
     parser.add_argument('--log',help='Serial evidence log; defaults to this checkout/docs/bring-up/vios-harness.jsonl')
     parser.add_argument('--tcp',metavar='127.0.0.1:PORT',help='Serve loopback TCP instead of stdio')

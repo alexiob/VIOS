@@ -57,7 +57,7 @@ def load_probe(port, image, log):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--port', default='/dev/cu.usbserial-22430')
+    parser.add_argument('--port', default='/dev/cu.usbserial-224130')
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--probe-image', type=Path, default=Path('build/zdi-probe.bin'))
     parser.add_argument('--base', type=lambda v: int(v, 0), default=0)

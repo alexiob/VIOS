@@ -76,7 +76,7 @@ def checks(session):
 
 def main():
  p=argparse.ArgumentParser(description=__doc__)
- p.add_argument('--port',default='/dev/cu.usbserial-22430');p.add_argument('--image',type=Path,default=Path('build/vios.bin'))
+ p.add_argument('--port',default='/dev/cu.usbserial-224130');p.add_argument('--image',type=Path,default=Path('build/vios.bin'))
  p.add_argument('--log',type=Path,default=Path('docs/bring-up/vios-hardware.jsonl'));p.add_argument('--no-checks',action='store_true');p.add_argument('--no-bench',action='store_true');p.add_argument('--command',action='append',default=[])
  args=p.parse_args();data=args.image.read_bytes();validate_image(data)
  session=load_probe(args.port,Path('build/zdi-loader.bin'),args.log)

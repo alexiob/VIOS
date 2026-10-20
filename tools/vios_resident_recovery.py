@@ -214,7 +214,7 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--exercise-resets', action='store_true', help='Required: explicitly discard unsaved RAM and exercise supervisor resets')
     parser.add_argument('--watchdog', action='store_true', help='Also wait for a deliberate 30-second automatic watchdog reset')
-    parser.add_argument('--port', default='/dev/cu.usbserial-22430')
+    parser.add_argument('--port', default='/dev/cu.usbserial-224130')
     parser.add_argument('--log', type=Path)
     parser.add_argument('--connect-timeout', type=float, default=120)
     parser.add_argument('--watchdog-timeout', type=float, default=90)

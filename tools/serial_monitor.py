@@ -150,7 +150,7 @@ def upload(session, data, start=RAM_START):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--port', default='/dev/cu.usbserial-22430')
+    parser.add_argument('--port', default='/dev/cu.usbserial-224130')
     parser.add_argument('--log', default='docs/bring-up/serial-session.jsonl')
     parser.add_argument('--listen', type=float, default=0)
     parser.add_argument('--upload', type=Path)

@@ -13,7 +13,7 @@ from zdi_backup import ask, load_probe, read_block
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--port', default='/dev/cu.usbserial-22430')
+    parser.add_argument('--port', default='/dev/cu.usbserial-224130')
     parser.add_argument('--image', type=Path, default=Path('build/monitor-raw.bin'))
     parser.add_argument('--probe-image', type=Path, default=Path('build/zdi-loader.bin'))
     parser.add_argument('--log', type=Path, default=Path('docs/bring-up/monitor-hardware.jsonl'))
