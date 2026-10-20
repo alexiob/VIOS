@@ -75,7 +75,7 @@ static void vios_frame_task(void *) {
         uint32_t served = (uint32_t)esp_timer_get_time();
         vios_frame_raise(vios_frame_service_max, served - locked);
         uint32_t presents = vios_gui_presents();
-        vios_gui_frame(UINT32_MAX, VIOS_GUI_FRAME_US);
+        vios_gui_frame(UINT32_MAX, VIOS_GUI_FRAME_US, vblank);
         bool presented = vios_gui_presents() != presents;
         if (!presented) vios_frame_raise(vios_frame_gui_max, (uint32_t)esp_timer_get_time() - served);
         vios_top_black_probe();   // the display server, when it owns the screen: by time, robust to rate changes

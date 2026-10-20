@@ -144,6 +144,22 @@ int main(int argc, char **argv) {
     run(true);
     matches_reference();
 
+    /* A finished pass presents only in a frame that may (started at vblank). */
+    assert(vds_window_open(&v, 26, 10, 0, 0, 80, 60, VDS_W_VISIBLE, "Workbench"));
+    {unsigned presents = p.presents, guard = 0;
+     while (p.presents == presents && guard++ < 100) {
+         memcpy(before, screen, sizeof screen);
+         p.frame(&v, [&]() { return vds_frame_within(&v, BUDGET, UINT32_MAX); }, false);
+         assert(!memcmp(screen, before, sizeof screen));   // never presents
+         if (!v.ndamage && p.composing_offscreen()) break;
+     }
+     assert(p.presents == presents && p.deferred > 0 && p.composing_offscreen());
+     p.frame(&v, [&]() { return vds_frame_within(&v, BUDGET, UINT32_MAX); }, true);
+     assert(p.presents == presents + 1);}
+    matches_reference();
+    assert(vds_window_close(&v, 26));
+    run(true);
+
     /* Without shadow memory the presenter is the plain compositor. */
     Presenter plain;
     plain.reset(&v, screen_rows);

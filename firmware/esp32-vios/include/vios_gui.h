@@ -206,7 +206,7 @@ bool vios_gui_hold_console() {
 }
 
 /* Each frame (frame task, display lock held): compose within the budget. */
-void vios_gui_frame(uint32_t budget_pixels, uint32_t budget_us) {
+void vios_gui_frame(uint32_t budget_pixels, uint32_t budget_us, bool at_vblank) {
     if (!vios_gui_on) return;
     if (!vios_gui_mode_ok()) return;      // a raw MODE change: wait for the VIOS display mode
     uint8_t **rows = (uint8_t **)VdpRows::table();
@@ -217,7 +217,7 @@ void vios_gui_frame(uint32_t budget_pixels, uint32_t budget_us) {
     uint32_t elapsed = now - vios_gui_last_frame;
     uint8_t phase = vios_gui_presenter.phase(), ndamage = vios_gui_vds.ndamage;
     uint32_t pixels = vios_offscreen::damage_pixels(&vios_gui_vds), rows_before = vios_gui_vds.stats.rows;
-    vios_gui_presenter.frame(&vios_gui_vds, [&]() { return vds_proto_frame_within(vios_gui_proto, elapsed, budget_pixels, budget_us); });
+    vios_gui_presenter.frame(&vios_gui_vds, [&]() { return vds_proto_frame_within(vios_gui_proto, elapsed, budget_pixels, budget_us); }, at_vblank);
     uint32_t spent = (uint32_t)esp_timer_get_time() - started;
     if (spent > vios_gui_frame_max) vios_gui_frame_max = spent;
     if (spent > vios_gui_slow.us) vios_gui_slow = {spent, pixels, vios_gui_vds.stats.rows - rows_before, phase, ndamage, vios_gui_presenter.phase()};
@@ -234,12 +234,12 @@ int vios_gui_pixel(unsigned x, unsigned y) {
 /* Control-channel summary for the harness: "GUI on windows frames rows carried errors". */
 unsigned vios_gui_status(char *out, unsigned capacity) {
     if (!vios_gui_ready) return (unsigned)snprintf(out, capacity, "GUI off");
-    unsigned n = (unsigned)snprintf(out, capacity, "GUI %s windows %u frames %u rows %u carried %u errors %u style %u batch_max_us %u batch_op %02X frame_max_us %u presents %u forced %u abandoned %u present_us_max %u sync_frames_max %u slow_us %u slow_px %u slow_rows %u slow_nd %u slow_phase %u>%u",
+    unsigned n = (unsigned)snprintf(out, capacity, "GUI %s windows %u frames %u rows %u carried %u errors %u style %u batch_max_us %u batch_op %02X frame_max_us %u presents %u deferred %u forced %u abandoned %u present_us_max %u sync_frames_max %u slow_us %u slow_px %u slow_rows %u slow_nd %u slow_phase %u>%u",
                               vios_gui_on ? "on" : "text", vios_gui_vds.count, (unsigned)vios_gui_vds.stats.frames,
                               (unsigned)vios_gui_vds.stats.rows, (unsigned)vios_gui_vds.stats.carried,
                               vios_gui_proto->errors, vios_gui_vds.style.kind,
                               (unsigned)vios_gui_batch_max, vios_gui_batch_op, (unsigned)vios_gui_frame_max,
-                              (unsigned)vios_gui_presenter.presents, (unsigned)vios_gui_presenter.forced,
+                              (unsigned)vios_gui_presenter.presents, (unsigned)vios_gui_presenter.deferred, (unsigned)vios_gui_presenter.forced,
                               (unsigned)vios_gui_presenter.abandoned, (unsigned)vios_gui_presenter.present_us_max,
                               (unsigned)vios_gui_presenter.sync_frames_max,
                               (unsigned)vios_gui_slow.us, (unsigned)vios_gui_slow.damage_px, (unsigned)vios_gui_slow.rows,

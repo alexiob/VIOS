@@ -1,0 +1,36 @@
+hello: VIOS application started (TASKS / TASK-KILL)
+IRQ-STATS PREEMPT-STATS
+irq tick on ms 2866 stray 0 rx-dropped 0
+preempt on switches 0 ignored 0 critical 0 
+
+ok
+vios> 
+REPL round trip median ms, idle: 31.9
+REPL round trip median ms, busy task: 90.8
+render beside busy task: 60.0 frames/s
+REPL round trip median ms, busy + render: 94.1
+Ctrl-C: 85 ms 600000 MS | error: interrupted |  | error | vios> 
+CREATE BB 3000 ALLOT BB 3000 90 FILL BB 2999 + C@ . BB C@ . BB 1500 + C@ .
+90 90 90 
+ok
+vios> 
+VARIABLE TB : T16 HEX 255 TB ! BEGIN PAUSE AGAIN ; ' T16 SPAWN DROP 200 MS BASE @ . TB @ .
+10 255 
+ok
+vios> 
+TASKS
+task-slice 1024
+task 1 state sleeping xt 241 name 4155544F52554E slices 2 steps 43 depth 0 rdepth 1 ds-peak 3 rs-peak 4 out 0 dropped 0 error - base 10
+task 2 state ready xt 243 name 4247 slices 3206 steps 1274450 depth 1 rdepth 1 ds-peak 2 rs-peak 1 out 0 dropped 0 error - base 10
+task 3 state sleeping xt 245 name 52454E444552 slices 821 steps 9842 depth 0 rdepth 1 ds-peak 2 rs-peak 1 out 0 dropped 0 error - base 10
+task 4 state ready xt 248 name 543136 slices 59 steps 242 depth 0 rdepth 1 ds-peak 2 rs-peak 1 out 0 dropped 0 error - base 16
+
+ok
+vios> 
+IRQ-STATS PREEMPT-STATS VDP-INFO
+irq tick on ms 17843 stray 0 rx-dropped 0
+preempt on switches 3244 ignored 0 critical 0 
+vdp width 640 height 480 colours 16 mode 0 console-dropped 0
+
+ok
+vios> 
