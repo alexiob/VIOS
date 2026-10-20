@@ -1,0 +1,25 @@
+{
+ "boots": 1,
+ "ready": 0,
+ "failed": [
+  1
+ ],
+ "interrupted_power_ons": [],
+ "milestone_median_s": {
+  "esp_banner": 2.139,
+  "firmware": 2.19,
+  "user_mode": 2.19,
+  "mos_answered": 2.19,
+  "mos_banner": 2.244
+ },
+ "per_run": [
+  {
+   "run": 1,
+   "class": "failed",
+   "outcome": "timeout",
+   "ready": null,
+   "firmware": "FIRMWARE app1 valid",
+   "fallback": false
+  }
+ ]
+}

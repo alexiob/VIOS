@@ -16,7 +16,7 @@ therefore leaves a card whose SD copy the stub refuses, never a mismatched one
 it would run. Afterwards vios.man is read back in full and vios.bin's first
 64 KiB (sd_get's limit) are compared; the fallback boot is the end-to-end check.
 
-  vios_sd_refresh.py REPORT.json [--resident BIN] [--stub BIN] [--port DEV]
+  vios_sd_refresh.py REPORT.json [--resident BIN] [--stub BIN [--stub-only]] [--port DEV]
 
 Opening the port resets the board; it must boot to BOOT READY by itself
 (user mode). Never writes flash.
@@ -67,6 +67,7 @@ def main():
     parser.add_argument('report', type=Path)
     parser.add_argument('--resident', type=Path, default=Path(__file__).resolve().parents[1] / 'build/vios-resident.bin')
     parser.add_argument('--stub', type=Path)
+    parser.add_argument('--stub-only', action='store_true', help='write only /mos/viosboot.bin (needs --stub)')
     parser.add_argument('--port', default=PORT)
     args = parser.parse_args()
     image = args.resident.read_bytes()
@@ -89,9 +90,10 @@ def main():
         report['stub_before'] = {'sha256': hashlib.sha256(bytes.fromhex(old['hex'])).hexdigest(), 'hex': old['hex']}
         old = board.sd_get('/vios/vios.man')
         report['manifest_before'] = old.get('hex')
-        report['written'].append(put(board, '/vios/vios.man', bytes(16)))
-        report['written'].append(put(board, '/vios/vios.bin', image, progress))
-        report['written'].append(put(board, '/vios/vios.man', man))
+        if not args.stub_only:
+            report['written'].append(put(board, '/vios/vios.man', bytes(16)))
+            report['written'].append(put(board, '/vios/vios.bin', image, progress))
+            report['written'].append(put(board, '/vios/vios.man', man))
         if stub is not None:
             report['written'].append(put(board, '/mos/viosboot.bin', stub))
         report['readback'].append(readback(board, '/vios/vios.man', man))

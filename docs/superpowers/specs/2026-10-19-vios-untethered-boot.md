@@ -806,12 +806,98 @@ then repeat `MR`/`MX`. Then comes the wire-off boot: `autoexec.txt`, then
   finally `BOOT READY`.
 - **Console window:** MOS banner, then `boot confirmed A`, autorun task 1,
   `VIOS Forth 24`, and HELLO running. The GUI reports 0 protocol errors.
-- **Still to do for U6 acceptance:**
-  - 20 cold boots, with timing;
-  - an ESP A/B install in user mode;
-  - a bad ESP image, so the stub falls back to the SD copy (`/vios/vios.bin`
-    has to match the resident in use);
-  - no SD card;
-  - burst size above 1 once flow control is measured;
-  - `!boot.obey` instead of `autoexec.txt` (MOS 3's preferred boot file).
+- **U6 acceptance:** done in §16.10, except `!boot.obey` instead of
+  `autoexec.txt` (MOS 3's preferred boot file), which is still open.
 
+
+### 16.10 U6 acceptance without the wire, 2026-10-20
+
+Board: wire off throughout. eZ80 MOS 3.0.2 (flash not written). ESP app1 =
+`firmware-mos3-1` at the start and at the end. Resident `build/vios-resident.bin`,
+158,434 bytes, CRC-32 `e872aae5`, embedded in every ESP image used. Power is
+cut by unplugging the board's USB cable. Logs: one JSON per boot or step in
+`docs/bring-up/vios-u6-acceptance-2026-10-19/`.
+
+**Tools (new):**
+- `tools/vios_coldboot_capture.py` waits for the USB port to vanish and come
+  back. t=0 is the device node reappearing, about 0.3 s before the first ESP
+  byte, so it is "USB power-on as the host sees it", not the plug contact. It
+  opens the port at once with DTR/RTS low, sends nothing, and logs every
+  channel 3 event (including the `MOS:` lines that MOS and the stub print) and
+  every console line. READY is `HEALTH flag 1`, the moment `B` turns to `BOOT
+  READY` (`vios_bridge.h`). Frames end only with a zero byte, so the ESP ROM's
+  power-on text runs into the first frame; the decoder retries suffixes.
+  A power-on that drops before the ESP's first event (a bouncing connector:
+  7 of 27 cycles) is recorded as `interrupted`, not counted as a boot.
+- `tools/vios_sd_refresh.py` writes `/vios/vios.bin`, `/vios/vios.man` and
+  optionally `/mos/viosboot.bin` through the resident's SD handles (the
+  harness's `sd_put` path without its 64 KiB cap). There is no rename, so it
+  zeroes `vios.man` first, then writes the image, then the real manifest: an
+  interrupted refresh leaves a manifest the stub refuses. It reads `vios.man`
+  back fully and `vios.bin`'s first 64 KiB. 158 KB takes about 4.5 minutes.
+- `tools/vios_esp_fault_image.py` turns a built ESP image into a "resident
+  mismatch" image: the one copy of `vios_image_crc` is XORed with 1 and the
+  ESP image checksum and SHA-256 are recomputed (esptool `image-info`: valid).
+
+**Results:**
+
+| Test | Boots | READY (s from USB power-on) | Log |
+|---|---|---|---|
+| Cold boot, ESP image, burst 1 | 20/20 | median 21.14, 21.10–21.54 | `coldboot-NN.json`, `coldboot-summary.json` |
+| Bad ESP image, SD fallback | 3/3 | median 22.24, 22.23–22.27 | `fallback-*.json` |
+| Burst 4 | 3/3 | median 20.57 | `burst4-*.json` |
+| Burst 32 | 3/3 | median 20.42 | `burst32-*.json` |
+| No SD card | — | never (expected) | `nosd-01.json` |
+
+1. **Cold boots, phase by phase** (medians of 20): ESP first event 2.16 s;
+   MOS answered at the internal rate and its banner 2.19–2.22 s; stub rate
+   switch and manifest request 2.77 s; `HEALTH flag 0` (resident running)
+   16.72 s; `boot confirmed A` 20.88 s; `HEALTH flag 1` 21.14 s. The two
+   slowest boots (21.52, 21.54 s) started 0.4 s later at the ESP (USB
+   enumeration), not in the stub. No ESC fallback, no deadline, no retry.
+2. **Where the time goes.** The ESP transfer is about 13.9 s of the 21 s. The
+   SD path shows that loading and CRC-checking the whole image and starting
+   the resident takes only 1.4 s (`VIOSBOOT: no ESP image` at 16.45 s to
+   `HEALTH flag 0` at 17.85 s). Then 4.4 s from `HEALTH flag 0` to `1` is the
+   resident's own start-up (boot bundle, modules, autorun).
+3. **ESP A/B in user mode:** `firmware-mos3-2` written to app0 as a trial
+   (`ab-install-mos3-2.json`): `FIRMWARE app0 valid trial`, the whole chain,
+   `HEALTH flag 1`, `FIRMWARE confirmed`. `status` afterwards: app0 boots,
+   both otadata entries VALID, trial marker cleared (`ab-status-after-mos3-2.json`).
+4. **Bad ESP image** (`firmware-mos3-2-badcrc.bin`, manifest CRC `e872aae4`;
+   `ab-install-badcrc.json`, then `fallback-*.json` as plain cold boots): the
+   stub loads all 826 blocks, the whole-image CRC fails, it prints `VIOSBOOT:
+   no ESP image, trying /vios/vios.bin` at 16.45 s and VIOS boots from the
+   card. Before this the card was refreshed from the same resident
+   (`sd-refresh.json`; its old manifest was already byte-identical).
+   - **Finding: the bad image's trial was confirmed.** The CPU reported
+     health, so the ESP cleared the trial marker although its own embedded
+     resident was never used. A trial verdict should also require that the
+     stub booted the ESP's image, for example a boot-source flag in the
+     resident's health report (`HL = VIOS_BOOT_MAGIC` already reaches
+     `start.s`; the stub could pass ESP or SD in another register).
+   - Afterwards: rollback to app0, then `firmware-mos3-1` reinstalled into
+     app1 as a trial and confirmed (`ab-restore-mos3-1.json`). The board is
+     back to app1 = `mos3-1`, app0 = `mos3-2`; the bad image is gone.
+5. **No SD card** (`nosd-01.json`, `B` polled every 5 s): MOS 3.0.2's banner,
+   `MOS: Could not find path`, the MOS prompt. The ESP answers `BOOT USER
+   waiting for the MOS stub` for 45 s; no deadline is armed (only the stub's
+   manifest request arms it) and nothing is reported as an error. The "insert
+   the boot SD" console message of §5 is still not implemented.
+6. **Burst size** (stubs built with `make viosboot VIOS_BOOT_BURST=4` and
+   `=32`, written with `vios_sd_refresh.py --stub-only`, read back
+   byte-identical): every boot READY, no fallback, so RTS gating holds with up
+   to 32 packets in flight. But the gain is small: 0.57 s (burst 4) and 0.72 s
+   (burst 32) of 13.9 s. A block costs about 16 ms whatever the burst, while
+   its 199 bytes take 1.7 ms on the wire. That is close to one block per
+   60 Hz frame, so the limit is how fast the ESP emits boot packets (the VDP
+   loop or `send_packet`), not the stub's request round trip. Fixing that
+   side could bring the transfer near the 1.4 s of §10. The card is back on
+   the burst-1 stub (sha256 `11374a8c…`, identical to before the test).
+
+**Next:**
+- Find what paces E8 packets on the ESP (one block per frame) and remove it;
+  then raise `VIOS_BOOT_BURST` (32 is safe on this board).
+- Boot-source-aware trial confirmation (finding 4).
+- The no-SD console message.
+- `!boot.obey` instead of `autoexec.txt`.
