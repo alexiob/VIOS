@@ -32,6 +32,8 @@ struct FakeQueue {unsigned capacity=0,size=0;std::deque<std::vector<uint8_t>> re
 using QueueHandle_t=FakeQueue*;
 static std::deque<FakeQueue> queues;
 static QueueHandle_t xQueueCreate(unsigned count,unsigned size){queues.emplace_back();queues.back().capacity=count;queues.back().size=size;return &queues.back();}
+struct StaticQueue_t {int unused;};
+static QueueHandle_t xQueueCreateStatic(unsigned count,unsigned size,uint8_t*,StaticQueue_t*){return xQueueCreate(count,size);}
 static int xQueueSend(QueueHandle_t q,const void *data,unsigned){std::lock_guard<std::mutex> g(q->lock);if(q->records.size()==q->capacity)return 0;auto bytes=(const uint8_t*)data;q->records.emplace_back(bytes,bytes+q->size);return 1;}
 static int xQueueReceive(QueueHandle_t q,void *data,unsigned){std::lock_guard<std::mutex> g(q->lock);if(q->records.empty())return 0;memcpy(data,q->records.front().data(),q->size);q->records.pop_front();return 1;}
 static unsigned uxQueueMessagesWaiting(QueueHandle_t q){std::lock_guard<std::mutex> g(q->lock);return q->records.size();}

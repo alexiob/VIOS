@@ -1,7 +1,7 @@
 {
   "firmware": "firmware/esp32-vios/.pio/build/esp32-vios/firmware.bin",
-  "size": 804096,
-  "sha256": "c536ac2eb0c0a3187e03f50d98267dd1bbf554b05036a3d21018eaedae3533ad",
+  "size": 808608,
+  "sha256": "2e37b8a0cc93aff109e881a9f5467bcbb7c710fa617b48a2ceb87b6576759321",
   "app0_offset": 65536,
   "app0_limit": 1310720,
   "embedded_vios": {
@@ -53,7 +53,7 @@
     "arch/ez80/agon_stage0.s": "1ba56634bd0abe98c98a6e48e43df58cef409cf501fe030d5e0e654f3b2cd4e9",
     "arch/ez80/agon_crc.s": "a134c06ffebaf29548cdd6465854e2c752b481c5e641850029265f7e531cdb3b",
     "firmware/esp32-vios/include/vios_g0_probe.h": "a69648d2b931913fcba50f5af077622375b313a1987ae856c24f6d580f5f4501",
-    "firmware/esp32-vios/include/vios_bridge.h": "2ab83847671af0d782a81bb946d0855dfae2f49e7653a09c81c618c3a7d9bd00",
+    "firmware/esp32-vios/include/vios_bridge.h": "720d2cfbea317bdc02015b85ee47068eaf18770720a803ca46d4407f52894158",
     "firmware/esp32-vios/include/vios_mos_queries.h": "ccd94b5b30e126915eea8b3362e1287a05a6a755b6bc215aeacd1fc066d5e6f5",
     "firmware/esp32-vios/include/vios_audio.h": "80b8b0e4a71fc7733c2eb07404527d01adb2e02321416e1cf3b19de8a2b8c442",
     "firmware/esp32-vios/include/vios_bootserve.h": "2bfb47555ccd72d973557fe1bbb006a97a3746cdef74424d375ae75f187d9a4d",

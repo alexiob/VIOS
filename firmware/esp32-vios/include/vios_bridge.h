@@ -28,6 +28,15 @@ extern "C" bool verifyRollbackLater(){return true;}
 static SemaphoreHandle_t usb_tx_mutex,vdp_tx_mutex;
 struct ConsoleRecord {uint16_t length;uint8_t data[256];};
 static QueueHandle_t console_queue,host_queue,console_out_queue;
+/* The USB console queue lives in static internal RAM between two canaries.
+ * Heap storage of 16 records (4128 bytes) passed SPIRAM_MALLOC_ALWAYSINTERNAL
+ * (4096) and landed in PSRAM; there a record's length was seen zeroed between
+ * enqueue and dequeue (2026-10-20: an empty USB frame in place of 13-128
+ * console bytes, ~0.2% of records), so STATS counts both ends and canary hits. */
+static const uint32_t CONSOLE_CANARY=0x5649434Fu;
+static struct {uint32_t head;uint8_t storage[16*sizeof(ConsoleRecord)];uint32_t tail;} console_out_area={CONSOLE_CANARY,{},CONSOLE_CANARY};
+static StaticQueue_t console_out_static;
+static std::atomic<uint32_t> stat_console_empty_in(0),stat_console_empty_out(0),stat_console_canary(0);
 static std::atomic<bool> parser_busy(false);
 static std::atomic<bool> full_control(false);
 static std::atomic<int> health_mailbox(-1);
@@ -202,6 +211,7 @@ void vios_usb_console_write(const uint8_t *data,size_t length) {
     uint32_t start=stage0_us();
     while(length) {
         ConsoleRecord record;record.length=(uint16_t)(length>VIOS_WIRE_PAYLOAD_MAX?VIOS_WIRE_PAYLOAD_MAX:length);memcpy(record.data,data,record.length);
+        if(!record.length)stat_console_empty_in.fetch_add(1);
         if(!console_out_queue)console_out_write(record.data,record.length);
         else while(xQueueSend(console_out_queue,&record,pdMS_TO_TICKS(50))!=pdTRUE)stat_console_sync.fetch_add(1);
         data+=record.length;length-=record.length;stat_console_bytes.fetch_add(record.length);stat_console_writes.fetch_add(1);
@@ -211,7 +221,14 @@ void vios_usb_console_write(const uint8_t *data,size_t length) {
 /* Control task: send at most `budget` queued console records (each paced). */
 static unsigned console_out_drain(unsigned budget){
     unsigned sent=0;ConsoleRecord record;
-    while(sent<budget&&console_out_queue&&xQueueReceive(console_out_queue,&record,0)==pdTRUE){console_out_write(record.data,record.length);++sent;}
+    while(sent<budget&&console_out_queue&&xQueueReceive(console_out_queue,&record,0)==pdTRUE){
+        if(console_out_area.head!=CONSOLE_CANARY||console_out_area.tail!=CONSOLE_CANARY){
+            stat_console_canary.fetch_add(1);console_out_area.head=console_out_area.tail=CONSOLE_CANARY;
+        }
+        ++sent;
+        if(!record.length||record.length>VIOS_WIRE_PAYLOAD_MAX){stat_console_empty_out.fetch_add(1);continue;}  // never send an empty frame
+        console_out_write(record.data,record.length);
+    }
     return sent;
 }
 /* Host service requests from the CPU go to the Mac unpaced (small, rare). */
@@ -419,7 +436,7 @@ static void run_cpu(bool fresh,uint16_t sequence) {
 }
 static void line_reply(uint16_t sequence,const char *text);
 static void control_command(uint16_t sequence,const char *command,size_t length) {
-    char reply[600];
+    char reply[720];
     if(length==1&&command[0]=='Z') {
         // Force restart abandons queued UART bytes; do not wait on a wedged VDP lock.
         // During bootstrap main still owns ZDI, so the restricted supervisor only resets ESP.
@@ -435,7 +452,7 @@ static void control_command(uint16_t sequence,const char *command,size_t length)
     uint32_t stage0_value;
     if(length==1&&command[0]=='T'){
         uint32_t frame_stats[3];vios_frame_stats(frame_stats,frame_stats+1,frame_stats+2);uint32_t parts[3];vios_frame_parts(parts,parts+1,parts+2);uint32_t presents[2];vios_frame_presents(presents,presents+1);
-        snprintf(reply,sizeof reply,"STATS glyphs=%lu console_bytes=%lu console_writes=%lu usb_block_us=%lu usb_block_max=%lu parser_us=%lu parser_max=%lu injected=%lu console_sync=%lu console_queued=%u loop_gap_max=%lu host_service_max=%lu console_max=%lu keyboard_max=%lu frames=%lu vblank_start_max=%lu frame_work_max=%lu vga_isr_gap_max_us=%lu vga_isr_late=%lu top_black_frames=%lu frame_lock_max=%lu frame_service_max=%lu frame_gui_max=%lu present_frames=%lu present_work_max=%lu\r\n",
+        snprintf(reply,sizeof reply,"STATS glyphs=%lu console_bytes=%lu console_writes=%lu usb_block_us=%lu usb_block_max=%lu parser_us=%lu parser_max=%lu injected=%lu console_sync=%lu console_queued=%u loop_gap_max=%lu host_service_max=%lu console_max=%lu keyboard_max=%lu frames=%lu vblank_start_max=%lu frame_work_max=%lu vga_isr_gap_max_us=%lu vga_isr_late=%lu top_black_frames=%lu frame_lock_max=%lu frame_service_max=%lu frame_gui_max=%lu present_frames=%lu present_work_max=%lu console_empty_in=%lu console_empty_out=%lu console_canary=%lu\r\n",
             (unsigned long)stat_glyphs.load(),(unsigned long)stat_console_bytes.load(),(unsigned long)stat_console_writes.load(),
             (unsigned long)stat_usb_block_us.load(),(unsigned long)stat_usb_block_max.load(),(unsigned long)stat_parser_us.load(),
             (unsigned long)stat_parser_max.load(),(unsigned long)stat_injected.load(),(unsigned long)stat_console_sync.load(),
@@ -443,7 +460,8 @@ static void control_command(uint16_t sequence,const char *command,size_t length)
             (unsigned long)stat_section_max[0].load(),(unsigned long)stat_section_max[1].load(),(unsigned long)stat_section_max[2].load(),
             (unsigned long)frame_stats[0],(unsigned long)frame_stats[1],(unsigned long)frame_stats[2],
             (unsigned long)(vios_vga_isr_gap_max/240u),(unsigned long)vios_vga_isr_late,(unsigned long)vios_frame_top_black(),
-            (unsigned long)parts[0],(unsigned long)parts[1],(unsigned long)parts[2],(unsigned long)presents[0],(unsigned long)presents[1]);
+            (unsigned long)parts[0],(unsigned long)parts[1],(unsigned long)parts[2],(unsigned long)presents[0],(unsigned long)presents[1],
+            (unsigned long)stat_console_empty_in.load(),(unsigned long)stat_console_empty_out.load(),(unsigned long)stat_console_canary.load());
         control_reply(sequence,reply);return;
     }
     if(length==2&&command[0]=='T'&&command[1]=='0'){stats_reset();control_reply(sequence,"STATS RESET\r\n");return;}
@@ -806,7 +824,7 @@ bool vios_bridge_init(){
     usb_used=control_used=source_used=0;usb_discard=false;
     usb_tx_mutex=xSemaphoreCreateMutex();vdp_tx_mutex=xSemaphoreCreateMutex();
     console_queue=xQueueCreate(8,sizeof(ConsoleRecord));host_queue=xQueueCreate(2,sizeof(ConsoleRecord));
-    if(!console_out_queue)console_out_queue=xQueueCreate(16,sizeof(ConsoleRecord));
+    if(!console_out_queue)console_out_queue=xQueueCreateStatic(16,sizeof(ConsoleRecord),console_out_area.storage,&console_out_static);
     if(esp_reset_reason()!=ESP_RST_SW||retained_magic!=retained_signature||retained_count>3||retained_inverse!=~retained_count)retain_failures(0);
     boot_failures=retained_count;firmware_init();
     return usb_tx_mutex&&vdp_tx_mutex&&console_queue&&host_queue&&console_out_queue;
