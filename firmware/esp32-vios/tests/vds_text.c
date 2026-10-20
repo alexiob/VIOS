@@ -37,8 +37,8 @@ static int key(uint8_t ascii, uint8_t mods, uint8_t vk) {
     assert(a == b);
     return a;
 }
-/* FabGL VK_a is 25; Ctrl+letter carries the control code as ASCII. */
-static int ctrl(char c) { return key((uint8_t)(c - 'a' + 1), VDS_MOD_CTRL, (uint8_t)(25 + c - 'a')); }
+/* FabGL VK_a is 22; Ctrl+letter carries the control code as ASCII. */
+static int ctrl(char c) { return key((uint8_t)(c - 'a' + 1), VDS_MOD_CTRL, (uint8_t)(22 + c - 'a')); }
 static void type(const char *s) { for (; *s; ++s) assert(key((uint8_t)*s, 0, 0)); }
 static void batch(const uint8_t *b, size_t n) { assert(vds_proto_batch(&p, b, n)); }
 

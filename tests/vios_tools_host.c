@@ -104,8 +104,8 @@ static int key(uint8_t ascii, uint8_t mods, uint8_t vk) {
     idle();
     return a;
 }
-static int ctrl(char c) { return key((uint8_t)(c - 'a' + 1), VDS_MOD_CTRL, (uint8_t)(25 + c - 'a')); }
-static int ctrl_shift(char c) { return key((uint8_t)(c - 'a' + 1), VDS_MOD_CTRL | VDS_MOD_SHIFT, (uint8_t)(25 + c - 'a')); }
+static int ctrl(char c) { return key((uint8_t)(c - 'a' + 1), VDS_MOD_CTRL, (uint8_t)(22 + c - 'a')); }
+static int ctrl_shift(char c) { return key((uint8_t)(c - 'a' + 1), VDS_MOD_CTRL | VDS_MOD_SHIFT, (uint8_t)(22 + c - 'a')); }
 static void type(const char *s) { for (; *s; ++s) { vds_ui_key(&u, (uint8_t)*s, 0, *s == '\n' ? VDS_VK_RETURN : 0, 1); vds_ui_key(&u, (uint8_t)*s, 0, 0, 0); } idle(); }
 static const vds_widget *wd(unsigned id) { return &u.widgets[id]; }
 static const char *item(unsigned id, unsigned k) { return k < wd(id)->count ? u.items[wd(id)->first + k] : ""; }

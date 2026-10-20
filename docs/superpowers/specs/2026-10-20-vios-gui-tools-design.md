@@ -1,6 +1,6 @@
 # VIOS GUI tools: browser, workspace, inspector, manager (design)
 
-Status: **design, 2026-10-20**, written before implementation. Amends the
+Status: **implemented and host-tested, 2026-10-20** (branch `claude/vios-gui-tools-91fb31`); board acceptance in §8. Amends the
 [GUI windows design](2026-10-19-vios-gui-windows.md) (G4 widgets: TextView,
 tree, table, tabs) and adds the first set of development tools on top of it.
 Numbers marked *measured* come from builds or the board; *estimate* means not
@@ -151,18 +151,17 @@ the table when the tab changes (one list on the ESP, not six).
 | Tab | Rows | Enter / commands |
 |---|---|---|
 | Stack | depth, hex, decimal of each cell | detail: `SEE` when the value is an xt |
-| Words | every word: name, kind, module (type-ahead) | detail: `SEE name` |
 | Memory | 16 bytes per row, hex + ASCII, 16 rows; PgUp/PgDn and Up/Down past the edge page (§4.1 pager) | Go to address (from the stack) |
 | Tasks | `TASKS` report | Kill task (`TASK-KILL`, confirmation) |
-| Handles | `HANDLES` report | — |
+| Handles | the handles report | — |
 | System | `RESOURCES`, display server status (`UI-SYNC`, op 33 stats), ESP/VDP info | Refresh (Ctrl+R) |
 
 ### 3.4 Manager (window 23) — Ctrl+Shift+M
 
-Tabs: **Boot** (`BOOT-STATUS`, `BOOT-MANIFEST`; commands Trial, Confirm,
-Revert — each behind a modal Yes/No dialog, window 25), **Modules** (load from
-SD, save, rollback the latest activation), **Firmware** (ESP firmware slot and
-health as reported by the resident, display server epoch/errors).
+Tabs: **Boot** (boot status and manifest; the table lists Trial, Confirm,
+Revert — Enter runs one after a modal Yes/No dialog, window 24) and **Modules**
+(Enter saves to SD; the pane menu rolls back the latest activation). The
+display server status is the Inspector's System tab (one copy, not two).
 
 ### 3.5 Keyboard map (complete)
 
@@ -178,10 +177,11 @@ next/previous tab; Ctrl+R refresh; Esc leaves a dialog.
 |---|---|
 | List / table | ↑ ↓ PgUp PgDn Home End, letters type-ahead, Enter activate; tree rows: → expand, ← collapse; pager lists: moving past either end requests the next page |
 | Tabs | ← → change tab |
-| TextView | arrows, Home/End (line), Ctrl+Home/End (text), PgUp/PgDn; Shift+movement selects; Ctrl+A all; Ctrl+C/X/V clipboard (ESP-local, 1 KB); Enter newline; Backspace/Delete; Ctrl+S accept; Ctrl+D/P/I evaluate; read-only views move and select only |
+| Dialog | Tab between Yes/No (No has focus, so Enter alone cancels); Esc cancels |
+| TextView | arrows, Home/End (line), Ctrl+Home/End (text), PgUp/PgDn; Shift+movement selects; Ctrl+A all; Ctrl+C/X/V clipboard (ESP-local, 1 KB); Enter newline; Backspace/Delete; Ctrl+[ indent / Ctrl+] de-indent (two spaces on every line the selection touches); Ctrl+S accept; Ctrl+D/P/I evaluate; read-only views move and select only |
 
 Tab moves focus out of a TextView (uniform navigation); there is no tab
-character. *Owner decision open:* a key to insert indentation.
+character. Indentation: Ctrl+[ and Ctrl+] (owner decision, 2026-10-20).
 
 ### 3.6 Extension from Forth
 
@@ -232,8 +232,8 @@ row; memory is the one exception (pager below).
   table. Selection drawn in the selection colours; caret is the surface caret.
 - Events (kind 05 TEXT): accept, do-it, print-it, inspect-it with the selection
   range; one CHANGE when the view first becomes dirty (not per keystroke).
-- Read-back: op 8C returns 26 bytes per reply (the CPU's 32-byte reply slots).
-  4 KB = 158 round trips (*estimate* 0.2–0.5 s; measured on the board, §8).
+- Read-back: op 8C returns 25 bytes per reply (the CPU's 32-byte reply slots).
+  4 KB = 164 round trips (*estimate* 0.2–0.5 s; measured on the board, §8).
   *Open decision:* a bulk reply path if this is too slow.
 - Clipboard: one shared 1 KB buffer in `vds_ui`.
 
@@ -274,7 +274,7 @@ ESP internal RAM: unchanged (`vds_ui` is allocated in PSRAM by `vios_gui.h`).
 | 74 | `3 on(u16)` | config 3: nudge (one 0x70 packet when events wait) |
 | 8A | `id mode n ch*n` | TextView text: mode 0 replace all, 1 append |
 | 8B | `id caret(u16) anchor(u16)` | TextView caret/selection (scrolls to the caret) |
-| 8C | `id offset(u16) n` | reply `8C id offset(u16) n ch*n`, n ≤ 26 |
+| 8C | `id offset(u16) n` | reply `8C id offset(u16) n ch*n`, n ≤ 25 |
 | 8D | `id n ch*n` | TextView insert at the caret, replacing the selection; the inserted text becomes the selection |
 | 8E | `id` | reply `8E id len(u16) caret(u16) anchor(u16) rev(u16) dirty` |
 | 90 | `id index(u16) n ch*n` | list item (u16 index) |
@@ -292,10 +292,10 @@ SELECT (lists: index u16), CHANGE (TextView: dirty).
 
 | Resource | Total | Applications | Tools |
 |---|---|---|---|
-| Windows (CPU) | 0–26 | 0–19 | 20 Browser, 21 Workspace, 22 Inspector, 23 Manager, 24 spare, 25 dialog; 26 stays the workbench |
-| Surfaces (CPU) | 0–10 | 0–5 | 6–9 (one per tool); dialog shares 9; 10 stays the workbench |
+| Windows (CPU) | 0–26 | 0–19 | 20 Browser, 21 Workspace, 22 Inspector, 23 Manager, 24 dialog, 25 spare; 26 stays the workbench |
+| Surfaces (CPU) | 0–10 | 0–4 | 5 dialog, 6–9 one per tool; 10 stays the workbench |
 | Widgets | 0–63 | 0–39 | 40–63 |
-| TextView slots | 4 | — | Browser, Workspace, Inspector detail; 1 free for applications |
+| TextView slots | 4 | 1 | Browser code, Workspace, Inspector detail, Manager detail (all four when every tool is open) |
 | Commands | u16 | below 0x7F00 | 0x7F00–0x7FFF |
 
 *Open decision:* raise `VDS_PROTO_SURFACES` so applications keep more than 6
@@ -313,7 +313,42 @@ surfaces (it renumbers the reserved menu surfaces).
 
 ## 8. Measurements and status
 
-(filled in as stages land)
+**Implemented** (host-tested; board results below when run):
+
+| Stage | Where | State |
+|---|---|---|
+| T1 widgets | `vds_text.c` (TextView), `vds_widget.c` (tables, tree, pager, tabs, 1024-row pool, append), `vds_ui.c` (key policy, Esc closes a modal window), `vds_proto.c` (ops 5A, 8A–8E, 90–93, nudge) | done; `tests/vds_text.c` (8000 random steps + full-render oracle) |
+| T2 CPU words | `kernel/vios_ui.c`: UI-ROW UI-COLUMNS UI-KEYS UI-TEXT UI-TEXT+ UI-INSERT UI-SELECT UI-TEXT@, u16 UI-ITEM/UI-ITEMS, ids 0..63; C API for clients; claim hook | done; `tests/vios_ui_host.c` |
+| T3/T4 tools | `kernel/vios_tools.c`, `include/vios/tools.h`, `TOOL ( n -- )`; `platform_console_divert`, `platform_vdp_nudged` | done; `tests/vios_tools_host.c` (keys on the real ESP library, CPU acting from idle) |
+| T5 board | `tools/vios_gui_tools_accept.py` | written; see the board run below |
+
+**Memory, measured (builds of 2026-10-20):**
+
+| Side | Item | Size |
+|---|---|---|
+| eZ80 | gap below the stack (`0xAF000 − __bss_end`) | 45,725 B before → **30,315 B** after (gate 12 KB) |
+| eZ80 | `vios_tools.o` | 9.2 KB code, 2.1 KB rodata (1.3 KB of it strings), 0.9 KB BSS |
+| eZ80 | new UI words in `vios_ui.o` | +3.1 KB code |
+| eZ80 | `NATIVES_MAX` 96 → 112 | +96 B |
+| ESP | code (xtensa `-Os`) | `vds_text` 3.1 KB, `vds_widget` 8.6 → 10.5 KB, `vds_ui` 11.8 → 12.5 KB, `vds_proto` 4.1 → 4.3 KB: **+6.3 KB flash** |
+| ESP | `vds_ui` state (PSRAM, `vios_gui.h`) | 10.8 KB → 62 KB: rows 32 KB, TextViews 16 KB, clipboard 1 KB, 64 widgets 4.5 KB |
+| ESP | internal RAM | unchanged (nothing new is allocated there) |
+
+The eZ80 cost (about 15.4 KB with the UI words) is above the 9.6 KB target:
+eZ80 clang output is large for this kind of code (24-bit arithmetic, many small
+calls). Further reductions, in order of value: move tool layouts/strings to an
+ESP template op (presentation only), shorten strings (~0.4 KB), drop the
+dependency/used-by scan (~0.3 KB).
+
+**Traffic (host test, the whole tool session):** 48 nudges, 64 requests,
+10.2 KB CPU→ESP. Idle with no events: no polls (no UART bytes); with a tool
+open, one poll per second as the fallback.
+
+**Found while building:** the module system keeps two generations per module
+per boot ("two module versions retained; rollback or restart before a third").
+So the Browser can accept a module once per boot; a second accept is refused
+with that message. Re-accepting a *word* (redefinition) is unlimited. Lifting
+the limit is a module-system change (owner decision, §10).
 
 ## 9. Builder calls (settled without the owner, from the design review)
 
@@ -343,11 +378,14 @@ surfaces (it renumbers the reserved menu surfaces).
 - **Widget ids**: Browser 7, Workspace 2, Inspector 4, Manager 4, dialog 4 =
   21 of 24. The Manager has no TextView.
 
-## 10. Open decisions for the owner
+## 10. Owner decisions (2026-10-20) and what is still open
 
-1. Tools in C now (chosen) vs a Forth tool module later (§2.1).
-2. TextView read-back speed: chunked 26-byte replies vs a bulk reply path (§4.2).
-3. Surfaces for applications: 6 vs raising the surface count (§6).
-4. A key for indentation in TextView (Tab moves focus) (§3.5).
-5. ESP-local editing in TextView (chosen, like Input) vs CPU-side editing with
-   ESP display only.
+1. Tools in C now (chosen; kept by the owner) vs a Forth tool module later.
+2. TextView read-back: chunked 25-byte replies (chosen); the board measures it (§8).
+3. Surfaces: applications keep 0–4 (chosen); raising the count is a later protocol change.
+4. **Indentation: Ctrl+[ indent, Ctrl+] de-indent** (owner).
+5. ESP-local editing in TextView (chosen, like Input).
+
+Still open: (a) more than two generations per module per boot, so the Browser
+can accept a module repeatedly; (b) whether the eZ80 cost (§8) is acceptable
+or the tool layouts should move into an ESP template op.
