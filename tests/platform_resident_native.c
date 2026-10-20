@@ -76,64 +76,16 @@ static unsigned timer_step=1000;
 unsigned short platform_timer_read(void) {++timer_reads;return (unsigned short)(0-timer_reads*timer_step);}
 int main(int argc,char **argv) {
  assert(argc==2);stall_cts=!strcmp(argv[1],"cts");stall_tx=!strcmp(argv[1],"tx");
- if(!strcmp(argv[1],"echo")){
-  /* Cooked keys echo as typed, Backspace erases, and the handed-over line is
-   * erased before the REPL sees it so its own echo is the only copy. */
-  timer_step=10;const unsigned char keys[]={0x81,4,'a',0,0,1,0x81,4,'b',0,0,1,0x81,4,8,0,132,1,0x81,4,'c',0,0,1,0x81,4,13,0,143,1};
+ if(!strcmp(argv[1],"line-keys")){
+  /* Stage 2a: the ESP edits and echoes physical lines. A key that still
+   * reaches the CPU in line mode is plain input for the REPL (which echoes
+   * it); the CPU echoes nothing itself, and Esc/arrows are dropped. */
+  timer_step=10;const unsigned char keys[]={0x81,4,'a',0,0,1,0x81,4,27,0,125,1,0x81,4,0,0,154,1,0x81,4,8,0,132,1,0x81,4,'c',0,0,1,0x81,4,13,0,143,1};
   memcpy(incoming,keys,sizeof keys);wire_length=sizeof keys;next_wire=0;platform_console_init();platform_console_line_mode(1);writes=0; /* drop the line-mode notice (VDU 23,0,E7) */
-  char got[8];unsigned n=0;for(unsigned i=0;i<400&&n<3;++i){int c=platform_console_getc();if(c>=0)got[n++]=(char)c;}
-  assert(n==3&&got[0]=='a'&&got[1]=='c'&&got[2]=='\r');
-  platform_console_flush(); /* the REPL's own echo would follow in this buffer */
-  char shown[64];unsigned m=0;
-  for(unsigned i=0;i+3<writes;){assert(transmitted[i]==23&&transmitted[i+1]==0&&transmitted[i+2]==0xE0);unsigned len=transmitted[i+3];for(unsigned k=0;k<len;++k)shown[m++]=(char)transmitted[i+4+k];i+=4+len;}
-  /* Render as a terminal: BS moves left, other bytes overwrite. Echo timing
-   * depends on polling, so check what was visible, not the exact bytes. */
-  char screen[16]={0};unsigned col=0,best=0;char seen[16]={0};
-  for(unsigned i=0;i<m;++i){if(shown[i]==8){if(col)--col;}else{screen[col++]=shown[i];}
-   unsigned len=0;while(len<sizeof screen&&screen[len]&&screen[len]!=' ')++len;if(len>=best){best=len;memcpy(seen,screen,len);seen[len]=0;}}
-  for(unsigned i=0;i<sizeof screen;++i)assert(!screen[i]||screen[i]==' ');
-  assert(!strcmp(seen,"ac")||!strcmp(seen,"ab"));assert(strchr(shown,'c'));
-  puts("resident cooked line echoes once");return 0;
- }
- if(!strcmp(argv[1],"edit-echo")){
-  /* Mid-line insert and delete redraw only the tail; a terminal rendering of
-   * the echo always equals the edited line with the cursor in place. */
-  timer_step=10;const unsigned char keys[]={0x81,4,'a',0,0,1,0x81,4,'b',0,0,1,0x81,4,'c',0,0,1,
-   0x81,4,0,0,154,1,0x81,4,0,0,154,1,0x81,4,'X',0,0,1,0x81,4,0,0,130,1};
-  memcpy(incoming,keys,sizeof keys);wire_length=sizeof keys;next_wire=0;platform_console_init();platform_console_line_mode(1);writes=0; /* drop the line-mode notice (VDU 23,0,E7) */
-  for(unsigned i=0;i<400;++i)(void)platform_console_getc();
-  platform_console_flush();
-  char screen[32];memset(screen,' ',sizeof screen);unsigned col=0;
-  for(unsigned i=0;i+3<writes;){unsigned len=transmitted[i+3];for(unsigned k=0;k<len;++k){unsigned char c=transmitted[i+4+k];if(c==8){assert(col);--col;}else screen[col++]=(char)c;}i+=4+len;}
-  assert(!memcmp(screen,"aXc ",4)&&col==2);
-  puts("resident echo follows mid-line edits");return 0;
- }
- if(!strcmp(argv[1],"foreign")){
-  /* Output arriving while a local line is shown redisplays it on a new row. */
-  timer_step=10;const unsigned char keys[]={0x81,4,'a',0,0,1,0x81,4,'b',0,0,1};
-  memcpy(incoming,keys,sizeof keys);wire_length=sizeof keys;next_wire=0;platform_console_init();platform_console_line_mode(1);writes=0; /* drop the line-mode notice (VDU 23,0,E7) */
-  for(unsigned i=0;i<200;++i)(void)platform_console_getc();
-  const char *tick="tick\r\n";for(const char *q=tick;*q;++q)platform_console_putc((unsigned char)*q);
-  for(unsigned i=0;i<20;++i)(void)platform_console_getc();platform_console_flush();
-  char shown[128];unsigned m=0;
-  for(unsigned i=0;i+3<writes;){unsigned len=transmitted[i+3];for(unsigned k=0;k<len;++k)shown[m++]=(char)transmitted[i+4+k];i+=4+len;}
-  shown[m]=0;assert(strstr(shown,"abtick\r\n\r\nab"));
-  puts("resident echo redisplays after foreign output");return 0;
- }
- if(!strcmp(argv[1],"key-echo-now")){
-  /* A physical keystroke's echo leaves at once: the ESP draws the VGA console
-   * from these frames, so it must not wait for ECHO_IDLE_POLLS idle polls
-   * (GUI Stage 1c). Count getc calls until each key's echo is transmitted. */
-  timer_step=10;const unsigned char keys[]={0x81,4,'a',0,0,1,0x81,4,'b',0,0,1};
-  memcpy(incoming,keys,sizeof keys);wire_length=sizeof keys;next_wire=0;platform_console_init();platform_console_line_mode(1);writes=0; /* drop the line-mode notice (VDU 23,0,E7) */
-  int seen_a=-1,seen_b=-1,consumed=-1;
-  for(int i=0;i<200&&seen_b<0;++i){
-   (void)platform_console_getc();if(consumed<0&&next_wire==wire_length)consumed=i;
-   for(unsigned k=0;k+3<writes;){unsigned len=transmitted[k+3];for(unsigned j=0;j<len;++j){if(transmitted[k+4+j]=='a'&&seen_a<0)seen_a=i;if(transmitted[k+4+j]=='b'&&seen_b<0)seen_b=i;}k+=4+len;}
-  }
-  fprintf(stderr,"key-echo-now: all keys consumed by call %d, a echoed %d, b echoed %d\n",consumed,seen_a,seen_b);
-  assert(consumed>=0&&seen_b>=0&&seen_b<=consumed+2);
-  puts("resident keystroke echo is sent immediately");return 0;
+  char got[8];unsigned n=0;for(unsigned i=0;i<400&&n<4;++i){int c=platform_console_getc();if(c>=0)got[n++]=(char)c;}
+  assert(n==4&&got[0]=='a'&&got[1]==8&&got[2]=='c'&&got[3]=='\r');
+  platform_console_flush();assert(writes==0&&"no CPU-side echo");
+  puts("resident line-mode keys are plain input");return 0;
  }
  if(!strcmp(argv[1],"esp-restart")){
   /* The ESP restarted under a running resident (packet FA): the line flags

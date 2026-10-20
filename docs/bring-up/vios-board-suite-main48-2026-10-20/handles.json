@@ -1,0 +1,142 @@
+{
+  "status": "passed",
+  "checks": {
+    "file_open_write": {
+      "ok": true,
+      "detail": null
+    },
+    "file_write_all": {
+      "ok": true,
+      "detail": null
+    },
+    "file_close": {
+      "ok": true,
+      "detail": null
+    },
+    "file_chunked_read": {
+      "ok": true,
+      "detail": [
+        50,
+        50,
+        50,
+        42,
+        0
+      ]
+    },
+    "file_reread_close": {
+      "ok": true,
+      "detail": null
+    },
+    "file_removed": {
+      "ok": true,
+      "detail": null
+    },
+    "missing_file_error": {
+      "ok": true,
+      "detail": null
+    },
+    "pipe_tasks_done": {
+      "ok": true,
+      "detail": [
+        {
+          "id": 2,
+          "state": "done",
+          "xt": 299,
+          "name": "CONS",
+          "slices": 129,
+          "steps": 11766,
+          "depth": 3,
+          "rdepth": 3,
+          "ds_peak": 6,
+          "rs_peak": 3,
+          "output_bytes": 0,
+          "output_dropped": 0,
+          "error": "",
+          "base": 10
+        },
+        {
+          "id": 3,
+          "state": "done",
+          "xt": 298,
+          "name": "PROD",
+          "slices": 128,
+          "steps": 14014,
+          "depth": 3,
+          "rdepth": 3,
+          "ds_peak": 6,
+          "rs_peak": 3,
+          "output_bytes": 0,
+          "output_dropped": 0,
+          "error": "",
+          "base": 10
+        }
+      ]
+    },
+    "pipe_bytes_exact": {
+      "ok": true,
+      "detail": 10000
+    },
+    "dev_tasks_readable": {
+      "ok": true,
+      "detail": 64
+    },
+    "dev_tasks_close": {
+      "ok": true,
+      "detail": null
+    },
+    "no_leaked_handles": {
+      "ok": true,
+      "detail": []
+    },
+    "no_console_drops": {
+      "ok": true,
+      "detail": [
+        0,
+        0
+      ]
+    }
+  },
+  "dropped_before": 0,
+  "file_ms": 631,
+  "pipe": {
+    "bytes": 10000,
+    "seconds": 1.64,
+    "bytes_per_s": 6091,
+    "tasks": [
+      {
+        "id": 2,
+        "state": "done",
+        "xt": 299,
+        "name": "CONS",
+        "slices": 129,
+        "steps": 11766,
+        "depth": 3,
+        "rdepth": 3,
+        "ds_peak": 6,
+        "rs_peak": 3,
+        "output_bytes": 0,
+        "output_dropped": 0,
+        "error": "",
+        "base": 10
+      },
+      {
+        "id": 3,
+        "state": "done",
+        "xt": 298,
+        "name": "PROD",
+        "slices": 128,
+        "steps": 14014,
+        "depth": 3,
+        "rdepth": 3,
+        "ds_peak": 6,
+        "rs_peak": 3,
+        "output_bytes": 0,
+        "output_dropped": 0,
+        "error": "",
+        "base": 10
+      }
+    ]
+  },
+  "handles_after": [],
+  "dropped_after": 0
+}

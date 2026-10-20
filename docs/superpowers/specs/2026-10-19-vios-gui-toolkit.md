@@ -472,6 +472,7 @@ Each stage is a reviewable vertical slice: host tests first, firmware and CPU bu
 
 ### Stage 2: local line editing (latency independent of the CPU)
 - **2a.** ESP `LineField` replaces `transport.c local()`, `recall()`, `echo_local()`. `LINEMODE` replaces `vdp_transport_line_mode`. A completed line enters the **same bounded line queue as host lines**, which preserves physical/host atomicity; it is delivered as `FE` bytes. History (4 × 235) moves to the ESP. The REPL echo still arrives via `E0`. **Accept:** B2/B3 Stage 2 targets; `vios_keyboard_mixed.py` and `vios_console_accept.py` pass; −1.2 KB.
+  - **Done (2026-10-20, main-48):** the CPU copy is removed. `transport.c` keeps no line buffer, cursor or history; a key that still reaches the CPU in line mode (sent before the ESP learned of the mode) is plain input for the REPL's reader, dropped inside a partial host line. Resident −2,237 bytes of image, −1.4 KB RAM (235 B line + 4 × 235 B history + 235 B echo copy). On the board: injected lines edited with Backspace and Esc on the ESP run once (`42 ok`), console-dropped 0, suite 9/9. Owner's physical typing check pending (arrows, Home/End, Delete, history).
 - **2b.** Speculative echo for the editor surface (`PREDICT`), off by default. **Accept:** B6; zero residual mispredictions after confirmation in a scripted remap test.
 
 ### Stage 3: widgets, layout, events, `UI` vocabulary, `/dev/win`

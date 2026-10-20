@@ -2,7 +2,6 @@
 #define VIOS_VDP_TRANSPORT_H
 #include <stddef.h>
 #include "platform/input.h"
-#define VDP_HISTORY 4
 struct vdp_reply { unsigned char type,length,valid,data[32]; };
 struct vdp_transport {
  unsigned char state,type,length,index,scratch[32];
@@ -10,13 +9,12 @@ struct vdp_transport {
  struct vdp_reply replies[8];unsigned dropped;
  struct platform_key_event keys[32];
  unsigned char key_head,key_count,key_route;unsigned key_dropped;
- /* Cooked mode keeps physical keystrokes out of partial host lines. */
- unsigned char line_mode,host_open,local_pending,local_used,local[235];unsigned local_dropped;
- /* Line editing: cursor within local; local_erase asks the platform echo to
-  * clear the shown line once it is handed to the REPL. Up/Down recall the
-  * last VDP_HISTORY lines (newest first). */
- unsigned char local_cursor,local_erase;
- unsigned char history[4][235],history_length[4],history_count,history_next,history_pos;
+ /* Line mode (the REPL awaits a line): physical lines are edited on the ESP
+  * (firmware/esp32-vios/include/vios_line.h, GUI toolkit Stage 2a) and arrive
+  * whole as FE host lines. A key that still reaches the CPU in line mode (sent
+  * before the ESP learned of the mode) is plain input for the REPL's reader;
+  * inside a partial host line it would split it, so it is dropped and counted. */
+ unsigned char line_mode,host_open;unsigned local_dropped;
  /* F1 pressed while keys are not routed to the UI: a view-switch request. */
  unsigned char hotkey;
  unsigned char interrupt;   /* Ctrl-C: physical key, or a host line starting with 3 */
@@ -26,8 +24,8 @@ struct vdp_transport {
 void vdp_transport_init(struct vdp_transport *p);
 void vdp_transport_keyboard_route(struct vdp_transport *p,int enabled);
 int vdp_transport_keyboard_event(struct vdp_transport *p,struct platform_key_event *out);
-/* 1: physical ASCII is edited locally and inserted as one CR-terminated line
- * only between host lines; 0: each key-down byte is console input (KEY). */
+/* 1: the REPL awaits a line (the ESP edits physical lines); 0: a command runs
+ * and each key-down byte is console input (KEY), Ctrl-C interrupts it. */
 void vdp_transport_line_mode(struct vdp_transport *p,int enabled);
 void vdp_transport_feed(struct vdp_transport *p,unsigned char byte);
 int vdp_transport_getc(struct vdp_transport *p);

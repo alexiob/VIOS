@@ -66,7 +66,9 @@ def main():
             check('engine_refused_while_live', not ev('ENGINE TOKEN')['ok'])
             ev('1234')  # foreground marker: background faults below must not clear it
             ev(': TPR 72 EMIT 105 EMIT CR ; : TKK KEY ;')
-            spawned = ev("' TPR SPAWN . ' TKK SPAWN .")['output'].split('\r\n')[1]
+            # Both inside CRITICAL: with busy workers the tick runs tasks during this
+            # line, and a finished TPR's slot would be reused by TKK (same id).
+            spawned = ev("CRITICAL( ' TPR SPAWN ' TKK SPAWN )CRITICAL SWAP . .")['output'].split('\r\n')[1]
             ids = [int(x) for x in spawned.split()]
             time.sleep(0.5)
             states = {t['id']: t for t in c.tool('tasks')['tasks']}
