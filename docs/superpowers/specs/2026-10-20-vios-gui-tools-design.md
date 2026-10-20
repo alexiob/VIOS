@@ -327,6 +327,7 @@ surfaces (it renumbers the reserved menu surfaces).
 | Side | Item | Size |
 |---|---|---|
 | eZ80 | gap below the stack (`0xAF000 − __bss_end`) | 45,725 B before → **30,315 B** after (gate 12 KB) |
+| eZ80 | same, on main `46d6805` (tick preemption) | main alone 37,579 B → with the tools **22,198 B** (10 KB above the gate) |
 | eZ80 | `vios_tools.o` | 9.2 KB code, 2.1 KB rodata (1.3 KB of it strings), 0.9 KB BSS |
 | eZ80 | new UI words in `vios_ui.o` | +3.1 KB code |
 | eZ80 | `NATIVES_MAX` 96 → 112 | +96 B |
