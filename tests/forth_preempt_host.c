@@ -106,6 +106,15 @@ int main(void){
  assert(value("BASE @")==10&&value("TB @")==255&&"HEX in a task leaves the foreground decimal");
  eval("TASKS");assert(strstr(output,"base 16"));
  char kill[32];snprintf(kill,sizeof kill,"%u TASK-KILL",(unsigned)id);eval(kill);
+ /* A console task preempting a command does not print into the middle of
+  * the command's output; its held bytes come out after the command. */
+ eval("VARIABLE CTN : CT BEGIN 66 EMIT CTN @ 1+ CTN ! PAUSE AGAIN ; : PR 40 0 DO 65 EMIT LOOP ;");
+ fcell ct=value("' CT SPAWN-CON");every=3;
+ eval("0 CTN ! PR");
+ {const char *a=strchr(output,'A');assert(a&&!strncmp(a,"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",40)&&"the command's output is not interleaved");}
+ assert(value("CTN @")>0&&"the console task did run during the command");
+ output_used=0;output[0]=0;forth_tasks_run();assert(strchr(output,'B')&&"held console-task output follows");
+ {char kill[32];snprintf(kill,sizeof kill,"%u TASK-KILL",(unsigned)ct);eval(kill);}
  printf("tick preemption: foreground rounds, determinism, CRITICAL and slice ends passed (%u arms)\n",arms);
  return 0;
 }
