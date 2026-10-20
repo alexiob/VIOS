@@ -1,0 +1,2 @@
+LOAD console.bin
+RUN
