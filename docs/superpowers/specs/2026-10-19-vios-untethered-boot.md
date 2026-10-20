@@ -820,9 +820,10 @@ cut by unplugging the board's USB cable. Logs: one JSON per boot or step in
 
 **Tools (new):**
 - `tools/vios_coldboot_capture.py` waits for the USB port to vanish and come
-  back. t=0 is the device node reappearing, about 0.3 s before the first ESP
-  byte, so it is "USB power-on as the host sees it", not the plug contact. It
-  opens the port at once with DTR/RTS low, sends nothing, and logs every
+  back. t=0 is the device node reappearing ("USB power-on as the host sees
+  it", not the plug contact; the first byte is read about 0.3 s later, after
+  the port opens, and anything sent before the open is lost). It opens the
+  port at once with DTR/RTS low, sends nothing, and logs every
   channel 3 event (including the `MOS:` lines that MOS and the stub print) and
   every console line. READY is `HEALTH flag 1`, the moment `B` turns to `BOOT
   READY` (`vios_bridge.h`). Frames end only with a zero byte, so the ESP ROM's
@@ -894,6 +895,10 @@ cut by unplugging the board's USB cable. Logs: one JSON per boot or step in
    loop or `send_packet`), not the stub's request round trip. Fixing that
    side could bring the transfer near the 1.4 s of §10. The card is back on
    the burst-1 stub (sha256 `11374a8c…`, identical to before the test).
+7. **Backups:** the slot and otadata copies taken before each of the three
+   ESP writes are in `backups/ab-2026-10-20/`; the bad image is
+   `backups/app0-2026-10-18/firmware-mos3-2-badcrc.bin` (labelled there; do
+   not install it except to repeat this test).
 
 **Next:**
 - Find what paces E8 packets on the ESP (one block per frame) and remove it;
