@@ -74,6 +74,9 @@
 
 #define AUDIO_CHANNELS			3		// Default number of audio channels
 #define MAX_AUDIO_CHANNELS		32		// Maximum number of audio channels
+#ifndef VIOS_VDP_AUDIO
+#define VIOS_VDP_AUDIO			0		// 1: VDP 1.04 channel tasks; 0: lean ISR engine (vios_audio_vdp.h)
+#endif
 #define PLAY_SOUND_PRIORITY		3		// Sound driver task priority with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest
 
 // Audio command definitions

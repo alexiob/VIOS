@@ -317,6 +317,10 @@ class ResidentBoard(ViosBoard):
             result['pixels'] = [int(self._esp(b'GP%03X%03X' % (x, y)).split()[1]) for x, y in pixels]
         return result
 
+    def esp_audio(self):
+        """Lean audio engine state on the ESP (control command AS), one status line."""
+        return {'status': self._esp(b'AS')}
+
     def esp_g0(self, mode=None, reset_gap=False):
         """GUI gate G0 probe on the ESP: run it for VDP mode `mode` and return its lines,
         or with reset_gap restart the VDP loop-gap maximum."""

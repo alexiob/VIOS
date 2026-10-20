@@ -74,12 +74,13 @@ crosses more than 4 `*`/`&` without a note or rest stops the voice.
 
 ## 4. Wire protocol (VDU 23,0,&E9,op,…; reply packet &F9)
 
+Arguments travel in Forth stack order (one shared frame builder on the CPU).
 All but QUERY are fire-and-forget: the CPU never waits.
 
 | op | Arguments | Effect |
 | --- | --- | --- |
 | 0 TONE | freq:u16 ms:u16 | first idle voice (else voice 0) plays a square tone |
-| 1 TUNE | slot len bytes… | store tune text in slot 0–7 (len 0 frees it) |
+| 1 TUNE | len slot bytes… | store tune text in slot 0–7 (len 0 frees it) |
 | 2 PLAY | slot voice | start slot on voice 0–2 from its start |
 | 3 STOP | voice (255 = all) | silence and end any tune |
 | 4 VOLUME | 0–127 | master volume (default 127) |

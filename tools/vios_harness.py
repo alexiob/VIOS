@@ -92,6 +92,7 @@ TOOLS = [
     tool('esp_gui','GUI display server on the ESP: status line (windows, frames, rows, errors, style); vk presses and releases one key (ascii, mods as on the wire) through the window manager (Ctrl+Alt+F1 toggles the GUI; unused keys are not forwarded to the CPU); pixels returns framebuffer colour indices at up to 64 [x,y] points.',
          {'vk':{'type':'integer','minimum':0,'maximum':255},'ascii':{'type':'integer','minimum':0,'maximum':255},'mods':{'type':'integer','minimum':0,'maximum':255},
           'pixels':{'type':'array','maxItems':64,'items':{'type':'array','minItems':2,'maxItems':2,'items':{'type':'integer','minimum':0}}}}),
+    tool('esp_audio','Lean audio engine on the ESP, read without CPU involvement: busy voice mask, master volume, notes started, last tune error (slot@offset), per voice frequency/wave/amplitude/slot@position/samples left, tune slot sizes, sample rate and internal/PSRAM free heap.'),
     tool('esp_inject','Type 1..32 characters at the ESP PS/2 boundary as if on the Agon keyboard (printable, BS, TAB, CR, ESC). Lines typed this way appear in events.',
          {'text':{'type':'string','minLength':1,'maxLength':32}},['text']),
 ]
