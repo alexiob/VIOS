@@ -57,7 +57,8 @@ def main():
                     raise AssertionError('snapshot failed')
                 ev("' SKP ' SKC PIPELINE 2DROP")
                 for _ in range(200):
-                    if not any(x['state'] in ('ready', 'sleeping') for x in c.tool('tasks')['tasks']):
+                    # Only the pipeline's own tasks: an autorun app (HELLO) keeps a sleeping task.
+                    if not any(x['state'] in ('ready', 'sleeping') and x['name'] in ('SKP', 'SKC') for x in c.tool('tasks')['tasks']):
                         break
                     time.sleep(0.2)
                 else:

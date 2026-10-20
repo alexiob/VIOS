@@ -110,8 +110,10 @@ class SnapshotClient:
 
     def _base(self):
         result = self._query(BASE_QUERY)
-        body = ' '.join(self._body(result['output'], BASE_QUERY)).split()
-        if not result.get('ok') or len(body) != 1 or not re.fullmatch(r'\d{1,3}', body[0]) or not 2 <= int(body[0]) <= 36:
+        # A background task (an autorun app's heartbeat) may print a line into
+        # the reply: the answer is the one line that is just a number.
+        body = [line.strip() for line in self._body(result['output'], BASE_QUERY) if re.fullmatch(r'\s*\d{1,3}\s*', line)]
+        if not result.get('ok') or len(body) != 1 or not 2 <= int(body[0]) <= 36:
             raise IOError('Malformed BASE response')
         result['base'] = int(body[0])
         return result

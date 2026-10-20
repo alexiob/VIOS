@@ -1,0 +1,52 @@
+VARIABLE N : BG BEGIN N @ 1+ N ! AGAIN ; : FG 0 30000 0 DO I + LOOP ; : TFG TICKS FG DROP TICKS SWAP - ;
+
+ok
+vios> 
+TFG . N @ .
+1043 0 
+ok
+vios> 
+' BG SPAWN .
+2 
+ok
+vios> 
+0 N ! TFG . N @ . PREEMPT-STATS
+2583 14668 preempt on switches 571 ignored 0 critical 0 
+
+ok
+vios> 
+0 N ! TFG . N @ . PREEMPT-STATS
+2547 29014 preempt on switches 1130 ignored 0 critical 0 
+
+ok
+vios> 
+0 N ! TFG . N @ . PREEMPT-STATS
+2568 13612 preempt on switches 1695 ignored 0 critical 0 
+
+ok
+vios> 
+0 PREEMPT 0 N ! TFG . N @ . -1 PREEMPT
+1041 0 
+ok
+vios> 
+repl round trip ms with a busy task 110.3
+repl round trip ms with a busy task 110.9
+repl round trip ms with a busy task 107.0
+TASKS
+task-slice 1024
+task 1 state sleeping xt 240 name 4155544F52554E slices 2 steps 43 depth 0 rdepth 1 ds-peak 3 rs-peak 4 out 0 dropped 0 error -
+task 2 state ready xt 242 name 4247 slices 957 steps 424198 depth 1 rdepth 0 ds-peak 2 rs-peak 1 out 0 dropped 0 error -
+task 3 state free xt 0 name - slices 0 steps 0 depth 0 rdepth 0 ds-peak 0 rs-peak 0 out 0 dropped 0 error -
+task 4 state free xt 0 name - slices 0 steps 0 depth 0 rdepth 0 ds-peak 0 rs-peak 0 out 0 dropped 0 error -
+
+ok
+vios> 
+2 TASK-KILL IRQ-STATS PREEMPT-STATS
+irq tick on ms 13812 stray 0
+preempt on switches 1795 ignored 0 critical 0 
+
+ok
+vios> 
+repl round trip ms without a busy task 48.0
+repl round trip ms without a busy task 49.8
+repl round trip ms without a busy task 45.9

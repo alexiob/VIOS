@@ -87,12 +87,19 @@ int vios_tick_start(void){
  ticking=1;platform_irq_restore(1);return 1;
 }
 static uint32_t tick_clock(void){return (uint32_t)ms_now();}
+/* Stage B2: forth/system.c plans a delay; the ISR counts it down and steals. */
+extern volatile unsigned char vios_preempt_armed;extern volatile unsigned vios_preempt_count;
+static void preempt_arm(unsigned delay_ms){
+ unsigned char on=platform_irq_save();
+ vios_preempt_count=delay_ms;vios_preempt_armed=delay_ms!=0;
+ platform_irq_restore(on);
+}
 static int ticks(void){return fvm_push((fcell)ms_now()&FVM_MASK);}
 static int irq_stats(void){
  vios_out("irq tick ");vios_out(ticking?"on":"off");vios_out(" ms ");vios_uint((unsigned)ms_now());
  vios_out(" stray ");vios_uint((unsigned)(vios_irq_stray[0]|vios_irq_stray[1]<<8));vios_out("\r\n");return 1;
 }
 int vios_board_init(void){
- if(ticking)forth_register_clock(tick_clock);   /* MS / task deadlines: no ~227 ms wrap loss */
+ if(ticking){forth_register_clock(tick_clock);forth_register_preempt(preempt_arm);}   /* MS deadlines; tick preemption (B2) */
  return forth_register_native("IRQ-PROBE",irq_probe,0)&&forth_register_native("TICKS",ticks,FORTH_NATIVE_TASK)&&forth_register_native("IRQ-STATS",irq_stats,0);
 }

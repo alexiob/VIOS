@@ -31,6 +31,14 @@ void forth_register_clock(uint32_t (*hook)(void));
  * The resident console listens briefly and pauses flow-controlled input so
  * a slice never runs while host bytes can overrun the UART. Survives init. */
 void forth_register_task_gate(int (*gate)(void));
+/* Tick preemption (tasks design B2): the board arms its tick ISR with a delay
+ * in ms (0 disarms); the ISR steals fvm_budget into forth_budget_stolen and
+ * sets forth_tick_pending. Host tests simulate ticks with a tick source,
+ * called before each VM run. */
+extern volatile unsigned char forth_tick_pending;
+extern volatile fcell forth_budget_stolen;
+void forth_register_preempt(void (*arm)(unsigned delay_ms));
+void forth_register_tick_source(void (*hook)(void));
 /* Task-aware I/O for kernel services: forth_emit uses the console in the
  * foreground and the running task's output ring in a background slice. */
 void forth_emit(unsigned char c);
