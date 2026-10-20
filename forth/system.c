@@ -367,7 +367,9 @@ static int execute_index(unsigned n) {
  preempt_clear();
  fvm_budget=observer_active?observer_budget:transaction_active?transaction_budget:1000000UL;
  fvm_ip=entry_ip(n);++executing;preempt_plan();if(tick_source)tick_source();
- int result=dispatch();--executing;preempt_plan();return result;
+ int result=dispatch();--executing;
+ if(!executing&&running<0)critical=0;   /* a command that failed inside CRITICAL( cannot leave ticks ignored */
+ preempt_plan();return result;
 }
 /* A console task (SPAWN-CON) prints straight to the console between
  * commands. While a foreground command runs, a preempting console task would

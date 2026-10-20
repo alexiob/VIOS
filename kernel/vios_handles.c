@@ -277,5 +277,7 @@ int vios_handles_init(void){
   /* ( xt1 xt2 -- id1 id2 ) xt1's output feeds xt2's KEY; xt2 prints to the
    * console. Each end is owned by its task, so EOF follows the producer. */
   "VARIABLE PL-R VARIABLE PL-W "
-  ": PIPELINE PIPE PL-W ! PL-R ! SPAWN-CON DUP PL-R @ TASK-INPUT SWAP SPAWN DUP PL-W @ TASK-OUTPUT SWAP ;");
+  /* CRITICAL: no tick may run a task between its SPAWN and its wiring (with
+   * preemption the producer could finish before TASK-OUTPUT: soak 2026-10-20). */
+  ": PIPELINE CRITICAL( PIPE PL-W ! PL-R ! SPAWN-CON DUP PL-R @ TASK-INPUT SWAP SPAWN DUP PL-W @ TASK-OUTPUT SWAP )CRITICAL ;");
 }

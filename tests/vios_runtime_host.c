@@ -108,6 +108,10 @@ static unsigned record_previous(void){unsigned char a[32],b[32];size_t an=0,bn=0
 static void reset(void){forth_init();assert(vios_runtime_init());}
 static void eval(const char *s){if(!forth_eval(s)){fprintf(stderr,"eval failed: %s: %s\n",s,forth_last_error());abort();}}
 static const char *manifest(void){captured_length=0;captured[0]=0;capturing=1;eval("BOOT-MANIFEST");platform_console_flush();capturing=0;assert(!fvm_depth);return captured;}
+/* Simulated ticks (tasks design B2): after test_every instructions while armed. */
+static unsigned test_armed,test_every;
+static void test_arm(unsigned delay){test_armed=delay;}
+static void test_tick(void){if(!test_armed||!test_every||forth_tick_pending)return;if(fvm_budget>test_every){forth_budget_stolen=fvm_budget-test_every;fvm_budget=test_every;forth_tick_pending=1;}}
 int main(int argc,char **argv){
  assert(argc==2);assert(strlen(argv[1])<sizeof root);strcpy(root,argv[1]);reset();
  eval("MILLIS");assert(fvm_pop()==1234567);
@@ -226,6 +230,13 @@ int main(int argc,char **argv){
  eval("CREATE LONGB 300 ALLOT LONGB 300 90 FILL : LONGT LONGB 300 TYPE ;");
  eval("' LONGT ' CNT PIPELINE 2DROP");for(int i=0;i<2000&&forth_tasks_run();++i){}
  assert((eval("GOT @"),fvm_pop())==300&&"TYPE delivered the whole string through the pipe");
+ /* With tick preemption a task could run between its SPAWN and its wiring
+  * (board soak 2026-10-20: "task is not live"); PIPELINE is CRITICAL. */
+ forth_register_preempt(test_arm);forth_register_tick_source(test_tick);
+ for(unsigned k=5;k<60;k+=6){test_every=k;eval("' BIG ' CNT PIPELINE 2DROP");for(int i=0;i<100000&&forth_tasks_run();++i){}
+  {fcell got=(eval("GOT @"),fvm_pop());if(got!=1000){fprintf(stderr,"k=%u got=%u\n",k,(unsigned)got);console_used=0;eval("TASKS");fprintf(stderr,"%s\n",console_capture);}
+   assert(got==1000&&"pipeline under ticks delivered every byte");}}
+ forth_register_tick_source(0);forth_register_preempt(0);test_every=0;
  /* A failing producer keeps its own error and its buffered bytes arrive. */
  eval(": FAILP 65 EMIT 66 EMIT DROP ; VARIABLE FG : FCNT 0 FG ! BEGIN KEY -1 <> WHILE 1 FG +! REPEAT ;");
  eval("' FAILP ' FCNT PIPELINE DROP");{fcell producer=fvm_pop();for(int i=0;i<200&&forth_tasks_run();++i){}

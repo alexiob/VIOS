@@ -1,0 +1,16 @@
+{
+  "status": "failed",
+  "iterations": 1,
+  "failures": [],
+  "dropped_before": 0,
+  "error": "ToolError: Board is not at a quiet idle prompt; use await_result/console_input or reboot",
+  "summary": {
+    "iterations": 1,
+    "minutes": 0.2,
+    "iteration_ms_median": 4221,
+    "iteration_ms_max": 4221
+  },
+  "latency_ms_tail": [
+    4221
+  ]
+}
