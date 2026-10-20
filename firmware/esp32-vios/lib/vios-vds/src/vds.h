@@ -37,6 +37,10 @@ typedef struct { int16_t x, y, w, h; } vds_rect;
  * yellow, white) in every style; 4-15 belong to the style, so content meant to
  * look the same in both styles uses 0-3 or the style's role indices. */
 typedef struct { uint8_t ch, attr; } vds_cell;
+/* Built-in line glyphs for cells (control codes, never text): one pixel wide
+ * through the middle of the cell, for pane dividers. Drawn in the cell's fg. */
+#define VDS_GLYPH_VLINE 0x01        /* vertical: pixel column 3 of every row */
+#define VDS_GLYPH_HLINE 0x02        /* horizontal: all of pixel row 3 */
 
 enum { VDS_STYLE_SMALLTALK = 0, VDS_STYLE_TURBO = 1, VDS_STYLE_COUNT };
 

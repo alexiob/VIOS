@@ -198,6 +198,12 @@ static void text(vds *v, int px, int gy, const char *s, uint8_t fg, int bg, int 
 
 /* ------------------------------------------------------------ composition */
 
+static uint8_t cell_bits(const vds *v, uint8_t ch, int row) {
+    if (ch == VDS_GLYPH_VLINE) return 0x10;
+    if (ch == VDS_GLYPH_HLINE) return row == 3 ? 0xFF : 0;
+    return v->font[ch * 8 + row];
+}
+
 static void client_row(vds *v, const vds_window *w, int y, int x0, int x1) {
     int gy = y - w->y;
     if (gy < 0 || gy >= w->rows * 8) return;
@@ -213,14 +219,14 @@ static void client_row(vds *v, const vds_window *w, int y, int x0, int x1) {
         uint8_t bits;
         if (s && s->cells && srow < s->rows && sc < s->cols) {
             cell = s->cells[srow * s->cols + sc];
-            bits = v->font[cell.ch * 8 + grow];
+            bits = cell_bits(v, cell.ch, grow);
             if (s->cur_shape && sc == s->cur_col && srow == s->cur_row && (!s->cur_blink || v->blink_on)) {
                 if (s->cur_shape == VDS_CURSOR_BLOCK) cell.attr = (uint8_t)(cell.attr >> 4 | cell.attr << 4);
                 else if (s->cur_shape == VDS_CURSOR_UNDERLINE && grow >= 6) bits = 0xFF;
                 else if (s->cur_shape == VDS_CURSOR_BAR) bits |= 0xC0;
             }
         } else
-            bits = v->font[cell.ch * 8 + grow];
+            bits = cell_bits(v, cell.ch, grow);
         glyph(v, w->x + c * 8, bits, cell.attr, x0, x1);
     }
 }

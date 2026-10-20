@@ -103,6 +103,37 @@ static void layout_box(vds_ui *u, uint8_t box, unsigned depth) {
     }
 }
 
+/* Pane dividers: in the middle of each gap between two visible panes (lists,
+ * text views, boxes; not buttons or labels in a row) of a laid-out box, a
+ * one-pixel line (vertical between side-by-side panes, horizontal between
+ * stacked ones), black on the window body, white if the body is dark. */
+static int pane(const vds_widget *w) { return w->kind == VDS_WK_LIST || w->kind == VDS_WK_TEXT || w->kind == VDS_WK_BOX; }
+static int dark(const vds_style *st, uint8_t index) {
+    uint8_t p = st->palette[index & 15];                            /* RGB222 */
+    return 2u * (p >> 4 & 3) + 5u * (p >> 2 & 3) + (p & 3) < 12u;   /* weighted luma, max 24 */
+}
+static void dividers(vds_ui *u, uint8_t s, uint8_t box) {
+    const vds_widget *b = &u->widgets[box];
+    if (!b->gap) return;
+    const vds_style *st = &core(u)->style;
+    uint8_t a = attr(dark(st, st->body) ? 3 : 0, st->body), prev = VDS_NONE;
+    for (uint8_t i = next_widget(u, b->window, box, VDS_NONE); i != VDS_NONE; i = next_widget(u, b->window, box, i)) {
+        const vds_widget *c = &u->widgets[i];
+        if (c->flags & VDS_WF_HIDDEN) continue;
+        if (prev != VDS_NONE && pane(c) && pane(&u->widgets[prev])) {
+            const vds_widget *p = &u->widgets[prev];
+            if (b->layout == VDS_LAYOUT_ROW) {
+                unsigned end = (unsigned)p->col + p->w;
+                if (c->col > end) vds_fill(core(u), s, (uint8_t)(end + (c->col - end - 1) / 2), b->row, 1, b->h, VDS_GLYPH_VLINE, a);
+            } else {
+                unsigned end = (unsigned)p->row + p->h;
+                if (c->row > end) vds_fill(core(u), s, b->col, (uint8_t)(end + (c->row - end - 1) / 2), b->w, 1, VDS_GLYPH_HLINE, a);
+            }
+        }
+        prev = i;
+    }
+}
+
 static void layout_window(vds_ui *u, uint8_t window) {
     vds *v = core(u);
     for (unsigned i = 0; i < VDS_MAX_WIDGETS; ++i) {
@@ -291,8 +322,10 @@ void vds_ui_widgets_refresh(vds_ui *u, uint8_t window) {
     uint8_t s = surface_of(u, window);
     for (unsigned i = 0; s != VDS_NONE && i < VDS_MAX_WIDGETS; ++i) {
         const vds_widget *b = &u->widgets[i];
-        if (b->used && b->window == window && b->kind == VDS_WK_BOX && b->layout && b->w && b->h && shown(u, b))
+        if (b->used && b->window == window && b->kind == VDS_WK_BOX && b->layout && b->w && b->h && shown(u, b)) {
             vds_fill(core(u), s, b->col, b->row, b->w, b->h, ' ', attr(core(u)->style.title_fg, core(u)->style.body));
+            dividers(u, s, (uint8_t)i);
+        }
     }
     for (unsigned i = 0; i < VDS_MAX_WIDGETS; ++i)
         if (u->widgets[i].used && u->widgets[i].window == window) render(u, (uint8_t)i);

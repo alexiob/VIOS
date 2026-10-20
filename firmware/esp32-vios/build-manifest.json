@@ -1,7 +1,7 @@
 {
   "firmware": "firmware/esp32-vios/.pio/build/esp32-vios/firmware.bin",
-  "size": 815296,
-  "sha256": "9748825c48ad63c87fdd6a66026b8bf443e83bedc58cb3328152ee7c63832827",
+  "size": 815808,
+  "sha256": "8837f382f981c4b7b7ebd5332b781e08be862348e95b5383fd5ef3e3cc3c50b1",
   "app0_offset": 65536,
   "app0_limit": 1310720,
   "embedded_vios": {

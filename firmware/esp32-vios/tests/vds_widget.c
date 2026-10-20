@@ -120,6 +120,12 @@ int main(int argc, char **argv) {
     assert(!strcmp(t, "[ Open ]"));
     text_at(0, 0, 19, 40, t);                                               /* gaps hold nothing stale */
     assert(!strcmp(t, "  [ Open ]     [ Cancel ]     [ Help ]  "));
+    /* Pane dividers: the gap row between the list and the options box is a
+     * one-pixel line, black on the white body; none next to the input or
+     * between the buttons (they are not panes). */
+    const vds_cell *sc = v.surfaces[0].cells;unsigned sw = v.surfaces[0].cols;
+    for (unsigned x = 0; x < 40; ++x) assert(sc[14 * sw + x].ch == VDS_GLYPH_HLINE && sc[14 * sw + x].attr == (0 | v.style.body << 4));
+    assert(sc[3 * sw].ch == ' ' && sc[19 * sw + 12].ch == ' ');
     assert(attr_at(0, 1, 4) == (v.style.menu_fg | v.style.desktop_a << 4));                /* unfocused selection shows */
     finish();
     if (argc > 2) dump(argv[2], "vds-widgets-smalltalk");
@@ -226,6 +232,8 @@ int main(int argc, char **argv) {
     uint8_t turbo[] = {0x74, 2, VDS_STYLE_TURBO, 0};
     assert(vds_proto_batch(&p, turbo, sizeof turbo));
     assert(attr_at(0, 0, 0) == (v.style.title_fg | v.style.body << 4));
+    unsigned divider = (unsigned)w[LIST].row + w[LIST].h;                     /* dark blue body: a white divider */
+    assert(sc[divider * sw].ch == VDS_GLYPH_HLINE && sc[divider * sw].attr == (3 | v.style.body << 4));
     finish();
     if (argc > 2) dump(argv[2], "vds-widgets-turbo");
     matches_full_render();

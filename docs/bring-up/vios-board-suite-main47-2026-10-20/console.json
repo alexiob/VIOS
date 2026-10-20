@@ -1,0 +1,195 @@
+{
+  "status": "passed",
+  "checks": {
+    "command_echo_visible": {
+      "ok": true,
+      "detail": [
+        "WB-CONSOLE cleared",
+        "",
+        "ok",
+        "vios> 6 7 * .",
+        "42",
+        "ok",
+        "vios> S\" console-marker\" CONSOLE-WRITE CR",
+        "console-marker",
+        "",
+        "ok",
+        "vios>",
+        ""
+      ]
+    },
+    "result_visible": {
+      "ok": true,
+      "detail": [
+        "WB-CONSOLE cleared",
+        "",
+        "ok",
+        "vios> 6 7 * .",
+        "42",
+        "ok",
+        "vios> S\" console-marker\" CONSOLE-WRITE CR",
+        "console-marker",
+        "",
+        "ok",
+        "vios>",
+        ""
+      ]
+    },
+    "marker_visible": {
+      "ok": true,
+      "detail": [
+        "WB-CONSOLE cleared",
+        "",
+        "ok",
+        "vios> 6 7 * .",
+        "42",
+        "ok",
+        "vios> S\" console-marker\" CONSOLE-WRITE CR",
+        "console-marker",
+        "",
+        "ok",
+        "vios>",
+        ""
+      ]
+    },
+    "envelopes_hidden": {
+      "ok": true,
+      "detail": [
+        "WB-CONSOLE cleared",
+        "",
+        "ok",
+        "vios> 6 7 * .",
+        "42",
+        "ok",
+        "vios> S\" console-marker\" CONSOLE-WRITE CR",
+        "console-marker",
+        "",
+        "ok",
+        "vios>",
+        ""
+      ]
+    },
+    "pixels_match_text": {
+      "ok": true,
+      "detail": "3 COLOUR 128 COLOUR 0 7 CHAR@ .\r\n99 \r\nok\r\nvios> "
+    },
+    "preserved_across_editor": {
+      "ok": true,
+      "detail": [
+        "WB-CONSOLE cleared",
+        "ok",
+        "vios> S\" after-trips\" CONSOLE-WRITE CR",
+        "after-trips",
+        "ok",
+        "vios> WB-OPEN",
+        "WB-STATUS revision 1 catalog 517 open 1 draft 0 dirty 0 staged 0 active 0 saved",
+        "0 length 0 cursor 0 selection 0 browser 0 focus 0 words 270 words_max 512 module",
+        " - version - test - error -",
+        "ok",
+        "vios> S\" hidden-while-editor\" CONSOLE-WRITE CR",
+        "hidden-while-editor",
+        "ok",
+        "vios> WB-CLOSE",
+        "WB-STATUS revision 1 catalog 517 open 0 draft 0 dirty 0 staged 0 active 0 saved",
+        "0 length 0 cursor 0 selection 0 browser 0 focus 0 words 270 words_max 512 module",
+        " - version - test - error -",
+        "ok",
+        "vios> WB-CONSOLE? WB-RENDER-STATS WB-STATUS",
+        "WB-CONSOLE open 1 home 1 renderer esp",
+        "WB-RENDER-STATS cells 0 spans 0 batches 86 bytes 8855 elapsed_ticks 57952 pendin",
+        "g 0",
+        "WB-STATUS revision 1 catalog 517 open 0 draft 0 dirty 0 staged 0 active 0 saved",
+        "0 length 0 cursor 0 selection 0 browser 0 focus 0 words 270 words_max 512 module",
+        " - version - test - error -",
+        "ok",
+        "vios>",
+        "hello: heartbeat 2"
+      ]
+    },
+    "no_console_drops": {
+      "ok": true,
+      "detail": [
+        0,
+        0
+      ]
+    }
+  },
+  "gui_switched": true,
+  "dropped_before": 0,
+  "screen_after_commands": [
+    "WB-CONSOLE cleared",
+    "",
+    "ok",
+    "vios> 6 7 * .",
+    "42",
+    "ok",
+    "vios> S\" console-marker\" CONSOLE-WRITE CR",
+    "console-marker",
+    "",
+    "ok",
+    "vios>",
+    ""
+  ],
+  "marker_pixel_readback": [
+    "99 "
+  ],
+  "round_trip_ms": [
+    224,
+    223,
+    229,
+    220,
+    221,
+    221,
+    222,
+    222,
+    224,
+    225,
+    220,
+    222,
+    227,
+    225,
+    225,
+    222,
+    228,
+    222,
+    226,
+    222
+  ],
+  "state_before_read": [
+    "WB-CONSOLE open 1 home 1 renderer esp",
+    "WB-RENDER-STATS cells 0 spans 0 batches 86 bytes 8855 elapsed_ticks 57952 pending 0",
+    "WB-STATUS revision 1 catalog 517 open 0 draft 0 dirty 0 staged 0 active 0 saved 0 length 0 cursor 0 selection 0 browser 0 focus 0 words 270 words_max 512 module - version - test - error -"
+  ],
+  "screen_after_trip": [
+    "WB-CONSOLE cleared",
+    "ok",
+    "vios> S\" after-trips\" CONSOLE-WRITE CR",
+    "after-trips",
+    "ok",
+    "vios> WB-OPEN",
+    "WB-STATUS revision 1 catalog 517 open 1 draft 0 dirty 0 staged 0 active 0 saved",
+    "0 length 0 cursor 0 selection 0 browser 0 focus 0 words 270 words_max 512 module",
+    " - version - test - error -",
+    "ok",
+    "vios> S\" hidden-while-editor\" CONSOLE-WRITE CR",
+    "hidden-while-editor",
+    "ok",
+    "vios> WB-CLOSE",
+    "WB-STATUS revision 1 catalog 517 open 0 draft 0 dirty 0 staged 0 active 0 saved",
+    "0 length 0 cursor 0 selection 0 browser 0 focus 0 words 270 words_max 512 module",
+    " - version - test - error -",
+    "ok",
+    "vios> WB-CONSOLE? WB-RENDER-STATS WB-STATUS",
+    "WB-CONSOLE open 1 home 1 renderer esp",
+    "WB-RENDER-STATS cells 0 spans 0 batches 86 bytes 8855 elapsed_ticks 57952 pendin",
+    "g 0",
+    "WB-STATUS revision 1 catalog 517 open 0 draft 0 dirty 0 staged 0 active 0 saved",
+    "0 length 0 cursor 0 selection 0 browser 0 focus 0 words 270 words_max 512 module",
+    " - version - test - error -",
+    "ok",
+    "vios>",
+    "hello: heartbeat 2"
+  ],
+  "console_state": "hello: heartbeat 2 ",
+  "dropped_after": 0
+}
