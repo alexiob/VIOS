@@ -1,0 +1,34 @@
+{
+ "idle": {
+  "frames": 271,
+  "top_black_frames": 0,
+  "vga_isr_gap_max_us": 1479,
+  "frame_work_max": 1640,
+  "vblank_start_max": 94,
+  "gui": "GUI on windows 1 frames 268 rows 5256 carried 33 errors 0 style 0 batch_max_us 0 batch_op 31 frame_max_us 639 presents 2 forced 0 abandoned 0 present_us_max 11072 sync_frames_max 5 slow_us 639 slow_px 5888 slow_rows 16 slow_nd 2 slow_phase 0>0"
+ },
+ "flood_5x2000": {
+  "frames": 387,
+  "top_black_frames": 0,
+  "vga_isr_gap_max_us": 1483,
+  "frame_work_max": 4161,
+  "vblank_start_max": 89,
+  "gui": "GUI on windows 1 frames 510 rows 11257 carried 121 errors 0 style 0 batch_max_us 0 batch_op 31 frame_max_us 3151 presents 2 forced 0 abandoned 0 present_us_max 11072 sync_frames_max 5 slow_us 3151 slow_px 25344 slow_rows 46 slow_nd 2 slow_phase 0>0"
+ },
+ "wb_cycles": {
+  "frames": 131,
+  "top_black_frames": 3,
+  "vga_isr_gap_max_us": 1477,
+  "frame_work_max": 4862,
+  "vblank_start_max": 87,
+  "gui": "GUI on windows 1 frames 541 rows 12949 carried 148 errors 0 style 0 batch_max_us 2597 batch_op 13 frame_max_us 9513 presents 3 forced 1 abandoned 0 present_us_max 11072 sync_frames_max 5 slow_us 9513 slow_px 1166016 slow_rows 42 slow_nd 18 slow_phase 2>0"
+ },
+ "gui_accept_ops": {
+  "frames": 99,
+  "top_black_frames": 0,
+  "vga_isr_gap_max_us": 1479,
+  "frame_work_max": 2785,
+  "vblank_start_max": 86,
+  "gui": "GUI on windows 1 frames 547 rows 13165 carried 148 errors 0 style 0 batch_max_us 71 batch_op 01 frame_max_us 1748 presents 3 forced 1 abandoned 0 present_us_max 11072 sync_frames_max 5 slow_us 1748 slow_px 13824 slow_rows 24 slow_nd 2 slow_phase 0>0"
+ }
+}
