@@ -115,6 +115,14 @@ int main(void){
  assert(value("CTN @")>0&&"the console task did run during the command");
  output_used=0;output[0]=0;forth_tasks_run();assert(strchr(output,'B')&&"held console-task output follows");
  {char kill[32];snprintf(kill,sizeof kill,"%u TASK-KILL",(unsigned)ct);eval(kill);}
+ /* A CREATE whose first ALLOT fails leaves no word behind (found by the GUI
+  * tools on the board: the header pointed past the end of data space). */
+ {char line[64];unsigned made=0;int failed=0;
+  for(unsigned i=0;i<200&&!failed;++i){snprintf(line,sizeof line,"CREATE FULL%u 4096 ALLOT",i);if(forth_eval(line))++made;else failed=(int)i+1;}
+  assert(failed&&strstr(forth_last_error(),"data space full"));
+  snprintf(line,sizeof line,"FULL%u",(unsigned)failed-1);assert(!forth_eval(line)&&strstr(forth_last_error(),"unknown word")&&"the failed CREATE left no word");
+  if(made){snprintf(line,sizeof line,"FULL%u DROP",made-1);eval(line);}
+  eval("CREATE TINY 1 ALLOT TINY DROP");}
  printf("tick preemption: foreground rounds, determinism, CRITICAL and slice ends passed (%u arms)\n",arms);
  return 0;
 }

@@ -233,8 +233,10 @@ static int operand(fcell t,fcell d) {
  put_cell(token_code+token_used,t);token_used+=3;put_cell(direct_code+direct_used,d);direct_used+=3;return 1;
 }
 static int literal(fcell n) {return op(F_LIT)&&operand(n,n);}
+static int created_unfilled=-1;   /* the word CREATE just made, until its data is allotted (create_word) */
 static int begin_word(const char *name,unsigned kind) {
  if(current>=0)return fail("nested definition");
+ created_unfilled=-1;
  if(count==WORDS_MAX)return fail("dictionary full");
  if(!*name||length(name)>NAME_MAX)return fail("invalid name");
  mark_token=token_used;mark_direct=direct_used;mark_data=data_used;mark_source=source_used;mark_map=map_used;
@@ -816,11 +818,25 @@ static int defining(const char *kind,const char *name) {
 }
 /* CREATE: a variable-like word naming the next data address, allocating
  * nothing; ALLOT/,/C, then reserve its body. */
+/* The word CREATE just made, until its data is allotted: if that first
+ * ALLOT / , / C, fails ("data space full"), the word goes again, so a failed
+ * "CREATE X 4096 ALLOT" leaves no X pointing past the end of data space
+ * (writes through it overran the resident's memory on the board). */
 static int create_word(const char *name) {
  if(!begin_word(name,WK_VARIABLE))return 0;
  words[count].aux=address(data_space+data_used);
  if(!literal(words[count].aux)||!op(F_EXIT))return 0;
- return publish();
+ if(!publish())return 0;
+ created_unfilled=(int)count-1;return 1;
+}
+static void unpublish_created(void){
+ unsigned n=(unsigned)created_unfilled;created_unfilled=-1;
+ if(n+1!=count)return;   /* something was defined since: leave it */
+ struct word *w=&words[n];unsigned h=hash(w->name);
+ if(buckets[h]!=(unsigned short)(n+1))return;
+ buckets[h]=w->link;--count;
+ token_used=mark_token;direct_used=mark_direct;source_used=w->source;map_used=mark_map;
+ if(!transaction_active)catalog_changed();
 }
 static void show_stack(void) {
  print("<");unsigned_number(fvm_depth);print("> ");
@@ -894,7 +910,8 @@ int forth_eval(const char *source) {
    fcell n=fvm_pop();if(fvm_error)return fail(vm_message());
    size_t need=equal(s,"ALLOT")?(size_t)n:equal(s,",")?3u:1u;
    if(equal(s,"ALLOT")&&(n&0x800000UL))return fail("negative ALLOT");
-   if(need>DATA_BYTES-data_used)return fail("data space full");
+   if(need>DATA_BYTES-data_used){if(created_unfilled>=0)unpublish_created();return fail("data space full");}
+   created_unfilled=-1;
    fcell a=address(data_space+data_used);
    if(equal(s,",")){fvm_write_cell(a,n);}else if(equal(s,"C,")){fvm_write8(a,(unsigned char)n);}else for(size_t i=0;i<need;++i)fvm_write8(a+(fcell)i,0);
    if(fvm_error)return fail(vm_message());
