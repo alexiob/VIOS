@@ -76,6 +76,13 @@ public:
      * copy cannot run into the next one; otherwise a finished pass waits
      * (at most one frame) for a frame that did. */
     template <class Compose> int frame(vds *v, Compose compose, bool present_ok = true) {
+        /* A finished pass presents at the start of a frame, with no compositing
+         * in that frame: the copy (9-14 ms) then fits before the next vblank. */
+        if (state == ON && ready) {
+            if (!present_ok) { ++deferred; return v->ndamage == 0; }
+            ready = false; present(v);
+            return v->ndamage == 0;
+        }
         if (state == IDLE && !cooling && mem && scr && v->ndamage && damage_pixels(v) >= threshold) {
             state = SYNC; synced = 0; frames = 0; blits_at = v->stats.blits;
             v->no_blit = 1;   // scrolls recompose during the pass: no screen moves under the copy, no row copies in PSRAM
@@ -89,8 +96,8 @@ public:
         bool clear = v->ndamage == 0;
         if (state == ON) {
             if (v->stats.blits != blits_at) all_dirty = true;     // a scroll blit moved shadow rows
-            if (clear && !present_ok) { ++deferred; return result; }
-            if (clear || ++frames >= max_frames) { if (!clear) { ++forced; cooling = true; } present(v); }
+            if (clear) ready = true;   // present in the next frame that starts at vblank
+            else if (++frames >= max_frames) { ++forced; cooling = true; present(v); }
         }
         if (clear) cooling = false;
         return result;
@@ -102,7 +109,7 @@ private:
     uint8_t *shadow[MAX_ROWS];
     uint8_t dirty[MAX_ROWS];
     int rows_n = 0, bytes = 0, synced = 0;
-    bool all_dirty = false, cooling = false;   // cooling: after a forced present, until the damage is drawn
+    bool all_dirty = false, cooling = false, ready = false;   // cooling: after a forced present, until the damage is drawn; ready: composed, awaiting its present
     unsigned frames = 0;
     uint32_t blits_at = 0;
     void (*saved_hook)(void *, int16_t) = nullptr;
@@ -135,6 +142,7 @@ private:
         state = ON;
     }
     void unhook(vds *v) {
+        ready = false;
         v->row_written = saved_hook; v->row_ctx = saved_ctx;
         v->rows = scr;
         v->no_blit = 0;
