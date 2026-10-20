@@ -207,8 +207,15 @@ void VDUStreamProcessor::vdu_sys_video() {
 		case 0x99: {					// VDU 23, 0, &99, vk: resend a key's state
 			auto vk = readByte_t();
 			if (vk >= 0) {
+				auto kb = getKeyboard();
+				bool num = false, caps = false, scroll = false;
+				kb->getLEDs(&num, &caps, &scroll);
+				auto held = [kb](fabgl::VirtualKey k) { return kb->isVKDown(k); };
+				uint8_t modifiers = vios_key_modifiers(held(fabgl::VK_LCTRL) || held(fabgl::VK_RCTRL), held(fabgl::VK_LSHIFT) || held(fabgl::VK_RSHIFT),
+					held(fabgl::VK_LALT), held(fabgl::VK_RALT), caps, num, scroll, held(fabgl::VK_LGUI) || held(fabgl::VK_RGUI));
+				int ascii = kb->virtualKeyToASCII((fabgl::VirtualKey)vk);
 				uint8_t packet[4];
-				send_packet(PACKET_KEYCODE, vios_key_state_reply(packet, (uint8_t)vk, getKeyboard()->isVKDown((fabgl::VirtualKey)vk)), packet);
+				send_packet(PACKET_KEYCODE, vios_key_state_reply(packet, ascii > 0 && ascii < 256 ? (uint8_t)ascii : 0, modifiers, (uint8_t)vk, kb->isVKDown((fabgl::VirtualKey)vk)), packet);
 			}
 		}	break;
 		case 0xF8: {					// VDU 23, 0, &F8, flag; value;  set a VDP variable

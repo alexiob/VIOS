@@ -29,7 +29,9 @@ int main() {
     assert(vios_colour_reply(p, 0xFF, 0xAA, 0x55, 7) == 4 && !memcmp(p, "\xFF\xAA\x55\x07", 4));
     assert(vios_colour_source(0) == 0 && vios_colour_source(63) == 0 && vios_colour_source(128) == 1 &&
            vios_colour_source(131) == 4 && vios_colour_source(64) < 0 && vios_colour_source(132) < 0);
-    assert(vios_key_state_reply(p, 0x75, true) == 4 && !memcmp(p, "\x00\x00\x75\x01", 4));
+    assert(vios_key_state_reply(p, 0, vios_key_modifiers(false, true, false, false, false, false, false, false), 0x75, true) == 4 &&
+           !memcmp(p, "\x00\x02\x75\x01", 4));                                   /* shift held */
+    assert(vios_key_modifiers(true, true, true, true, true, true, true, true) == 0xFF && vios_key_modifiers(false, false, false, false, true, false, false, false) == 0x10);
     assert(vios_mos_query_args(0xF9) == 2 && vios_mos_query_args(0x86) < 0);
     printf("mos query checks passed\n");
     return 0;
