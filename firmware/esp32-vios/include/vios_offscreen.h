@@ -38,7 +38,7 @@ public:
     unsigned max_frames = 30;             // present anyway after this many frames (0.5 s)
     uint32_t sync_us = 3000;              // screen -> shadow copy time per frame (needs vds clock_us; else sync_rows)
     int sync_rows = 120;
-    uint32_t presents = 0, forced = 0, abandoned = 0, last_rows = 0, present_us_max = 0, sync_frames_max = 0;
+    uint32_t presents = 0, forced = 0, abandoned = 0, deferred = 0, last_rows = 0, present_us_max = 0, sync_frames_max = 0;
 
     /* Shadow memory of height * bytes; nullptr disables (old behaviour). */
     void attach(uint8_t *memory, int height, int bytes_per_row) {
@@ -72,7 +72,10 @@ public:
      * (composition waits meanwhile, so the screen does not change; a scroll
      * blit on the screen restarts the copy), then composes in the shadow and
      * presents the rows it wrote in one copy. */
-    template <class Compose> int frame(vds *v, Compose compose) {
+    /* present_ok: the frame started at vertical blank, so a long present
+     * copy cannot run into the next one; otherwise a finished pass waits
+     * (at most one frame) for a frame that did. */
+    template <class Compose> int frame(vds *v, Compose compose, bool present_ok = true) {
         if (state == IDLE && !cooling && mem && scr && v->ndamage && damage_pixels(v) >= threshold) {
             state = SYNC; synced = 0; frames = 0; blits_at = v->stats.blits;
             v->no_blit = 1;   // scrolls recompose during the pass: no screen moves under the copy, no row copies in PSRAM
@@ -86,6 +89,7 @@ public:
         bool clear = v->ndamage == 0;
         if (state == ON) {
             if (v->stats.blits != blits_at) all_dirty = true;     // a scroll blit moved shadow rows
+            if (clear && !present_ok) { ++deferred; return result; }
             if (clear || ++frames >= max_frames) { if (!clear) { ++forced; cooling = true; } present(v); }
         }
         if (clear) cooling = false;

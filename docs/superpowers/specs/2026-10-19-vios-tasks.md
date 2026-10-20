@@ -1,7 +1,7 @@
 # VIOS multitasking: cooperative, tick-sliced or preemptive
 
 Status: option B, stages B0, B1 and B2 implemented and measured on the board
-(2026-10-20, see "B0 and B1 results" and "B2 results" at the end); B3–B5 not started. Builds on the shipped
+(2026-10-20, see the results sections at the end); B3 and B5 also done; B4 not needed so far. Builds on the shipped
 [background tasks, slice 1](2026-10-18-vios-tasks.md) and its
 [acceptance](../../bring-up/vios-tasks-acceptance-2026-10-18.json) and
 [slice sweep](../../bring-up/vios-task-slice-sweep-2026-10-19.json).
@@ -545,3 +545,41 @@ Board (`firmware-main-14`; `vios-preempt-b2a-2026-10-20.txt`,
 Next: B3 (UART0 RX ISR into a ring; the gate becomes a ring check, which
 removes the 1 ms listen per round and the ~110 ms REPL latency beside a busy
 task), B5 (task-safe services), B4 only if switching cost matters.
+
+
+## B5 results (2026-10-20)
+
+- **Per-task `BASE`:** one cell per task, swapped around each slice; a new
+  task starts in its spawner's radix; `TASKS` lines end with `base N`
+  (`vios_task_client` parses it, optionally). +3 bytes per task.
+- **Chunked `FILL` / `MOVE`:** at most 256 bytes per run; the native pushes
+  its remaining arguments back and re-runs itself (the `TYPE` pattern), so a
+  tick can preempt between chunks. `MOVE` keeps memmove semantics (a
+  backward copy does the last chunk first). Host test: sizes 0–1000 with
+  overlap both ways, byte-equal to `memset`/`memmove`, under ticks every 7
+  instructions.
+- **Not done, on purpose:** the 96-byte task error text (would cost 192 bytes
+  of RAM for longer messages; the owner ranks memory first, 48 bytes stay);
+  the compiler lock (no task can evaluate source today: `LOAD`/`INCLUDE` are
+  REPL commands, not task words); the task-safe module transaction.
+
+
+## B3 results and board check of B3 + B5 (2026-10-20, `firmware-main-15/16`)
+
+UART0 RX by interrupt (IVECT 18h) into a 256-byte ring, RTS dropped at 192
+and raised below 64; the task gate and the Ctrl-C check are ring checks.
+On the board (`vios-b3-b5-2026-10-20.txt`):
+
+| | before B3 | with B3 |
+|---|---|---|
+| REPL `1 2 + .` median, idle | 46–50 ms | **31.9 ms** |
+| same, beside a busy task | ~110 ms | **90.8 ms** |
+| render task beside a busy task | 60.0 f/s | **60.0 f/s** |
+
+Ctrl-C still stops a 10-minute `MS` (85 ms with harness round trips);
+`rx-dropped 0`, `console-dropped 0`, 0 stray interrupts after 3,244 switches.
+B5 on the board: a 3,000-byte `FILL` is correct at both ends and the middle;
+a task's `HEX` shows `base 16` in `TASKS` while the foreground stays decimal.
+
+B4 (pointer-swap switching) stays optional: its trigger is switching above
+3% CPU, and the measured shares follow the planned 4 ms quantum/slice.

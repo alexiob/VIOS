@@ -4,7 +4,7 @@ import re
 
 STATES = ('free', 'ready', 'sleeping', 'done', 'failed', 'killed')
 LINE = re.compile(r'task (\d+) state (\w+) xt (\d+) name (\S+) slices (\d+) steps (\d+) depth (\d+) rdepth (\d+) '
-                  r'ds-peak (\d+) rs-peak (\d+) out (\d+) dropped (\d+) error (\S+)')
+                  r'ds-peak (\d+) rs-peak (\d+) out (\d+) dropped (\d+) error (\S+)(?: base (\d+))?')
 
 
 def _hex_text(value):
@@ -25,7 +25,8 @@ def parse_tasks(output):
             n = [int(m[i]) for i in (1, 3, 5, 6, 7, 8, 9, 10, 11, 12)]
             rows.append({'id': n[0], 'state': m[2], 'xt': n[1], 'name': _hex_text(m[4]), 'slices': n[2], 'steps': n[3],
                          'depth': n[4], 'rdepth': n[5], 'ds_peak': n[6], 'rs_peak': n[7], 'output_bytes': n[8],
-                         'output_dropped': n[9], 'error': _hex_text(m[13])})
+                         'output_dropped': n[9], 'error': _hex_text(m[13]),
+                         'base': int(m[14]) if m[14] else None})
     return rows
 
 

@@ -23,6 +23,8 @@ _platform_io_read:
 .global _platform_io_write, _platform_irq_save, _platform_irq_restore
 .global _vios_tick_isr, _vios_stray_isr, _vios_ms_clock, _vios_irq_stray
 .global _vios_preempt_armed, _vios_preempt_count
+.global _vios_uart0_isr, _vios_uart0_isr_enable, _vios_rx_ring, _vios_rx_head, _vios_rx_tail, _vios_rx_dropped
+.extern _ez80_uart0_rx_overruns
 .extern _fvm_budget, _forth_budget_stolen, _forth_tick_pending
 /* void platform_io_write(unsigned port, unsigned char value) */
 _platform_io_write:
@@ -120,7 +122,78 @@ _vios_stray_isr:
     pop af
     ei
     reti.l
+/* ---- Stage B3: UART0 RX by interrupt (IVECT 18h) ----
+ * Every byte in the FIFO goes into a 256-byte ring (256-aligned, so the
+ * index is the low address byte); RTS drops when 192 are queued and C
+ * raises it again below 64 (boards/agon-light-2/platform_resident.c). The
+ * ISR only moves bytes: the VDP transport parser runs in C, which is not
+ * reentrant. Reading RBR clears the receive/timeout interrupt. Uses AF, BC,
+ * HL (12 bytes of stack with the return address). */
+_vios_uart0_isr:
+    push af
+    push bc
+    push hl
+.Lrx_next:
+    in0 a, (0xC5)              /* LSR */
+    bit 1, a
+    jr z, 1f
+    ld hl, (_ez80_uart0_rx_overruns)
+    inc hl
+    ld (_ez80_uart0_rx_overruns), hl
+1:
+    bit 0, a
+    jr z, .Lrx_done
+    in0 b, (0xC0)
+    ld a, (_vios_rx_head)
+    ld c, a
+    inc a
+    ld hl, _vios_rx_tail
+    cp a, (hl)
+    jr z, .Lrx_drop            /* full: should not happen, RTS dropped at 192 */
+    ld hl, _vios_rx_ring
+    ld l, c
+    ld (hl), b
+    ld (_vios_rx_head), a
+    ld hl, _vios_rx_tail
+    sub a, (hl)
+    cp a, 192
+    jr c, .Lrx_next
+    in0 a, (0xC4)
+    and a, 0xFD
+    out0 (0xC4), a             /* RTS off: the peer pauses */
+    jr .Lrx_next
+.Lrx_drop:
+    ld hl, (_vios_rx_dropped)
+    inc hl
+    ld (_vios_rx_dropped), hl
+    jr .Lrx_next
+.Lrx_done:
+    pop hl
+    pop bc
+    pop af
+    ei
+    reti.l
+/* FIFO on with an 8-byte trigger (the character timeout reports fewer),
+ * receive interrupt on, RTS up. Called with interrupts disabled. */
+_vios_uart0_isr_enable:
+    ld a, 0x81
+    out0 (0xC2), a
+    ld a, 1
+    out0 (0xC1), a
+    in0 a, (0xC4)
+    or a, 2
+    out0 (0xC4), a
+    ret
 .section .bss
+.balign 256
+_vios_rx_ring:
+    .space 256
+_vios_rx_head:
+    .space 1
+_vios_rx_tail:
+    .space 1
+_vios_rx_dropped:
+    .space 3
 _vios_ms_clock:
     .space 4
 _vios_irq_stray:

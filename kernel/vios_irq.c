@@ -55,7 +55,10 @@ static int irq_probe(void){
 extern void platform_io_write(unsigned port,unsigned char value);
 extern unsigned char platform_irq_save(void);
 extern void platform_irq_restore(unsigned char enabled);
-extern void vios_tick_isr(void),vios_stray_isr(void);
+extern void vios_tick_isr(void),vios_stray_isr(void),vios_uart0_isr(void);
+extern void platform_console_rx_interrupts(void);
+extern volatile unsigned vios_rx_dropped;
+#define UART0_VECTOR 12u                /* IVECT 18h / 2 */
 extern volatile unsigned char vios_ms_clock[4],vios_irq_stray[2];
 #define PRT1_VECTOR 6u                  /* IVECT 0Ch / 2 */
 #define TICK_RELOAD 288u                /* 18.432 MHz / 64 / 288 = 1000 Hz */
@@ -78,13 +81,14 @@ int vios_tick_start(void){
  platform_io_write(0x9C,platform_io_read(0x9C)&(unsigned char)~2u);   /* PB1: plain input, no edge interrupt */
  platform_io_write(0x9D,platform_io_read(0x9D)&(unsigned char)~2u);
  platform_io_write(0xC1,0);platform_io_write(0xD1,0);                /* UART0/1: polled, no interrupts */
- for(unsigned k=0;k<VECTORS;++k)put_jp((volatile unsigned char *)(base+4ul*k),k==PRT1_VECTOR?vios_tick_isr:vios_stray_isr);
+ for(unsigned k=0;k<VECTORS;++k)put_jp((volatile unsigned char *)(base+4ul*k),k==PRT1_VECTOR?vios_tick_isr:k==UART0_VECTOR?vios_uart0_isr:vios_stray_isr);
  platform_io_write(0xDC,platform_io_read(0xDC)&(unsigned char)~2u);   /* CLK_PPD2: PRT1 clocked */
  platform_io_write(0x92,platform_io_read(0x92)&(unsigned char)~0x0Cu);/* TMR_ISS: PRT1 on the system clock */
  platform_io_write(0x83,0);
  platform_io_write(0x84,(unsigned char)TICK_RELOAD);platform_io_write(0x85,(unsigned char)(TICK_RELOAD>>8));
  (void)platform_io_read(0x83);
  platform_io_write(0x83,0x5B);          /* IRQ_EN, continuous, /64, reload+restart, enable */
+ platform_console_rx_interrupts();      /* B3: UART0 RX by interrupt from now on */
  ticking=1;platform_irq_restore(1);return 1;
 }
 static uint32_t tick_clock(void){return (uint32_t)ms_now();}
@@ -98,7 +102,8 @@ static void preempt_arm(unsigned delay_ms){
 static int ticks(void){return fvm_push((fcell)ms_now()&FVM_MASK);}
 static int irq_stats(void){
  vios_out("irq tick ");vios_out(ticking?"on":"off");vios_out(" ms ");vios_uint((unsigned)ms_now());
- vios_out(" stray ");vios_uint((unsigned)(vios_irq_stray[0]|vios_irq_stray[1]<<8));vios_out("\r\n");return 1;
+ vios_out(" stray ");vios_uint((unsigned)(vios_irq_stray[0]|vios_irq_stray[1]<<8));
+ vios_out(" rx-dropped ");vios_uint(vios_rx_dropped);vios_out("\r\n");return 1;
 }
 int vios_board_init(void){
  if(ticking){forth_register_clock(tick_clock);forth_register_interrupt(platform_console_interrupt);forth_register_preempt(preempt_arm);}   /* MS deadlines; tick preemption and Ctrl-C (B2) */

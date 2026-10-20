@@ -940,6 +940,8 @@ All on the board without the wire; firmware `firmware-main-3`…`main-9` in
   MOS 1.x), and `check` verifies the file MOS 3 will run. It never creates an
   obey file: that would hide `autoexec.txt`'s other lines. This board's card
   has no obey file, so MOS 3 keeps running `AUTOEXEC.TXT` (`viosboot`).
-- **Boot time now** (port open = reset, `boot1` capture): ESP first event →
-  image sent 2.4 s → `HEALTH flag 0` 3.0 s → `HEALTH flag 1` **~5.5 s** after
-  the resident trims below (§ boot-speed Phase 2), against 19.0 s in §16.10.
+- **Boot time now** (`firmware-main-14`, reset by opening the port,
+  `vios-boot-time-main14-2026-10-20.txt`; t=0 is the first byte the host reads):
+  ESP first event 1.86 s, MOS banner 1.91 s, stub at 1,152,000 2.51 s, image
+  sent 4.42 s, `HEALTH flag 0` 5.11 s, **`HEALTH flag 1` 7.65 s**. From the
+  ESP's first event to READY: **5.8 s**, against 19.0 s in §16.10.

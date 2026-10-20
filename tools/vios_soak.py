@@ -63,7 +63,8 @@ def main():
                     time.sleep(0.2)
                 else:
                     raise AssertionError('pipeline did not finish')
-                got = int(ev('SKG @ .').split('\r\n')[1].split()[0])
+                # The answer is the one numeric line (an autorun task's heartbeat can come first).
+                got = int(re.findall(r'^\s*(\d+)\s*$', ev('SKG @ .').replace('\r', ''), re.M)[-1])
                 if got != 1000:
                     raise AssertionError(f'pipeline delivered {got} bytes')
                 ev('WB-OPEN')

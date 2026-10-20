@@ -29,7 +29,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class ViosBoard(FileServiceClient,TraceClient,ErrorClient,TaskClient,DevToolsClient,SnapshotClient,WorkbenchClient,ModuleClient):
-    def __init__(self, port='/dev/cu.usbserial-22430', image=None,
+    def __init__(self, port='/dev/cu.usbserial-224130', image=None,
                  log=None, probe_image=None,
                  session=None, loader=None, deployer=None, asker=None, reader=None,
                  fast_console=False):

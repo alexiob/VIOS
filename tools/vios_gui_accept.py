@@ -15,6 +15,7 @@ Uses window 3 and surface 3 only (console 32/16 and workbench 26/10 untouched).
 """
 import argparse
 import json
+import re
 from pathlib import Path
 import time
 try:
@@ -51,8 +52,11 @@ def main():
                 HELLO's heartbeat may come before it)."""
                 lines = ev(source).split('\r\n')
                 for i, line in enumerate(lines):
-                    if line.strip() == source.strip() and i + 1 < len(lines):
-                        return lines[i + 1]
+                    if line.strip() == source.strip():
+                        # Skip a background task's line ("hello: heartbeat 3") after the echo.
+                        rest = [l for l in lines[i + 1:] if not re.match(r'^[a-z][\w-]*: ', l)]
+                        if rest:
+                            return rest[0]
                 raise AssertionError(f'no echo of {source!r}: {lines}')
 
             def pixels(points):

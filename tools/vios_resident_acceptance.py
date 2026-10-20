@@ -443,7 +443,7 @@ class Acceptance:
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('--port', default='/dev/cu.usbserial-22430')
+    parser.add_argument('--port', default='/dev/cu.usbserial-224130')
     parser.add_argument('--phase', choices=PHASES, action='append', help='Repeatable; default: core')
     parser.add_argument('--namespace', default='AT'+secrets.token_hex(4).upper())
     parser.add_argument('--log', type=Path, help='New JSON report; serial log is a sibling .serial.jsonl')
