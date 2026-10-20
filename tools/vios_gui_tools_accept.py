@@ -73,6 +73,16 @@ def main():
             def status():
                 return c.tool('esp_gui')['status']
 
+            sections, worst = {}, {'vblank_start_max': 0, 'frame_work_max': 0}
+
+            def section(name):
+                """Frame stats since the previous section (reset each time), so a spike names its step."""
+                st = c.tool('esp_stats', {'reset': True})
+                sections[name] = {k: st.get(k) for k in ('vblank_start_max', 'frame_work_max', 'frame_lock_max', 'frame_gui_max',
+                                                         'present_frames', 'present_work_max', 'keyboard_max')}
+                for k in worst:
+                    worst[k] = max(worst[k], st.get(k) or 0)
+
             def close_all():                  # -1 TOOL (newer firmware); older: nothing to do on a clean boot
                 out = c.tool('evaluate', {'source': '-1 TOOL', 'timeout': 30})
                 return out['ok']
@@ -100,6 +110,7 @@ def main():
             r['browser_code_head'] = code[:80]
             check('module_source_shown', len(code) > 0 or 'none' in modules.lower(), (code[:60], modules[:60]))
 
+            section('browser')
             # Workspace: print it, indentation.
             check('workspace_key', letter('w', CTRL | SHIFT))
             press(vk=VK_END, mods=CTRL)
@@ -116,6 +127,7 @@ def main():
             check('deindent', '\n6 7 * 42' in text(W_TEXT) or text(W_TEXT).startswith('6 7 *'), text(W_TEXT))
             ev('DROP')
 
+            section('workspace')
             # Inspector: memory pager, tasks.
             check('inspector_key', letter('i', CTRL | SHIFT))
             press(9, CTRL, VK_TAB)                      # Memory
@@ -131,6 +143,7 @@ def main():
             r['system_report'] = system
             check('system_report', 'display epoch' in system, system[:200])
 
+            section('inspector')
             # Manager: report and a cancelled action.
             check('manager_key', letter('m', CTRL | SHIFT))
             boot = text(M_DETAIL)
@@ -142,6 +155,7 @@ def main():
             r['dialog_status'] = st
             press(vk=VK_ESCAPE)                         # cancels: nothing changes
 
+            section('manager')
             # TextView read-back speed (open decision 2).
             ev(f'TT 4000 CHAR x FILL  TT 4000 {W_TEXT} UI-TEXT')
             t = time.perf_counter()
@@ -150,6 +164,7 @@ def main():
             r['readback'] = {'bytes': int(n[0]) if n else 0, 'seconds': round(dt, 3), 'bytes_per_s': round(4000 / dt) if dt else None}
             check('readback_complete', n and n[0] == '4000', n)
 
+            section('readback')
             # Close a tool with Ctrl+W, then the rest.
             letter('w', CTRL)
             if not close_all():
@@ -158,8 +173,10 @@ def main():
             sync = result('UI-SYNC . . .').split()
             r['sync'] = sync
             check('no_protocol_errors', sync and sync[0] == '0', sync)
-            s = c.tool('esp_stats')
-            r['frames'] = {k: s.get(k) for k in ('frames', 'vblank_start_max', 'frame_work_max', 'present_frames', 'present_work_max')}
+            section('close')
+            r['sections'] = sections
+            s = dict(worst)
+            r['frames'] = worst
             r['gui'] = status()
             r['resources'] = result('RESOURCES')
             check('frame_budget', s['frame_work_max'] <= 6000 and s['vblank_start_max'] <= 1000, r['frames'])
