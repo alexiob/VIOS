@@ -299,19 +299,13 @@ static void server_status(void) {
     unsigned char o[] = {0x31, 1}, r[32];
     unsigned n = 0;
     if (vios_ui_request(o, 2, r, sizeof r, &n) && n >= 9) {
-        vios_out("display server epoch "); vios_uint((uint32_t)(r[2] | r[3] << 8));
-        vios_out(" generation "); vios_uint((uint32_t)(r[4] | r[5] << 8)); vios_out(" errors "); vios_uint(r[6]); vios_out("\n");
+        vios_out("display epoch "); vios_uint((uint32_t)(r[2] | r[3] << 8)); vios_out(" errors "); vios_uint(r[6]);
     }
-    static const char *const names[3][2] = {{"frames ", " rows "}, {"pixels ", " carried "}, {"lut misses ", " damage|windows|sprites "}};
-    for (unsigned char sel = 0; sel < 3; ++sel) {
-        unsigned char q[] = {0x33, sel};
-        if (!vios_ui_request(q, 2, r, sizeof r, &n) || n < 10) break;
-        vios_out(names[sel][0]); vios_uint(vios_get32(r + 2)); vios_out(names[sel][1]); vios_uint(vios_get32(r + 6)); vios_out("\n");
-    }
-    vios_out("ESP restarts seen "); vios_uint(platform_vdp_epoch()); vios_out("\n");
+    o[0] = 0x33; o[1] = 0;
+    if (vios_ui_request(o, 2, r, sizeof r, &n) && n >= 10) { vios_out(" frames "); vios_uint(vios_get32(r + 2)); }
+    vios_out(" ESP restarts "); vios_uint(platform_vdp_epoch()); vios_out("\n");
 }
 static void inspector_fill(void) {
-    struct forth_word_info w;
     struct forth_task_info t;
     rows_begin(I_TABLE);
     view_clear(I_DETAIL);
@@ -324,12 +318,7 @@ static void inspector_fill(void) {
             put_u(i); put_c('\t'); put_x(v, 6); put_c('\t'); put_u(v); put_row();
         }
         break;
-    case 1:
-        columns(I_TABLE, 18, 10, 12, "name\tkind\tmodule");
-        for (unsigned i = 0; i < forth_word_count(); ++i)
-            if (forth_inspect_word(i, &w)) { put_s(w.name); put_c('\t'); put_s(w.kind < 6 ? KINDS[w.kind] : "?"); put_c('\t'); put_s(w.module); put_row(); }
-        break;
-    case 2:                                                /* 16 rows of 8 bytes; PAGE events move */
+    case 1:                                                /* 16 rows of 8 bytes; PAGE events move */
         columns(I_TABLE, 0, 0, 0, "");
         for (unsigned r = 0; r < 16; ++r) {
             fcell a = (memory_base + r * 8) & FVM_MASK;
@@ -342,23 +331,21 @@ static void inspector_fill(void) {
             put_row();
         }
         break;
-    case 3:
+    case 2:
         columns(I_TABLE, 4, 16, 8, "id\tname\tstate");
         for (unsigned i = 1; i <= FORTH_TASKS_MAX; ++i)
             if (forth_task_info(i, &t) && t.state) { put_u(i); put_c('\t'); put_s(t.name ? t.name : "?"); put_c('\t'); put_u(t.state); put_row(); }
         report(I_DETAIL, "TASKS");
         break;
-    case 4: columns(I_TABLE, 0, 0, 0, ""); capture(I_DETAIL); vios_handles_report(); release(); break;
+    case 3: columns(I_TABLE, 0, 0, 0, ""); capture(I_DETAIL); vios_handles_report(); release(); break;
     default: columns(I_TABLE, 0, 0, 0, ""); report(I_DETAIL, "RESOURCES"); capture(I_DETAIL); server_status(); release();
     }
     rows_flush();
 }
 static void inspector_select(unsigned k) {
-    struct forth_word_info w;
     const char *name = 0;
     table_row[0] = k;
     if (inspector_tab == 0 && k < fvm_depth) name = forth_xt_name(fvm_ds[fvm_depth - 1 - k]);
-    if (inspector_tab == 1 && forth_inspect_word(k, &w)) name = w.name;
     if (!name) return;
     view_clear(I_DETAIL);
     put_s("SEE "); put_s(name);
@@ -377,13 +364,10 @@ static void manager_fill(void) {
         columns(M_TABLE, 0, 0, 0, "");
         for (unsigned i = 0; i < 3; ++i) row(BOOT_ROWS[i], len(BOOT_ROWS[i]));
         capture(M_DETAIL); vios_out("Enter: run the selected action\n"); vios_boot_status(); vios_boot_manifest(); release();
-    } else if (manager_tab == 1) {
+    } else {
         columns(M_TABLE, 14, 10, 8, "module\tversion\tstate");
         for (unsigned i = 0; forth_module_info(i, &m); ++i) { put_s(m.name); put_c('\t'); put_s(m.version); put_c('\t'); put_s(m.active ? "active" : "-"); put_row(); }
         capture(M_DETAIL); vios_out("Enter: save the module to SD\nShift+F10: rollback the latest activation\n"); release();
-    } else {
-        columns(M_TABLE, 0, 0, 0, "");
-        capture(M_DETAIL); server_status(); release();
     }
     rows_flush();
 }
@@ -428,8 +412,8 @@ static void build(unsigned tool) {
     else if (tool == WORKSPACE) {
         static const char hint[] = "\\ Ctrl+D do it, Ctrl+P print it, Ctrl+I inspect it\n3 4 + .\n";
         vios_ui_text(W_TEXT, hint, sizeof hint - 1, 0);
-    } else if (tool == INSPECTOR) { wtext(I_TABS, "Stack|Words|Memory|Tasks|Handles|System"); inspector_fill(); }
-    else { wtext(M_TABS, "Boot|Modules|Display"); manager_fill(); }
+    } else if (tool == INSPECTOR) { wtext(I_TABS, "Stack|Memory|Tasks|Handles|System"); inspector_fill(); }
+    else { wtext(M_TABS, "Boot|Modules"); manager_fill(); }
     focus(tool);
     vios_ui_commit();
     open_tools |= (unsigned char)(1u << tool);
@@ -504,9 +488,9 @@ static void command_event(unsigned cmd, unsigned tool) {
         if (tool == MANAGER && manager_tab == 1) ask("Save this module to SD?", C_SAVE, table_row[1]);
         return;
     case C_ROLLBACK: if (tool == MANAGER && manager_tab == 1 && forth_module_info(table_row[1], &m)) ask("Roll back this module?", C_ROLLBACK, table_row[1]); return;
-    case C_KILL: if (tool == INSPECTOR && inspector_tab == 3) ask("Kill the selected task?", C_KILL, (unsigned)task_at(table_row[0])); return;
+    case C_KILL: if (tool == INSPECTOR && inspector_tab == 2) ask("Kill the selected task?", C_KILL, (unsigned)task_at(table_row[0])); return;
     case C_GOTO:
-        if (tool == INSPECTOR && fvm_depth) { memory_base = fvm_ds[fvm_depth - 1]; inspector_tab = 2; wvalue(I_TABS, 2); inspector_fill(); }
+        if (tool == INSPECTOR && fvm_depth) { memory_base = fvm_ds[fvm_depth - 1]; inspector_tab = 1; wvalue(I_TABS, 1); inspector_fill(); }
         return;
     }
 }
@@ -524,13 +508,13 @@ static void handle(const unsigned char *e) {
     case M_TABS: if (kind == EV_SELECT) { manager_tab = (unsigned char)arg; manager_fill(); } break;
     case I_TABLE:
         if (kind == EV_SELECT) inspector_select(arg);
-        if (kind == EV_PAGE && inspector_tab == 2) {
+        if (kind == EV_PAGE && inspector_tab == 1) {
             int dir = (signed char)e[3];
             memory_base = (memory_base + (fcell)(dir == 1 || dir == -1 ? dir * 8 : dir * 64)) & FVM_MASK;
             inspector_fill();
             wvalue(I_TABLE, dir > 0 ? 15 : 0);
         }
-        if (kind == EV_ACTIVATE && inspector_tab == 3) command_event(C_KILL, INSPECTOR);
+        if (kind == EV_ACTIVATE && inspector_tab == 2) command_event(C_KILL, INSPECTOR);
         break;
     case M_TABLE:
         if (kind == EV_SELECT) table_row[1] = arg;

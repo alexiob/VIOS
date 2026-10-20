@@ -381,16 +381,15 @@ void vios_ui_text(unsigned char id, const char *s, size_t n, int append) {
 }
 static int forth_text(unsigned char code) {             /* ( addr len id -- ): 0 replace, 1 append, 2 insert */
     fcell a[3];
+    unsigned char o[3 + 200];
     if (!pop(a, 3) || !widget_id(a[2])) return 0;
-    if (a[1] > VIOS_UI_TEXT_MAX) return forth_error("UI text: at most 4096 bytes");
-    unsigned char o[4 + 200] = {code == 2 ? 0x8D : 0x8A, b(a[2])};
+    if (a[1] > (code == 2 ? 200u : VIOS_UI_TEXT_MAX)) return forth_error("UI text: at most 4096 bytes (insert 200)");
     fcell done = 0;
     do {
-        unsigned k = a[1] - done > 200 ? 200u : (unsigned)(a[1] - done), at = code == 2 ? 3u : 4u;
-        if (code == 2) { o[0] = 0x8D; o[2] = (unsigned char)k; if (done) return forth_error("UI-INSERT: at most 200 bytes"); }
-        else { o[2] = (unsigned char)(code || done); o[3] = (unsigned char)k; }
-        if (!text(a[0] + done, k, o + at, 200)) return 0;
-        op(o, at + k);
+        unsigned k = a[1] - done > 200 ? 200u : (unsigned)(a[1] - done);
+        if (!text(a[0] + done, k, o + 3, 200)) return 0;
+        if (code == 2) { o[0] = 0x8D; o[1] = b(a[2]); o[2] = (unsigned char)k; op(o, 3 + k); }
+        else vios_ui_text(b(a[2]), (const char *)o + 3, k, code || done);
         done += k;
     } while (done < a[1]);
     return 1;

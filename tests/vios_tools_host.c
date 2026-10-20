@@ -197,19 +197,22 @@ int main(int argc, char **argv) {
 
     /* Inspector: tabs, words with SEE, memory paging, tasks, system. */
     size_t quiet = console_n;
-    assert(key(9, VDS_MOD_CTRL, VDS_VK_TAB) && wd(I_TABS)->value == 1 && wd(I_TABLE)->count == forth_word_count());
-    assert(vds_ui_widget_focus(&u, I_TABLE) && key('t', 0, 0));              /* type-ahead */
-    assert(strstr(text_of(I_DETAIL), "TWICE") || strstr(text_of(I_DETAIL), "T"));
-    assert(key(9, VDS_MOD_CTRL, VDS_VK_TAB) && wd(I_TABS)->value == 2 && wd(I_TABLE)->count == 16);
+    assert(vds_ui_widget_focus(&u, I_TABLE));
+    assert(key(9, VDS_MOD_CTRL, VDS_VK_TAB) && wd(I_TABS)->value == 1 && wd(I_TABLE)->count == 16);
     assert(!strncmp(item(I_TABLE, 0), "000000", 6));
     assert(key(0, 0, VDS_VK_HOME) && key(0, 0, VDS_VK_UP));                  /* past the top: one row up */
     assert(!strncmp(item(I_TABLE, 0), "FFFFF8", 6));
     assert(key(0, 0, VDS_VK_END) && key(0, 0, VDS_VK_DOWN) && key(0, 0, VDS_VK_DOWN));
     assert(!strncmp(item(I_TABLE, 0), "000008", 6) && wd(I_TABLE)->value == 15);
-    assert(key(9, VDS_MOD_CTRL, VDS_VK_TAB) && wd(I_TABS)->value == 3 && strstr(text_of(I_DETAIL), "task-slice"));
+    assert(key(9, VDS_MOD_CTRL, VDS_VK_TAB) && wd(I_TABS)->value == 2 && strstr(text_of(I_DETAIL), "task-slice"));
     assert(key(9, VDS_MOD_CTRL, VDS_VK_TAB) && strstr(text_of(I_DETAIL), "handles: console"));
-    assert(key(9, VDS_MOD_CTRL, VDS_VK_TAB) && wd(I_TABS)->value == 5);
-    assert(strstr(text_of(I_DETAIL), "display server epoch") && strstr(text_of(I_DETAIL), "words"));
+    assert(key(9, VDS_MOD_CTRL, VDS_VK_TAB) && wd(I_TABS)->value == 4);
+    assert(strstr(text_of(I_DETAIL), "display epoch") && strstr(text_of(I_DETAIL), "words"));
+    assert(key(9, VDS_MOD_CTRL, VDS_VK_TAB) && wd(I_TABS)->value == 0 && !strcmp(item(I_TABLE, 0), "0\t00002A\t42"));
+    eval("' SQUARE");                                                       /* an xt on the stack: SEE in the detail */
+    assert(ctrl('r') && wd(I_TABLE)->count == 2 && vds_ui_widget_focus(&u, I_TABLE) && key(0, 0, VDS_VK_DOWN) && key(0, 0, VDS_VK_UP));
+    assert(strstr(text_of(I_DETAIL), "SQUARE"));
+    fvm_pop(); fvm_pop();
     assert(console_n == quiet);                                         /* reports never reach the console */
 
     /* Manager: boot report; an action asks first, Esc or No cancels. */
