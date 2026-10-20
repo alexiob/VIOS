@@ -89,8 +89,90 @@ wire-framebuffer oracle in `tests/workbench_screen_native.c`.
   fallback and a `LinkedC` test against a Python oracle.
 - **Newline is the slowest incremental compose** (14.9 ms modelled): 47% is
   `editor_row`'s per-character diff walk over shifted rows. A
-  first/last-difference span would skip most of it.
+  first/last-difference span would skip most of it. Done; see
+  "editor_row span" below.
 - `row_end` (9.5%) scans attributes per character to find spans.
+
+## editor_row span
+
+After a newline, the model's 38 editor rows each differ from their cached
+copy in one or two digits (`row 07` → `row 08`). The old walk stepped every
+column at about 86 cycles a byte through IX spill slots to find those runs:
+1,970 equal-skip iterations, 158,692 of the frame's 274,230 cycles.
+
+`editor_row` now puts one span from the first to the last differing column.
+Two 26- and 34-byte eZ80 scanners find the edges with `cpi`/`cpd` at about 8
+cycles a byte (module-level `__asm__` in `kernel/workbench.c`, with C loops for
+host builds; `tests/test_editor_difference.py` checks the linked asm against
+a Python oracle). The cache holds the glyphs the row last stored, so
+re-storing unchanged cells inside the span leaves both planes and the dirty
+counts as they were. The cursor cell is repaired before the span and restyled
+after it, as before. Rejected: bisecting with the library `memcmp`. Inline or
+out of line, this compiler spends 120–200 cycles per bisect step, and newline
+improved only to 14.3 ms while the full frame regressed to 37.6 ms.
+
+| Frame | Before ms | After ms |
+|---|---:|---:|
+| Full, after `WB-REPAINT` | 33.01 | 32.75 |
+| Unchanged / TAB to editor | 1.08 / 2.19 | 1.08 / 2.19 |
+| Character insert / delete | 3.62 / 3.62 | 3.49 / 3.48 |
+| Newline insert / delete | 14.88 / 14.89 | **9.60 / 9.62** |
+| Source scroll up / down | 5.20 / 13.38 | 4.70 / **7.97** |
+| Zoom on / off (painted) | 39.41 / 40.22 | 38.07 / 39.98 |
+
+The desired-plane hash matches in all 11 frames. Newline still visits 38 rows,
+now with 39 `put` calls for 148 cells (before: 45 for 142). `.text` shrinks by
+238 B (`editor_row` −298 B, scanners +60 B); BSS is unchanged; `__bss_end`
+moves from 0xA84D6 to 0xA83E8.
+
+In this model's newline frame `vios_text_scroll` is never called: every row is
+re-diffed instead of shifted. If the hardware bench's edit position engages
+the shift path, the board will show a smaller newline delta than the model.
+
+## Newline scroll (branch claude/newline-scroll-shift)
+
+Why the model's newline frame never scrolled: the fixture is loaded by
+appending patches, so the cursor sits at EOF (offset 1969, line 51, view top
+14). That rules out the row shift. `vios_workbench_patch` sets `can_shift`
+only when `suffix<line_count`, and at EOF there is no line below the edit to
+move. That is correct, not a bug. The newline does move the view top
+(14→15, back on delete). But that scroll branch in `editor_compose` required
+`!view.damage`, and every structural patch sets damage from `line-1` to the
+end. So all 38 rows were re-diffed. The gate was too strict: damage is kept
+in source lines, and the row loop repaints it after a scroll anyway. It now
+skips the scroll only when the damage starts at or above the new top
+(`view.damage_first>top`), meaning the whole view would be repainted.
+
+The hardware bench (`tools/vios_fast_display_bench.py`) behaves differently.
+It moves the cursor to offset 5, on line 0 with top 0, so its `newline_edit`
+pairs take the `shift_valid` path (`editor_scroll(1,-1)`, then `(1,+1)`),
+which this model's frames never exercise. Its newline numbers are therefore
+not comparable to the model's.
+
+Two cycle-model bugs fixed in `tools/verification/compose_cycles.py`. First,
+the inherited interpreter stored `ld (iy+d),n` and `ld (hl),n` as three bytes.
+That added cycles, and in `vios_text_scroll`'s blank row it wrote two zeros
+past the region, at (0,56). Second, `settle()` did not clear
+`_scroll_pending`, which the renderer drains before the next frame, so after
+the first scroll every later one was refused. Fixing them changes the base
+ELF's own hashes from TAB onward and its cycles. The table below re-measures
+both ELFs with the fixed model.
+
+| Frame (ms, fixed model) | base 6672e7d | gate relaxed |
+|---|---:|---:|
+| Full, after `WB-REPAINT` | 32.73 | 32.76 |
+| Unchanged / TAB to editor | 1.08 / 2.27 | 0.97 / 2.05 |
+| Character insert / delete | 3.60 / 3.59 | 3.20 / 3.19 |
+| Newline insert / delete | 9.71 / 9.73 | **6.02 / 6.44** |
+| Source scroll up / down | 4.69 / 4.20 | 4.41 / 3.99 |
+| Zoom on / off (painted) | 38.06 / 39.96 | 38.08 / 39.98 |
+
+All 11 desired-plane hashes match. In cycles, newline insert drops from
+179,064 to 111,020 and delete from 179,340 to 118,791. The smaller drops in
+other frames all fall inside the inlined `editor_compose` (the unchanged
+frame goes from 15,794 to 13,669 cycles in `vios_workbench_compose`). They
+come from codegen changes, not from skipping rows. The image shrinks by 171 B
+(152,936 → 152,765 B), and `__bss_end` moves from 0xA83E8 to 0xA833D.
 
 ## Hardware follow-up (owner)
 
