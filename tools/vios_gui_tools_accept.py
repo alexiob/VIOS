@@ -51,7 +51,8 @@ def main():
                 return out['output']
 
             def result(source):
-                lines = ev(source).split('\r\n')
+                # Background tasks (an AUTORUN heartbeat) may print between the echo and the answer.
+                lines = [x for x in ev(source).split('\r\n') if 'heartbeat' not in x]
                 for i, line in enumerate(lines):
                     if line.strip() == source.strip() and i + 1 < len(lines):
                         return lines[i + 1]
