@@ -11,6 +11,12 @@
 #define BUNDLE_MAX (16+ENTRY_SIZE*FORTH_MODULES_MAX+4)
 struct boot_state {unsigned confirmed,previous,candidate,state;uint32_t generation,crc[2];};
 static struct boot_state boot,committed;
+/* Where startup time goes (BOOT-TIMES): ESP clock stamps (ms, one VDP round
+ * trip each) at each step of vios_boot_startup, and the slowest module. */
+enum {MARK_START,MARK_STORAGE,MARK_STATE,MARK_MODULES,MARK_HEALTH,MARK_READY,MARKS};
+static uint32_t marks[MARKS],module_slowest,module_loads;static char module_slowest_name[32];
+static void mark(unsigned at){marks[at]=platform_millis();}
+extern uint32_t vios_module_read_ms,vios_module_check_ms,vios_module_compile_ms;
 static unsigned running=NONE;
 static unsigned char bundle[BUNDLE_MAX],checked[BUNDLE_MAX];
 static const char *slot_path(unsigned slot){return slot?"/VIOS/BOOT_B.VIB":"/VIOS/BOOT_A.VIB";}
@@ -54,7 +60,10 @@ static int load_slot(unsigned slot){
  if(slot>1)return 0;
  const char *why=read_slot(slot,bundle);if(why)return forth_error(why);
  for(unsigned i=0;i<bundle[6];++i){const unsigned char *e=bundle+16+(size_t)i*ENTRY_SIZE;
+  uint32_t before=platform_millis();
   if(!vios_module_load((const char *)e+32))return 0;
+  uint32_t spent=platform_millis()-before;++module_loads;
+  if(spent>module_slowest){module_slowest=spent;size_t n=0;while(n<31&&e[n]){module_slowest_name[n]=(char)e[n];++n;}module_slowest_name[n]=0;}
   struct forth_module_info info;int found=0;for(unsigned n=0;n<forth_module_count();++n)if(forth_module_info(n,&info)&&vios_same(info.name,(const char *)e)&&info.source_crc32==vios_get32(e+160)){found=1;break;}
   if(!found)return forth_error("boot package identity mismatch");
  }
@@ -139,14 +148,14 @@ static int health(void){
 }
 /* Healthy: the MOS boot stub's unfinished-boot counter (/vios/boot.cnt,
  * arch/ez80/viosboot.s) starts over. No file, no card: nothing to clear. */
-static void ready(void){(void)storage_remove("/vios/boot.cnt");platform_boot_ready();}
+static void ready(void){(void)storage_remove("/vios/boot.cnt");mark(MARK_READY);platform_boot_ready();}
 int vios_boot_startup(void){
- running=NONE;platform_boot_trial();
+ running=NONE;platform_boot_trial();mark(MARK_START);
  if(!storage_init()){vios_out("boot recovery: ");vios_out(storage_error());vios_out("\r\n");ready();return 1;}
- read_state();
+ mark(MARK_STORAGE);read_state();mark(MARK_STATE);
  if(boot.state==PENDING&&boot.candidate<2){
   unsigned candidate=boot.candidate;boot.state=TRIED;
-  if(write_state()&&load_slot(candidate)&&health()&&vios_boot_confirm()){
+  if(write_state()&&load_slot(candidate)&&(mark(MARK_MODULES),health())&&(mark(MARK_HEALTH),vios_boot_confirm())){
    vios_out("boot trial confirmed ");vios_out(slot_name(candidate));vios_out("\r\n");ready();return 1;
   }
   vios_out("boot candidate rejected: ");vios_out(forth_last_error());vios_out("\r\n");
@@ -155,7 +164,8 @@ int vios_boot_startup(void){
  unsigned choices[2]={boot.confirmed,boot.previous};
  for(unsigned i=0;i<2;++i)if(choices[i]<2){
   if(!fresh_runtime())return 0;
-  if(load_slot(choices[i])&&health()){
+  if(load_slot(choices[i])&&(mark(MARK_MODULES),health())){
+   mark(MARK_HEALTH);
    if(i){boot.previous=boot.confirmed;boot.confirmed=choices[i];(void)write_state();}
    vios_out("boot confirmed ");vios_out(slot_name(running));vios_out("\r\n");ready();return 1;
   }
@@ -163,8 +173,19 @@ int vios_boot_startup(void){
  }
  if(!fresh_runtime())return 0;running=NONE;vios_out("boot recovery: built-in kernel, no valid source bundle\r\n");ready();return 1;
 }
+/* "boot-times storage S state T modules M (N loads, slowest NAME X) health H
+ * finish F total ms": each step's duration, from the stamps above. */
+static void boot_times(void){
+ static const char *const names[]={"storage","state","modules","health","finish"};
+ vios_out("boot-times");
+ for(unsigned i=1;i<MARKS;++i){vios_out(" ");vios_out(names[i-1]);vios_out(" ");vios_uint(marks[i]&&marks[i-1]?marks[i]-marks[i-1]:0);
+  if(i==MARK_MODULES){vios_out(" (");vios_uint(module_loads);vios_out(" loads, slowest ");vios_out(module_loads?module_slowest_name:"-");vios_out(" ");vios_uint(module_slowest);
+   vios_out("; read ");vios_uint(vios_module_read_ms);vios_out(" check ");vios_uint(vios_module_check_ms);vios_out(" compile ");vios_uint(vios_module_compile_ms);vios_out(")");}}
+ vios_out(" total ");vios_uint(marks[MARK_READY]-marks[MARK_START]);vios_out(" ms\r\n");
+}
 int vios_boot_command(const char *word,const char **rest){
  (void)rest;
+ if(vios_same(word,"BOOT-TIMES")){boot_times();return 1;}
  if(vios_same(word,"BOOT-STATUS")){vios_boot_status();return 1;}
  if(vios_same(word,"BOOT-MANIFEST")){vios_boot_manifest();return 1;}
  if(vios_same(word,"BOOT-TRIAL"))return vios_boot_trial()?1:-1;

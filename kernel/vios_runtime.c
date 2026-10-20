@@ -18,11 +18,9 @@ int vios_arg(const char **p,char *out,size_t capacity){
  }
  out[n]=0;return n?1:forth_error("missing argument");
 }
-uint32_t vios_crc32(const void *data,size_t length){
- const unsigned char *p=data;uint32_t crc=0xffffffffUL;
- while(length--){crc^=*p++;for(unsigned i=0;i<8;++i)crc=(crc>>1)^((crc&1)?0xedb88320UL:0);}
- return ~crc;
-}
+/* Board-specific words (the resident links kernel/vios_irq.c); host builds have none. */
+__attribute__((weak)) int vios_board_init(void){return 1;}
+uint32_t vios_crc32(const void *data,size_t length){return ~forth_crc32_update(0xffffffffUL,data,length);}
 void vios_put32(unsigned char *p,uint32_t v){for(unsigned i=0;i<4;++i){p[i]=(unsigned char)v;v>>=8;}}
 uint32_t vios_get32(const unsigned char *p){return (uint32_t)p[0]|((uint32_t)p[1]<<8)|((uint32_t)p[2]<<16)|((uint32_t)p[3]<<24);}
 int vios_load_source(const char *path){
@@ -65,5 +63,5 @@ int vios_autorun(void){
 }
 int vios_runtime_init(void){
  include_depth=0;forth_transport_crc(1);
- return vios_prelude_init()&&vios_services_init()&&vios_handles_init()&&vios_ui_init()&&vios_workbench_runtime_init()&&forth_register_command(command);
+ return vios_prelude_init()&&vios_services_init()&&vios_handles_init()&&vios_ui_init()&&vios_workbench_runtime_init()&&vios_board_init()&&forth_register_command(command);
 }

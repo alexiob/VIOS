@@ -41,6 +41,9 @@ class NativeSPI:
                 if dst.startswith('('):at=get(dst[1:-1]);mem[at:at+n]=(value&((1<<(n*8))-1)).to_bytes(n,'little')
                 else:put(dst,value)
             elif mn=='add':put(a[0],get(a[0])+get(a[1]))
+            elif mn=='inc':put(a[0],get(a[0])+1)
+            elif mn=='push':r['sp']-=3;mem[r['sp']:r['sp']+3]=get(a[0]).to_bytes(3,'little')
+            elif mn=='pop':put(a[0],int.from_bytes(mem[r['sp']:r['sp']+3],'little'));r['sp']+=3
             elif mn=='dec':put(a[0],get(a[0])-1)
             elif mn in ['and','or','xor']:
                 lhs=get(a[0]);rhs=get(a[1]);value={'and':lhs&rhs,'or':lhs|rhs,'xor':lhs^rhs}[mn];put('a',value);zero=not(value&255)

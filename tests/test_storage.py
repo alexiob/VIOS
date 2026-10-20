@@ -97,5 +97,11 @@ class NativeSpiTests(unittest.TestCase):
         self.assertEqual(p.call('xfer',[0x5a,0x90000]),1);self.assertEqual(p.tx[-1],0x5a);self.assertEqual(p.memory[0x90000],0xa5)
         self.assertEqual(p.call('xfer',[0x5a,0x90000],status=0x40),0)
         self.assertEqual(p.call('xfer',[0x5a,0x90000],status=0),0)
+        # Block read: count bytes clocked in with 0xFF out, to the buffer; faults return 0.
+        p.tx.clear();p.rx=0x3c
+        self.assertEqual(p.call('read',[0x90000,5]),1);self.assertEqual(p.tx,[255]*5);self.assertEqual(bytes(p.memory[0x90000:0x90006]),b'\x3c'*5+b'\0')
+        self.assertEqual(p.call('read',[0x90000,0]),1)
+        self.assertEqual(p.call('read',[0x90000,3],status=0x40),0)
+        self.assertEqual(p.call('read',[0x90000,3],status=0),0)
 
 if __name__=='__main__':unittest.main()

@@ -39,16 +39,19 @@ static int command(unsigned char op,uint32_t argument,unsigned char crc,unsigned
  for(i=0;i<10;i++){if(!exchange(255,response))return 0;if(!(*response&0x80))return 1;}
  return fail("SD command response timeout");
 }
+/* CRC-16/XMODEM (poly 0x1021, init 0) a byte at a time: the same result as
+ * the eight-step bitwise loop in a few shifts and XORs. */
 static uint16_t crc16(uint16_t crc,unsigned char value) {
- unsigned i;crc^=(uint16_t)value<<8;
- for(i=0;i<8;i++)crc=(uint16_t)((crc<<1)^((crc&0x8000)?0x1021:0));
+ crc=(uint16_t)((crc>>8)|(crc<<8));crc^=value;
+ crc^=(uint16_t)((crc&0xff)>>4);crc^=(uint16_t)(crc<<12);crc^=(uint16_t)((crc&0xff)<<5);
  return crc;
 }
 static int read_data(unsigned char *buffer,unsigned count) {
  struct deadline timer;unsigned char value,hi,lo;uint16_t crc=0;unsigned i;begin(&timer,200);
  do {if(!exchange(255,&value))return 0;if(value!=255)break;}while(!expired(&timer));
  if(value!=0xfe)return fail("SD data token error or timeout");
- for(i=0;i<count;i++){if(!exchange(255,&buffer[i]))return 0;crc=crc16(crc,buffer[i]);}
+ if(!ez80_spi_read(buffer,count))return fail("SPI transfer timeout or fault");
+ for(i=0;i<count;i++)crc=crc16(crc,buffer[i]);
  if(!exchange(255,&hi)||!exchange(255,&lo))return 0;
  if(crc!=((uint16_t)hi<<8|lo))return fail("SD data CRC mismatch");
  return 1;

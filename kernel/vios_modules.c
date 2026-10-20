@@ -2,6 +2,7 @@
 #include "vios/runtime.h"
 #include "platform/storage.h"
 #include "platform/console.h"
+#include "platform/vdp.h"
 #define PACKAGE_HEADER 260
 #define PACKAGE_MAX (PACKAGE_HEADER+FORTH_MODULE_SOURCE_MAX+4)
 static unsigned char package[PACKAGE_MAX],verify_package[PACKAGE_MAX];
@@ -94,8 +95,13 @@ int vios_module_package_version(const char *path,uint32_t crc,char *version){
  return -1;
 }
 static int terminated(unsigned offset){for(unsigned i=0;i<32;++i)if(!package[offset+i])return 1;return 0;}
+/* Module load time by part (ms, ESP clock): reading the package, checking it
+ * (CRCs), compiling it. Reported by BOOT-TIMES. */
+uint32_t vios_module_read_ms,vios_module_check_ms,vios_module_compile_ms;
 int vios_module_load(const char *path){
+ uint32_t t0=platform_millis();
  size_t size=0;if(!storage_read_file(path,package,sizeof package,&size))return error(storage_error());
+ uint32_t t1=platform_millis();vios_module_read_ms+=t1-t0;
  const char *why=package_check(package,size);if(why)return error(why);
  uint32_t length=vios_get32(package+108);
  if(!terminated(8)||!terminated(40)||!terminated(72))return error("unterminated package metadata");
@@ -104,8 +110,11 @@ int vios_module_load(const char *path){
  for(uint32_t i=0;i<length;++i)if(!package[PACKAGE_HEADER+(size_t)i])return error("NUL in package source");
  package[PACKAGE_HEADER+(size_t)length]=0;
  if(forth_module_crc32((char *)package+PACKAGE_HEADER)!=vios_get32(package+112))return error("module source CRC mismatch");
- if(!forth_module_stage((char *)package+8,(char *)package+40,deps,package[104],(char *)package+PACKAGE_HEADER,(char *)package+72))return 0;
- return forth_module_activate((char *)package+8);
+ uint32_t t2=platform_millis();vios_module_check_ms+=t2-t1;
+ int staged=forth_module_stage((char *)package+8,(char *)package+40,deps,package[104],(char *)package+PACKAGE_HEADER,(char *)package+72);
+ int active=staged&&forth_module_activate((char *)package+8);
+ vios_module_compile_ms+=platform_millis()-t2;
+ return active;
 }
 static void inventory(void){
  for(unsigned i=0;i<forth_module_count();++i){struct forth_module_info info;if(!forth_module_info(i,&info))continue;

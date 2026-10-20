@@ -14,6 +14,8 @@ static void put(unsigned char b){assert(qwrite<sizeof queue);queue[qwrite++]=b;}
 void ez80_spi_init(unsigned char value){fast=value;if(!value){qread=qwrite=used=selected=write_left=busy_active=0;}}
 void ez80_spi_select(unsigned char active){selected=active;if(!active){used=0;qread=qwrite=0;}}
 unsigned short platform_timer_read(void){++timer_reads;clock_count=(unsigned short)(clock_count-1000);return clock_count;}
+unsigned char ez80_spi_xfer(unsigned char tx,unsigned char *rx);
+unsigned char ez80_spi_read(unsigned char *rx,unsigned count){for(unsigned i=0;i<count;i++)if(!ez80_spi_xfer(255,&rx[i]))return 0;return 1;}
 unsigned char ez80_spi_xfer(unsigned char tx,unsigned char *rx){
  if(transfer_failed)return 0;
  if(!selected){*rx=255;return 1;}

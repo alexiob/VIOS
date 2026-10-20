@@ -1,0 +1,16 @@
+hello: VIOS application started (TASKS / TASK-KILL)
+IRQ-PROBE
+irq boot mos I 01
+irq table 0BCB15 default 001937 x45
+irq vector 18 slot 0BCB45 handler 0013E3
+irq vector 1C slot 0BCB4D handler 0013FD
+irq vector 32 slot 0BCB79 handler 0013B7
+irq ports TMR0_CTL=99 TMR1_CTL=00 TMR2_CTL=00 TMR3_CTL=00 TMR4_CTL=00 TMR5_CTL=00 TMR_ISS=00 CLK_PPD1=00 CLK_PPD2=00 UART0_IER=00 UART1_IER=00 PB_DDR=EB PB_ALT1=02 PB_ALT2=CA PC_DDR=FF PC_ALT1=00 PC_ALT2=00 PD_DDR=FF PD_ALT1=00 PD_ALT2=0F
+
+ok
+vios> 
+BOOT-TIMES
+boot-times storage 42 state 142 modules 2168 (5 loads, slowest WBM1P 527; read 526 check 180 compile 1090) health 6 finish 135 total 2493 ms
+
+ok
+vios> 

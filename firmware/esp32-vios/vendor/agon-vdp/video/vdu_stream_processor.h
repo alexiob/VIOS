@@ -250,10 +250,20 @@ void VDUStreamProcessor::send_packet(uint8_t code, uint16_t len, uint8_t data[])
 	if (code == PACKET_KEYCODE && len >= 4 && vios_line_key(data[0], data[2], data[3])) return;
 	vios_mos_tx(code, len);	// MOS diagnostics (MX): packets to the CPU
 	vios_vdp_tx_begin();
-	writeByte(code + 0x80);
-	writeByte(len);
-	for (int i = 0; i < len; i++) {
-		writeByte(data[i]);
+	if (outputStream && len <= 255) {
+		// VIOS: one write per packet. Byte-at-a-time writes cost the UART driver's
+		// lock per byte (~15 ms for a 199-byte boot block, measured).
+		uint8_t packet[2 + 255];
+		packet[0] = code + 0x80;
+		packet[1] = len;
+		memcpy(packet + 2, data, len);
+		outputStream->write(packet, 2 + len);
+	} else {
+		writeByte(code + 0x80);
+		writeByte(len);
+		for (int i = 0; i < len; i++) {
+			writeByte(data[i]);
+		}
 	}
 	vios_vdp_tx_end();
 }

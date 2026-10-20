@@ -1,6 +1,7 @@
 # VIOS multitasking: cooperative, tick-sliced or preemptive
 
-Status: design for the owner's decision. No code. Builds on the shipped
+Status: option B, stages B0 and B1 implemented and measured on the board
+(2026-10-20, see "B0 and B1 results" at the end); B2–B5 not started. Builds on the shipped
 [background tasks, slice 1](2026-10-18-vios-tasks.md) and its
 [acceptance](../../bring-up/vios-tasks-acceptance-2026-10-18.json) and
 [slice sweep](../../bring-up/vios-task-slice-sweep-2026-10-19.json).
@@ -468,3 +469,39 @@ VIOS behaves exactly as slice 1.
    REPL semantics for long words; the recommendation is yes.
 3. Should B3 (RX ISR) follow B2 directly, or wait for the GUI toolkit's
    Stage 1 console changes, which also touch the console path?
+
+
+## B0 and B1 results (2026-10-20)
+
+Owner's go-ahead: "Fully implement 1-5" (this design was item 5). Open
+questions answered with the recommendations: **1 kHz** tick (B1 measured its
+cost); Ctrl-C at preemption points and the B3 ordering belong to B2/B3.
+
+**B0 (read-only, `IRQ-PROBE`).** No ZDI wire is needed: since the untethered
+boot, MOS always runs first, so the probe runs on the CPU
+(`kernel/vios_irq.c`, `docs/bring-up/vios-irq-probe-2026-10-20.txt`):
+`I` = 01 (flash table 000100h), RAM 2nd jump table at **0BCB15h**, 45 of 48
+slots MOS's default (001937h); MOS handlers on IVECT 18h (UART0), 1Ch (UART1)
+and 32h (PB1 — the VDP vertical blank). UART0/1 `IER` = 0, PRT1 unused and
+clocked (`TMR1_CTL` 00, `CLK_PPD2` 00, `TMR_ISS` 00), **PB1 still a
+rising-edge interrupt** (`PB_ALT1`/`ALT2` bit 1 set).
+
+**B1 (`vios_tick_start`, `arch/ez80/irq.s`).** Only when the stub booted VIOS
+(`VIOS_BOOT_MAGIC`) and the chain is exactly MOS's layout: PB1 made a plain
+input, UART IERs cleared, all 48 RAM slots pointed at VIOS (PRT1 → the tick,
+the rest → a counting `reti.l`), PRT1 at /64 reload 288 = 1 kHz, then `EI`.
+The ISR acknowledges PRT1 and increments a 32-bit `ms_clock` (AF and HL, 9
+bytes of stack). The task clock (`MS`, deadlines) uses it instead of the
+polled TMR0 clock. New words `TICKS` and `IRQ-STATS`; `preempt_armed` does not
+exist yet (no preemption). On the board:
+
+- `TICKS` vs the ESP clock over a 10 s `MS`: **10001 / 10001 ms**.
+- Stray interrupts: **0**.
+- `BENCH` against the same code without the tick (`firmware-main-8`):
+  **+0.34 / +0.33 / +0.37 %** mean for engines 0/1/2 (max +0.63 %), target ≤1.5 %
+  (`vios-bench-no-tick-main8-2026-10-20.txt`, `vios-tick-b1-2026-10-20.txt`).
+- Boot unchanged (`BOOT-TIMES` 2,502 ms); the firmware confirmed on trial.
+- 30-minute soak: see `vios-soak-tick-b1-2026-10-20.json`.
+
+Next: B2 (budget steal, dispatcher rule, foreground preemption, 60 Hz render
+task, `FRAME-WAIT`, `CRITICAL`, Ctrl-C at preemption points).

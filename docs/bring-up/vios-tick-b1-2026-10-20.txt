@@ -1,0 +1,78 @@
+hello: VIOS application started (TASKS / TASK-KILL)
+IRQ-STATS
+irq tick on ms 2863 stray 0
+
+ok
+vios> 
+: TCHK TICKS MILLIS 10000 MS TICKS MILLIS ROT - . SWAP - . ; TCHK
+hello: heartbeat 1 
+10001 10001 
+ok
+vios> 
+IRQ-STATS
+irq tick on ms 12984 stray 0
+
+ok
+vios> 
+BOOT-TIMES
+boot-times storage 42 state 143 modules 2176 (5 loads, slowest WBM1P 529; read 528 check 180 compile 1093) health 5 finish 136 total 2502 ms
+
+ok
+vios> 
+BENCH
+BENCH VIOS checked24+peaks timer_hz=288000 wrap_ticks=65536 samples=9
+TIMER read-pair-ticks=1
+EMPTY engine=0 median=68
+SAMPLE engine=0 word=BM-ARITH n=25 result=3 ticks=2895,2895,2895,2895,2895,2895,2895,2895,2896 median=2895
+SAMPLE engine=0 word=BM-ARITH n=50 result=0 ticks=5656,5657,5657,5656,5657,5657,5656,5657,5656 median=5657
+SAMPLE engine=0 word=BM-ARITH n=100 result=0 ticks=11179,11179,11180,11179,11180,11179,11179,11179,11180 median=11179
+SAMPLE engine=0 word=BM-CALL n=25 result=75 ticks=2010,2009,2010,2009,2010,2009,2010,2009,2010 median=2010
+SAMPLE engine=0 word=BM-CALL n=50 result=150 ticks=3890,3889,3890,3889,3890,3889,3890,3888,3889 median=3889
+SAMPLE engine=0 word=BM-CALL n=100 result=300 ticks=7650,7650,7650,7649,7651,7650,7649,7651,7649 median=7650
+SAMPLE engine=0 word=BM-BRANCH n=25 result=49 ticks=3077,3076,3076,3076,3076,3076,3076,3076,3076 median=3076
+SAMPLE engine=0 word=BM-BRANCH n=50 result=100 ticks=6027,6027,6027,6027,6026,6027,6027,6027,6027 median=6027
+SAMPLE engine=0 word=BM-BRANCH n=100 result=200 ticks=11916,11916,11915,11916,11915,11916,11915,11915,11916 median=11916
+SAMPLE engine=0 word=BM-LOOP n=25 result=300 ticks=1245,1245,1246,1245,1245,1245,1245,1246,1245 median=1245
+SAMPLE engine=0 word=BM-LOOP n=50 result=1225 ticks=2363,2363,2364,2363,2363,2363,2363,2363,2362 median=2363
+SAMPLE engine=0 word=BM-LOOP n=100 result=4950 ticks=4598,4597,4597,4598,4597,4597,4598,4597,4597 median=4597
+SAMPLE engine=0 word=BM-MEM n=25 result=25 ticks=3202,3202,3202,3204,3203,3203,3202,3202,3202 median=3202
+SAMPLE engine=0 word=BM-MEM n=50 result=50 ticks=6221,6222,6221,6222,6220,6221,6221,6220,6222 median=6221
+SAMPLE engine=0 word=BM-MEM n=100 result=100 ticks=12258,12259,12258,12258,12258,12257,12258,12258,12257 median=12258
+EMPTY engine=1 median=65
+SAMPLE engine=1 word=BM-ARITH n=25 result=3 ticks=674,675,675,676,675,675,676,674,674 median=675
+SAMPLE engine=1 word=BM-ARITH n=50 result=0 ticks=1272,1273,1272,1273,1272,1273,1271,1272,1273 median=1272
+SAMPLE engine=1 word=BM-ARITH n=100 result=0 ticks=2467,2466,2468,2467,2466,2467,2467,2467,2467 median=2467
+SAMPLE engine=1 word=BM-CALL n=25 result=75 ticks=491,492,492,491,492,492,492,491,491 median=492
+SAMPLE engine=1 word=BM-CALL n=50 result=150 ticks=911,910,910,910,910,910,909,909,910 median=910
+SAMPLE engine=1 word=BM-CALL n=100 result=300 ticks=1747,1747,1747,1747,1747,1747,1747,1748,1747 median=1747
+SAMPLE engine=1 word=BM-BRANCH n=25 result=49 ticks=656,655,655,655,656,655,655,656,655 median=655
+SAMPLE engine=1 word=BM-BRANCH n=50 result=100 ticks=1230,1229,1229,1229,1230,1229,1229,1230,1229 median=1229
+SAMPLE engine=1 word=BM-BRANCH n=100 result=200 ticks=2376,2376,2376,2376,2376,2377,2375,2376,2376 median=2376
+SAMPLE engine=1 word=BM-LOOP n=25 result=300 ticks=356,355,355,356,355,355,355,356,355 median=355
+SAMPLE engine=1 word=BM-LOOP n=50 result=1225 ticks=638,639,638,638,638,639,638,638,638 median=638
+SAMPLE engine=1 word=BM-LOOP n=100 result=4950 ticks=1203,1203,1203,1203,1203,1203,1203,1203,1203 median=1203
+SAMPLE engine=1 word=BM-MEM n=25 result=25 ticks=636,636,636,636,636,636,636,636,636 median=636
+SAMPLE engine=1 word=BM-MEM n=50 result=50 ticks=1194,1194,1194,1196,1195,1194,1194,1194,1195 median=1194
+SAMPLE engine=1 word=BM-MEM n=100 result=100 ticks=2312,2312,2312,2312,2312,2312,2312,2311,2311 median=2312
+EMPTY engine=2 median=65
+SAMPLE engine=2 word=BM-ARITH n=25 result=3 ticks=596,596,597,596,596,596,597,596,596 median=596
+SAMPLE engine=2 word=BM-ARITH n=50 result=0 ticks=1116,1117,1117,1117,1117,1117,1116,1116,1117 median=1117
+SAMPLE engine=2 word=BM-ARITH n=100 result=0 ticks=2157,2158,2157,2158,2158,2158,2157,2158,2157 median=2158
+SAMPLE engine=2 word=BM-CALL n=25 result=75 ticks=431,430,431,429,430,429,430,430,431 median=430
+SAMPLE engine=2 word=BM-CALL n=50 result=150 ticks=790,789,790,789,790,789,790,789,790 median=790
+SAMPLE engine=2 word=BM-CALL n=100 result=300 ticks=1509,1508,1509,1509,1508,1508,1508,1509,1508 median=1508
+SAMPLE engine=2 word=BM-BRANCH n=25 result=49 ticks=571,571,571,572,571,571,572,571,571 median=571
+SAMPLE engine=2 word=BM-BRANCH n=50 result=100 ticks=1063,1063,1062,1063,1063,1063,1062,1063,1063 median=1063
+SAMPLE engine=2 word=BM-BRANCH n=100 result=200 ticks=2045,2045,2044,2045,2045,2045,2045,2045,2045 median=2045
+SAMPLE engine=2 word=BM-LOOP n=25 result=300 ticks=321,320,320,321,321,320,321,321,320 median=321
+SAMPLE engine=2 word=BM-LOOP n=50 result=1225 ticks=569,569,570,570,570,570,571,570,571 median=570
+SAMPLE engine=2 word=BM-LOOP n=100 result=4950 ticks=1070,1069,1069,1069,1070,1069,1070,1070,1070 median=1070
+SAMPLE engine=2 word=BM-MEM n=25 result=25 ticks=556,557,556,555,556,556,556,556,556 median=556
+SAMPLE engine=2 word=BM-MEM n=50 result=50 ticks=1038,1038,1037,1038,1038,1038,1038,1037,1037 median=1038
+SAMPLE engine=2 word=BM-MEM n=100 result=100 ticks=2001,2001,2002,2001,2001,2001,2001,2002,2001 median=2001
+COMPILE chars=39 ticks=1379
+CODE token-bytes=1671 direct-bytes=3999
+BENCH DONE
+
+ok
+vios> 

@@ -33,6 +33,7 @@ void vios_hex(uint32_t value,unsigned digits);
 int vios_arg(const char **rest,char *out,size_t capacity);
 int vios_same(const char *a,const char *b);
 size_t vios_length(const char *s);
+int vios_board_init(void); /* board words; weak default in vios_runtime.c */
 uint32_t vios_crc32(const void *data,size_t length);
 void vios_put32(unsigned char *p,uint32_t value);
 uint32_t vios_get32(const unsigned char *p);
