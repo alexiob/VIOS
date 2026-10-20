@@ -116,7 +116,7 @@ static void status(unsigned char id, const char *a, const char *b) { put_s(a); p
 #define WTEXT(id, n, ...) 3 + n, 0x81, id, n, __VA_ARGS__
 #define DECOR 7                                       /* visible, decorated, shadow */
 static const unsigned char BUILD_BROWSER[] = {
-    WINDOW(BROWSER, 6, 16, 16, 76, 40, DECOR, 12), WIDGET(B_ROOT, BROWSER, K_BOX, 255, 0, 0, F_FILL), LAYOUT(B_ROOT, 1, 0),
+    WINDOW(BROWSER, 6, 16, 16, 76, 40, DECOR, 12), WIDGET(B_ROOT, BROWSER, K_BOX, 255, 0, 0, F_FILL), LAYOUT(B_ROOT, 1, 1),   /* gap 1: a divider above the code pane */
     WIDGET(B_ROW, BROWSER, K_BOX, B_ROOT, 0, 1, 0), LAYOUT(B_ROW, 2, 1), WIDGET(B_MODULES, BROWSER, K_LIST, B_ROW, 16, 0, 0),
     WIDGET(B_WORDS, BROWSER, K_LIST, B_ROW, 20, 0, 0), WIDGET(B_INFO, BROWSER, K_LIST, B_ROW, 0, 1, 0),
     WIDGET(B_CODE, BROWSER, K_TEXT, B_ROOT, 0, 2, 0), WIDGET(B_STATUS, BROWSER, K_LABEL, B_ROOT, 1, 0, 0), 0};
