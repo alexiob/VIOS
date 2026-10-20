@@ -123,4 +123,14 @@ Measured numbers are in §8.
 
 ## 8. Measurements
 
-(filled in after the board run)
+Build-time, against base e03260a (same toolchains):
+
+| | base | audio | delta |
+| --- | --- | --- | --- |
+| eZ80 resident image | 163,683 B | 164,450 B | +767 B (vios_audio.o 574 code + 117 rodata + 8 data; VTYPE loop shared) |
+| eZ80 BSS | — | — | +48 B (`NATIVES_MAX` 96 → 104) |
+| eZ80 free below the 4 KB stack | 39,984 B | 39,167 B | −817 B |
+| ESP static RAM (pio) | 63,020 B | 63,116 B | +96 B (engine + generator) |
+| ESP flash | 785,781 B | 777,653 B | −8,128 B (VDP 1.04 engine out) |
+
+Runtime internal heap (`esp_audio` / `AS`): pending the board run.
