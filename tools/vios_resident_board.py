@@ -284,8 +284,8 @@ class ResidentBoard(ViosBoard):
     def esp_inject(self, text):
         """Type up to 32 ASCII characters at the PS/2 boundary, as if on the Agon keyboard."""
         data = text.encode('ascii')
-        if not 1 <= len(data) <= 32 or any(b not in (8, 9, 13, 27) and not 32 <= b < 127 for b in data):
-            raise ValueError('inject 1..32 printable characters (or BS, TAB, CR, ESC)')
+        if not 1 <= len(data) <= 32 or any(b not in (3, 8, 9, 13, 27) and not 32 <= b < 127 for b in data):
+            raise ValueError('inject 1..32 printable characters (or Ctrl-C, BS, TAB, CR, ESC)')
         return {'reply': self._esp(b'KI' + data.hex().upper().encode())}
 
     def esp_console(self, rows=59):

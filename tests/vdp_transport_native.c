@@ -100,5 +100,18 @@ int main(void) {
   assert(!vdp_transport_host_reply(&p,reply,sizeof reply,&n));assert(vdp_transport_getc(&p)=='z');
   vdp_transport_feed(&p,0xFC);vdp_transport_feed(&p,200);for(unsigned j=0;j<200;++j)vdp_transport_feed(&p,(unsigned char)j);
   assert(vdp_transport_host_reply(&p,reply,sizeof reply,&n)&&n==200&&reply[199]==199);}
+ /* Ctrl-C interrupts only while a command runs (line mode off): a key 3, or a
+  * host byte 3 that starts a line; at the prompt it only clears the line, and
+  * a 3 inside a host request line is data. */
+ {struct vdp_transport q;vdp_transport_init(&q);
+  const unsigned char ctrl_c[]={0x81,4,3,0,0,1},host3[]={0xFE,1,3},hostmid[]={0xFE,3,'a','b',3};
+  vdp_transport_line_mode(&q,1);for(size_t i=0;i<sizeof ctrl_c;++i)vdp_transport_feed(&q,ctrl_c[i]);
+  assert(!vdp_transport_take_interrupt(&q));
+  vdp_transport_line_mode(&q,0);for(size_t i=0;i<sizeof ctrl_c;++i)vdp_transport_feed(&q,ctrl_c[i]);
+  assert(vdp_transport_take_interrupt(&q)&&!vdp_transport_take_interrupt(&q));
+  assert(vdp_transport_getc(&q)==-1&&"the interrupting Ctrl-C is not also input");
+  for(size_t i=0;i<sizeof hostmid;++i)vdp_transport_feed(&q,hostmid[i]);assert(!vdp_transport_take_interrupt(&q));
+  const unsigned char cr[]={0xFE,1,'\r'};for(size_t i=0;i<sizeof cr;++i)vdp_transport_feed(&q,cr[i]);
+  for(size_t i=0;i<sizeof host3;++i)vdp_transport_feed(&q,host3[i]);assert(vdp_transport_take_interrupt(&q));}
  puts("VDP console, keyboard, metadata and bounded packet parsing passed");return 0;
 }
