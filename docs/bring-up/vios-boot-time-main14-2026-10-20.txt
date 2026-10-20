@@ -1,0 +1,7 @@
+  1.86 s  BOOT VIOS VDP
+  1.91 s  MOS: Agon Platform
+  2.51 s  stub switched
+  4.42 s  image sent
+  4.81 s  stub runs
+  5.11 s  HEALTH flag 0
+  7.65 s  HEALTH flag 1
