@@ -39,6 +39,8 @@ static void vios_top_black_probe() {
         }
 }
 static const unsigned VIOS_FRAME_CELLS = 2800; // ~4 ms at the measured 719 cells/ms
+static const uint32_t VIOS_GUI_KICK_US = 700;    // a frame kicked between vblanks (a key): small damage at once, large
+                                                 // damage carries to the vblank frame instead of delaying its start
 static const uint32_t VIOS_GUI_FRAME_US = 3000;  // compositor time per frame (stops after the row that passes it); with the console service a flood frame stays within 4 ms
 
 void vios_display_lock() {
@@ -75,7 +77,7 @@ static void vios_frame_task(void *) {
         uint32_t served = (uint32_t)esp_timer_get_time();
         vios_frame_raise(vios_frame_service_max, served - locked);
         uint32_t presents = vios_gui_presents();
-        vios_gui_frame(UINT32_MAX, VIOS_GUI_FRAME_US);
+        vios_gui_frame(UINT32_MAX, vblank ? VIOS_GUI_FRAME_US : VIOS_GUI_KICK_US);
         bool presented = vios_gui_presents() != presents;
         if (!presented) vios_frame_raise(vios_frame_gui_max, (uint32_t)esp_timer_get_time() - served);
         vios_top_black_probe();   // the display server, when it owns the screen: by time, robust to rate changes
