@@ -182,6 +182,26 @@ static std::vector<vios_wire_message> output_frames(){
     DBGSerial.output.clear();return frames;
 }
 static void incoming(const char *text,uint16_t sequence){vios_wire_message m{};m.channel=2;m.sequence=sequence;m.length=(uint16_t)strlen(text);assert(m.length<=240);memcpy(m.payload,text,m.length);usb_dispatch(&m);}
+/* Link recovery: frames to the host are numbered v2 frames kept in a ring;
+ * 'N' first resends them byte for byte, then 'L' next; too old -> 'G'. */
+static void link_nak(uint16_t first){vios_wire_message m{};m.channel=VIOS_CHANNEL_LINK;m.length=3;m.payload[0]='N';m.payload[1]=(uint8_t)first;m.payload[2]=(uint8_t)(first>>8);usb_dispatch(&m);}
+static void check_link_recovery(){
+    DBGSerial.output.clear();
+    bridge_event("one\r\n");bridge_event("two\r\n");bridge_event("three\r\n");
+    std::vector<uint8_t> sent=DBGSerial.output;auto frames=output_frames();assert(frames.size()==3);
+    for(unsigned i=0;i<3;++i)assert(frames[i].version==VIOS_WIRE_VERSION_LINK&&frames[i].link==(uint16_t)(frames[0].link+i));
+    uint16_t first=frames[0].link,next=(uint16_t)(first+3);
+    link_nak((uint16_t)(first+1));
+    std::vector<uint8_t> resent=DBGSerial.output;frames=output_frames();
+    assert(frames.size()==3&&frames[0].link==first+1&&frames[1].link==first+2&&!memcmp(frames[1].payload,"three\r\n",7));
+    assert(frames[2].channel==VIOS_CHANNEL_LINK&&frames[2].version==VIOS_WIRE_VERSION&&frames[2].payload[0]=='L'&&(frames[2].payload[1]|frames[2].payload[2]<<8)==next);
+    size_t one_frame=0;while(sent[one_frame])++one_frame;
+    assert(std::equal(resent.begin(),resent.begin()+(long)(sent.size()-one_frame-1),sent.begin()+(long)one_frame+1));  // byte for byte
+    link_nak(next);frames=output_frames();assert(frames.size()==1&&frames[0].payload[0]=='L');   // nothing missing
+    link_nak((uint16_t)(next-USB_RING-1));frames=output_frames();assert(frames.size()==1&&frames[0].payload[0]=='G');
+    assert(stat_link_requests.load()==3&&stat_link_resent.load()==2&&stat_link_gone.load()==1);
+    stat_link_requests=0;stat_link_resent=0;stat_link_gone=0;
+}
 static void check_usb_console_pacing(){
     uint8_t data[600];for(unsigned i=0;i<sizeof data;++i)data[i]=(uint8_t)i;
     // The VDP-side write only queues (Stage 1a); the control-task drain does the paced USB work.
@@ -283,7 +303,7 @@ static void check_stage0_instrumentation(){
     for(unsigned i=1;i<=20;++i){vios_probe_glyph('A');vios_probe_key('B');vios_probe_key('A');now+=i;vios_probe_key('A');vios_probe_glyph('x');vios_probe_glyph('A');vios_probe_glyph('A');}
     assert(control_text("PR\n",78)=="PROBE n=20 min=1000 med=11000 p95=20000 max=20000\r\n");
     std::string stats=control_text("T\n",79);
-    assert(stats.rfind("STATS glyphs=80 ",0)==0&&stats.find(" injected=66 console_sync=0 console_queued=0 loop_gap_max=0 host_service_max=0 console_max=0 keyboard_max=0 frames=0 vblank_start_max=0 frame_work_max=0 vga_isr_gap_max_us=0 vga_isr_late=0 top_black_frames=0 frame_lock_max=0 frame_service_max=0 frame_gui_max=0 present_frames=0 present_work_max=0 console_empty_in=0 console_empty_out=0 console_canary=0\r\n")!=std::string::npos);
+    assert(stats.rfind("STATS glyphs=80 ",0)==0&&stats.find(" injected=66 console_sync=0 console_queued=0 loop_gap_max=0 host_service_max=0 console_max=0 keyboard_max=0 frames=0 vblank_start_max=0 frame_work_max=0 vga_isr_gap_max_us=0 vga_isr_late=0 top_black_frames=0 frame_lock_max=0 frame_service_max=0 frame_gui_max=0 present_frames=0 present_work_max=0 console_empty_in=0 console_empty_out=0 console_canary=0 link_requests=0 link_resent=0 link_gone=0\r\n")!=std::string::npos);
     vios_usb_console_write((const uint8_t*)"abc",3);assert(console_out_drain(16)==1);output_frames();stats=control_text("T\n",80);
     assert(stats.find("console_bytes=3 console_writes=1 ")!=std::string::npos);
     assert(control_text("T0\n",81)=="STATS RESET\r\n"&&control_text("T\n",82).rfind("STATS glyphs=0 console_bytes=0",0)==0);
@@ -441,7 +461,9 @@ static void check_line_editing(){
 int main(int argc,char **argv){
     if(argc==4&&!strcmp(argv[1],"--control-frame")){
         /* Expose production control replies to the real Python resident stack.
-         * Only physical ZDI registers/UART/RTOS dependencies are simulated. */
+         * Only physical ZDI registers/UART/RTOS dependencies are simulated.
+         * Each call is a freshly booted ESP: a different random link start. */
+        random_value=(uint32_t)atoi(argv[3])*1000u;
         assert(vios_bridge_init());vios_bridge_handoff();
         status=0x98;cpu_paused=true;ram_ready=true;
         memcpy(memory+0x40040,"MOS\0\1",5);
@@ -452,6 +474,7 @@ int main(int argc,char **argv){
     }
     assert(vios_bridge_init());assert(vios_bridge_start());assert(started_task&&task_stack>=4096&&task_priority==3&&task_core==0);
     check_usb_console_pacing();
+    check_link_recovery();
     incoming("B\n",90);auto startup_frames=output_frames();assert(startup_frames.size()==1&&!memcmp(startup_frames[0].payload,"BOOT STARTING",13));
     incoming("I\n",91);assert(identity_reads==0);startup_frames=output_frames();assert(startup_frames.size()==1&&!memcmp(startup_frames[0].payload,"ERR bootstrap",13));
     incoming("H\n",92);assert(identity_reads==0);output_frames();

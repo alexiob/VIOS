@@ -19,6 +19,7 @@
 #define ESP_RST_BROWNOUT 9
 static int reset_reason;
 static int esp_reset_reason(){return reset_reason;}
+static uint32_t random_value=0x7FF0;static uint32_t esp_random(){return random_value;}
 struct FakeMutex {std::timed_mutex lock;std::atomic<bool> held{false};};
 using SemaphoreHandle_t=FakeMutex*;
 static std::deque<FakeMutex> mutexes;

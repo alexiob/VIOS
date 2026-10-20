@@ -4,7 +4,8 @@ import struct
 import zlib
 
 MAX_PAYLOAD = 240
-MAX_FRAME = 252
+MAX_FRAME = 254
+CHANNELS = (1, 2, 3, 4, 5)  # 5: link recovery (include/vios/wire.h VIOS_CHANNEL_LINK)
 
 
 @dataclass(frozen=True)
@@ -12,12 +13,18 @@ class Packet:
     channel: int
     sequence: int
     payload: bytes
+    link: int | None = None   # v2 frames (ESP to host): the ESP's link sequence
 
 
 def encode(packet):
-    if packet.channel not in (1,2,3,4) or type(packet.sequence) is not int or not 0<=packet.sequence<=65535 or not isinstance(packet.payload,bytes) or len(packet.payload)>MAX_PAYLOAD:
+    if packet.channel not in CHANNELS or type(packet.sequence) is not int or not 0<=packet.sequence<=65535 or not isinstance(packet.payload,bytes) or len(packet.payload)>MAX_PAYLOAD:
         raise ValueError('Invalid VIOS packet')
-    raw=struct.pack('<BBHH',1,packet.channel,packet.sequence,len(packet.payload))+packet.payload
+    if packet.link is None:
+        raw=struct.pack('<BBHH',1,packet.channel,packet.sequence,len(packet.payload))+packet.payload
+    elif type(packet.link) is int and 0<=packet.link<=65535:
+        raw=struct.pack('<BBHHH',2,packet.channel,packet.sequence,len(packet.payload),packet.link)+packet.payload
+    else:
+        raise ValueError('Invalid VIOS packet')
     raw+=struct.pack('<I',zlib.crc32(raw))
     output=bytearray([0]);code_index=0;code=1
     for value in raw:
@@ -40,11 +47,13 @@ def decode(encoded):
         if code<255 and index<len(encoded):raw.append(0)
     if len(raw)<10:raise ValueError('Short VIOS frame')
     version,channel,sequence,length=struct.unpack('<BBHH',raw[:6])
-    if version!=1 or channel not in (1,2,3,4) or length>MAX_PAYLOAD or len(raw)!=length+10:
+    header=8 if version==2 else 6
+    if version not in (1,2) or channel not in CHANNELS or length>MAX_PAYLOAD or len(raw)!=length+header+4:
         raise ValueError('Invalid VIOS header')
     if zlib.crc32(raw[:-4])!=struct.unpack('<I',raw[-4:])[0]:
         raise ValueError('VIOS CRC mismatch')
-    return Packet(channel,sequence,bytes(raw[6:-4]))
+    link=struct.unpack('<H',raw[6:8])[0] if version==2 else None
+    return Packet(channel,sequence,bytes(raw[header:-4]),link)
 
 
 class Decoder:

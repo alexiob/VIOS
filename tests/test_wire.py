@@ -9,7 +9,7 @@ import sys
 
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 class Message(ctypes.Structure):
-    _fields_=[('channel',ctypes.c_uint8),('sequence',ctypes.c_uint16),('length',ctypes.c_uint16),('payload',ctypes.c_uint8*240)]
+    _fields_=[('channel',ctypes.c_uint8),('sequence',ctypes.c_uint16),('length',ctypes.c_uint16),('payload',ctypes.c_uint8*240),('version',ctypes.c_uint8),('link',ctypes.c_uint16)]
 
 class WireTests(unittest.TestCase):
     @classmethod
@@ -56,6 +56,21 @@ class WireTests(unittest.TestCase):
         self.assertEqual(self.lib.vios_wire_encode(ctypes.byref(message),output,252),0)
         message.length=1
         self.assertEqual(self.lib.vios_wire_encode(ctypes.byref(message),output,2),0)
+    def test_link_frames_carry_a_sequence_and_match_the_python_codec(self):
+        sys.path.insert(0,str(ROOT/'tools'))
+        from vios_wire import decode,encode,Packet
+        for payload in [b'',b'\0',bytes(range(240)),bytes([255])*240]:
+            message=Message(1,0,len(payload));message.payload[:len(payload)]=payload;message.version=2;message.link=0xA55A
+            output=ctypes.create_string_buffer(254)
+            size=self.lib.vios_wire_encode(ctypes.byref(message),output,len(output))
+            self.assertGreater(size,0);self.assertLessEqual(size,254)
+            frame=output.raw[:size]
+            self.assertEqual(frame,encode(Packet(1,0,payload,0xA55A)))
+            packet=decode(frame[:-1]);self.assertEqual((packet.link,packet.payload),(0xA55A,payload))
+            good,back=self.decode(frame[:-1])
+            self.assertEqual((good,back.version,back.link,bytes(back.payload[:back.length])),(1,2,0xA55A,payload))
+        good,back=self.decode(self.encode(b'v1')[:-1]);self.assertEqual((good,back.version),(1,1))
+        self.assertIsNone(decode(encode(Packet(5,0,b'N\x01\x00'))[:-1]).link)
     def test_frame_header_and_crc_match_independent_python_decode(self):
         wire=self.encode(b'abc',channel=2,sequence=0xBEEF)[:-1]
         raw=bytearray();index=0

@@ -1,4 +1,4 @@
-/* VIOS COBS frames: version, channel, seqLE16, lenLE16, payload, IEEE CRC32LE.
+/* VIOS COBS frames: version, channel, seqLE16, lenLE16, [v2: linkLE16], payload, IEEE CRC32LE.
  * CRC covers every decoded byte preceding the CRC. No allocation/global state.
  */
 #include "vios/wire.h"
@@ -13,19 +13,21 @@ uint32_t vios_wire_crc32(const void *data,size_t length) {
     }
     return crc^0xFFFFFFFFUL;
 }
-static int channel_valid(uint8_t n) {return n>=VIOS_CHANNEL_CONSOLE&&n<=VIOS_CHANNEL_HOST;}
+static int channel_valid(uint8_t n) {return n>=VIOS_CHANNEL_CONSOLE&&n<=VIOS_CHANNEL_LINK;}
 size_t vios_wire_encode(const struct vios_wire_message *m,uint8_t *out,size_t capacity) {
     uint8_t raw[VIOS_WIRE_RAW_MAX];
-    size_t size,i,code_at=0,used=1;
+    size_t size,i,code_at=0,used=1,header;
     uint8_t code=1;
     uint32_t crc;
     if(!m||!out||!channel_valid(m->channel)||m->length>VIOS_WIRE_PAYLOAD_MAX)return 0;
-    size=(size_t)m->length+10;
+    header=m->version==VIOS_WIRE_VERSION_LINK?8:6;
+    size=(size_t)m->length+header+4;
     if(capacity<size+2)return 0;
-    raw[0]=VIOS_WIRE_VERSION;raw[1]=m->channel;
+    raw[0]=(uint8_t)(header==8?VIOS_WIRE_VERSION_LINK:VIOS_WIRE_VERSION);raw[1]=m->channel;
     raw[2]=(uint8_t)m->sequence;raw[3]=(uint8_t)(m->sequence>>8);
     raw[4]=(uint8_t)m->length;raw[5]=(uint8_t)(m->length>>8);
-    for(i=0;i<m->length;++i)raw[6+i]=m->payload[i];
+    if(header==8){raw[6]=(uint8_t)m->link;raw[7]=(uint8_t)(m->link>>8);}
+    for(i=0;i<m->length;++i)raw[header+i]=m->payload[i];
     crc=vios_wire_crc32(raw,size-4);
     for(i=0;i<4;++i)raw[size-4+i]=(uint8_t)(crc>>(8*i));
     /* Raw maximum is <254, so COBS never needs a 0xFF run. */
@@ -37,7 +39,7 @@ size_t vios_wire_encode(const struct vios_wire_message *m,uint8_t *out,size_t ca
 }
 int vios_wire_decode(const uint8_t *frame,size_t length,struct vios_wire_message *m) {
     uint8_t raw[VIOS_WIRE_RAW_MAX];
-    size_t read=0,used=0,i,payload;
+    size_t read=0,used=0,i,payload,header;
     uint32_t expected=0;
     if(!frame||!m||!length||length>=VIOS_WIRE_FRAME_MAX)return 0;
     while(read<length) {
@@ -48,12 +50,14 @@ int vios_wire_decode(const uint8_t *frame,size_t length,struct vios_wire_message
         for(i=0;i<count;++i) {uint8_t byte=frame[read++];if(!byte)return 0;raw[used++]=byte;}
         if(code!=255&&read<length) {if(used==VIOS_WIRE_RAW_MAX)return 0;raw[used++]=0;}
     }
-    if(used<10||raw[0]!=VIOS_WIRE_VERSION||!channel_valid(raw[1]))return 0;
+    if(used<10||(raw[0]!=VIOS_WIRE_VERSION&&raw[0]!=VIOS_WIRE_VERSION_LINK)||!channel_valid(raw[1]))return 0;
+    header=raw[0]==VIOS_WIRE_VERSION_LINK?8:6;
     payload=(size_t)raw[4]|((size_t)raw[5]<<8);
-    if(payload>VIOS_WIRE_PAYLOAD_MAX||used!=payload+10)return 0;
+    if(payload>VIOS_WIRE_PAYLOAD_MAX||used!=payload+header+4)return 0;
     for(i=0;i<4;++i)expected|=(uint32_t)raw[used-4+i]<<(8*i);
     if(vios_wire_crc32(raw,used-4)!=expected)return 0;
     m->channel=raw[1];m->sequence=(uint16_t)raw[2]|((uint16_t)raw[3]<<8);m->length=(uint16_t)payload;
-    for(i=0;i<payload;++i)m->payload[i]=raw[6+i];
+    m->version=raw[0];m->link=header==8?(uint16_t)((uint16_t)raw[6]|((uint16_t)raw[7]<<8)):0;
+    for(i=0;i<payload;++i)m->payload[i]=raw[header+i];
     return 1;
 }

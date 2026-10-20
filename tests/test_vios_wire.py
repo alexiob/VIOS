@@ -47,7 +47,7 @@ class WireTests(unittest.TestCase):
             with self.assertRaises(ValueError):decode(invalid)
 
     def test_invalid_packet_bounds(self):
-        for packet in [Packet(5,0,b''),Packet(1,-1,b''),Packet(1,65536,b''),Packet(1,0,b'x'*241)]:
+        for packet in [Packet(6,0,b''),Packet(1,-1,b''),Packet(1,65536,b''),Packet(1,0,b'x'*241)]:
             with self.assertRaises(ValueError):encode(packet)
 
     def test_atomic_source_lines_and_fail_closed_output(self):
@@ -114,5 +114,56 @@ class WireTests(unittest.TestCase):
         self.assertEqual(session.events[-1],b'event')
         session.close();self.assertTrue(raw.closed)
 
+
+class LinkRecoveryTests(unittest.TestCase):
+    """The ESP numbers frames (v2) and resends on request; the host recovers bytes the USB link lost."""
+    class Esp:
+        RING=24
+        def __init__(self,start=0xFFF0):
+            self.next=start;self.ring={};self.out=bytearray();self.decoder=Decoder();self.mute_replies=0;self.requests=0
+        def send(self,channel,payload,cut=None):
+            frame=encode(Packet(channel,0,payload,self.next));self.ring[self.next]=frame
+            self.ring.pop((self.next-self.RING)&0xFFFF,None);self.next=(self.next+1)&0xFFFF
+            self.out+=frame if cut is None else frame[:cut]+frame[cut+3:]   # the link loses 3 bytes
+        def write(self,data):
+            for p in self.decoder.feed(data):
+                assert p.channel==5 and p.payload[:1]==b'N';self.requests+=1
+                first=struct.unpack('<H',p.payload[1:])[0];behind=(self.next-first)&0xFFFF
+                if behind>len(self.ring):kind=b'G'
+                else:
+                    for k in range(behind):self.out+=self.ring[(first+k)&0xFFFF]
+                    kind=b'L'
+                if self.mute_replies:self.mute_replies-=1;continue
+                self.out+=encode(Packet(5,0,kind+struct.pack('<H',self.next)))
+        def read(self):
+            data=bytes(self.out);self.out.clear();return data
+    def pump(self,session,times=3):
+        for _ in range(times):session._pump()
+    def test_damaged_frames_are_resent_and_delivered_in_order(self):
+        esp=self.Esp();esp.RING=64;session=ResidentSession(esp);session.protected=True
+        for i in range(30):esp.send(1,b'line %02d\r\n'%i,cut=8 if i in (5,17) else None)   # wraps 0xFFFF
+        self.pump(session)
+        self.assertFalse(session.integrity_error)
+        self.assertEqual(bytes(session.pending),b''.join(b'line %02d\r\n'%i for i in range(30)))
+        self.assertGreaterEqual(esp.requests,1);self.assertGreaterEqual(session.link_stats['recovered'],1)
+    def test_a_damaged_last_frame_is_recovered_without_later_traffic(self):
+        esp=self.Esp(3);session=ResidentSession(esp);session.protected=True
+        esp.send(1,b'ok\r\n');esp.send(1,b'vios> ',cut=6)
+        self.pump(session)
+        self.assertEqual(bytes(session.pending),b'ok\r\nvios> ');self.assertFalse(session.integrity_error)
+    def test_a_lost_reply_is_asked_again_and_frames_no_longer_kept_lose_integrity(self):
+        esp=self.Esp(100);session=ResidentSession(esp);session.protected=True;session.LINK_RETRY=0
+        esp.send(1,b'a');esp.mute_replies=1;esp.send(1,b'bcdefghijk',cut=7)
+        self.pump(session,6)
+        self.assertEqual(bytes(session.pending),b'abcdefghijk');self.assertFalse(session.integrity_error)
+        session.LINK_RETRY=ResidentSession.LINK_RETRY;esp.send(1,b'x',cut=7)
+        for i in range(40):esp.ring.clear() if i==0 else None;esp.send(1,b'y')
+        self.pump(session,4)
+        self.assertTrue(session.integrity_error);self.assertEqual(session.link_stats['gone'],1)
+    def test_an_esp_restart_starts_a_new_sequence(self):
+        esp=self.Esp(500);session=ResidentSession(esp)
+        esp.send(3,b'one');self.pump(session,1)
+        esp.next=40000;esp.ring.clear();esp.send(3,b'two');self.pump(session,1)
+        self.assertEqual(session.events,[b'one',b'two']);self.assertEqual(session.link_stats['epochs'],1)
 
 if __name__=='__main__':unittest.main()

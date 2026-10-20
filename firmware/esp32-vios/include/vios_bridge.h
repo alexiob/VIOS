@@ -114,24 +114,61 @@ static bool cpu_boot_ready;
 static unsigned long boot_started,boot_paused_at;
 static std::atomic<unsigned> boot_failures(0);
 
+/* Link recovery (include/vios/wire.h): every frame to the host is a v2 frame
+ * numbered by usb_link_next and kept in this ring (internal RAM), so a frame
+ * the USB serial link lost can be sent again when the host asks (channel 5).
+ * The link sequence starts at a random value on each ESP boot: a host sees a
+ * restart as a far jump, not as old frames. Guarded by usb_tx_mutex. */
+static const unsigned USB_RING=24;
+static uint8_t usb_ring[USB_RING][VIOS_WIRE_FRAME_MAX];
+static uint8_t usb_ring_length[USB_RING];
+static uint16_t usb_link_next;
+static unsigned usb_ring_count;   // frames kept, up to USB_RING
+static std::atomic<uint32_t> stat_link_requests(0),stat_link_resent(0),stat_link_gone(0);
+static void link_reply_locked(char kind){
+    struct vios_wire_message message;uint8_t frame[VIOS_WIRE_FRAME_MAX];
+    message.channel=VIOS_CHANNEL_LINK;message.sequence=0;message.version=VIOS_WIRE_VERSION;message.link=0;message.length=3;
+    message.payload[0]=(uint8_t)kind;message.payload[1]=(uint8_t)usb_link_next;message.payload[2]=(uint8_t)(usb_link_next>>8);
+    size_t encoded=vios_wire_encode(&message,frame,sizeof frame);
+    if(encoded)DBGSerial.write(frame,encoded);
+}
+/* Host request 'N' first:u16: resend the kept frames from `first` on, then
+ * report the next sequence ('L'), or 'G' when some are no longer kept. */
+static void link_request(const struct vios_wire_message *message){
+    if(message->length!=3||message->payload[0]!='N')return;
+    uint16_t first=(uint16_t)(message->payload[1]|(message->payload[2]<<8));
+    stat_link_requests.fetch_add(1);
+    if(usb_tx_mutex)xSemaphoreTake(usb_tx_mutex,portMAX_DELAY);
+    uint16_t behind=(uint16_t)(usb_link_next-first);
+    if(behind>usb_ring_count){stat_link_gone.fetch_add(1);link_reply_locked('G');}
+    else {
+        for(uint16_t link=first;link!=usb_link_next;++link){
+            unsigned slot=link%USB_RING;DBGSerial.write(usb_ring[slot],usb_ring_length[slot]);stat_link_resent.fetch_add(1);
+        }
+        link_reply_locked('L');
+    }
+    if(usb_tx_mutex)xSemaphoreGive(usb_tx_mutex);
+}
 static void usb_send(uint8_t channel,uint16_t sequence,const uint8_t *data,size_t length) {
     do {
         struct vios_wire_message message;
-        uint8_t frame[VIOS_WIRE_FRAME_MAX];
-        message.channel=channel;message.sequence=sequence;
+        message.channel=channel;message.sequence=sequence;message.version=VIOS_WIRE_VERSION_LINK;
         message.length=(uint16_t)(length>VIOS_WIRE_PAYLOAD_MAX?VIOS_WIRE_PAYLOAD_MAX:length);
         memcpy(message.payload,data,message.length);
-        size_t encoded=vios_wire_encode(&message,frame,sizeof frame);
+        if(usb_tx_mutex)xSemaphoreTake(usb_tx_mutex,portMAX_DELAY);
+        message.link=usb_link_next;
+        unsigned slot=usb_link_next%USB_RING;
+        size_t encoded=vios_wire_encode(&message,usb_ring[slot],VIOS_WIRE_FRAME_MAX);
         if(encoded){
-            if(usb_tx_mutex)xSemaphoreTake(usb_tx_mutex,portMAX_DELAY);
-            DBGSerial.write(frame,encoded);
+            usb_ring_length[slot]=(uint8_t)encoded;++usb_link_next;if(usb_ring_count<USB_RING)++usb_ring_count;
+            DBGSerial.write(usb_ring[slot],encoded);
             if(channel==VIOS_CHANNEL_CONSOLE){
                 // Bound bulk USB output to one physically drained frame plus
                 // one scheduler tick; leave a gap before the next frame.
                 DBGSerial.flush();delay(1);
             }
-            if(usb_tx_mutex)xSemaphoreGive(usb_tx_mutex);
         }
+        if(usb_tx_mutex)xSemaphoreGive(usb_tx_mutex);
         data+=message.length;length-=message.length;
     }while(length);
 }
@@ -452,7 +489,7 @@ static void control_command(uint16_t sequence,const char *command,size_t length)
     uint32_t stage0_value;
     if(length==1&&command[0]=='T'){
         uint32_t frame_stats[3];vios_frame_stats(frame_stats,frame_stats+1,frame_stats+2);uint32_t parts[3];vios_frame_parts(parts,parts+1,parts+2);uint32_t presents[2];vios_frame_presents(presents,presents+1);
-        snprintf(reply,sizeof reply,"STATS glyphs=%lu console_bytes=%lu console_writes=%lu usb_block_us=%lu usb_block_max=%lu parser_us=%lu parser_max=%lu injected=%lu console_sync=%lu console_queued=%u loop_gap_max=%lu host_service_max=%lu console_max=%lu keyboard_max=%lu frames=%lu vblank_start_max=%lu frame_work_max=%lu vga_isr_gap_max_us=%lu vga_isr_late=%lu top_black_frames=%lu frame_lock_max=%lu frame_service_max=%lu frame_gui_max=%lu present_frames=%lu present_work_max=%lu console_empty_in=%lu console_empty_out=%lu console_canary=%lu\r\n",
+        snprintf(reply,sizeof reply,"STATS glyphs=%lu console_bytes=%lu console_writes=%lu usb_block_us=%lu usb_block_max=%lu parser_us=%lu parser_max=%lu injected=%lu console_sync=%lu console_queued=%u loop_gap_max=%lu host_service_max=%lu console_max=%lu keyboard_max=%lu frames=%lu vblank_start_max=%lu frame_work_max=%lu vga_isr_gap_max_us=%lu vga_isr_late=%lu top_black_frames=%lu frame_lock_max=%lu frame_service_max=%lu frame_gui_max=%lu present_frames=%lu present_work_max=%lu console_empty_in=%lu console_empty_out=%lu console_canary=%lu link_requests=%lu link_resent=%lu link_gone=%lu\r\n",
             (unsigned long)stat_glyphs.load(),(unsigned long)stat_console_bytes.load(),(unsigned long)stat_console_writes.load(),
             (unsigned long)stat_usb_block_us.load(),(unsigned long)stat_usb_block_max.load(),(unsigned long)stat_parser_us.load(),
             (unsigned long)stat_parser_max.load(),(unsigned long)stat_injected.load(),(unsigned long)stat_console_sync.load(),
@@ -461,7 +498,8 @@ static void control_command(uint16_t sequence,const char *command,size_t length)
             (unsigned long)frame_stats[0],(unsigned long)frame_stats[1],(unsigned long)frame_stats[2],
             (unsigned long)(vios_vga_isr_gap_max/240u),(unsigned long)vios_vga_isr_late,(unsigned long)vios_frame_top_black(),
             (unsigned long)parts[0],(unsigned long)parts[1],(unsigned long)parts[2],(unsigned long)presents[0],(unsigned long)presents[1],
-            (unsigned long)stat_console_empty_in.load(),(unsigned long)stat_console_empty_out.load(),(unsigned long)stat_console_canary.load());
+            (unsigned long)stat_console_empty_in.load(),(unsigned long)stat_console_empty_out.load(),(unsigned long)stat_console_canary.load(),
+            (unsigned long)stat_link_requests.load(),(unsigned long)stat_link_resent.load(),(unsigned long)stat_link_gone.load());
         control_reply(sequence,reply);return;
     }
     if(length==2&&command[0]=='T'&&command[1]=='0'){stats_reset();control_reply(sequence,"STATS RESET\r\n");return;}
@@ -706,6 +744,7 @@ static void usb_dispatch(const struct vios_wire_message *message) {
         ConsoleRecord record;record.length=message->length;memcpy(record.data,message->payload,message->length);
         if(xQueueSend(host_queue,&record,0)!=pdTRUE)bridge_event("ERR host queue full\r\n");return;
     }
+    if(message->channel==VIOS_CHANNEL_LINK){link_request(message);return;}
     if(message->channel!=VIOS_CHANNEL_CONTROL)return;
     if(control_used&&control_sequence!=message->sequence){control_reply(message->sequence,"ERR command sequence busy\r\n");return;}
     if(!control_used){control_sequence=message->sequence;control_started=millis();}
@@ -823,6 +862,7 @@ bool vios_bridge_init(){
     health_mailbox.store(-1);parser_busy.store(false);full_control.store(false);
     usb_used=control_used=source_used=0;usb_discard=false;
     usb_tx_mutex=xSemaphoreCreateMutex();vdp_tx_mutex=xSemaphoreCreateMutex();
+    usb_link_next=(uint16_t)esp_random();usb_ring_count=0;
     console_queue=xQueueCreate(8,sizeof(ConsoleRecord));host_queue=xQueueCreate(2,sizeof(ConsoleRecord));
     if(!console_out_queue)console_out_queue=xQueueCreateStatic(16,sizeof(ConsoleRecord),console_out_area.storage,&console_out_static);
     if(esp_reset_reason()!=ESP_RST_SW||retained_magic!=retained_signature||retained_count>3||retained_inverse!=~retained_count)retain_failures(0);
