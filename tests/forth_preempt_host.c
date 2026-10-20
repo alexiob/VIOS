@@ -87,6 +87,25 @@ int main(void){
  forth_tasks_run();assert(value("Q @")==0);
  clock_ms=1016;forth_tasks_run();assert(value("Q @")==0);
  clock_ms=1017;forth_tasks_run();assert(value("Q @")==1&&"woke at the 61st frame boundary, 1016.67 ms");
+ /* B5: chunked FILL/MOVE give the same bytes as memset/memmove, with ticks
+  * landing between chunks; per-task BASE. */
+ eval("CREATE BUF 2100 ALLOT");fcell buf=value("BUF");
+ static const unsigned sizes[]={0,1,255,256,257,600,1000};
+ static unsigned char mirror[2100];
+ every=7;
+ for(unsigned k=0;k<sizeof sizes/sizeof sizes[0];++k){
+  unsigned u=sizes[k];char line[96];
+  for(unsigned i=0;i<2100;++i){fvm_write8((buf+i)&FVM_MASK,(unsigned char)(i*7+k));mirror[i]=(unsigned char)(i*7+k);}
+  snprintf(line,sizeof line,"BUF 50 + %u 165 FILL",u);eval(line);memset(mirror+50,165,u);
+  snprintf(line,sizeof line,"BUF 40 + BUF 100 + %u MOVE",u);eval(line);memmove(mirror+100,mirror+40,u);   /* overlapping, backward */
+  snprintf(line,sizeof line,"BUF 300 + BUF 260 + %u MOVE",u);eval(line);memmove(mirror+260,mirror+300,u);  /* overlapping, forward */
+  for(unsigned i=0;i<2100;++i)assert(fvm_read8((buf+i)&FVM_MASK)==mirror[i]&&"chunked FILL/MOVE match memset/memmove");
+ }
+ eval("VARIABLE TB : T16 HEX 255 TB ! BEGIN PAUSE AGAIN ;");fcell id=value("' T16 SPAWN");
+ for(unsigned i=0;i<4;++i)forth_tasks_run();
+ assert(value("BASE @")==10&&value("TB @")==255&&"HEX in a task leaves the foreground decimal");
+ eval("TASKS");assert(strstr(output,"base 16"));
+ char kill[32];snprintf(kill,sizeof kill,"%u TASK-KILL",(unsigned)id);eval(kill);
  printf("tick preemption: foreground rounds, determinism, CRITICAL and slice ends passed (%u arms)\n",arms);
  return 0;
 }

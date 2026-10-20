@@ -1,7 +1,7 @@
 # VIOS multitasking: cooperative, tick-sliced or preemptive
 
 Status: option B, stages B0, B1 and B2 implemented and measured on the board
-(2026-10-20, see "B0 and B1 results" and "B2 results" at the end); B3–B5 not started. Builds on the shipped
+(2026-10-20, see "B0 and B1 results", "B2 results" and "B5 results" at the end); B3 and B4 not started. Builds on the shipped
 [background tasks, slice 1](2026-10-18-vios-tasks.md) and its
 [acceptance](../../bring-up/vios-tasks-acceptance-2026-10-18.json) and
 [slice sweep](../../bring-up/vios-task-slice-sweep-2026-10-19.json).
@@ -545,3 +545,20 @@ Board (`firmware-main-14`; `vios-preempt-b2a-2026-10-20.txt`,
 Next: B3 (UART0 RX ISR into a ring; the gate becomes a ring check, which
 removes the 1 ms listen per round and the ~110 ms REPL latency beside a busy
 task), B5 (task-safe services), B4 only if switching cost matters.
+
+
+## B5 results (2026-10-20, host-tested; board check pending)
+
+- **Per-task `BASE`:** one cell per task, swapped around each slice; a new
+  task starts in its spawner's radix; `TASKS` lines end with `base N`
+  (`vios_task_client` parses it, optionally). +3 bytes per task.
+- **Chunked `FILL` / `MOVE`:** at most 256 bytes per run; the native pushes
+  its remaining arguments back and re-runs itself (the `TYPE` pattern), so a
+  tick can preempt between chunks. `MOVE` keeps memmove semantics (a
+  backward copy does the last chunk first). Host test: sizes 0–1000 with
+  overlap both ways, byte-equal to `memset`/`memmove`, under ticks every 7
+  instructions.
+- **Not done, on purpose:** the 96-byte task error text (would cost 192 bytes
+  of RAM for longer messages; the owner ranks memory first, 48 bytes stay);
+  the compiler lock (no task can evaluate source today: `LOAD`/`INCLUDE` are
+  REPL commands, not task words); the task-safe module transaction.

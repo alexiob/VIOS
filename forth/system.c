@@ -83,7 +83,7 @@ static size_t transaction_token,transaction_direct,transaction_data;
 enum { TS_FREE,TS_READY,TS_SLEEPING,TS_DONE,TS_FAILED,TS_KILLED };
 struct task {
  fcell ds[FORTH_TASK_DS],rs[FORTH_TASK_RS],loops[FORTH_TASK_LOOPS*2];
- fcell xt,depth,rdepth,ldepth,ip,ds_peak,rs_peak;
+ fcell xt,depth,rdepth,ldepth,ip,ds_peak,rs_peak,base;   /* base: the task's own BASE (B5) */
  uint32_t wake,slices,steps;
  unsigned short out_head,out_count;unsigned out_dropped;
  unsigned char state,console,in_handle,out_handle,finishing,out[FORTH_TASK_OUT];
@@ -398,8 +398,10 @@ static void run_slice(unsigned id) {
  cells(fvm_ds,t->ds,t->depth);cells(fvm_rs,t->rs,t->rdepth);cells(fvm_loops,t->loops,t->ldepth*2);
  fvm_depth=t->depth;fvm_rdepth=t->rdepth;fvm_ldepth=t->ldepth;fvm_ip=t->ip;fvm_error=0;fvm_budget=task_slice;
  fvm_ds_peak=t->ds_peak;fvm_rs_peak=t->rs_peak;error_text[0]=0;
+ fcell foreground_base=fvm_read_cell(base_address);fvm_write_cell(base_address,t->base);   /* per-task BASE (B5) */
  running=(int)id;yield_request=0;preempt_clear();fvm_budget=task_slice;preempt_plan();if(tick_source)tick_source();
  int result=dispatch();running=-1;preempt_clear();
+ t->base=fvm_read_cell(base_address);fvm_write_cell(base_address,foreground_base);
  t->steps+=task_slice-fvm_budget;++t->slices;t->ds_peak=fvm_ds_peak;t->rs_peak=fvm_rs_peak;
  if(t->state==TS_KILLED){}
  else if(result==1&&t->out_handle&&t->out_count)t->finishing=1; /* drain, then done */
@@ -513,6 +515,7 @@ static unsigned task_start(fcell xt,int console,unsigned in_handle,unsigned out_
   t->xt=xt;t->depth=t->rdepth=t->ldepth=0;t->ip=entry_ip((unsigned)(xt-1));t->ds_peak=t->rs_peak=0;
   t->wake=t->slices=t->steps=0;t->out_head=t->out_count=0;t->out_dropped=0;t->error[0]=0;t->console=(unsigned char)console;
   t->in_handle=(unsigned char)in_handle;t->out_handle=(unsigned char)out_handle;t->finishing=0;t->state=TS_READY;
+  t->base=fvm_read_cell(base_address);   /* a new task starts in its spawner's radix */
   preempt_plan();return i+1;   /* a ready task: arm the foreground quantum now */
  }
  return 0;
@@ -527,15 +530,30 @@ static int spawn(int console) {
 }
 static int native_spawn(void){return spawn(0);}
 /* Memory and output helpers through checked VM accessors. */
+/* FILL and MOVE work in chunks of at most MEM_CHUNK bytes (B5): the native
+ * pushes its remaining arguments back and re-runs itself (the NATIVE op and
+ * its 3-byte operand), so a tick can preempt between chunks instead of
+ * waiting out a whole 8 KiB fill (~44 ms). Results are unchanged. */
+#define MEM_CHUNK 256u
+static int rerun_native(fcell a,fcell b,fcell c){
+ if(!fvm_push(a&FVM_MASK)||!fvm_push(b&FVM_MASK)||!fvm_push(c&FVM_MASK))return fail(vm_message());
+ fvm_ip-=selected==FORTH_DIRECT?6:4;return 1;
+}
 static int native_fill(void){
  fcell c=fvm_pop(),u=fvm_pop(),a=fvm_pop();if(fvm_error)return fail(vm_message());
- for(fcell i=0;i<u;++i){fvm_write8((a+i)&FVM_MASK,(unsigned char)c);if(fvm_error)return fail(vm_message());}return 1;
+ fcell n=u>MEM_CHUNK?MEM_CHUNK:u;
+ for(fcell i=0;i<n;++i){fvm_write8((a+i)&FVM_MASK,(unsigned char)c);if(fvm_error)return fail(vm_message());}
+ return u>n?rerun_native(a+n,u-n,c):1;
 }
 static int native_move(void){
  fcell u=fvm_pop(),d=fvm_pop(),s=fvm_pop();if(fvm_error)return fail(vm_message());
- if(d<=s)for(fcell i=0;i<u;++i){fvm_write8((d+i)&FVM_MASK,fvm_read8((s+i)&FVM_MASK));if(fvm_error)return fail(vm_message());}
- else for(fcell i=u;i--;){fvm_write8((d+i)&FVM_MASK,fvm_read8((s+i)&FVM_MASK));if(fvm_error)return fail(vm_message());}
- return 1;
+ fcell n=u>MEM_CHUNK?MEM_CHUNK:u;
+ if(d<=s){   /* forward: the first n bytes, then the rest */
+  for(fcell i=0;i<n;++i){fvm_write8((d+i)&FVM_MASK,fvm_read8((s+i)&FVM_MASK));if(fvm_error)return fail(vm_message());}
+  return u>n?rerun_native(s+n,d+n,u-n):1;
+ }
+ for(fcell i=u;i-->u-n;){fvm_write8((d+i)&FVM_MASK,fvm_read8((s+i)&FVM_MASK));if(fvm_error)return fail(vm_message());}   /* backward: the last n bytes first */
+ return u>n?rerun_native(s,d,u-n):1;
 }
 /* TYPE ( addr u -- ): one trap per string instead of one EMIT per byte. A
  * redirected task stops early when its ring nears full; the rest of the
@@ -638,7 +656,8 @@ static void task_report(void) {
   print(" name ");hex_text(t->xt&&t->xt<=count?words[t->xt-1].name:"");print(" slices ");decimal_number(t->slices);
   print(" steps ");decimal_number(t->steps);print(" depth ");decimal_number(t->depth);print(" rdepth ");decimal_number(t->rdepth);
   print(" ds-peak ");decimal_number(t->ds_peak);print(" rs-peak ");decimal_number(t->rs_peak);
-  print(" out ");decimal_number(t->out_count);print(" dropped ");decimal_number(t->out_dropped);print(" error ");hex_text(t->error);print("\r\n");
+  print(" out ");decimal_number(t->out_count);print(" dropped ");decimal_number(t->out_dropped);print(" error ");hex_text(t->error);
+  print(" base ");decimal_number(t->base);print("\r\n");
  }
 }
 static int task_output(fcell id) {
