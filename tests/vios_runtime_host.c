@@ -109,6 +109,7 @@ int storage_stream_close(unsigned s){if(s>=STORAGE_STREAMS||!streams[s])return 0
 static unsigned record_previous(void){unsigned char a[32],b[32];size_t an=0,bn=0;int av=storage_read_file("/VIOS/BOOT0.REC",a,32,&an)&&an==32,bv=storage_read_file("/VIOS/BOOT1.REC",b,32,&bn)&&bn==32;assert(av||bv);return !av?b[6]:!bv?a[6]:vios_get32(a+12)>vios_get32(b+12)?a[6]:b[6];}
 static void reset(void){forth_init();if(!vios_runtime_init()){fprintf(stderr,"runtime init: %s\n",forth_last_error());abort();}}
 static void eval(const char *s){if(!forth_eval(s)){fprintf(stderr,"eval failed: %s: %s\n",s,forth_last_error());abort();}}
+static const char *boot_times(void){captured_length=0;captured[0]=0;capturing=1;eval("BOOT-TIMES");platform_console_flush();capturing=0;return captured;}
 static const char *manifest(void){captured_length=0;captured[0]=0;capturing=1;eval("BOOT-MANIFEST");platform_console_flush();capturing=0;assert(!fvm_depth);return captured;}
 /* Simulated ticks (tasks design B2): after test_every instructions while armed. */
 static unsigned test_armed,test_every;
@@ -187,6 +188,38 @@ int main(int argc,char **argv){
   assert(vios_boot_trial());reset();assert(vios_boot_startup());
   int id=vios_autorun();assert(id>=1);for(int i=0;i<20&&forth_tasks_run();++i){}
   eval("APPRAN @");assert(fvm_pop()==7);
+  strcpy(root,saved_root);}
+ /* Boot-module cache (boot-speed spec, Phase 3): a stamped build saves the
+  * compiled slot after a normal load and restores it on the next boot; any
+  * mismatch or damage falls back to compiling the packages. */
+ {extern volatile uint32_t vios_build_stamp[2];
+  char saved_root[sizeof root];strcpy(saved_root,root);assert(strlen(root)+11<sizeof root);strcat(root,"/cachetest");
+  assert(!mkdir(root,0700));reset();assert(storage_mkdir("/VIOS"));vios_build_stamp[1]=0xC0FFEEu;assert(vios_boot_startup());
+  const char *cached="VARIABLE CV 5 CV ! : CDOUBLE CV @ 2* ; : CTEST CDOUBLE 10 = ;";
+  assert(forth_module_stage("cm","1",NULL,0,cached,"CTEST"));assert(forth_module_activate("cm"));
+  assert(vios_boot_trial());reset();assert(vios_boot_startup());
+  const char *t=boot_times();assert(strstr(t,"cache saved"));
+  char cache_file[64];size_t got;static unsigned char image[65536];
+  strcpy(cache_file,storage_read_file("/VIOS/CACHE_A.VIC",image,sizeof image,&got)?"/VIOS/CACHE_A.VIC":"/VIOS/CACHE_B.VIC");
+  assert(storage_read_file(cache_file,image,sizeof image,&got)&&got>40&&!memcmp(image,"VIC1",4));
+  eval("CDOUBLE");assert(fvm_pop()==10);
+  struct forth_snapshot_base compiled;forth_snapshot_base(&compiled);
+  /* Hit: same dictionary, same module record and source, new definitions work. */
+  reset();assert(vios_boot_startup());t=boot_times();assert(strstr(t,"cache hit"));
+  struct forth_snapshot_base restored;forth_snapshot_base(&restored);assert(!memcmp(&compiled,&restored,sizeof compiled));
+  eval("CDOUBLE");assert(fvm_pop()==10);eval("CTEST");assert(fvm_pop());
+  assert(forth_module_source("cm",0)&&!strcmp(forth_module_source("cm",0),cached));
+  eval(": CNEW CDOUBLE 1+ ; CNEW");assert(fvm_pop()==11);eval("7 CV ! CDOUBLE");assert(fvm_pop()==14);
+  /* Damage: one flipped byte, then a truncated file: compiled again and rewritten. */
+  image[got/2]^=0x40;assert(storage_write_file(cache_file,image,got));
+  reset();assert(vios_boot_startup());t=boot_times();assert(strstr(t,"cache saved"));eval("CDOUBLE");assert(fvm_pop()==10);
+  assert(storage_read_file(cache_file,image,sizeof image,&got));assert(storage_write_file(cache_file,image,got-9));
+  reset();assert(vios_boot_startup());t=boot_times();assert(strstr(t,"cache saved"));eval("CDOUBLE");assert(fvm_pop()==10);
+  reset();assert(vios_boot_startup());assert(strstr(boot_times(),"cache hit"));
+  /* Another resident build (stamp) makes it stale; an unstamped build never uses it. */
+  vios_build_stamp[1]=0xC0FFEFu;reset();assert(vios_boot_startup());assert(strstr(boot_times(),"cache saved"));
+  reset();assert(vios_boot_startup());assert(strstr(boot_times(),"cache hit"));
+  vios_build_stamp[1]=0;reset();assert(vios_boot_startup());assert(strstr(boot_times(),"cache unstamped"));eval("CDOUBLE");assert(fvm_pop()==10);
   strcpy(root,saved_root);}
  /* Core library (Forth prelude) and compiler data/string words. */
  reset();

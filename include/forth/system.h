@@ -84,4 +84,15 @@ void forth_transaction_forget_rollback(void);
 int forth_transaction_active(void);
 int forth_transaction_error(const char *message);
 void forth_transaction_sizes(unsigned *words,size_t *token,size_t *direct,size_t *data);
+/* Boot-module cache (docs/superpowers/specs/2026-10-19-vios-boot-speed.md,
+ * Phase 3). A snapshot holds what module loads add to the dictionary after a
+ * base state: their words, code, source and source map, all hash buckets and
+ * data space up to its use. Only valid for the same resident build and base.
+ * io moves exactly size bytes or returns 0. A failed read may leave the
+ * dictionary inconsistent: the caller must reinitialise the runtime. */
+struct forth_snapshot_base {uint32_t token,direct,data,source,count,map;};
+typedef int (*forth_snapshot_io)(void *data,size_t size,void *ctx);
+void forth_snapshot_base(struct forth_snapshot_base *base);
+int forth_snapshot_write(const struct forth_snapshot_base *base,forth_snapshot_io put,void *ctx);
+int forth_snapshot_read(const struct forth_snapshot_base *base,forth_snapshot_io get,void *ctx);
 #endif

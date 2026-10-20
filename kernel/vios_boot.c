@@ -56,18 +56,101 @@ static const char *read_slot(unsigned slot,unsigned char *b){
  for(unsigned i=0;i<b[6];++i){const unsigned char *e=b+16+(size_t)i*ENTRY_SIZE;if(!field_terminated(e,32)||!field_terminated(e+32,128))return "unterminated boot bundle entry";}
  return 0;
 }
-static int load_slot(unsigned slot){
- if(slot>1)return 0;
- const char *why=read_slot(slot,bundle);if(why)return forth_error(why);
+static int bundle_identity(void);
+/* Load the modules of the bundle already read (and checked) into `bundle`. */
+static int load_modules(unsigned slot){
  for(unsigned i=0;i<bundle[6];++i){const unsigned char *e=bundle+16+(size_t)i*ENTRY_SIZE;
   uint32_t before=platform_millis();
   if(!vios_module_load((const char *)e+32))return 0;
   uint32_t spent=platform_millis()-before;++module_loads;
   if(spent>module_slowest){module_slowest=spent;size_t n=0;while(n<31&&e[n]){module_slowest_name[n]=(char)e[n];++n;}module_slowest_name[n]=0;}
+ }
+ if(!bundle_identity())return 0;
+ running=slot;return 1;
+}
+/* Boot-module cache (docs/superpowers/specs/2026-10-19-vios-boot-speed.md,
+ * Phase 3): a snapshot of what the slot's module loads added, keyed by the
+ * resident build stamp, the slot's bundle CRC and the base dictionary state.
+ * File: 'VIC1', stamp, bundle CRC, base (6 x u32), the core snapshot, the
+ * module snapshot, CRC-32 of everything before it. Sources stay the truth:
+ * any mismatch loads the slot from its packages and rewrites the cache. */
+/* Resident build stamp: tools/vios_stamp.py writes the CRC-32 of the binary
+ * (taken with this word zero) after the 'STMP' marker. 0 = unstamped (an ELF
+ * load, a host build): never cached. */
+volatile uint32_t vios_build_stamp[2]={0x504D5453UL,0};   /* not const: host tests stamp it */
+#define CACHE_STREAM (STORAGE_STREAMS-1)   /* no handles are open during boot */
+static uint32_t cache_crc,cache_hits,cache_misses,cache_saves;static const char *cache_note="none";
+static const char *cache_path(unsigned slot,int temporary){
+ return temporary?(slot?"/VIOS/CACHE_B.TMP":"/VIOS/CACHE_A.TMP"):(slot?"/VIOS/CACHE_B.VIC":"/VIOS/CACHE_A.VIC");
+}
+static int cache_put(void *data,size_t size,void *ctx){
+ (void)ctx;cache_crc=forth_crc32_update(cache_crc,(const unsigned char *)data,size);
+ while(size){size_t put=0;if(!storage_stream_write(CACHE_STREAM,data,size,&put)||!put)return 0;data=(unsigned char *)data+put;size-=put;}
+ return 1;
+}
+static int cache_get(void *data,size_t size,void *ctx){
+ (void)ctx;unsigned char *p=(unsigned char *)data;size_t want=size;
+ while(want){size_t got=0;if(!storage_stream_read(CACHE_STREAM,p,want,&got)||!got)return 0;p+=got;want-=got;}
+ cache_crc=forth_crc32_update(cache_crc,(const unsigned char *)data,size);return 1;
+}
+static void cache_header(unsigned char *h,unsigned slot,const struct forth_snapshot_base *b){
+ h[0]='V';h[1]='I';h[2]='C';h[3]='1';vios_put32(h+4,vios_build_stamp[1]);vios_put32(h+8,boot.crc[slot]);
+ const uint32_t v[6]={b->token,b->direct,b->data,b->source,b->count,b->map};
+ for(unsigned i=0;i<6;++i)vios_put32(h+12+4*i,v[i]);
+}
+/* 1: the slot's state is restored from its cache. 0 with *clobbered set:
+ * the read failed part way and the runtime must be reinitialised. */
+static int cache_load(unsigned slot,const struct forth_snapshot_base *base,int *clobbered){
+ *clobbered=0;if(!vios_build_stamp[1]){cache_note="unstamped";return 0;}
+ if(!storage_stream_open(CACHE_STREAM,cache_path(slot,0),0)){cache_note="absent";return 0;}
+ unsigned char want[36],have[36];cache_header(want,slot,base);cache_crc=0;
+ int ok=cache_get(have,sizeof have,0);
+ for(unsigned i=0;ok&&i<sizeof have;++i)if(have[i]!=want[i])ok=0;
+ if(!ok){(void)storage_stream_close(CACHE_STREAM);cache_note="stale";return 0;}
+ *clobbered=1;
+ ok=forth_snapshot_read(base,cache_get,0)&&forth_modules_snapshot_read(cache_get,0);
+ uint32_t expected=cache_crc;unsigned char tail[4];
+ ok=ok&&cache_get(tail,4,0)&&vios_get32(tail)==expected;
+ unsigned char extra;size_t got=0;if(ok&&storage_stream_read(CACHE_STREAM,&extra,1,&got)&&got)ok=0;   /* trailing bytes */
+ (void)storage_stream_close(CACHE_STREAM);
+ if(!ok){cache_note="corrupt";return 0;}
+ *clobbered=0;cache_note="hit";++cache_hits;return 1;
+}
+static void cache_save(unsigned slot,const struct forth_snapshot_base *base){
+ if(!vios_build_stamp[1])return;
+ const char *temporary=cache_path(slot,1),*path=cache_path(slot,0);
+ unsigned char h[36];cache_header(h,slot,base);cache_crc=0;
+ if(!storage_stream_open(CACHE_STREAM,temporary,1)){cache_note="save failed";return;}
+ int ok=cache_put(h,sizeof h,0)&&forth_snapshot_write(base,cache_put,0)&&forth_modules_snapshot_write(cache_put,0);
+ unsigned char tail[4];vios_put32(tail,cache_crc);ok=ok&&cache_put(tail,4,0);
+ ok=storage_stream_close(CACHE_STREAM)&&ok;
+ (void)storage_remove(path);
+ if(!ok||!storage_rename(temporary,path)){(void)storage_remove(temporary);cache_note="save failed";return;}
+ ++cache_saves;cache_note="saved";
+}
+static int bundle_identity(void){
+ for(unsigned i=0;i<bundle[6];++i){const unsigned char *e=bundle+16+(size_t)i*ENTRY_SIZE;
   struct forth_module_info info;int found=0;for(unsigned n=0;n<forth_module_count();++n)if(forth_module_info(n,&info)&&vios_same(info.name,(const char *)e)&&info.source_crc32==vios_get32(e+160)){found=1;break;}
   if(!found)return forth_error("boot package identity mismatch");
  }
- running=slot;return 1;
+ return 1;
+}
+/* load_slot through the cache: the bundle is still read and checked against
+ * the boot record first, so a slot is accepted exactly when it is today. */
+static int fresh_runtime(void);
+static int load_slot_cached(unsigned slot){
+ if(slot>1)return 0;
+ struct forth_snapshot_base base;forth_snapshot_base(&base);
+ const char *why=read_slot(slot,bundle);if(why)return forth_error(why);
+ int clobbered=0;
+ if(cache_load(slot,&base,&clobbered)){
+  if(bundle_identity()){running=slot;return 1;}
+  clobbered=1;cache_note="identity";
+ }
+ ++cache_misses;
+ if(clobbered){if(!fresh_runtime())return 0;forth_snapshot_base(&base);}
+ if(!load_modules(slot))return 0;
+ cache_save(slot,&base);return 1;
 }
 static int make_bundle(unsigned slot){
  unsigned count=forth_module_count();unsigned char order[FORTH_MODULES_MAX],used[FORTH_MODULES_MAX];
@@ -155,7 +238,7 @@ int vios_boot_startup(void){
  mark(MARK_STORAGE);read_state();mark(MARK_STATE);
  if(boot.state==PENDING&&boot.candidate<2){
   unsigned candidate=boot.candidate;boot.state=TRIED;
-  if(write_state()&&load_slot(candidate)&&(mark(MARK_MODULES),health())&&(mark(MARK_HEALTH),vios_boot_confirm())){
+  if(write_state()&&load_slot_cached(candidate)&&(mark(MARK_MODULES),health())&&(mark(MARK_HEALTH),vios_boot_confirm())){
    vios_out("boot trial confirmed ");vios_out(slot_name(candidate));vios_out("\r\n");ready();return 1;
   }
   vios_out("boot candidate rejected: ");vios_out(forth_last_error());vios_out("\r\n");
@@ -164,7 +247,7 @@ int vios_boot_startup(void){
  unsigned choices[2]={boot.confirmed,boot.previous};
  for(unsigned i=0;i<2;++i)if(choices[i]<2){
   if(!fresh_runtime())return 0;
-  if(load_slot(choices[i])&&(mark(MARK_MODULES),health())){
+  if(load_slot_cached(choices[i])&&(mark(MARK_MODULES),health())){
    mark(MARK_HEALTH);
    if(i){boot.previous=boot.confirmed;boot.confirmed=choices[i];(void)write_state();}
    vios_out("boot confirmed ");vios_out(slot_name(running));vios_out("\r\n");ready();return 1;
@@ -180,6 +263,7 @@ static void boot_times(void){
  vios_out("boot-times");
  for(unsigned i=1;i<MARKS;++i){vios_out(" ");vios_out(names[i-1]);vios_out(" ");vios_uint(marks[i]&&marks[i-1]?marks[i]-marks[i-1]:0);
   if(i==MARK_MODULES){vios_out(" (");vios_uint(module_loads);vios_out(" loads, slowest ");vios_out(module_loads?module_slowest_name:"-");vios_out(" ");vios_uint(module_slowest);
+   vios_out("; cache ");vios_out(cache_note);vios_out(" hits ");vios_uint(cache_hits);vios_out(" misses ");vios_uint(cache_misses);vios_out(" saves ");vios_uint(cache_saves);
    vios_out("; read ");vios_uint(vios_module_read_ms);vios_out(" check ");vios_uint(vios_module_check_ms);vios_out(" compile ");vios_uint(vios_module_compile_ms);vios_out(")");}}
  vios_out(" total ");vios_uint(marks[MARK_READY]-marks[MARK_START]);vios_out(" ms\r\n");
 }

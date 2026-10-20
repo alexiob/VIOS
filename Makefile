@@ -179,6 +179,7 @@ build/vios-resident.elf: $(RESIDENT_OBJECTS) boards/agon-light-2/ram.ld
 	$(EZNM) -u $@
 build/vios-resident.bin: build/vios-resident.elf
 	$(EZOBJCOPY) -O binary build/vios-resident.elf $@
+	.venv/bin/python tools/vios_stamp.py $@
 	.venv/bin/python -c 'from pathlib import Path;from tools.serial_monitor import validate_image;import hashlib;b=Path("$@").read_bytes();validate_image(b);print("VIOS resident",len(b),"bytes",hashlib.sha256(b).hexdigest())'
 	@printf '%s\n' '$(VIOS_INTERNAL_BAUD)' > build/vios-resident.baud
 	@printf '%s\n' '$(VIOS_GUI)' > build/vios-resident.gui

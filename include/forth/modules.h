@@ -35,6 +35,13 @@ int forth_module_stage(const char *name,const char *version,
     const char *source,const char *test_word);
 int forth_module_activate(const char *name);
 int forth_module_discard(void);
+/* Stage and activate in one transaction (no separate dry run): the boot path.
+ * Activation is atomic, so a failure leaves nothing staged or changed. */
+int forth_module_install(const char *name,const char *version,
+ const struct forth_module_dependency *deps,unsigned dep_count,const char *source,const char *test_word);
+/* Boot-module cache: the module records and source pool (see system.h). */
+int forth_modules_snapshot_write(forth_snapshot_io put,void *ctx);
+int forth_modules_snapshot_read(forth_snapshot_io get,void *ctx);
 int forth_module_rollback(const char *name);
 unsigned forth_module_count(void);
 int forth_module_info(unsigned index,struct forth_module_info *out);

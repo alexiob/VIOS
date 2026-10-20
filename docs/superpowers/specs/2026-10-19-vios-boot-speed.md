@@ -313,3 +313,55 @@ CRC-16 computed with the byte-wise XMODEM formula instead of a bit loop (same
 results; the card-model tests compute it bitwise). Next: compiling module
 source (1.1 s) is now the largest part; caching compiled modules would be the
 next step.
+
+## Phase 3 design: compiled boot-module cache (2026-10-20)
+
+Goal: skip reading, checking and compiling the confirmed slot's modules at
+boot (read 526 + check 180 + compile 1,089 ms) when nothing has changed.
+
+**Why a snapshot is safe here.** A module load is a pure dictionary
+transformation by construction: inside a module transaction the core refuses
+`EMIT . CR KEY`, every non-PURE native (only `J UNLOOP (+LOOP) FILL MOVE` are
+PURE) and the outer hook. So a load changes only (a) the dictionary (words,
+token/direct code, source text, source map, hash buckets and counters), (b)
+data space and (c) the module records (forth/modules.c). Nothing else needs
+replaying.
+
+**Sources stay the truth.** The cache is a derived file, used only when every
+input it was made from is unchanged, and rebuilt otherwise:
+
+- key: the resident build stamp (CRC-32 of the resident binary, written into
+  it after linking; 0 = unstamped, never cached), the slot's bundle CRC from
+  the boot record (covers each module's name, package path and source CRC),
+  and the base dictionary counters after `fresh_runtime()`;
+- body: the dictionary entries, code, source, source map added by the
+  modules, all hash buckets, data space up to `data_used`, the module records
+  and the module source pool;
+- CRC-32 over the whole file. Any mismatch (key, sizes, CRC, an I/O error)
+  falls back to the normal load, which then rewrites the cache.
+
+Files: `/VIOS/CACHE_A.VIC`, `/VIOS/CACHE_B.VIC`, written through a `.TMP`
+name and renamed; streamed straight from/to the core arrays (no RAM buffer).
+After a cached boot the last boot module has no rollback checkpoint (the 8 KB
+activation checkpoint is not cached); `MODULE-ROLLBACK` reports that.
+
+Also: a boot load compiled each module twice (`forth_module_stage` ran the
+whole transaction as a dry run, then `forth_module_activate` ran it again).
+Activation is atomic by itself, so the boot path now stages without the dry
+run (`forth_module_install`), halving the compile on a cache miss.
+
+## Phase 3 result (2026-10-20, main-29 on the board)
+
+`BOOT-TIMES`, `HEALTH 0 → 1`, untethered boot, 5 modules (cache 7,105 bytes):
+
+| Boot | modules | total |
+|---|---|---|
+| Phase 2 (compile twice, no cache) | 2,168 ms | 2,497 ms |
+| cache miss (compile once, then save the cache) | 2,833 ms (read 528, check 182, compile 640) | 3,158 ms |
+| **cache hit (every later boot)** | **857 ms** | **1,182 ms** |
+
+Compiling once cut compile time 41% (1,089 → 640 ms). The one-off miss boot pays
+~1.4 s to write the cache (temporary file, rename, sync). On a hit, the
+remaining 857 ms is opening and checking the bundle and the cache file.
+Host tests cover miss/save, hit (same counters, source, new definitions),
+a flipped byte, a truncated file, a changed build stamp and an unstamped build.

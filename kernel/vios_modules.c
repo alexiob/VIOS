@@ -111,8 +111,9 @@ int vios_module_load(const char *path){
  package[PACKAGE_HEADER+(size_t)length]=0;
  if(forth_module_crc32((char *)package+PACKAGE_HEADER)!=vios_get32(package+112))return error("module source CRC mismatch");
  uint32_t t2=platform_millis();vios_module_check_ms+=t2-t1;
- int staged=forth_module_stage((char *)package+8,(char *)package+40,deps,package[104],(char *)package+PACKAGE_HEADER,(char *)package+72);
- int active=staged&&forth_module_activate((char *)package+8);
+ /* One transaction: activation is atomic, so a separate dry run (stage)
+  * would only compile the source twice. */
+ int active=forth_module_install((char *)package+8,(char *)package+40,deps,package[104],(char *)package+PACKAGE_HEADER,(char *)package+72);
  vios_module_compile_ms+=platform_millis()-t2;
  return active;
 }

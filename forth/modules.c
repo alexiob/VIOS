@@ -84,8 +84,8 @@ static int dependencies_valid(const struct generation *g){
   if(n<0||modules[n].current.crc!=g->deps[i].crc)return error("missing or stale module dependency");}
  return 1;
 }
-int forth_module_stage(const char *name,const char *version,
- const struct forth_module_dependency *deps,unsigned dep_count,const char *source,const char *test_word){
+static int stage(const char *name,const char *version,
+ const struct forth_module_dependency *deps,unsigned dep_count,const char *source,const char *test_word,int dry_run){
  if(forth_transaction_active())return error("nested module transaction");
  if(pending.present)return error("discard or activate the pending module first");
  if(!identifier(name)||!identifier(version)||(test_word&&*test_word&&!identifier(test_word)))return error("invalid module name/version/test");
@@ -106,9 +106,34 @@ int forth_module_stage(const char *name,const char *version,
   copy(pending.gen.deps[i].name,deps[i].name);pending.gen.deps[i].crc=deps[i].source_crc32;
  }
  if(!dependencies_valid(&pending.gen))return 0;
- if(!forth_transaction_eval(pending.source,pending.gen.test,pending.gen.id,0))return 0;
- forth_transaction_sizes(&pending.gen.words,&pending.gen.token_bytes,&pending.gen.direct_bytes,&pending.gen.data_bytes);
+ if(dry_run){
+  if(!forth_transaction_eval(pending.source,pending.gen.test,pending.gen.id,0))return 0;
+  forth_transaction_sizes(&pending.gen.words,&pending.gen.token_bytes,&pending.gen.direct_bytes,&pending.gen.data_bytes);
+ }
  ++next_id;pending.present=1;return 1;
+}
+int forth_module_stage(const char *name,const char *version,
+ const struct forth_module_dependency *deps,unsigned dep_count,const char *source,const char *test_word){
+ return stage(name,version,deps,dep_count,source,test_word,1);
+}
+int forth_module_install(const char *name,const char *version,
+ const struct forth_module_dependency *deps,unsigned dep_count,const char *source,const char *test_word){
+ if(!stage(name,version,deps,dep_count,source,test_word,0))return 0;
+ if(forth_module_activate(name))return 1;
+ pending.present=0;return 0;
+}
+/* Layout: module_count, next_id, source pool use, sizeof(struct module)
+ * (4 x u32), the module records, then the used source pool. */
+int forth_modules_snapshot_write(forth_snapshot_io put,void *ctx){
+ if(pending.present)return 0;
+ uint32_t h[4]={module_count,next_id,source_used,(uint32_t)sizeof(struct module)};
+ return put(h,sizeof h,ctx)&&(!module_count||put(modules,module_count*sizeof modules[0],ctx))&&(!source_used||put(source_pool,source_used,ctx));
+}
+int forth_modules_snapshot_read(forth_snapshot_io get,void *ctx){
+ uint32_t h[4];if(!get(h,sizeof h,ctx))return 0;
+ if(h[0]>FORTH_MODULES_MAX||!h[1]||h[1]>65536u||h[2]>FORTH_MODULE_SOURCE_POOL||h[3]!=sizeof(struct module))return 0;
+ if((h[0]&&!get(modules,h[0]*sizeof modules[0],ctx))||(h[2]&&!get(source_pool,h[2],ctx)))return 0;
+ module_count=h[0];next_id=h[1];source_used=h[2];pending.present=rollback_available=0;return 1;
 }
 int forth_module_activate(const char *name){
  if(!pending.present||!name||!same(name,pending.name))return error("no matching staged module");

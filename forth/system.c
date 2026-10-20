@@ -1183,6 +1183,40 @@ done:
  copy(error_text,saved_error);return ok;
 }
 void forth_transaction_forget_rollback(void){have_activation=0;}
+void forth_snapshot_base(struct forth_snapshot_base *b){
+ b->token=(uint32_t)token_used;b->direct=(uint32_t)direct_used;b->data=(uint32_t)data_used;
+ b->source=(uint32_t)source_used;b->count=count;b->map=map_used;
+}
+/* Layout: the final counters and sizeof(struct word) (7 x u32), then the
+ * regions in this order. Regions past the base go first, so a failed read
+ * of them leaves the base state's live bytes untouched until the last two. */
+#define SNAPSHOT_REGIONS(b,f) \
+ {words+(b)->count,((f)->count-(b)->count)*sizeof(struct word)}, \
+ {token_code+(b)->token,(f)->token-(b)->token},{direct_code+(b)->direct,(f)->direct-(b)->direct}, \
+ {source_space+(b)->source,(f)->source-(b)->source},{source_map+(b)->map,((f)->map-(b)->map)*sizeof source_map[0]}, \
+ {buckets,sizeof buckets},{data_space,(f)->data}
+struct snapshot_region {void *at;size_t size;};
+int forth_snapshot_write(const struct forth_snapshot_base *b,forth_snapshot_io put,void *ctx){
+ struct forth_snapshot_base f;forth_snapshot_base(&f);
+ if(transaction_active||current>=0||f.count<b->count||f.token<b->token||f.direct<b->direct||f.source<b->source||f.map<b->map)return 0;
+ uint32_t header[7]={f.token,f.direct,f.data,f.source,f.count,f.map,(uint32_t)sizeof(struct word)};
+ if(!put(header,sizeof header,ctx))return 0;
+ struct snapshot_region regions[]={SNAPSHOT_REGIONS(b,&f)};
+ for(unsigned i=0;i<sizeof regions/sizeof regions[0];++i)if(regions[i].size&&!put(regions[i].at,regions[i].size,ctx))return 0;
+ return 1;
+}
+int forth_snapshot_read(const struct forth_snapshot_base *b,forth_snapshot_io get,void *ctx){
+ struct forth_snapshot_base now;forth_snapshot_base(&now);
+ if(transaction_active||current>=0||now.token!=b->token||now.direct!=b->direct||now.data!=b->data||now.source!=b->source||now.count!=b->count||now.map!=b->map)return 0;
+ uint32_t h[7];if(!get(h,sizeof h,ctx))return 0;
+ struct forth_snapshot_base f={h[0],h[1],h[2],h[3],h[4],h[5]};
+ if(h[6]!=sizeof(struct word)||f.count<b->count||f.count>WORDS_MAX||f.token<b->token||f.token>TOKEN_BYTES||f.direct<b->direct||f.direct>DIRECT_BYTES
+    ||f.data>DATA_BYTES||f.source<b->source||f.source>SOURCE_BYTES||f.map<b->map||f.map>SOURCE_MAP_MAX)return 0;
+ struct snapshot_region regions[]={SNAPSHOT_REGIONS(b,&f)};
+ for(unsigned i=0;i<sizeof regions/sizeof regions[0];++i)if(regions[i].size&&!get(regions[i].at,regions[i].size,ctx))return 0;
+ token_used=f.token;direct_used=f.direct;data_used=f.data;source_used=f.source;count=f.count;map_used=f.map;
+ have_activation=0;current=-1;control_used=0;leave_used=0;catalog_changed();return 1;
+}
 void forth_transaction_sizes(unsigned *w,size_t *t,size_t *d,size_t *a){*w=transaction_words;*t=transaction_token;*d=transaction_direct;*a=transaction_data;}
 int forth_transaction_rollback(void) {
  if(!have_activation)return forth_transaction_error("no activation checkpoint");

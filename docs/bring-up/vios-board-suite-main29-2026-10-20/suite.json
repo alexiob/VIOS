@@ -1,0 +1,61 @@
+{
+ "passed": false,
+ "results": [
+  {
+   "check": "gui",
+   "status": "passed",
+   "seconds": 3.7,
+   "detail": []
+  },
+  {
+   "check": "gui_tools",
+   "status": "failed",
+   "seconds": 12.7,
+   "detail": [
+    "AssertionError: frame_budget: {'vblank_start_max': 432, 'frame_work_max': 6087}"
+   ]
+  },
+  {
+   "check": "console",
+   "status": "passed",
+   "seconds": 11.2,
+   "detail": []
+  },
+  {
+   "check": "audio",
+   "status": "passed",
+   "seconds": 9.1,
+   "detail": []
+  },
+  {
+   "check": "core_words",
+   "status": "passed",
+   "seconds": 4.0,
+   "detail": []
+  },
+  {
+   "check": "tasks",
+   "status": "passed",
+   "seconds": 13.1,
+   "detail": []
+  },
+  {
+   "check": "pipeline",
+   "status": "passed",
+   "seconds": 5.7,
+   "detail": []
+  },
+  {
+   "check": "handles",
+   "status": "passed",
+   "seconds": 3.7,
+   "detail": []
+  },
+  {
+   "check": "tools",
+   "status": "passed",
+   "seconds": 6.3,
+   "detail": []
+  }
+ ]
+}
