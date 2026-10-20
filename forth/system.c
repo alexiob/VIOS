@@ -1202,6 +1202,9 @@ void forth_repl(void) {
    if(overflow) {print("error: input line too long\r\n");rollback();}
    else if(request_ok&&line_mode_hook)line_mode_hook(0);
    if(!overflow&&(!request_ok||!(success=forth_eval(request)))){print("error: ");print(forth_last_error());print("\r\n");}
+   /* Console-task text held during the command, on its own line(s) before the
+    * reply ends: never mid-line, and never after the prompt. */
+   {int held=0;for(unsigned i=0;i<FORTH_TASKS_MAX;++i)held|=tasks[i].console&&tasks[i].out_count;if(held){print("\r\n");console_tasks_flush();}}
    if(line_mode_hook)line_mode_hook(1);
    if(tagged){print("\r\n@");print(nonce);print("\r\n");}
    if(success)print("ok\r\n");else if(tagged)print("error\r\n");
