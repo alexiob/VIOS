@@ -260,6 +260,9 @@ int main(int argc, char **argv) {
     eval("2 TOOL");
     idle();
     assert(open(22) && u.focus == 22);
+    eval("-1 TOOL");
+    idle();
+    assert(!open(20) && !open(21) && !open(22) && !open(23) && vios_tools_open_mask() == 0);
     assert(!forth_eval("7 TOOL"));
     fvm_reset();
     assert(!p.errors && !fvm_depth);

@@ -171,6 +171,8 @@ static void row_text(vds *v, uint8_t s, const vds_widget *w, int row, uint8_t a,
 static void render(vds_ui *u, uint8_t id) {
     vds *v = core(u);
     vds_widget *w = &u->widgets[id];
+    if (u->deferring) { w->pending = 1; u->pending_any = 1; return; }
+    w->pending = 0;
     uint8_t s = surface_of(u, w->window);
     if (s == VDS_NONE || w->kind == VDS_WK_BOX || !w->w || !w->h || !shown(u, w)) return;
     const vds_style *st = &v->style;
@@ -283,6 +285,7 @@ void vds_ui_widgets_refresh(vds_ui *u, uint8_t window) {
         for (uint8_t i = next_widget(u, window, ANY_PARENT, VDS_NONE); i != VDS_NONE; i = next_widget(u, window, ANY_PARENT, i))
             if (focusable(u, &u->widgets[i])) { u->widget_focus[window] = i; break; }
     }
+    if (u->deferring) { u->repaint |= (uint64_t)1 << window; u->pending_any = 1; return; }
     /* A laid-out box owns its area: clear it so gaps between children never
      * keep text from an earlier layout, then draw the children. */
     uint8_t s = surface_of(u, window);
@@ -293,6 +296,16 @@ void vds_ui_widgets_refresh(vds_ui *u, uint8_t window) {
     }
     for (unsigned i = 0; i < VDS_MAX_WIDGETS; ++i)
         if (u->widgets[i].used && u->widgets[i].window == window) render(u, (uint8_t)i);
+}
+
+void vds_ui_widgets_flush(vds_ui *u) {
+    if (!u->pending_any || u->deferring) return;
+    u->pending_any = 0;
+    for (uint8_t window = 0; window < VDS_MAX_WINDOWS; ++window)
+        if (u->repaint & ((uint64_t)1 << window)) vds_ui_widgets_refresh(u, window);
+    u->repaint = 0;
+    for (unsigned i = 0; i < VDS_MAX_WIDGETS; ++i)
+        if (u->widgets[i].pending) { u->widgets[i].pending = 0; if (u->widgets[i].used) render(u, (uint8_t)i); }
 }
 
 /* ------------------------------------------------------------ definition */

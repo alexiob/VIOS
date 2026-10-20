@@ -828,6 +828,8 @@ static int focus_hook(void *ui, uint8_t id) { return vds_ui_focus((vds_ui *)ui, 
 static void forget_hook(void *ui, uint8_t id) { vds_ui_forget((vds_ui *)ui, id); }
 static void after_hook(void *ui) {                     /* only a style change re-decorates */
     vds_ui *u = (vds_ui *)ui;
+    u->deferring = 0;
+    if (!u->p->hold) vds_ui_widgets_flush(u);               /* committed: draw now; held: at the next frame */
     if (u->style_seen != core(u)->style.kind) {
         vds_ui_refresh(u);
         for (uint8_t id = 0; id < VDS_UI_FIRST_WINDOW; ++id)
@@ -845,6 +847,7 @@ static void reset_hook(void *ui) {
 
 static int op_hook(void *ui, const uint8_t *b) {
     vds_ui *u = (vds_ui *)ui;
+    u->deferring = 1;                                       /* until after_hook */
     switch (b[0]) {
     case 0x59: return vds_ui_window_menu(u, b[1], b[2]);
     case 0x5A: return vds_ui_key_policy(u, b[1], b[2]);
@@ -930,7 +933,7 @@ static int op_hook(void *ui, const uint8_t *b) {
     return 0;
 }
 
-static void tick_hook(void *ui, uint32_t ms) { vds_ui_tick((vds_ui *)ui, ms); }
+static void tick_hook(void *ui, uint32_t ms) { vds_ui_widgets_flush((vds_ui *)ui); vds_ui_tick((vds_ui *)ui, ms); }
 
 void vds_ui_init(vds_ui *u, vds_proto *p) {
     memset(u, 0, sizeof *u);

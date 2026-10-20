@@ -73,6 +73,11 @@ def main():
             def status():
                 return c.tool('esp_gui')['status']
 
+            def close_all():                  # -1 TOOL (newer firmware); older: nothing to do on a clean boot
+                out = c.tool('evaluate', {'source': '-1 TOOL', 'timeout': 30})
+                return out['ok']
+            r['close_all_word'] = close_all()  # a clean start: no tool window open
+            time.sleep(0.5)
             ev('CREATE TT 4096 ALLOT')
             check('gui_on', status().startswith('GUI on'), status())
             c.tool('esp_stats', {'reset': True})
@@ -145,9 +150,11 @@ def main():
             r['readback'] = {'bytes': int(n[0]) if n else 0, 'seconds': round(dt, 3), 'bytes_per_s': round(4000 / dt) if dt else None}
             check('readback_complete', n and n[0] == '4000', n)
 
-            # Close every tool (Ctrl+W on each focused tool window).
-            for _ in range(4):
-                letter('w', CTRL)
+            # Close a tool with Ctrl+W, then the rest.
+            letter('w', CTRL)
+            if not close_all():
+                for _ in range(4):
+                    letter('w', CTRL)
             sync = result('UI-SYNC . . .').split()
             r['sync'] = sync
             check('no_protocol_errors', sync and sync[0] == '0', sync)

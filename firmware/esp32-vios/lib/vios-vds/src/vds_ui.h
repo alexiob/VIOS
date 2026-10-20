@@ -99,6 +99,7 @@ typedef struct {
     uint16_t top;                       /* first visible list row / input scroll */
     uint16_t count, first;              /* list: row count and first pool slot */
     uint8_t slot;                       /* TextView buffer, VDS_NONE if none */
+    uint8_t pending;                    /* drawn at the next flush (wire ops defer drawing) */
     uint8_t ncols, cols[VDS_TABLE_COLS];   /* table column widths */
     char text[VDS_WIDGET_TEXT];
 } vds_widget;
@@ -158,6 +159,12 @@ typedef struct vds_ui {
     char clip[VDS_CLIP_MAX];
     uint16_t clip_len;
     uint8_t key_policy[VDS_MAX_WINDOWS];
+    /* While wire ops are applied, widgets are laid out at once but drawn only
+     * at the end of the batch (or the next frame while a batch is held), so
+     * building a window, appending rows or setting text draws each widget
+     * once, not once per op. */
+    uint8_t deferring, pending_any;
+    uint64_t repaint;                       /* windows to repaint in full */
     uint16_t widget_seq;
     uint8_t widget_cols[VDS_MAX_WINDOWS], widget_rows[VDS_MAX_WINDOWS];   /* size at the last layout */
     uint8_t pointer_mode, buttons;
@@ -215,6 +222,8 @@ int vds_ui_widget_delete(vds_ui *u, uint8_t id);
 int vds_ui_widget_focus(vds_ui *u, uint8_t id);
 /* Lay out and redraw every widget of a window (after resize or style change). */
 void vds_ui_widgets_refresh(vds_ui *u, uint8_t window);
+/* Draw what deferred drawing left pending (wire ops call it themselves). */
+void vds_ui_widgets_flush(vds_ui *u);
 /* Internal to vds_ui.c: keys and clicks for widgets; 1 when consumed. */
 int vds_ui_widget_key(vds_ui *u, uint8_t ascii, uint8_t modifiers, uint8_t vk);
 int vds_ui_widget_click(vds_ui *u, uint8_t window, int col, int row);

@@ -56,6 +56,8 @@ void vds_ui_text_render(vds_ui *u, uint8_t id) {
     vds_widget *w = &u->widgets[id];
     vds_text *t = text_of(u, id);
     uint8_t s = w->window < VDS_MAX_WINDOWS && v->windows[w->window].used ? v->windows[w->window].surface : VDS_NONE;
+    if (u->deferring) { w->pending = 1; u->pending_any = 1; return; }
+    w->pending = 0;
     if (!t || s >= VDS_MAX_SURFACES || !v->surfaces[s].cells || !w->w || !w->h) return;
     const vds_style *st = &v->style;
     int focused = u->widget_focus[w->window] == id && u->focus == w->window;

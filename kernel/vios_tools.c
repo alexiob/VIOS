@@ -562,11 +562,12 @@ void vios_tools_idle(void) {
     queued = 0;
 }
 
-static int tool_word(void) {                            /* TOOL ( n -- ) open or focus tool n */
+static int tool_word(void) {                            /* TOOL ( n -- ) open or focus tool n; -1 closes them all */
     fcell n = fvm_pop();
     if (fvm_error) return 0;
     if (!ready) vios_tools_idle();
-    return n < TOOLS && vios_tools_open((unsigned)n) ? 1 : forth_error("TOOL: 0 Browser, 1 Workspace, 2 Inspector, 3 Manager (GUI only)");
+    if (n == FVM_MASK) { for (unsigned t = 0; t <= DIALOG; ++t) if (open_tools & (1u << t)) close_tool(t); return 1; }   /* -1: close all */
+    return n < TOOLS && vios_tools_open((unsigned)n) ? 1 : forth_error("TOOL: 0 Browser, 1 Workspace, 2 Inspector, 3 Manager, -1 close all");
 }
 
 int vios_tools_init(void) {
