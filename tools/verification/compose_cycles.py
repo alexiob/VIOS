@@ -117,6 +117,10 @@ class CycleCPU(LinkedC):
                 value = self.pop()
                 self.r['a'] = (value >> 8) & 255
                 self.s, self.z, self.p, self.c = (bool(value & bit) for bit in (128, 64, 4, 1))
+        elif op == 'ld' and args[0].startswith('(') and args[1][0].isdigit():
+            # ld (hl),n and ld (ix/iy+d),n store one byte. The base interpreter
+            # stores three, spilling two zeros past e.g. a scroll's blank row.
+            self.wr(self.addr(args[0]), int(args[1], 0), 1)
         elif op == 'ex' and args[0] == '(sp)':
             value = self.rd(self.r['sp'])
             self.wr(self.r['sp'], self.g(args[1]))
@@ -257,6 +261,10 @@ class Workbench:
         cpu.mem[self.syms['_dirty_rows']:self.syms['_dirty_rows']+60] = bytes(60)
         if '_painted_blank' in self.syms:
             cpu.mem[self.syms['_painted_blank']] = 0
+        # The renderer sends a queued scroll before the next frame; left set,
+        # it would refuse every later vios_text_scroll.
+        if '_scroll_pending' in self.syms:
+            cpu.mem[self.syms['_scroll_pending']] = 0
 
     def compose(self, profile=False):
         cpu = self.cpu

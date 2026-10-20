@@ -354,7 +354,9 @@ static void editor_compose(int full){
  int all=full||!view.editor_valid||view.top!=top||view.left!=left;
  unsigned exposed_first=38,exposed_last=0;
  if(!full&&view.editor_valid&&view.left==left){
-  if(view.top!=top&&!view.damage){
+  /* Damage is in source lines, so the row loop still repaints it after a
+   * scroll; only skip the scroll when the damage covers the whole view. */
+  if(view.top!=top&&(!view.damage||view.damage_first>top)){
    int rows=(int)top-(int)view.top;
    if(editor_scroll(0,rows)){
     all=0;if(rows>0){exposed_first=38-(unsigned)rows;exposed_last=37;}

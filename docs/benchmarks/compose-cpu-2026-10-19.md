@@ -129,6 +129,51 @@ In this model's newline frame `vios_text_scroll` is never called: every row is
 re-diffed instead of shifted. If the hardware bench's edit position engages
 the shift path, the board will show a smaller newline delta than the model.
 
+## Newline scroll (branch claude/newline-scroll-shift)
+
+Why the model's newline frame never scrolled: the fixture is loaded by
+appending patches, so the cursor sits at EOF (offset 1969, line 51, view top
+14). That rules out the row shift. `vios_workbench_patch` sets `can_shift`
+only when `suffix<line_count`, and at EOF there is no line below the edit to
+move. That is correct, not a bug. The newline does move the view top
+(14→15, back on delete). But that scroll branch in `editor_compose` required
+`!view.damage`, and every structural patch sets damage from `line-1` to the
+end. So all 38 rows were re-diffed. The gate was too strict: damage is kept
+in source lines, and the row loop repaints it after a scroll anyway. It now
+skips the scroll only when the damage starts at or above the new top
+(`view.damage_first>top`), meaning the whole view would be repainted.
+
+The hardware bench (`tools/vios_fast_display_bench.py`) behaves differently.
+It moves the cursor to offset 5, on line 0 with top 0, so its `newline_edit`
+pairs take the `shift_valid` path (`editor_scroll(1,-1)`, then `(1,+1)`),
+which this model's frames never exercise. Its newline numbers are therefore
+not comparable to the model's.
+
+Two cycle-model bugs fixed in `tools/verification/compose_cycles.py`. First,
+the inherited interpreter stored `ld (iy+d),n` and `ld (hl),n` as three bytes.
+That added cycles, and in `vios_text_scroll`'s blank row it wrote two zeros
+past the region, at (0,56). Second, `settle()` did not clear
+`_scroll_pending`, which the renderer drains before the next frame, so after
+the first scroll every later one was refused. Fixing them changes the base
+ELF's own hashes from TAB onward and its cycles. The table below re-measures
+both ELFs with the fixed model.
+
+| Frame (ms, fixed model) | base 6672e7d | gate relaxed |
+|---|---:|---:|
+| Full, after `WB-REPAINT` | 32.73 | 32.76 |
+| Unchanged / TAB to editor | 1.08 / 2.27 | 0.97 / 2.05 |
+| Character insert / delete | 3.60 / 3.59 | 3.20 / 3.19 |
+| Newline insert / delete | 9.71 / 9.73 | **6.02 / 6.44** |
+| Source scroll up / down | 4.69 / 4.20 | 4.41 / 3.99 |
+| Zoom on / off (painted) | 38.06 / 39.96 | 38.08 / 39.98 |
+
+All 11 desired-plane hashes match. In cycles, newline insert drops from
+179,064 to 111,020 and delete from 179,340 to 118,791. The smaller drops in
+other frames all fall inside the inlined `editor_compose` (the unchanged
+frame goes from 15,794 to 13,669 cycles in `vios_workbench_compose`). They
+come from codegen changes, not from skipping rows. The image shrinks by 171 B
+(152,936 → 152,765 B), and `__bss_end` moves from 0xA83E8 to 0xA833D.
+
 ## Hardware follow-up (owner)
 
 With this commit deployed at 1,152,000 internal baud and the TCP host
