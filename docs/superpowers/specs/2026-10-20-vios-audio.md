@@ -146,5 +146,5 @@ On the board, 2026-10-20 (G0 probe, mode 0, same conditions on both firmwares):
 
 Acceptance (`tools/vios_audio_accept.py`, docs/bring-up/vios-audio-accept-2026-10-20.json):
 10/10 checks passed: idle, tone, tone ends, tune advances, tune ends, error
-`2@2`, loop, `-1 STOP`, `BEEP` → 1, `VOLUME`. Audibility still needs a person
-to listen (the script ends with a two-voice melody).
+`2@2`, loop, `-1 STOP`, `BEEP` → 1, `VOLUME`. Listened to by the owner on the buzzer (audio-2, 12:10): tones, chord, scale,
+two-voice melody, waveforms, volume, loop and BEEP; verdict "very good".
