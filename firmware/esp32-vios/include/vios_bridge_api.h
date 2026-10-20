@@ -86,6 +86,8 @@ void vios_frame_parts(uint32_t *lock_us,uint32_t *service_us,uint32_t *gui_us); 
 /* GUI display server (vios_gui.h): status line, a key with modifiers for the
  * window manager (true if used), and one framebuffer pixel's colour index. */
 unsigned vios_gui_status(char *out,unsigned capacity);
+/* Lean audio engine state and free heap, one line (vios_audio_vdp.h). */
+unsigned vios_audio_status_line(char *out,unsigned capacity);
 bool vios_gui_key(uint8_t ascii,uint8_t modifiers,uint8_t vk,uint8_t down);
 int vios_gui_pixel(unsigned x,unsigned y);
 void vios_gui_batch(const uint8_t *payload,size_t length);

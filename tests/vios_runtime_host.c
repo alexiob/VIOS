@@ -46,6 +46,7 @@ int platform_vdp_request(const void *command,size_t length,unsigned char reply,v
  if(reply==0x83&&capacity>=1){++vdp_fences;if(vdp_fence_fail)return 0;p[0]='V';*actual=1;return 1;}
  if(reply==0x84&&capacity>=4){p[0]=0x12;p[1]=0x34;p[2]=0x56;p[3]=2;*actual=4;return 1;}
  if(reply==0x85&&capacity>=2){p[0]=0;p[1]=1;*actual=2;return 1;}
+ if(reply==0xF9&&capacity>=4){const unsigned char *q=command;assert(length==4&&q[2]==0xE9&&q[3]==5);p[0]=5;p[1]=127;p[2]=255;p[3]=0;*actual=4;return 1;}
  return 0;
 }
 uint32_t platform_millis(void){return 1234567;}
@@ -115,6 +116,14 @@ int main(int argc,char **argv){
  eval("S\" MixedCase\" CONSOLE-WRITE");assert(!fvm_depth);
  eval("VDP-INFO");eval("0 0 CHAR@");assert(fvm_pop()=='V');
  eval("0 0 PIXEL@");assert(fvm_pop()==2);assert(fvm_pop()==0x563412);
+ { /* Sound words: exact fire-and-forget VDU 23,0,E9 frames; only SOUND? asks. */
+  static const unsigned char expect[]={23,0,0xE9,0,0xB8,1,0xFA,0, 23,0,0xE9,1,3,2,'c','d','e', 23,0,0xE9,2,2,1, 23,0,0xE9,3,0xFF, 23,0,0xE9,4,100};
+  unsigned calls=vdp_calls;vdp_setup_length=0;
+  eval("440 250 TONE S\" cde\" 2 TUNE 2 1 PLAY -1 STOP 100 VOLUME");assert(!fvm_depth);
+  assert(vdp_setup_length==sizeof expect&&!memcmp(vdp_setup,expect,sizeof expect));assert(vdp_calls-calls==6);
+  eval("SOUND?");assert(fvm_pop()==5);
+  assert(!forth_eval("HERE 256 0 TUNE"));
+ }
  assert(storage_mkdir("/VIOS"));
  const char *source=": VALUE 11 ; : TEST VALUE 11 = ;";
  assert(forth_module_stage("demo","1",NULL,0,source,"TEST"));assert(forth_module_activate("demo"));

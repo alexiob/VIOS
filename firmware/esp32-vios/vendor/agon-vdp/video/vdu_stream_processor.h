@@ -51,6 +51,7 @@ class VDUStreamProcessor {
 		void vdu_sys_udg(char c);
 
 		void vdu_sys_audio();
+		void vios_audio_vdu();
 		void sendAudioStatus(uint8_t channel, uint8_t status);
 		uint8_t loadSample(uint16_t bufferId, uint32_t length);
 		uint8_t createSampleFromBuffer(uint16_t bufferId, uint8_t format);

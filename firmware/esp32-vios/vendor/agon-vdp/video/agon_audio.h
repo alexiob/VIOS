@@ -15,9 +15,12 @@
 #include <unordered_map>
 #include <fabgl.h>
 
+#include "types.h"
+#if !VIOS_VDP_AUDIO
+#include "vios_audio_vdp.h"
+#else
 #include "audio_channel.h"
 #include "audio_sample.h"
-#include "types.h"
 
 // audio channels and their associated tasks
 std::unordered_map<uint8_t, std::shared_ptr<audio_channel>> audio_channels;
@@ -146,4 +149,6 @@ void resetSamples() {
 	samples.clear();
 }
 
+unsigned vios_audio_status_line(char *out, unsigned capacity) { return (unsigned)snprintf(out, capacity, "AUDIO vdp-1.04"); }
+#endif // VIOS_VDP_AUDIO
 #endif // AGON_AUDIO_H

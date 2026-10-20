@@ -36,7 +36,7 @@ static unsigned run(bool atomic) {
             assert(!changed || done);   // one change only: the present
             changed = true;
         }
-        if (done) break;
+        if (done && !p.active()) break;   // composed and presented
     }
     return frames;
 }
@@ -144,18 +144,20 @@ int main(int argc, char **argv) {
     run(true);
     matches_reference();
 
-    /* A finished pass presents only in a frame that may (started at vblank). */
+    /* A finished pass presents in a later frame, on its own, and only in a
+     * frame that may (started at vblank). */
     assert(vds_window_open(&v, 26, 10, 0, 0, 80, 60, VDS_W_VISIBLE, "Workbench"));
-    {unsigned presents = p.presents, guard = 0;
-     while (p.presents == presents && guard++ < 100) {
+    {unsigned presents = p.presents, guard = 0, rows = v.stats.rows;
+     while (guard++ < 100) {
          memcpy(before, screen, sizeof screen);
          p.frame(&v, [&]() { return vds_frame_within(&v, BUDGET, UINT32_MAX); }, false);
          assert(!memcmp(screen, before, sizeof screen));   // never presents
-         if (!v.ndamage && p.composing_offscreen()) break;
+         if (!v.ndamage && p.composing_offscreen() && guard > 20) break;
      }
      assert(p.presents == presents && p.deferred > 0 && p.composing_offscreen());
+     rows = v.stats.rows;
      p.frame(&v, [&]() { return vds_frame_within(&v, BUDGET, UINT32_MAX); }, true);
-     assert(p.presents == presents + 1);}
+     assert(p.presents == presents + 1 && v.stats.rows == rows && "the present frame composes nothing");}
     matches_reference();
     assert(vds_window_close(&v, 26));
     run(true);

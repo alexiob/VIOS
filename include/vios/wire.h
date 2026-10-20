@@ -32,6 +32,12 @@ extern "C" {
  * Replies are packets FB ('M' manifest, 'B' block, 'E' no such block). */
 #define VIOS_VDU_BOOT 0xE8
 #define VIOS_PACKET_BOOT 0xFB
+/* Lean audio (firmware/esp32-vios/include/vios_audio_vdu.h), arguments in Forth
+ * stack order: op 0 TONE freq:u16
+ * ms:u16, 1 TUNE len slot text, 2 PLAY slot voice, 3 STOP voice|255, 4 VOLUME v,
+ * 5 QUERY -> packet F9 {busy mask, master, error slot, error offset}. */
+#define VIOS_VDU_AUDIO 0xE9
+#define VIOS_PACKET_AUDIO 0xF9
 /* The stub hands HL = VIOS_BOOT_MAGIC to the resident: booted through MOS and
  * autoexec, so a restart is a real CPU reset (the stub reloads it). */
 #define VIOS_BOOT_MAGIC 0x56420BUL
