@@ -320,6 +320,7 @@ int vds_proto_batch(vds_proto *p, const uint8_t *b, size_t len) {
         if (op != 0x30 && op != 0x31 && op != 0x32 && op != 0x33 && op != 0x36 && op != 0x89 && op != 0x8C && op != 0x8E && !p->hold) { p->hold = 1; p->held_ms = 0; }
         if (!apply(p, b + at)) error(p, op, at);
         at += s;
+        if (p->yield) p->yield(p->ctx);
     }
     ++p->generation;
     if (p->ui_after) p->ui_after(p->ui);

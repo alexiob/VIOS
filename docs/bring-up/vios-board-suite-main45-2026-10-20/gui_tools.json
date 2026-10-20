@@ -1,0 +1,283 @@
+{
+  "status": "passed",
+  "checks": {
+    "gui_on": {
+      "ok": true,
+      "detail": "GUI on windows 1 frames 136 rows 3122 carried 38 errors 0 style 0 batch_max_us 0 batch_op 31 frame_max_us 963 presents 2 deferred 0 forced 0 abandoned 0 present_us_max 9742 sync_frames_max 5 slow_us 6760 slow_px 0 slow_rows 0 slow_nd 0 slow_phase 2>0 ops_us 0 after_us 0 style_us 0 hold_us 0 wait_us 0 frame_wait 27 by - at 0"
+    },
+    "browser_key": {
+      "ok": true,
+      "detail": null
+    },
+    "browser_window_drawn": {
+      "ok": true,
+      "detail": [
+        [
+          5
+        ],
+        [
+          3
+        ]
+      ]
+    },
+    "module_selected": {
+      "ok": true,
+      "detail": [
+        "2"
+      ]
+    },
+    "module_source_shown": {
+      "ok": true,
+      "detail": [
+        "DEFER LIVE1-S : LIVE1-C LIVE1-S ;",
+        "module LIVE1I version 11 crc32 4203863728 bytes 33 deps 0 ac"
+      ]
+    },
+    "workspace_key": {
+      "ok": true,
+      "detail": null
+    },
+    "print_it": {
+      "ok": true,
+      "detail": "\\ Ctrl+D do it, Ctrl+P print it, Ctrl+I inspect it\n3 4 + .\n6 7 * 42"
+    },
+    "indent": {
+      "ok": true,
+      "detail": "\\ Ctrl+D do it, Ctrl+P print it, Ctrl+I inspect it\n3 4 + .\n  6 7 * 42"
+    },
+    "deindent": {
+      "ok": true,
+      "detail": "\\ Ctrl+D do it, Ctrl+P print it, Ctrl+I inspect it\n3 4 + .\n6 7 * 42"
+    },
+    "inspector_key": {
+      "ok": true,
+      "detail": null
+    },
+    "memory_tab": {
+      "ok": true,
+      "detail": [
+        "1"
+      ]
+    },
+    "tasks_report": {
+      "ok": true,
+      "detail": "task-slice 1024\ntask 1 state sleeping xt 264 name 4155544F52554E slices 2 steps 1055 depth 0 rdepth 1 ds-peak 3 rs-peak "
+    },
+    "system_report": {
+      "ok": true,
+      "detail": "engine DIRECT words 267/512 token-bytes 1645 direct-bytes 4047 data-bytes 2223 source-bytes 1672 data-peak 10 return-peak 1\ndisplay epoch 21 errors 0 frames 414 ESP restarts 0\n"
+    },
+    "manager_key": {
+      "ok": true,
+      "detail": null
+    },
+    "boot_report": {
+      "ok": true,
+      "detail": "Enter: run the selected action\nboot confirmed A candidate NONE state CLEAN current A generation 15\nmanifest A confirmed modules 5 crc32 3568491093\nmanifest-module A LIVE1I version 11 crc32 4203863728 "
+    },
+    "readback_complete": {
+      "ok": true,
+      "detail": [
+        "2000"
+      ]
+    },
+    "no_protocol_errors": {
+      "ok": true,
+      "detail": [
+        "0",
+        "342",
+        "21"
+      ]
+    },
+    "frame_budget": {
+      "ok": true,
+      "detail": {
+        "vblank_start_max": 234,
+        "frame_work_max": 4481
+      }
+    }
+  },
+  "close_all_word": true,
+  "browser_open_s": 0.38,
+  "modules": "module LIVE1I version 11 crc32 4203863728 bytes 33 deps 0 active 1 previous 0",
+  "browser_code_head": "DEFER LIVE1-S : LIVE1-C LIVE1-S ;",
+  "workspace_text": "\\ Ctrl+D do it, Ctrl+P print it, Ctrl+I inspect it\n3 4 + .\n6 7 * 42",
+  "tasks_report": "task-slice 1024\ntask 1 state sleeping xt 264 name 4155544F52554E slices 2 steps 1055 depth 0 rdepth 1 ds-peak 3 rs-peak 4 out 21 dropped 0 error - base 10\ntask 2 state free xt 0 name - slices 0 steps ",
+  "system_report": "engine DIRECT words 267/512 token-bytes 1645 direct-bytes 4047 data-bytes 2223 source-bytes 1672 data-peak 10 return-peak 1\ndisplay epoch 21 errors 0 frames 414 ESP restarts 0\n",
+  "boot_report": "Enter: run the selected action\nboot confirmed A candidate NONE state CLEAN current A generation 15\nmanifest A confirmed modules 5 crc32 3568491093\nmanifest-module A LIVE1I version 11 crc32 4203863728 package ok\nmanifest-module A LIVE1P version 11 crc32 2732385733 package ok\nmanifest-module A LIVE1D ",
+  "dialog_status": "GUI on windows 6 frames 512 rows 13332 carried 365 errors 0 style 0 batch_max_us 2250 batch_op 58 frame_max_us 3527 presents 11 deferred 0 forced 1 abandoned 0 present_us_max 9742 sync_frames_max 5 slow_us 8836 slow_px 0 slow_rows 0 slow_nd 0 slow_phase 2>0 ops_us 2250 after_us 0 style_us 2 hold_us 2256 wait_us 5 frame_wait 771 by loopTask at 400d8e7c",
+  "readback": {
+    "bytes": 2000,
+    "seconds": 0.26,
+    "bytes_per_s": 7679
+  },
+  "sync": [
+    "0",
+    "342",
+    "21"
+  ],
+  "sections": {
+    "browser": {
+      "vblank_start_max": 25,
+      "frame_work_max": 4441,
+      "frame_lock_max": 27,
+      "frame_gui_max": 4413,
+      "present_frames": 1,
+      "present_work_max": 9111,
+      "keyboard_max": 3875,
+      "parser_max": 13577,
+      "late_us": 25,
+      "late_cause": 2,
+      "late_prev_kind": 1,
+      "late_prev_us": 3067,
+      "feed_max": 192,
+      "key_max": 679,
+      "batch_max_us": 204,
+      "ops_us": 204,
+      "after_us": 0,
+      "style_us": 26,
+      "hold_us": 232,
+      "wait_us": 4,
+      "key_us": null,
+      "frame_wait": 27,
+      "frame_wait_by": "-",
+      "frame_wait_at": "0"
+    },
+    "workspace": {
+      "vblank_start_max": 27,
+      "frame_work_max": 4286,
+      "frame_lock_max": 199,
+      "frame_gui_max": 3216,
+      "present_frames": 1,
+      "present_work_max": 9106,
+      "keyboard_max": 3970,
+      "parser_max": 10806,
+      "late_us": 27,
+      "late_cause": 2,
+      "late_prev_kind": 1,
+      "late_prev_us": 3145,
+      "feed_max": 126,
+      "key_max": 1006,
+      "batch_max_us": 185,
+      "ops_us": 185,
+      "after_us": 0,
+      "style_us": 6,
+      "hold_us": 192,
+      "wait_us": 4,
+      "key_us": null,
+      "frame_wait": 199,
+      "frame_wait_by": "vios-usb",
+      "frame_wait_at": "400d92a7"
+    },
+    "inspector": {
+      "vblank_start_max": 234,
+      "frame_work_max": 4481,
+      "frame_lock_max": 224,
+      "frame_gui_max": 3326,
+      "present_frames": 4,
+      "present_work_max": 8606,
+      "keyboard_max": 8572,
+      "parser_max": 13041,
+      "late_us": 234,
+      "late_cause": 1,
+      "late_prev_kind": 0,
+      "late_prev_us": 2317,
+      "feed_max": 196,
+      "key_max": 831,
+      "batch_max_us": 198,
+      "ops_us": 198,
+      "after_us": 0,
+      "style_us": 6,
+      "hold_us": 206,
+      "wait_us": 24,
+      "key_us": null,
+      "frame_wait": 224,
+      "frame_wait_by": "loopTask",
+      "frame_wait_at": "400d8e7c"
+    },
+    "manager": {
+      "vblank_start_max": 32,
+      "frame_work_max": 4367,
+      "frame_lock_max": 771,
+      "frame_gui_max": 3539,
+      "present_frames": 4,
+      "present_work_max": 8861,
+      "keyboard_max": 3587,
+      "parser_max": 12611,
+      "late_us": 32,
+      "late_cause": 2,
+      "late_prev_kind": 1,
+      "late_prev_us": 54,
+      "feed_max": 111,
+      "key_max": 890,
+      "batch_max_us": 0,
+      "ops_us": 0,
+      "after_us": 0,
+      "style_us": 0,
+      "hold_us": 0,
+      "wait_us": 0,
+      "key_us": null,
+      "frame_wait": 771,
+      "frame_wait_by": "loopTask",
+      "frame_wait_at": "400d8e7c"
+    },
+    "readback": {
+      "vblank_start_max": 31,
+      "frame_work_max": 4475,
+      "frame_lock_max": 10,
+      "frame_gui_max": 3772,
+      "present_frames": 0,
+      "present_work_max": 0,
+      "keyboard_max": 3971,
+      "parser_max": 13121,
+      "late_us": 31,
+      "late_cause": 2,
+      "late_prev_kind": 1,
+      "late_prev_us": 3108,
+      "feed_max": 126,
+      "key_max": 0,
+      "batch_max_us": 187,
+      "ops_us": 187,
+      "after_us": 0,
+      "style_us": 24,
+      "hold_us": 195,
+      "wait_us": 28,
+      "key_us": null,
+      "frame_wait": 10,
+      "frame_wait_by": "-",
+      "frame_wait_at": "0"
+    },
+    "close": {
+      "vblank_start_max": 25,
+      "frame_work_max": 4045,
+      "frame_lock_max": 7,
+      "frame_gui_max": 3228,
+      "present_frames": 0,
+      "present_work_max": 0,
+      "keyboard_max": 3173,
+      "parser_max": 1685,
+      "late_us": 25,
+      "late_cause": 2,
+      "late_prev_kind": 1,
+      "late_prev_us": 284,
+      "feed_max": 74,
+      "key_max": 145,
+      "batch_max_us": 208,
+      "ops_us": 208,
+      "after_us": 0,
+      "style_us": 2,
+      "hold_us": 214,
+      "wait_us": 25,
+      "key_us": null,
+      "frame_wait": 7,
+      "frame_wait_by": "-",
+      "frame_wait_at": "0"
+    }
+  },
+  "frames": {
+    "vblank_start_max": 234,
+    "frame_work_max": 4481
+  },
+  "gui": "GUI on windows 1 frames 579 rows 14810 carried 429 errors 0 style 0 batch_max_us 0 batch_op 57 frame_max_us 3152 presents 12 deferred 0 forced 2 abandoned 0 present_us_max 9742 sync_frames_max 5 slow_us 0 slow_px 0 slow_rows 0 slow_nd 0 slow_phase 0>0 ops_us 0 after_us 0 style_us 0 hold_us 0 wait_us 0 frame_wait 0 by - at 0",
+  "resources": "engine DIRECT words 267/512 token-bytes 1645 direct-bytes 4047 data-bytes 2223 source-bytes 1672 data-peak 10 return-peak 1"
+}

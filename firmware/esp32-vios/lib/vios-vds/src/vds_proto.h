@@ -128,6 +128,10 @@ typedef struct vds_proto {
     void (*ui_tick)(void *ui, uint32_t ms);      /* once per frame, before composing */
     void (*ui_after)(void *ui);                  /* after every applied batch */
     void (*ui_reset)(void *ui);
+    /* Optional: called between the ops of a batch and before ui_after, where
+     * the state is consistent (composition is held while a batch runs). The
+     * host may let a waiting frame in here instead of after the whole batch. */
+    void (*yield)(void *ctx);
 } vds_proto;
 
 void vds_proto_init(vds_proto *p, vds *v, vds_cell *(*cells)(void *, uint8_t, uint16_t),

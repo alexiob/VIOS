@@ -17,6 +17,7 @@ Uses only the tool windows 20-24; closes them at the end.
 """
 import argparse
 import json
+import re
 from pathlib import Path
 import time
 try:
@@ -77,9 +78,20 @@ def main():
 
             def section(name):
                 """Frame stats since the previous section (reset each time), so a spike names its step."""
+                gui = c.tool('esp_gui')['status']   # before the stats reset below (which clears frame_wait); resets its own maxima
                 st = c.tool('esp_stats', {'reset': True})
+                m = re.search(r'frame_wait (\d+) by (\S+)(?: at ([0-9a-f]+))?', gui)
+                if m:
+                    st['frame_wait'], st['frame_wait_by'], st['frame_wait_at'] = int(m.group(1)), m.group(2), m.group(3)
+                for key in ('batch_max_us', 'ops_us', 'after_us', 'style_us', 'hold_us', 'wait_us', 'key_us'):
+                    m = re.search(rf'\b{key} (\d+)', gui)
+                    if m:
+                        st[key] = int(m.group(1))
                 sections[name] = {k: st.get(k) for k in ('vblank_start_max', 'frame_work_max', 'frame_lock_max', 'frame_gui_max',
-                                                         'present_frames', 'present_work_max', 'keyboard_max')}
+                                                         'present_frames', 'present_work_max', 'keyboard_max', 'parser_max',
+                                                         # newer firmware: the worst vblank start's cause, the longest display-lock hold
+                                                         'late_us', 'late_cause', 'late_prev_kind', 'late_prev_us', 'feed_max', 'key_max',
+                                                         'batch_max_us', 'ops_us', 'after_us', 'style_us', 'hold_us', 'wait_us', 'key_us', 'frame_wait', 'frame_wait_by', 'frame_wait_at')}
                 for k in worst:
                     worst[k] = max(worst[k], st.get(k) or 0)
 

@@ -47,6 +47,10 @@ static void b8(unsigned x) { uint8_t c = (uint8_t)x; bytes(&c, 1); }
 static void b16(int x) { b8((unsigned)x & 255); b8(((unsigned)x >> 8) & 255); }
 static int send_batch(void) { return vds_proto_batch(&p, batch, blen); }
 
+/* Yield hook: called between ops, always inside the batch (generation unchanged). */
+static unsigned yields;static uint16_t yield_generation;
+static void count_yield(void *ctx) { (void)ctx; assert(p.generation == yield_generation); ++yields; }
+
 static unsigned seed = 99;
 static unsigned rnd(unsigned n) { seed = seed * 1103515245u + 12345u; return (seed >> 16) % n; }
 
@@ -192,6 +196,7 @@ int main(int argc, char **argv) {
     /* Random batches: valid opcodes with random arguments, plus junk. */
     static const uint8_t ops[] = {0x01, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x30, 0x31, 0x32, 0x33, 0x35, 0x50, 0x51,
                                   0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x74, 0x76, 0x77, 0x78, 0x79, 0x7A, 0x34};
+    p.yield = count_yield;
     unsigned applied = 0;
     for (int i = 0; i < 20000; ++i) {
         begin();
@@ -201,7 +206,10 @@ int main(int argc, char **argv) {
             unsigned args = rnd(12);
             for (unsigned a = 0; a < args && blen < 254; ++a) b8(rnd(4) ? rnd(64) : rnd(256));
         }
-        applied += (unsigned)vds_proto_batch(&p, batch, blen);
+        unsigned before = yields;yield_generation = p.generation;
+        int ok = vds_proto_batch(&p, batch, blen);
+        assert(ok ? yields > before : yields == before);
+        applied += (unsigned)ok;
         vds_proto_frame(&p, rnd(40), rnd(3) ? 1 + rnd(50000) : UINT32_MAX);
         assert(va.ndamage <= VDS_MAX_DAMAGE && va.count <= VDS_MAX_WINDOWS && p.pool_used <= VDS_PROTO_POOL);
     }

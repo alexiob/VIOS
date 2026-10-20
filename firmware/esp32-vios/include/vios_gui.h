@@ -28,6 +28,9 @@ extern "C" {
 #include "vios_offscreen.h"
 
 void vios_display_lock();
+bool vios_frame_waiting();
+const char *vios_frame_wait_holder(uint32_t *us, bool reset);
+uintptr_t vios_frame_wait_site();   // a vblank frame waits for the display lock (vios_frame.h)
 void vios_display_unlock();
 void vios_frame_kick();
 
@@ -100,6 +103,14 @@ void vios_gui_cpu_reset() {
     vios_display_unlock();
 }
 
+/* Where a slow batch spends its time under the lock: the ops, the widget
+ * redraw after them (ui_after), the style update (max us since the last read). */
+static uint32_t vios_gui_ops_max, vios_gui_after_max, vios_gui_style_max, vios_gui_hold_max, vios_gui_wait_max, vios_gui_key_max;
+static void (*vios_gui_ui_after)(void *);
+static uint32_t vios_gui_after_us;
+static void vios_gui_timed_after(void *ui) {
+    uint32_t t = (uint32_t)esp_timer_get_time(); vios_gui_ui_after(ui); vios_gui_after_us = (uint32_t)esp_timer_get_time() - t;
+}
 /* Start the compositor in the VIOS display mode with a Console window. */
 bool vios_gui_start() {
     vios_display_lock();
@@ -113,7 +124,12 @@ bool vios_gui_start() {
         }
         vios_gui_vds.clock_us = [](void *) -> uint32_t { return (uint32_t)esp_timer_get_time(); };   // frame time budgets
         vds_proto_init(vios_gui_proto, &vios_gui_vds, vios_gui_cell_memory, vios_gui_send, nullptr);
+        /* A batch of the CPU's GUI ops held the display lock up to 4.9 ms
+         * (gui_tools, 2026-10-20), delaying vblank frames: between ops, hand
+         * the lock to a waiting vblank frame (it has the higher priority). */
+        vios_gui_proto->yield = [](void *) { if (vios_frame_waiting()) { vios_display_unlock(); vios_display_lock(); } };
         vds_ui_init(vios_gui_ui, vios_gui_proto);
+        if (vios_gui_proto->ui_after) { vios_gui_ui_after = vios_gui_proto->ui_after; vios_gui_proto->ui_after = vios_gui_timed_after; }
         if (!vios_gui_console_window()) { vios_display_unlock(); return false; }
         /* Without the shadow (no PSRAM left) large repaints sweep as before. */
         vios_gui_presenter.attach((uint8_t *)heap_caps_malloc(480 * 320, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT), 480, 320);
@@ -150,15 +166,24 @@ void vios_gui_slow_reset() { vios_gui_slow = {}; }
 uint32_t vios_gui_presents() { return vios_gui_presenter.presents; }
 static uint8_t vios_gui_batch_op;
 
+uint32_t vios_gui_key_max_us(bool reset) { uint32_t v = vios_gui_key_max; if (reset) vios_gui_key_max = 0; return v; }   // STATS key_max
 /* One E4 payload from the CPU (VDP task). */
 void vios_gui_batch(const uint8_t *payload, size_t length) {
     if (!vios_gui_ready) return;          // no display server: drop, the CPU sees no replies
+    uint32_t entered = (uint32_t)esp_timer_get_time();
     vios_display_lock();
     uint32_t started = (uint32_t)esp_timer_get_time();
+    if (started - entered > vios_gui_wait_max) vios_gui_wait_max = started - entered;
+    vios_gui_after_us = 0;
     vds_proto_batch(vios_gui_proto, payload, length);
     uint32_t spent = (uint32_t)esp_timer_get_time() - started;
     if (spent > vios_gui_batch_max) { vios_gui_batch_max = spent; vios_gui_batch_op = length ? payload[0] : 0; }
+    if (spent - vios_gui_after_us > vios_gui_ops_max) vios_gui_ops_max = spent - vios_gui_after_us;
+    if (vios_gui_after_us > vios_gui_after_max) vios_gui_after_max = vios_gui_after_us;
+    uint32_t styled = (uint32_t)esp_timer_get_time();
     vios_gui_apply_style();
+    styled = (uint32_t)esp_timer_get_time() - styled;if (styled > vios_gui_style_max) vios_gui_style_max = styled;
+    uint32_t held = (uint32_t)esp_timer_get_time() - started;if (held > vios_gui_hold_max) vios_gui_hold_max = held;
     vios_display_unlock();
 }
 
@@ -175,7 +200,9 @@ bool vios_gui_key(uint8_t ascii, uint8_t modifiers, uint8_t vk, uint8_t down) {
     const vds_window *screen = &vios_gui_vds.windows[VIOS_GUI_SCREEN_WINDOW];
     if (screen->used && (screen->flags & VDS_W_VISIBLE)) return false;
     vios_display_lock();
+    uint32_t keyed = (uint32_t)esp_timer_get_time();
     bool used = vds_ui_key(vios_gui_ui, ascii, modifiers, vk, down);
+    keyed = (uint32_t)esp_timer_get_time() - keyed;if (keyed > vios_gui_key_max) vios_gui_key_max = keyed;
     vios_display_unlock();
     if (used) vios_frame_kick();
     return used;
@@ -234,7 +261,8 @@ int vios_gui_pixel(unsigned x, unsigned y) {
 /* Control-channel summary for the harness: "GUI on windows frames rows carried errors". */
 unsigned vios_gui_status(char *out, unsigned capacity) {
     if (!vios_gui_ready) return (unsigned)snprintf(out, capacity, "GUI off");
-    unsigned n = (unsigned)snprintf(out, capacity, "GUI %s windows %u frames %u rows %u carried %u errors %u style %u batch_max_us %u batch_op %02X frame_max_us %u presents %u deferred %u forced %u abandoned %u present_us_max %u sync_frames_max %u slow_us %u slow_px %u slow_rows %u slow_nd %u slow_phase %u>%u",
+    uint32_t frame_wait;const char *frame_holder = vios_frame_wait_holder(&frame_wait, false);   // reset with the ESP stats
+    unsigned n = (unsigned)snprintf(out, capacity, "GUI %s windows %u frames %u rows %u carried %u errors %u style %u batch_max_us %u batch_op %02X frame_max_us %u presents %u deferred %u forced %u abandoned %u present_us_max %u sync_frames_max %u slow_us %u slow_px %u slow_rows %u slow_nd %u slow_phase %u>%u ops_us %u after_us %u style_us %u hold_us %u wait_us %u frame_wait %u by %s at %x",
                               vios_gui_on ? "on" : "text", vios_gui_vds.count, (unsigned)vios_gui_vds.stats.frames,
                               (unsigned)vios_gui_vds.stats.rows, (unsigned)vios_gui_vds.stats.carried,
                               vios_gui_proto->errors, vios_gui_vds.style.kind,
@@ -243,7 +271,9 @@ unsigned vios_gui_status(char *out, unsigned capacity) {
                               (unsigned)vios_gui_presenter.abandoned, (unsigned)vios_gui_presenter.present_us_max,
                               (unsigned)vios_gui_presenter.sync_frames_max,
                               (unsigned)vios_gui_slow.us, (unsigned)vios_gui_slow.damage_px, (unsigned)vios_gui_slow.rows,
-                              vios_gui_slow.ndamage, vios_gui_slow.phase, vios_gui_slow.phase_after);
-    vios_gui_batch_max = vios_gui_frame_max = 0;
+                              vios_gui_slow.ndamage, vios_gui_slow.phase, vios_gui_slow.phase_after,
+                              (unsigned)vios_gui_ops_max, (unsigned)vios_gui_after_max, (unsigned)vios_gui_style_max,
+                              (unsigned)vios_gui_hold_max, (unsigned)vios_gui_wait_max, (unsigned)frame_wait, frame_holder, (unsigned)vios_frame_wait_site());
+    vios_gui_batch_max = vios_gui_frame_max = vios_gui_ops_max = vios_gui_after_max = vios_gui_style_max = vios_gui_hold_max = vios_gui_wait_max = 0;
     return n;
 }

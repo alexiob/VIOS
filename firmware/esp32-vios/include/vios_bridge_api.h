@@ -81,6 +81,9 @@ void vios_display_unlock();
 void vios_frame_start();
 void vios_frame_stats(uint32_t *frames,uint32_t *start_max_us,uint32_t *work_max_us);
 void vios_frame_stats_reset();
+void vios_frame_late(uint32_t *out); // worst vblank start: us, cause (1 previous frame overran, 2 late wake), previous kind, previous us; kicked frames skipped
+uint32_t vios_console_feed_max_us(bool reset);
+uint32_t vios_gui_key_max_us(bool reset); // longest display-lock hold and its caller
 void vios_frame_presents(uint32_t *count,uint32_t *max_us); // frames that showed an off-screen repaint (excluded from frame_work_max)
 void vios_frame_parts(uint32_t *lock_us,uint32_t *service_us,uint32_t *gui_us); // longest display-lock wait, console service and GUI step in a frame
 /* GUI display server (vios_gui.h): status line, a key with modifiers for the

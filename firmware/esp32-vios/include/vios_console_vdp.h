@@ -114,10 +114,14 @@ static VdpConsoleRenderer vios_console_renderer;
 static vios_console::Terminal vios_console_terminal(&vios_console_renderer);
 
 void vios_frame_kick();
+static uint32_t vios_console_feed_max;   // longest feed under the display lock (us), STATS feed_max
+uint32_t vios_console_feed_max_us(bool reset) { uint32_t v = vios_console_feed_max; if (reset) vios_console_feed_max = 0; return v; }
 void vios_console_feed(const uint8_t *data, size_t length) {
     vios_display_lock();
+    uint32_t fed = (uint32_t)esp_timer_get_time();
     vios_console_terminal.feed(data, length, millis());
     bool small = vios_console_terminal.small_pending(160);
+    fed = (uint32_t)esp_timer_get_time() - fed;if (fed > vios_console_feed_max) vios_console_feed_max = fed;
     vios_display_unlock();
     if (small) vios_frame_kick(); // typing echo: draw now, not at the next vblank
 }

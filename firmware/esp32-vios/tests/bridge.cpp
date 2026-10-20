@@ -169,6 +169,9 @@ bool vios_gui_key(uint8_t,uint8_t,uint8_t vk,uint8_t){++gui_keys;return vk==168;
 int vios_gui_pixel(unsigned x,unsigned y){return x<640&&y<480?(int)((x+y)&15):-1;}
 static void vios_frame_stats_reset(){}
 static void vios_frame_presents(uint32_t *c,uint32_t *m){*c=*m=0;}
+static void vios_frame_late(uint32_t *o){o[0]=o[1]=o[2]=o[3]=o[4]=0;}
+static uint32_t vios_console_feed_max_us(bool){return 0;}
+static uint32_t vios_gui_key_max_us(bool){return 0;}
 static void vios_frame_parts(uint32_t *l,uint32_t *s,uint32_t *g){*l=*s=*g=0;}
 static const char *vios_g0_line(unsigned n){return n==0?"G0 mode 0 fake":"";}
 static std::string console_fed;
@@ -303,7 +306,7 @@ static void check_stage0_instrumentation(){
     for(unsigned i=1;i<=20;++i){vios_probe_glyph('A');vios_probe_key('B');vios_probe_key('A');now+=i;vios_probe_key('A');vios_probe_glyph('x');vios_probe_glyph('A');vios_probe_glyph('A');}
     assert(control_text("PR\n",78)=="PROBE n=20 min=1000 med=11000 p95=20000 max=20000\r\n");
     std::string stats=control_text("T\n",79);
-    assert(stats.rfind("STATS glyphs=80 ",0)==0&&stats.find(" injected=66 console_sync=0 console_queued=0 loop_gap_max=0 host_service_max=0 console_max=0 keyboard_max=0 frames=0 vblank_start_max=0 frame_work_max=0 vga_isr_gap_max_us=0 vga_isr_late=0 top_black_frames=0 frame_lock_max=0 frame_service_max=0 frame_gui_max=0 present_frames=0 present_work_max=0 console_empty_in=0 console_empty_out=0 console_canary=0 link_requests=0 link_resent=0 link_gone=0\r\n")!=std::string::npos);
+    assert(stats.rfind("STATS glyphs=80 ",0)==0&&stats.find(" injected=66 console_sync=0 console_queued=0 loop_gap_max=0 host_service_max=0 console_max=0 keyboard_max=0 frames=0 vblank_start_max=0 frame_work_max=0 vga_isr_gap_max_us=0 vga_isr_late=0 top_black_frames=0 frame_lock_max=0 frame_service_max=0 frame_gui_max=0 present_frames=0 present_work_max=0 console_empty_in=0 console_empty_out=0 console_canary=0 link_requests=0 link_resent=0 link_gone=0 late_us=0 late_cause=0 late_prev_kind=0 late_prev_us=0 kick_skipped=0 feed_max=0 key_max=0\r\n")!=std::string::npos);
     vios_usb_console_write((const uint8_t*)"abc",3);assert(console_out_drain(16)==1);output_frames();stats=control_text("T\n",80);
     assert(stats.find("console_bytes=3 console_writes=1 ")!=std::string::npos);
     assert(control_text("T0\n",81)=="STATS RESET\r\n"&&control_text("T\n",82).rfind("STATS glyphs=0 console_bytes=0",0)==0);
