@@ -133,4 +133,15 @@ Build-time, against base e03260a (same toolchains):
 | ESP static RAM (pio) | 63,020 B | 63,116 B | +96 B (engine + generator) |
 | ESP flash | 785,781 B | 777,653 B | −8,128 B (VDP 1.04 engine out) |
 
-Runtime internal heap (`esp_audio` / `AS`): pending the board run.
+On the board, 2026-10-20 (G0 probe, mode 0, same conditions on both firmwares):
+
+| ESP heap | main-14 (VDP 1.04 audio) | audio-1 (lean) | delta |
+| --- | --- | --- | --- |
+| internal free, mode only | 25,416 B | 38,988 B | **+13,572 B** |
+| internal free, GUI pools allocated | 13,112 B | 26,684 B | +13,572 B |
+| internal largest block | 23,540 B | 25,588 B | +2,048 B |
+
+Acceptance (`tools/vios_audio_accept.py`, docs/bring-up/vios-audio-accept-2026-10-20.json):
+10/10 checks passed: idle, tone, tone ends, tune advances, tune ends, error
+`2@2`, loop, `-1 STOP`, `BEEP` → 1, `VOLUME`. Audibility still needs a person
+to listen (the script ends with a two-voice melody).
