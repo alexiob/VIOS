@@ -89,7 +89,8 @@ static void transaction(void){
  assert(vios_workbench_can_save(status().revision));assert(vios_workbench_mark_saved(status().revision));
  assert(!status().dirty&&status().saved);
  assert(vios_workbench_set_metadata(status().revision,"3","",NULL,0));
- assert(!vios_workbench_stage(status().revision));assert(strstr(vios_workbench_error(),"two module"));
+ /* A third generation retires the first (forth/modules.c). */
+ assert(vios_workbench_stage(status().revision));assert(vios_workbench_activate(status().revision));
  assert(result("SERVICE")==33);
 }
 static void aliased_metadata(void){

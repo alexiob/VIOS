@@ -344,11 +344,18 @@ dependency/used-by scan (~0.3 KB).
 10.2 KB CPU→ESP. Idle with no events: no polls (no UART bytes); with a tool
 open, one poll per second as the fallback.
 
-**Found while building:** the module system keeps two generations per module
-per boot ("two module versions retained; rollback or restart before a third").
-So the Browser can accept a module once per boot; a second accept is refused
-with that message. Re-accepting a *word* (redefinition) is unlimited. Lifting
-the limit is a module-system change (owner decision, §10).
+**Repeated accepts (owner decision B, 2026-10-20).** The module system used to
+refuse a third generation of a module per boot ("two module versions retained;
+rollback or restart before a third"), so the Browser could accept a module only
+once. Now activating again **retires the oldest generation**: the module keeps
+its current and previous generation (rollback still undoes the latest
+activation), and the retired code and source stay allocated, unnamed, until
+restart. Every accept therefore uses the pools; the Browser's status line shows
+word and code use after each accept and says "save, restart" above 80 %. When a
+pool is full the accept is refused and the live module is unchanged
+(`tests/forth_modules_native.c` `retired_generations`). Callers compiled
+against an older generation keep calling it (early binding), as before; the
+Browser marks such dependencies "stale".
 
 ## 9. Builder calls (settled without the owner, from the design review)
 
@@ -386,6 +393,6 @@ the limit is a module-system change (owner decision, §10).
 4. **Indentation: Ctrl+[ indent, Ctrl+] de-indent** (owner).
 5. ESP-local editing in TextView (chosen, like Input).
 
-Still open: (a) more than two generations per module per boot, so the Browser
-can accept a module repeatedly; (b) whether the eZ80 cost (§8) is acceptable
-or the tool layouts should move into an ESP template op.
+6. **Repeated accepts: retire the oldest generation** (owner, option B; §8).
+7. **Tools stay in C** for now; the eZ80 cost (§8) is re-evaluated if memory gets tight
+   (moving layouts to the ESP would save ~2–3 KB, a Forth tools module ~6–7 KB).

@@ -279,7 +279,13 @@ static void browser_accept(void) {
     }
     wvalue(B_CODE, 0);
     browser_modules();
-    status(B_STATUS, code_module, ": accepted and active (menu: Save to SD)");
+    /* Every accept keeps the retired version's code until restart: show the pools. */
+    struct forth_resources r;
+    forth_inspect_resources(&r);
+    unsigned code = (unsigned)(r.direct_bytes * 100 / r.direct_capacity), words = r.words * 100 / r.words_max;
+    put_s(code_module); put_s(" active; words "); put_u(words); put_s("% code "); put_u(code); put_c('%');
+    if (code > 80 || words > 80) put_s(": save, restart");
+    wtext(B_STATUS, put_end());
 }
 static int save_module(const char *name) {
     struct vios_workbench_status st;

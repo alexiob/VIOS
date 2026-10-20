@@ -42,7 +42,6 @@ int forth_module_stage(const char *name,const char *version,
  if(dep_count>FORTH_MODULE_DEPS_MAX||(dep_count&&!deps))return error("module dependency capacity exceeded");
  int n=find(name);
  if(n<0&&module_count==FORTH_MODULES_MAX)return error("module inventory full (8 modules)");
- if(n>=0&&modules[n].previous.present)return error("two module versions retained; rollback or restart before a third");
  if(next_id>65535u)return error("module generation IDs exhausted");
  if(len(source)+1>FORTH_MODULE_SOURCE_POOL-source_used)return error("module source pool full (32768 bytes)");
  copy(pending.name,name);copy(pending.source,source);copy(pending.gen.version,version);
@@ -64,7 +63,6 @@ int forth_module_activate(const char *name){
  if(!dependencies_valid(&pending.gen))return 0;
  int n=find(name);
  if(n<0&&module_count==FORTH_MODULES_MAX)return error("module inventory full");
- if(n>=0&&modules[n].previous.present)return error("two module versions already retained");
  if(pending.gen.length+1u>FORTH_MODULE_SOURCE_POOL-source_used)return error("module source pool full");
  /* No metadata/source mutation occurs until the complete transaction passes. */
  if(!forth_transaction_eval(pending.source,pending.gen.test,pending.gen.id,1))return 0;
@@ -72,6 +70,8 @@ int forth_module_activate(const char *name){
  rollback_slot=n<0?module_count:(unsigned)n;rollback_count=module_count;rollback_source=source_used;
  if(n<0){copy(modules[module_count].name,name);modules[module_count].current.present=0;modules[module_count].previous.present=0;++module_count;}
  rollback_module=modules[rollback_slot];
+ /* The previous generation is retired: its code and source stay allocated
+  * (unnamed) until restart; rollback still restores the one before this. */
  struct module *m=&modules[rollback_slot];m->previous=m->current;m->current=pending.gen;
  m->current.offset=(unsigned short)source_used;copy(source_pool+source_used,pending.source);source_used+=pending.gen.length+1u;
  pending.present=0;rollback_available=1;return 1;

@@ -162,13 +162,27 @@ int main(int argc, char **argv) {
     assert(vds_ui_text(&u, B_CODE)->dirty);
     assert(ctrl('s'));
     assert(forth_find_xt("QUAD") && strstr(forth_module_source("DEMO", 0), ": QUAD SQUARE SQUARE ;"));
-    assert(strstr(u.widgets[B_STATUS].text, "accepted") && !vds_ui_text(&u, B_CODE)->dirty);
+    assert(strstr(u.widgets[B_STATUS].text, "DEMO active; words ") && !vds_ui_text(&u, B_CODE)->dirty);
     eval("3 QUAD");
     assert(fvm_pop() == 81);
     /* A broken accept leaves the live module alone and says why. */
     type(": BROKEN UNDEFINED-WORD ;\n");
     assert(ctrl('s'));
     assert(!forth_find_xt("BROKEN") && strstr(u.widgets[B_STATUS].text, "not accepted"));
+    /* Accept again and again (older versions are retired). */
+    for (int i = 0; i < 2; ++i) {
+        assert(key(0, VDS_MOD_CTRL, VDS_VK_END));
+        while (strstr(text_of(B_CODE), "BROKEN")) {                                   /* drop the BROKEN line */
+            key(0, 0, VDS_VK_BACKSPACE);
+            const char *t = text_of(B_CODE);
+            if (strlen(t) >= 2 && !strcmp(t + strlen(t) - 2, ";\n") && !strstr(t, "BROKEN")) break;
+        }
+        while (text_of(B_CODE)[strlen(text_of(B_CODE)) - 1] != '\n') key(0, 0, VDS_VK_BACKSPACE);
+        type(i ? ": FIVE 5 ;\n" : ": FOUR 4 ;\n");
+        assert(ctrl('s') && strstr(u.widgets[B_STATUS].text, "DEMO active"));
+    }
+    eval("FOUR FIVE +");
+    assert(fvm_pop() == 9);
     /* Save to SD from the pane menu (command), after a revert to the live source. */
     unsigned char revert[] = {0x7F, 0x06};
     (void)revert;

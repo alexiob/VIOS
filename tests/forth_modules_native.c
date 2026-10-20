@@ -84,7 +84,7 @@ static void generations_dependencies(void){
  assert(forth_module_previous_info("provider",&old)&&strcmp(old.version,"1")==0);
  assert(!forth_module_stage("third","1",&dep,1,": STALE 1 ;",NULL));
  assert(!forth_find_xt("STALE"));
- assert(!forth_module_stage("provider","3",NULL,0,": THIRD 3 ;",NULL));
+ assert(forth_module_stage("provider","3",NULL,0,": THIRD 3 ;",NULL));assert(forth_module_discard());  /* a third generation may stage */
  assert(forth_module_rollback("provider"));assert(result("SERVICE")==22);
  assert(forth_module_stage("new","1",NULL,0,": NEWEST 44 ;",NULL));assert(forth_module_activate("new"));
  assert(forth_eval(": LATER NEWEST ;"));
@@ -107,4 +107,32 @@ static void capacities(void){
  assert(!forth_module_stage("full","1",NULL,0,large,NULL));assert(forth_module_count()==7);
  assert(strstr(forth_last_error(),"source pool full"));
 }
-int main(void){failed_modules();activation();canonical_base();generations_dependencies();extension_hook();capacities();puts("Module transaction checks passed");return 0;}
+/* Repeated activations retire the oldest generation; rollback still restores
+ * the one before the latest; the pools fill and then refuse cleanly. */
+static void retired_generations(void){
+ fresh();char source[64],version[8];
+ for(unsigned n=1;n<=5;++n){
+  snprintf(source,sizeof source,": V %u ; : W V 1+ ;",n);snprintf(version,sizeof version,"%u",n);
+  assert(forth_module_stage("m",version,NULL,0,source,NULL));assert(forth_module_activate("m"));
+  assert(result("V")==n&&result("W")==n+1);
+  struct forth_module_info cur,old;assert(forth_module_info(0,&cur)&&!strcmp(cur.version,version));
+  if(n>1){assert(forth_module_previous_info("m",&old));snprintf(version,sizeof version,"%u",n-1);assert(!strcmp(old.version,version));}
+ }
+ assert(forth_module_rollback("m"));assert(result("V")==4);
+ struct forth_module_info cur,old;assert(forth_module_info(0,&cur)&&!strcmp(cur.version,"4"));
+ assert(forth_module_previous_info("m",&old)&&!strcmp(old.version,"3"));
+ assert(!forth_module_rollback("m"));                       /* one checkpoint only */
+ /* A 3 KB module again and again: the source pool (32 KB) runs out, the
+  * live module stays as it was. */
+ static char big[3001];memset(big,' ',3000);big[0]=':';big[1]=' ';big[2]='V';big[3]=' ';big[4]='7';big[2998]=';';big[3000]=0;
+ unsigned accepted=0;
+ for(;accepted<20;++accepted){
+  snprintf(version,sizeof version,"b%u",accepted);
+  if(!forth_module_stage("m",version,NULL,0,big,NULL))break;
+  if(!forth_module_activate("m"))break;
+ }
+ assert(accepted>=8&&accepted<20&&strstr(forth_last_error(),"pool full"));
+ assert(forth_module_discard()&&result("V")==7);
+ assert(forth_module_info(0,&cur)&&cur.source_length==3000);
+}
+int main(void){failed_modules();activation();canonical_base();generations_dependencies();extension_hook();capacities();retired_generations();puts("Module transaction checks passed");return 0;}
