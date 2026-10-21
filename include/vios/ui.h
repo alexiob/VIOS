@@ -22,6 +22,7 @@ void vios_ui_commit(void);
 /* Events pulled from the server go to hook first; it returns 1 to keep an
  * event (seq kind id args...) from the UI-NEXT ring. */
 void vios_ui_claim(int (*hook)(const unsigned char *event, unsigned len));
+unsigned vios_ui_resets(void);   /* UI-RESETs so far: the tools reinstall after one */
 int vios_ui_poll(void);
 /* TextView text (chunked), state and read-back. */
 struct vios_ui_text_info { unsigned length, caret, anchor, revision, dirty; };

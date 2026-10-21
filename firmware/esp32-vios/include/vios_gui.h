@@ -185,6 +185,11 @@ void vios_gui_batch(const uint8_t *payload, size_t length) {
     uint32_t styled = (uint32_t)esp_timer_get_time();
     vios_gui_apply_style();
     styled = (uint32_t)esp_timer_get_time() - styled;if (styled > vios_gui_style_max) vios_gui_style_max = styled;
+    /* UI-RESET (op 34) closes every window, the Console too: bring it back,
+     * as after a CPU restart (vios_gui_cpu_reset). */
+    if (vios_gui_on && !vios_gui_vds.windows[VDS_CONSOLE_WINDOW].used && vios_gui_console_window()) {
+        vios_console_terminal.show(millis()); vds_damage_all(&vios_gui_vds);
+    }
     uint32_t held = (uint32_t)esp_timer_get_time() - started;if (held > vios_gui_hold_max) vios_gui_hold_max = held;if (held > vios_gui_batch_hold_stat) vios_gui_batch_hold_stat = held;
     vios_display_unlock();
 }

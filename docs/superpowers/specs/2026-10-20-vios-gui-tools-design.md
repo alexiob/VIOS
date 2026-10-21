@@ -318,7 +318,7 @@ surfaces (it renumbers the reserved menu surfaces).
 | Stage | Where | State |
 |---|---|---|
 | T1 widgets | `vds_text.c` (TextView), `vds_widget.c` (tables, tree, pager, tabs, 1024-row pool, append), `vds_ui.c` (key policy, Esc closes a modal window), `vds_proto.c` (ops 5A, 8A–8E, 90–93, nudge) | done; `tests/vds_text.c` (8000 random steps + full-render oracle) |
-| T2 CPU words | `kernel/vios_ui.c`: UI-ROW UI-COLUMNS UI-KEYS UI-TEXT UI-TEXT+ UI-INSERT UI-SELECT UI-TEXT@, u16 UI-ITEM/UI-ITEMS, ids 0..63; C API for clients; claim hook | done; `tests/vios_ui_host.c` |
+| T2 CPU words | `kernel/vios_ui.c`: UI-ROW+ UI-COLUMNS UI-KEYS UI-TEXT UI-TEXT+ UI-INSERT UI-SELECT UI-TEXT@, u16 UI-ITEM/UI-ITEMS, ids 0..63; C API for clients; claim hook | done; `tests/vios_ui_host.c` |
 | T3/T4 tools | `kernel/vios_tools.c`, `include/vios/tools.h`, `TOOL ( n -- )`; `platform_console_divert`, `platform_vdp_nudged` | done; `tests/vios_tools_host.c` (keys on the real ESP library, CPU acting from idle) |
 | T5 board | `tools/vios_gui_tools_accept.py` | written; see the board run below |
 

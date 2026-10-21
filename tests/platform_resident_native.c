@@ -99,6 +99,18 @@ int main(int argc,char **argv) {
   assert(platform_vdp_epoch()==1&&writes==4);
   puts("resident esp restart resync");return 0;
  }
+ if(!strcmp(argv[1],"esp-restart-ready")){
+  /* After a healthy boot (platform_boot_ready), an ESP restart also gets the
+   * health flag again (VDU 23,0,E2,1), so the ESP stops waiting for a stub. */
+  timer_step=10;const unsigned char notice[]={0xFA,1,4};
+  memcpy(incoming,notice,sizeof notice);wire_length=sizeof notice;next_wire=0;platform_console_init();platform_console_line_mode(1);
+  platform_boot_ready();writes=0;
+  for(unsigned i=0;i<50;++i)(void)platform_console_getc();
+  assert(platform_vdp_epoch()==1&&writes==8&&transmitted[2]==0xE7&&transmitted[4]==23&&transmitted[5]==0&&transmitted[6]==0xE2&&transmitted[7]==1);
+  for(unsigned i=0;i<50;++i)(void)platform_console_getc();
+  assert(writes==8&&"once per restart");
+  puts("resident esp restart re-sends health");return 0;
+ }
  if(!strcmp(argv[1],"line-notice")){
   /* The ESP line editor learns when the REPL awaits a line and when keys are
    * routed to an application: VDU 23,0,E7,flags, sent only on change. */
