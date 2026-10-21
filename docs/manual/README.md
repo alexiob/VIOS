@@ -37,7 +37,10 @@ make manual-preview  # http://127.0.0.1:8000
   `media/SCENE.gif`. The scene commands are listed at the top of
   `tools/manual/vios_shots.c`; `tools/vios_manual.py` adds `include NAME`,
   `frame MS`, `ktype TEXT` (typed on the keyboard, a frame per character)
-  and `ctype TEXT` (typed at the console).
+  and `ctype TEXT` (typed at the console). A scene with a `runtime full` line
+  runs instead on the whole resident runtime (`tools/manual/vios_doc_host.c`,
+  with handles and `/dev` files) against the real display server; there only
+  `eval` and `shot` lines count.
 
 `tests/test_vios_manual.py` (part of `make test`) runs `check`, verifies the
 word reference is current and runs the examples.
