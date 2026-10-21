@@ -14,7 +14,8 @@ using it: the console, the Forth language as VIOS implements it, modules,
 tasks, files and devices, the GUI and its tools, sound, and the host tools. It
 ends with example programs and a reference of every word.
 
-*Edition: firmware main-51 (commit `cabe908`), October 2026. All screenshots
+*Edition: VIOS 0.8.0, October 2026 (the version is in the `VERSION` file;
+what changed is in `CHANGELOG.md`). All screenshots
 are rendered on a host computer by the real VIOS display server and GUI code
 (see [Images in this manual](#images-in-this-manual)); the board draws the same
 pixels.*
@@ -165,7 +166,7 @@ This chapter shows how the pieces fit together. You need none of it to use VIOS,
 
 ### The eZ80: the resident Forth
 
-Everything you type at the `vios>` prompt runs on the eZ80. The **resident** is one binary, `build/vios-resident.bin` (about 186 KB in firmware main-51), loaded into external RAM at `0x040000`. It is bare metal. Once running, it makes no calls into MOS: it drives its own UART, timer, SPI bus, SD card and FAT32 file system.
+Everything you type at the `vios>` prompt runs on the eZ80. The **resident** is one binary, `build/vios-resident.bin` (about 195 KB in VIOS 0.8.0), loaded into external RAM at `0x040000`. It is bare metal. Once running, it makes no calls into MOS: it drives its own UART, timer, SPI bus, SD card and FAT32 file system.
 
 Its main parts:
 
@@ -181,9 +182,9 @@ There is no MMU and no memory protection. All code shares one address space. Err
 | Address | Size | Contents |
 | --- | --- | --- |
 | `0x000000..0x01FFFF` | 128 KB | eZ80 on-chip flash: Agon MOS. VIOS never writes it. |
-| `0x040000..` | about 186 KB | The resident: code, constants, initialized data. |
-| `..0x0AAB15` | about 251 KB | BSS: dictionary, compiled code, data space, stacks, module source pool, buffers. |
-| `0x0AAB15..0x0AEFFF` | about 17 KB | Free (main-51). |
+| `0x040000..` | about 195 KB | The resident: code, constants, initialized data. |
+| `..0x0AD815` | about 243 KB | BSS: dictionary, names, compiled code, data space, stacks, module source pool, buffers. |
+| `0x0AD815..0x0AEFFF` | about 6 KB | Free (0.8.0). |
 | `0x0AF000..0x0AFFFF` | 4 KB | Native stack (top at `0x0B0000`). |
 | `0x0B0000..0x0B7FFF` | 32 KB | MOS moslet area. The boot stub runs here during boot. |
 | `0x0B8000..0x0BFFFF` | 32 KB | MOS reserved area and MOS heap/stack. Not used by VIOS. |
@@ -315,7 +316,7 @@ Making the links with four female-to-male wires and a breadboard:
 4. Plug one wire onto GPIO header pin 9 and one onto ZDI pin 4. Put their male ends in the same numbered breadboard strip, for example A1 and B1.
 5. Plug one wire onto GPIO header pin 8 and one onto ZDI pin 6. Put their male ends in another strip, for example A3 and B3.
 6. Check that each strip holds exactly one GPIO lead and one ZDI lead. Never join the two GPIO leads to each other, and never join the two ZDI leads to each other. That would short the clock to the data line.
-7. Reconnect USB-C. The boot events now say `BOOT VIOS VDP 1.04 ...` followed by `NATIVE RAM ... DONE A5` and `VIOREADY ...` instead of `BOOT user mode`.
+7. Reconnect USB-C. The boot events now say `BOOT VIOS v0.8 ...` and `BOOT VIOS VDP 1.04 ...` followed by `NATIVE RAM ... DONE A5` and `VIOREADY ...` instead of `BOOT user mode`.
 
 **Safety notes:**
 
@@ -393,7 +394,7 @@ To embed a different validated image, set `VIOS_IMAGE=/absolute/path/image.bin` 
 
 | Output | Made by | What it is |
 | --- | --- | --- |
-| `build/vios-resident.bin` | `make vios-resident` | The eZ80 resident: a MOS-format ADL image loaded at `0x040000`, stamped with its build identity. About 186 KB for main-51. |
+| `build/vios-resident.bin` | `make vios-resident` | The eZ80 resident: a MOS-format ADL image loaded at `0x040000`, stamped with its build identity. About 195 KB in 0.8.0. |
 | `build/vios-resident.elf`, `.map` | same | Symbols and link map. Keep the ELF of every image you install if you plan to debug over ZDI. |
 | `build/vios-resident.baud`, `.gui` | same | Sidecars with the internal rate and GUI flag. Keep them with the `.bin`. |
 | `build/agon-stage0.bin`, `agon-crc.bin`, `agon-flash.bin` | same | Small eZ80 stages the ESP runs over ZDI in dev mode: RAM setup (46 bytes), whole-image CRC, flash programmer. |
@@ -413,6 +414,24 @@ build/vios-resident.bin: build stamp 1A2B3C4D
 ```
 
 The stamp keys the **boot-module cache**. On a normal boot the resident reads, checks and compiles the modules of the confirmed boot bundle, then saves the compiled result as `/VIOS/CACHE_A.VIC` or `/VIOS/CACHE_B.VIC`. Later boots restore that cache instead of compiling, which takes about 0.9 s instead of about 2.2 s for five modules. The cache is used only when its key matches the build stamp, the bundle CRC and the base dictionary. A new resident therefore never restores a cache compiled by another build: its first boot compiles and rewrites the cache, which costs about 1.4 s extra once. An image loaded straight from the ELF reads stamp 0 and never uses the cache.
+
+### Versions and releases
+
+The version lives in one place, the `VERSION` file at the top of the
+repository (`0.8.0` for this edition). `make vios-resident` compiles it into
+the resident, whose console greets you with `VIOS v0.8` and the copyright line;
+the ESP32 build writes it into the firmware's boot log and into
+`build-manifest.json`. `CHANGELOG.md` lists what changed in each version.
+
+A release is a tag `vX.Y.Z` on `main`. Pushing the tag runs the GitHub Actions
+workflow `.github/workflows/release.yml`: it checks that the tag, `VERSION`
+and `CHANGELOG.md` agree, runs the host tests, builds the resident, the boot
+stub and the ESP32 firmware as a matched pair, packages them with
+`tools/vios_release.py`, builds this manual's site, and publishes the release
+with three files: `vios-X.Y.Z.zip`, `vios-X.Y.Z-SHA256SUMS` and
+`vios-X.Y.Z-manual.zip`. The step-by-step process, and how to try a release
+build without publishing it, are in
+[`docs/RELEASING.md`](https://github.com/alexiob/VIOS/blob/main/docs/RELEASING.md).
 
 ### Makefile targets
 
@@ -470,6 +489,40 @@ You never write the eZ80's flash for a normal install. It holds Agon MOS (on the
 
 Before you start, build both halves (see [Building](#building)): `build/vios-resident.bin` with its `.baud` and `.gui` sidecars, `build/viosboot.bin`, and `firmware/esp32-vios/.pio/build/esp32-vios/firmware.bin`.
 
+### Installing a release
+
+If you don't want to build VIOS yourself, download a release from the
+repository's **Releases** page. `vios-X.Y.Z.zip` unpacks to `vios-X.Y.Z/`:
+
+| Path | Contents |
+|---|---|
+| `esp32/firmware.bin` | the ESP32 application, with the eZ80 resident embedded |
+| `esp32/build-manifest.json` | the build's identity: version, image CRCs, baud rate, GUI |
+| `sd/` | the SD card files: `mos/viosboot.bin`, `vios/vios.bin`, `vios/vios.man`, `autoexec.txt` |
+| `tools/` | `vios_firmware_ab.py` and `vios_sd_install.py` |
+| `CHANGELOG.md` | this version's notes |
+| `SHA256SUMS` | a checksum for every file |
+
+Check the download, then install the two halves with the release's own tools,
+as described in the sections below (use the `esp32/firmware.bin` and `sd/`
+files instead of your build outputs):
+
+```sh
+cd vios-0.8.0 && shasum -a 256 -c SHA256SUMS
+```
+
+```sh
+python tools/vios_firmware_ab.py --port /dev/cu.usbserial-210 install --backup-dir backups esp32/firmware.bin
+```
+
+```sh
+python tools/vios_sd_install.py install /Volumes/AGON --resident sd/vios/vios.bin --stub sd/mos/viosboot.bin
+```
+
+The SD installer keeps your other `autoexec.txt` lines and your saved
+modules. After a reset the console shows the release's banner, for example
+`VIOS v0.8` and `(c) 2026 Alessandro Iob`.
+
 ### Find the port, free the port
 
 ```sh
@@ -516,6 +569,7 @@ The suffix depends on the USB socket or hub, so check it every time. Several too
 A good install prints the boot events, then a JSON report, and exits with status 0 only when the verdict is `FIRMWARE confirmed`. On an untethered board the events look like this:
 
 ```text
+event: BOOT VIOS v0.8 (c) 2026 Alessandro Iob
 event: BOOT VIOS VDP 1.04 mux-v1 zdi-edge 1us
 event: BOOT retained failures 0
 event: FIRMWARE app1 valid trial
@@ -603,7 +657,7 @@ The options are as follows:
 - It always writes `/vios/vios.bin` and `/vios/vios.man`. `--stub BIN` also writes `/mos/viosboot.bin`, and `--stub-only` writes only the stub.
 - It does not edit `autoexec.txt`, so the card must already have been set up once with `vios_sd_install.py`.
 - The resident has no rename. The tool therefore first overwrites `vios.man` with zeros (a manifest the stub refuses), then writes the image, then writes the real manifest. Afterwards it reads back the manifest and the first 64 KiB of the image.
-- Writing goes 100 bytes per command, so a 186 KB resident takes about 4.5 minutes. The report goes to the JSON file you name, next to a raw serial log.
+- Writing goes 100 bytes per command, so a 195 KB resident takes about 5 minutes. The report goes to the JSON file you name, next to a raw serial log.
 - Opening the port resets the board, which must then boot to `BOOT READY` on its own. The tool never writes flash.
 
 After every confirmed ESP install, refresh the SD copy too. Then the fallback image matches the firmware.
@@ -654,7 +708,9 @@ This chapter assumes the ESP firmware is installed and the SD card is prepared (
 ```text
 boot confirmed A
 autorun task 1
-VIOS Forth 24 / Agon Light 2
+
+VIOS v0.8 / Forth 24 / Agon Light 2
+(c) 2026 Alessandro Iob
 vios>
 ```
 
@@ -843,9 +899,13 @@ After startup messages (for example `user startup: /VIOS/USER.FTH` or
 `autorun task 1`), the REPL prints its banner and prompt:
 
 ```text
-VIOS Forth 24 / Agon Light 2
+VIOS v0.8 / Forth 24 / Agon Light 2
+(c) 2026 Alessandro Iob
 vios>
 ```
+
+The version in the banner comes from the `VERSION` file (see
+[Versions and releases](#versions-and-releases)).
 
 Type a line and press Enter. The whole line is evaluated, then the REPL
 prints `ok` if it succeeded or `error:` and a message if it failed, and a
@@ -1619,6 +1679,8 @@ on `IF`:
 ```text
 not positive
 ```
+
+![Extending the compiler at the console: UNLESS, then a DOES> defining word](media/anim-compiler.gif)
 
 `SEE` shows ` immediate` at the end of an immediate word's metadata line.
 `IMMEDIATE` applies only to a word defined in the same unit (the same line

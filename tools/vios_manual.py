@@ -296,11 +296,30 @@ def examples():
 
 # ---------------------------------------------------------------- media
 
+def boot_banner():
+    """The console's first lines after a boot, as the resident prints them."""
+    h = (ROOT / 'include/vios/version.h')
+    text = h.read_text() if h.exists() else ''
+    banner = re.search(r'VIOS_BANNER "([^"]*)"', text)
+    copyright_ = re.search(r'VIOS_COPYRIGHT "([^"]*)"', text)
+    lines = ['boot confirmed A', '']
+    if banner:
+        lines += [banner.group(1) + ' / Forth 24 / Agon Light 2', copyright_.group(1) if copyright_ else '']
+    else:
+        lines += ['VIOS Forth 24 / Agon Light 2']
+    return lines
+
+
 def expand(lines):
     """Animation macros: `ktype TEXT` types on the keyboard and `ctype TEXT` at the
-    console, one frame per character. `include NAME` inserts scenes/NAME.inc."""
+    console, one frame per character. `include NAME` inserts scenes/NAME.inc.
+    `banner` prints the console's boot lines, with the version and copyright
+    from include/vios/version.h (made from VERSION)."""
     for line in lines:
         cmd, _, text = line.partition(' ')
+        if cmd == 'banner':
+            yield 'conraw ' + '\\n'.join(boot_banner()) + '\\n'
+            continue
         if cmd == 'include':
             yield from expand((SCENES / (text.strip() + '.inc')).read_text().splitlines())
             continue

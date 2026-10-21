@@ -42,6 +42,12 @@ Standard words are available, including `DUP SWAP OVER ROT NIP TUCK`,
 `CHAR [CHAR] FILL MOVE ERASE`, `DEFER IS`, `' EXECUTE`. `WORDS` lists all,
 `SEE name` shows a definition.
 
+The compiler is extensible: `IMMEDIATE`, `POSTPONE`, `[ ]` with `LITERAL`,
+`STATE`, `CREATE ... DOES>` with `>BODY`, `EVALUATE`, `FIND`, `COMPILE,` and
+`MARKER`. For example `: CONST CREATE , DOES> @ ;  42 CONST ANSWER` or
+`: UNLESS POSTPONE 0= POSTPONE IF ; IMMEDIATE`. See "Extending the compiler"
+in the [manual](manual/VIOS-MANUAL.md#extending-the-compiler).
+
 ## Tasks and pipes
 
 ```forth

@@ -1,0 +1,19 @@
+# Extending the compiler at the console: an immediate control word and a DOES> defining word.
+include setup
+prompt
+frame 600
+ctype : UNLESS POSTPONE 0= POSTPONE IF ; IMMEDIATE
+conrun : UNLESS POSTPONE 0= POSTPONE IF ; IMMEDIATE
+frame 500
+ctype : ?NEG 0< UNLESS ." not negative " THEN ;
+conrun : ?NEG 0< UNLESS ." not negative " THEN ;
+frame 400
+ctype 5 ?NEG
+conrun 5 ?NEG
+frame 800
+ctype : CONST CREATE , DOES> @ ;
+conrun : CONST CREATE , DOES> @ ;
+frame 400
+ctype 42 CONST ANSWER  ANSWER .
+conrun 42 CONST ANSWER  ANSWER .
+frame 2500

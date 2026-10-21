@@ -1,5 +1,5 @@
 # gui-greeter: from the GUI chapter (see the chapter text for the Forth code).
-conraw boot confirmed A\n\nVIOS Forth 24 / Agon Light 2\n
+banner
 prompt
 eval VARIABLE KIND   VARIABLE WHO   VARIABLE ARG\n: EVENT? ( -- flag )  UI-NEXT DUP IF >R ARG ! WHO ! KIND ! R> THEN ;\n: IS? ( kind id -- flag )  WHO @ =  SWAP KIND @ =  AND ;\n: CLOSING? ( window -- flag )  UI-EV-WIN SWAP IS?  ARG @ 255 AND 2 =  AND ;
 eval 2 CONSTANT GWIN   1 CONSTANT GSURF\nGSURF 40 9 48 UI-SURFACE\nGWIN GSURF 160 120 40 9 UI-VISIBLE UI-DECOR OR UI-SHADOW OR UI-WINDOW\nS" Greeter" GWIN UI-TITLE\nGWIN UI-FOCUS  UI-COMMIT
