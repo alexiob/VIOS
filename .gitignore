@@ -10,3 +10,4 @@ __pycache__/
 # The frozen release contains the captured log; the live owner keeps appending.
 /docs/bring-up/vios-fast-display-final.serial.jsonl
 docs/bring-up/vios-harness.jsonl
+dist/

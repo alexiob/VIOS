@@ -1,0 +1,113 @@
+# Build a VIOS release from a version tag on main (docs/RELEASING.md).
+#
+# Push a tag vX.Y.Z whose X.Y.Z equals VERSION, on a commit that is on main,
+# with a "## [X.Y.Z]" section in CHANGELOG.md. The job runs the host tests,
+# builds the eZ80 resident and boot stub (AgonDev), the ESP32 firmware
+# (PlatformIO) and the manual site, then publishes a GitHub release with the
+# package zip, its SHA256SUMS and the site. "Run workflow" (workflow_dispatch)
+# does the same build without publishing: the package is kept as an artifact.
+name: Release
+
+on:
+  push:
+    tags: ['v*.*.*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  AGONDEV_VERSION: v0.22
+  AGONDEV_SHA256: 99d7094094210d02e29cbc6ceb2ab2b358f7bce7fd720005928bb28caabd4856
+  VIOS_INTERNAL_BAUD: '1152000'
+  VIOS_GUI: '1'
+
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check the tag, VERSION and CHANGELOG agree
+        run: |
+          version=$(tr -d '[:space:]' < VERSION)
+          echo "VIOS_VERSION=$version" >> "$GITHUB_ENV"
+          grep -q "^## \[$version\]" CHANGELOG.md || { echo "::error::CHANGELOG.md has no '## [$version]' section"; exit 1; }
+          if [ "$GITHUB_REF_TYPE" = tag ]; then
+            [ "$GITHUB_REF_NAME" = "v$version" ] || { echo "::error::tag $GITHUB_REF_NAME does not match VERSION $version"; exit 1; }
+            git fetch origin main
+            git merge-base --is-ancestor "$GITHUB_SHA" origin/main || { echo "::error::tag $GITHUB_REF_NAME is not on main"; exit 1; }
+          fi
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Python environment (.venv, as the Makefile and tests expect)
+        run: |
+          python -m venv .venv
+          .venv/bin/pip install --quiet pyserial platformio -r tools/manual/requirements.txt
+
+      - name: AgonDev ${{ env.AGONDEV_VERSION }}
+        uses: actions/cache@v4
+        id: agondev
+        with:
+          path: .tools/agondev
+          key: agondev-${{ env.AGONDEV_VERSION }}-${{ env.AGONDEV_SHA256 }}
+
+      - name: Install AgonDev
+        if: steps.agondev.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p .tools/downloads
+          curl -fsSL -o .tools/downloads/agondev.tar.gz \
+            "https://github.com/AgonPlatform/agondev/releases/download/$AGONDEV_VERSION/agondev-linux_x86_64.tar.gz"
+          echo "$AGONDEV_SHA256  .tools/downloads/agondev.tar.gz" | sha256sum -c -
+          tar -xzf .tools/downloads/agondev.tar.gz -C .tools
+
+      - name: PlatformIO packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.platformio
+          key: pio-${{ hashFiles('firmware/esp32-vios/platformio.ini') }}
+
+      - name: Host tests
+        run: make test
+
+      - name: Build the resident and the boot stub
+        run: make vios-resident viosboot
+
+      - name: Build the ESP32 firmware
+        run: .venv/bin/pio run -d firmware/esp32-vios -e esp32-vios
+
+      - name: Package
+        run: |
+          .venv/bin/python tools/vios_release.py package --out dist
+          .venv/bin/python tools/vios_release.py notes > dist/notes.md
+          cp "dist/vios-$VIOS_VERSION/SHA256SUMS" "dist/vios-$VIOS_VERSION-SHA256SUMS"
+
+      - name: Manual site
+        run: |
+          .venv/bin/python tools/manual/build_site.py --out build/site
+          (cd build/site && zip -qr "$GITHUB_WORKSPACE/dist/vios-$VIOS_VERSION-manual.zip" .)
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vios-${{ env.VIOS_VERSION }}
+          path: |
+            dist/vios-${{ env.VIOS_VERSION }}.zip
+            dist/vios-${{ env.VIOS_VERSION }}-SHA256SUMS
+            dist/vios-${{ env.VIOS_VERSION }}-manual.zip
+
+      - name: Publish the GitHub release
+        if: github.ref_type == 'tag'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            --title "VIOS $VIOS_VERSION" \
+            --notes-file dist/notes.md \
+            "dist/vios-$VIOS_VERSION.zip" \
+            "dist/vios-$VIOS_VERSION-SHA256SUMS" \
+            "dist/vios-$VIOS_VERSION-manual.zip"

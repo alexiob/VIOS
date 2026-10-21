@@ -17,7 +17,7 @@ def write_manifest(source,target,env):
     # Hash the durable .ino source instead of claiming the generated file exists.
     hashes={str(path.relative_to(root)):hashlib.sha256(path.read_bytes()).hexdigest() for path in paths
             if path.is_file() and not path.name.endswith('.ino.cpp')}
-    manifest={'firmware':str(binary.relative_to(root)), 'size':len(firmware),'sha256':hashlib.sha256(firmware).hexdigest(),
+    manifest={'vios_version':(root/'VERSION').read_text().strip(),'firmware':str(binary.relative_to(root)), 'size':len(firmware),'sha256':hashlib.sha256(firmware).hexdigest(),
               'app0_offset':0x10000,'app0_limit':0x140000,'embedded_vios':embedded,'internal_baud':embedded['internal_baud'],'usb_baud':115200,
               'zdi_edge_us':int(re.search(r'#define VIOS_ZDI_EDGE_US (\d+)',(project/'include/vios_zdi.h').read_text()).group(1)),
               'native_stage0':json.loads((project/'include/vios_stage0.json').read_text()),

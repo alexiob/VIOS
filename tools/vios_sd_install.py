@@ -69,6 +69,17 @@ def sidecar(resident, suffix, default):
     return int(path.read_text().strip()) if path.exists() else default
 
 
+def pairing(resident, image):
+    """GUI flag and baud: the build's sidecars (build/vios-resident.gui, .baud),
+    else a release's vios.man beside the image when it describes this image."""
+    man = resident.with_name('vios.man')
+    if not resident.with_suffix('.gui').exists() and man.exists():
+        m = parse_manifest(man.read_bytes())
+        if m['size'] == len(image) and m['crc32'] == zlib.crc32(image):
+            return m['gui'], m['baud']
+    return sidecar(resident, '.gui', 0), sidecar(resident, '.baud', 1152000)
+
+
 def find(card, name):
     """FAT is case-insensitive: the existing entry for name, whatever its case."""
     folder, parts = card, Path(name).parts
@@ -112,7 +123,7 @@ def install(card, resident_path, stub_path, dry_run=False):
     image, stub = resident_path.read_bytes(), stub_path.read_bytes()
     check_image(image)
     check_stub(stub)
-    man = manifest(image, sidecar(resident_path, '.gui', 0), sidecar(resident_path, '.baud', 1152000))
+    man = manifest(image, *pairing(resident_path, image))
     report = {'card': str(card), 'dry_run': dry_run, 'written': [], 'kept': []}
     for name, data in (('mos/viosboot.bin', stub), ('vios/vios.bin', image), ('vios/vios.man', man)):
         target = find(card, name)

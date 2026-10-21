@@ -15,6 +15,10 @@ rate_path=image.with_suffix('.baud')
 if not rate_path.exists() or rate_path.read_text().strip()!=str(baud):
     raise RuntimeError('Resident/ESP internal baud mismatch; rebuild resident with VIOS_INTERNAL_BAUD='+str(baud)+' and preserve its .baud sidecar')
 env.Append(CPPDEFINES=[('VIOS_INTERNAL_BAUD',baud)])
+# include/vios/version.h must match VERSION (make vios-resident or tools/vios_release.py sync writes it).
+version=(root/'VERSION').read_text().strip()
+if f'#define VIOS_VERSION "{version}"' not in (root/'include/vios/version.h').read_text():
+    raise RuntimeError('include/vios/version.h does not match VERSION '+version+'; run tools/vios_release.py sync')
 # GUI pairing: a GUI-booting VDP needs a resident built with VIOS_GUI=1 (its
 # workbench draws through the display server) and the text VDP the opposite.
 gui=os.environ.get('VIOS_GUI','1')

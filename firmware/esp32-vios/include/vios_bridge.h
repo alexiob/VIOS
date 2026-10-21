@@ -14,6 +14,7 @@
 #include "vios_stage0.h"
 #include "vios_flash_stage.h"
 #include "vios/internal_uart.h"
+#include "vios/version.h"
 #include <atomic>
 #ifndef VIOS_BRIDGE_TEST_RUNTIME
 #include <freertos/FreeRTOS.h>
@@ -944,6 +945,7 @@ void vios_bridge_boot() {
     cpu_boot_ready=false;boot_deadline_armed=false;
     ram_ready=false;memset(native_ram_map,0,sizeof native_ram_map);
     pinMode(ZDI_TCK,OUTPUT);digitalWrite(ZDI_TCK,HIGH);pinMode(ZDI_TDI,INPUT);
+    bridge_event("BOOT " VIOS_BANNER " " VIOS_COPYRIGHT "\r\n");
     {char boot_event[48];snprintf(boot_event,sizeof boot_event,"BOOT VIOS VDP 1.04 mux-v1 zdi-edge %uus\r\n",(unsigned)VIOS_ZDI_EDGE_US);bridge_event(boot_event);}
     char retry_event[48];snprintf(retry_event,sizeof retry_event,"BOOT retained failures %u\r\n",boot_failures.load());bridge_event(retry_event);
     firmware_status(retry_event,sizeof retry_event);bridge_event(retry_event);

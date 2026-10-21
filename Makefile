@@ -137,7 +137,10 @@ $(RESIDENT_UART_OBJECT): arch/ez80/uart0_raw.s
 	@mkdir -p $(dir $@)
 	$(EZAS) -march=ez80+full --defsym VIOS_UART0_BAUD=$(VIOS_INTERNAL_BAUD) arch/ez80/uart0_raw.s -o $@
 .PHONY: vios-resident viosboot
-vios-resident: build/vios-resident.bin build/agon-stage0.bin build/agon-crc.bin build/agon-flash.bin
+# The version header follows VERSION (docs/RELEASING.md); sources that include it rebuild through their .d files.
+include/vios/version.h: VERSION tools/vios_release.py
+	.venv/bin/python tools/vios_release.py sync
+vios-resident: include/vios/version.h build/vios-resident.bin build/agon-stage0.bin build/agon-crc.bin build/agon-flash.bin
 # eZ80 flash programmer run over ZDI by the ESP (MF); see arch/ez80/agon_flash.s.
 build/agon-flash.o: arch/ez80/agon_flash.s
 	@mkdir -p build

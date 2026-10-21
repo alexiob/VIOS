@@ -62,6 +62,15 @@ class SdInstallTests(unittest.TestCase):
         self.assertEqual((code, checked['problems']), (0, []))
         self.assertEqual(checked['manifest'], {'size': 3000, 'crc32': zlib.crc32(self.image), 'gui': 1, 'baud': 1152000})
 
+    def test_a_release_tree_keeps_its_pairing(self):
+        # A release ships sd/vios/vios.bin with its vios.man and no .gui/.baud sidecars.
+        self.assertEqual(self.install()[0], 0)
+        other = Path(self.temp.name)/'other'
+        other.mkdir()
+        code, report = self.run_tool('install', other, '--resident', self.card/'VIOS/vios.bin', '--stub', self.stub)
+        self.assertEqual(code, 0, report)
+        self.assertEqual((other/'vios/vios.man').read_bytes(), manifest(self.image))   # gui 1, not the sidecar default 0
+
     def test_installing_again_changes_nothing_else(self):
         self.install()
         code, report = self.install()
