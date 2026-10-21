@@ -1,0 +1,244 @@
+{
+  "status": "passed",
+  "checks": {
+    "trace_tokens_DIRECT": {
+      "ok": true,
+      "detail": [
+        "3",
+        "TSQ",
+        "DUP",
+        "*",
+        ";",
+        "1+",
+        "1",
+        "+",
+        ";",
+        ";"
+      ]
+    },
+    "trace_tokens_TOKEN": {
+      "ok": true,
+      "detail": [
+        "3",
+        "TSQ",
+        "DUP",
+        "*",
+        ";",
+        "1+",
+        "1",
+        "+",
+        ";",
+        ";"
+      ]
+    },
+    "trace_tokens_C": {
+      "ok": true,
+      "detail": [
+        "3",
+        "TSQ",
+        "DUP",
+        "*",
+        ";",
+        "1+",
+        "1",
+        "+",
+        ";",
+        ";"
+      ]
+    },
+    "error_source_token": {
+      "ok": true,
+      "detail": {
+        "serial": 1,
+        "engine": "DIRECT",
+        "stale": false,
+        "base": 10,
+        "message": "arithmetic error",
+        "ip": 574471,
+        "word": "TIN",
+        "offset": 18,
+        "source_token": "/",
+        "ds_depth": 6,
+        "rdepth": 1,
+        "ldepth": 0,
+        "ds_top_first": [
+          0,
+          1,
+          5,
+          10,
+          10,
+          10
+        ],
+        "frames": [
+          {
+            "index": 0,
+            "word": "TOUT",
+            "offset": 12,
+            "source_token": "TIN"
+          }
+        ]
+      }
+    },
+    "sd_roundtrip": {
+      "ok": true,
+      "detail": 1560
+    },
+    "sd_list_has_file": {
+      "ok": true,
+      "detail": [
+        {
+          "name": "CDD1B05F",
+          "size": 0,
+          "directory": true
+        },
+        {
+          "name": "A9BA189F",
+          "size": 0,
+          "directory": true
+        },
+        {
+          "name": "B360CCE2",
+          "size": 0,
+          "directory": true
+        },
+        {
+          "name": "BOOT_A.VIB",
+          "size": 840,
+          "directory": false
+        },
+        {
+          "name": "BOOT1.REC",
+          "size": 32,
+          "directory": false
+        },
+        {
+          "name": "BOOT0.REC",
+          "size": 32,
+          "directory": false
+        },
+        {
+          "name": "BOOT_B.VIB",
+          "size": 676,
+          "directory": false
+        },
+        {
+          "name": "A8783CA5",
+          "size": 0,
+          "directory": true
+        },
+        {
+          "name": "C1446436",
+          "size": 0,
+          "directory": true
+        },
+        {
+          "name": "VIOS.BIN",
+          "size": 185778,
+          "directory": false
+        },
+        {
+          "name": "VIOS.MAN",
+          "size": 16,
+          "directory": false
+        },
+        {
+          "name": "SVCTEST.TXT",
+          "size": 1560,
+          "directory": false
+        },
+        {
+          "name": "CACHE_A.VIC",
+          "size": 7105,
+          "directory": false
+        }
+      ]
+    },
+    "sd_removed": {
+      "ok": true,
+      "detail": null
+    },
+    "type_pipeline_exact": {
+      "ok": true,
+      "detail": 600
+    },
+    "dump_hex": {
+      "ok": true,
+      "detail": "TLB 4 DUMP\r\n5A 5A 5A 5A \r\n\r\nok\r\nvios> "
+    },
+    "no_leaked_handles": {
+      "ok": true,
+      "detail": null
+    }
+  },
+  "autorun_paused": true,
+  "trace_DIRECT": [
+    "3",
+    "TSQ",
+    "DUP",
+    "*",
+    ";",
+    "1+",
+    "1",
+    "+",
+    ";",
+    ";"
+  ],
+  "trace_TOKEN": [
+    "3",
+    "TSQ",
+    "DUP",
+    "*",
+    ";",
+    "1+",
+    "1",
+    "+",
+    ";",
+    ";"
+  ],
+  "trace_C": [
+    "3",
+    "TSQ",
+    "DUP",
+    "*",
+    ";",
+    "1+",
+    "1",
+    "+",
+    ";",
+    ";"
+  ],
+  "last_error": {
+    "serial": 1,
+    "engine": "DIRECT",
+    "stale": false,
+    "base": 10,
+    "message": "arithmetic error",
+    "ip": 574471,
+    "word": "TIN",
+    "offset": 18,
+    "source_token": "/",
+    "ds_depth": 6,
+    "rdepth": 1,
+    "ldepth": 0,
+    "ds_top_first": [
+      0,
+      1,
+      5,
+      10,
+      10,
+      10
+    ],
+    "frames": [
+      {
+        "index": 0,
+        "word": "TOUT",
+        "offset": 12,
+        "source_token": "TIN"
+      }
+    ]
+  },
+  "file_service": {
+    "bytes": 1560,
+    "seconds": 3.69
+  }
+}
