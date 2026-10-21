@@ -1,6 +1,7 @@
 /* Exercise the actual GPIO bit transport, decoding instruction-store writes. */
 #include <cassert>
 #include <cstdint>
+#include <cstddef>
 #include <vector>
 #define REG_PC 7
 #define REG_AF 0
