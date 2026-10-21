@@ -3,7 +3,7 @@
 #include <string.h>
 
 /* Event kinds share one byte on the wire; two branches once both took 0x13. */
-typedef char vds_event_kinds_differ[VDS_EVENT_STREAM != VDS_EVENT_CANVAS && VDS_EVENT_STREAM != VDS_EVENT_ANIMDONE ? 1 : -1];
+typedef char vds_event_kinds_differ[(int)VDS_EVENT_STREAM != (int)VDS_EVENT_CANVAS && (int)VDS_EVENT_STREAM != (int)VDS_EVENT_ANIMDONE ? 1 : -1];
 
 #define BAR_WINDOW (VDS_UI_FIRST_WINDOW + 4)
 #define STATUS_WINDOW (VDS_UI_FIRST_WINDOW + 3)

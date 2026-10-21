@@ -72,8 +72,20 @@ jobs:
           path: ~/.platformio
           key: pio-${{ hashFiles('firmware/esp32-vios/platformio.ini') }}
 
+      # The host tests compile C with `cc -Wall -Wextra -Werror` and are written
+      # against clang (the macOS cc they are developed with); gcc warns on the
+      # code's one-line style, so cc and c++ mean clang here too.
+      - name: clang as cc
+        run: |
+          mkdir -p "$RUNNER_TEMP/clang-cc"
+          ln -s "$(command -v clang)" "$RUNNER_TEMP/clang-cc/cc"
+          ln -s "$(command -v clang++)" "$RUNNER_TEMP/clang-cc/c++"
+          echo "$RUNNER_TEMP/clang-cc" >> "$GITHUB_PATH"
+
       - name: Host tests
-        run: make test
+        run: |
+          cc --version | head -1
+          make test
 
       - name: Build the resident and the boot stub
         run: make vios-resident viosboot
