@@ -31,6 +31,10 @@ FONT_H = ROOT / 'firmware/esp32-vios/vendor/agon-vdp/video/agon_fonts.h'
 TITLE = 'VIOS Manual'
 # Asset URLs carry a content hash so browsers never mix old and new styles.
 VERSION = hashlib.sha256(b''.join((ASSETS / f).read_bytes() for f in ('vios.css', 'vios.js'))).hexdigest()[:10]
+# The VIOS release the manual describes (the VERSION file), for the status line.
+VIOS_VERSION = (ROOT / 'VERSION').read_text().strip() if (ROOT / 'VERSION').is_file() else ''
+AUTHOR, AUTHOR_SITE = 'Alessandro Iob', 'https://iob.dev'
+LICENSE_URL = 'https://github.com/alexiob/VIOS/blob/main/LICENSE'
 
 
 # ---------------------------------------------------------------- font
@@ -207,6 +211,8 @@ def page(pid, title, body, chapters, prev, nxt):
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{html.escape(page_title)}</title>
 <meta name="description" content="VIOS: a malleable Forth operating system for the Agon Light 2. Build, install, set up and use it.">
+<meta name="author" content="{AUTHOR}">
+<link rel="author" href="{AUTHOR_SITE}">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="vios.css?v={VERSION}">
 <script>try{{var s=new URLSearchParams(location.search).get('style')||localStorage.getItem('vios-style');if(s==='turbo'||s==='smalltalk')document.documentElement.dataset.style=s}}catch(e){{}}</script>
@@ -223,6 +229,7 @@ def page(pid, title, body, chapters, prev, nxt):
     <a href="VIOS-MANUAL.md"><span class="mn">M</span>arkdown</a>
     <button id="style" type="button" title="Switch between the Smalltalk and Turbo Vision styles"><span class="mn">S</span>tyle</button>
   </nav>
+  <a class="home" href="{AUTHOR_SITE}" title="{AUTHOR}'s website"><span class="mn">i</span>ob.dev</a>
 </header>
 <div class="desktop">
   <aside class="window contents-window">
@@ -240,6 +247,10 @@ def page(pid, title, body, chapters, prev, nxt):
     {pager}
   </main>
 </div>
+<footer class="statusline">
+  <span>VIOS{' ' + VIOS_VERSION if VIOS_VERSION else ''} manual</span>
+  <span class="credit"><span>(c) 2026 {AUTHOR}</span> <span>&middot; <a href="{LICENSE_URL}">MIT License</a></span> <span>&middot; <a href="{AUTHOR_SITE}" rel="author">iob.dev</a></span></span>
+</footer>
 <script src="vios.js?v={VERSION}"></script>
 </body>
 </html>

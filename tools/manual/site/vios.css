@@ -122,6 +122,39 @@ body {
 .menubar nav { display: flex; gap: 4px; flex: 0 0 auto; }
 .menubar .logo { font-weight: normal; padding-right: 10px; border-right: var(--px) solid currentColor; }
 .mn { color: var(--mn); }
+/* iob.dev sits at the right end, like the GUI's right-hand menu-bar items. */
+.menubar .home { margin-left: auto; padding-left: 10px; border-left: var(--px) solid currentColor; }
+
+/* ---------------------------------------------------------------- status line */
+
+/* The VIOS GUI keeps a one-line status line at the bottom of the screen; the
+ * site's carries the edition on the left and the credit on the right. */
+.statusline {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px 24px;
+  padding: 8px 16px;
+  background: var(--bar);
+  color: var(--bar-ink);
+  border-top: var(--px) solid var(--ink);
+  font: 14px/16px var(--pixel);
+}
+:root[data-style="turbo"] .statusline { border-top-color: #000000; }
+.statusline .credit > span { white-space: nowrap; }   /* lines break between the parts only */
+.statusline a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  padding: 2px 2px;
+}
+.statusline a:hover, .statusline a:focus-visible {
+  background: var(--sel);
+  color: var(--sel-ink);
+  text-decoration: none;
+  outline: none;
+}
 
 /* ---------------------------------------------------------------- windows */
 
@@ -409,6 +442,7 @@ figure.shot.anim figcaption::before { content: "\25B6  "; font-family: var(--pix
   h2 { font-size: 20px; }
   pre { margin-left: -6px; margin-right: -6px; padding: 10px; font-size: 13px; }
   .menubar { gap: 8px; padding: 6px 8px; font-size: 14px; }
+  .statusline { padding: 8px 10px; font-size: 12px; }
   .title { font-size: 14px; }
   figure.shot { margin-left: -6px; margin-right: -6px; }
   table { font-size: 14px; }
@@ -423,6 +457,7 @@ figure.shot.anim figcaption::before { content: "\25B6  "; font-family: var(--pix
 @media print {
   html { background: #fff; }
   .menubar, .contents-window, .pager, .filter { display: none; }
+  .statusline { background: none; color: #000; border-top: 1px solid #000; }
   .desktop { display: block; padding: 0; }
   .window { border: 0; box-shadow: none; }
   .title { position: static; }

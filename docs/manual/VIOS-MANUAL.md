@@ -14,8 +14,9 @@ using it: the console, the Forth language as VIOS implements it, modules,
 tasks, files and devices, the GUI and its tools, sound, and the host tools. It
 ends with example programs and a reference of every word.
 
-*Edition: VIOS 0.8.0, October 2026 (the version is in the `VERSION` file;
-what changed is in `CHANGELOG.md`). All screenshots
+*Edition: VIOS 0.8.0, October 2026, by Alessandro Iob
+([iob.dev](https://iob.dev)). The version is in the `VERSION` file;
+what changed is in `CHANGELOG.md`. All screenshots
 are rendered on a host computer by the real VIOS display server and GUI code
 (see [Images in this manual](#images-in-this-manual)); the board draws the same
 pixels.*
@@ -6797,3 +6798,8 @@ data space at 0x040000 (`forth/system.c`, `forth_init`).
 | ESP32 USB serial to the Mac | 115200 baud | `tools/serial_monitor.py` |
 | USB frame payload | 240 bytes | `include/vios/wire.h` (`VIOS_WIRE_PAYLOAD_MAX`) |
 | Host request timeout (VDP queries, host files) | about 1 s | `boards/agon-light-2/platform_resident.c` |
+
+---
+
+*VIOS and this manual are © 2026 Alessandro Iob, released under the
+[MIT License](https://github.com/alexiob/VIOS/blob/main/LICENSE). More at [iob.dev](https://iob.dev).*
