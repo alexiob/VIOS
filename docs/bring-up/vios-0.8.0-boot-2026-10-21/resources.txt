@@ -1,0 +1,5 @@
+RESOURCES
+engine DIRECT words 320/512 token-bytes 2019 direct-bytes 4883 data-bytes 155 source-bytes 2030 map-entries 376/1792 data-peak 2 return-peak 0
+
+ok
+vios> 

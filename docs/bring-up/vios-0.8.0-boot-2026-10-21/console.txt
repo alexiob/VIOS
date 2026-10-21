@@ -1,0 +1,9 @@
+boot confirmed A
+autorun task 1
+
+VIOS v0.8 / Forth 24 / Agon Light 2
+(c) 2026 Alessandro Iob
+vios> 
+
+ok
+vios> 
