@@ -54,6 +54,7 @@ SECTIONS = {
     'numbers': ('Numbers and BASE', 'Number conversion and printing radix.'),
     'control': ('Control flow', 'Conditionals, loops and execution tokens.'),
     'defining': ('Defining words', 'Words that create other words.'),
+    'compiler': ('Extending the compiler', 'Compile-time execution, macros and text evaluation.'),
     'strings': ('Strings and characters', 'String literals, characters and comments.'),
     'output': ('Output', 'Printing to the console (or to a task\'s output).'),
     'input': ('Input', 'Reading keys.'),
@@ -83,7 +84,7 @@ SECTIONS = {
     'tools': ('GUI tools', 'The Browser, Workspace, Inspector and Manager.'),
     'workbench': ('Text workbench', 'The full-screen text workbench and console view.'),
 }
-KIND = {0: 'primitive', 1: 'colon', 2: 'constant', 3: 'variable', 4: 'defer', 5: 'native'}
+KIND = {0: 'primitive', 1: 'colon', 2: 'constant', 3: 'variable', 4: 'defer', 5: 'native', 6: 'does', 7: 'marker'}
 PUNCT = {'!': 'store', '@': 'fetch', '#': 'num', '"': 'q', "'": 'tick', '(': 'lp', ')': 'rp', '*': 'star', '+': 'plus',
          ',': 'comma', '-': '-', '.': 'dot', '/': 'slash', ':': 'colon', ';': 'semi', '<': 'lt', '=': 'eq', '>': 'gt',
          '?': 'q', '[': 'lb', ']': 'rb', '\\': 'bs'}
@@ -140,7 +141,11 @@ def source_words():
             kind = 'prelude'
         words.setdefault(name, (kind, source.strip()))
     system = (ROOT / 'forth/system.c').read_text()
-    for name in re.findall(r'equal\(s,"((?:[^"\\]|\\.)*)"\)', system):
+    parsed = re.findall(r'equal\(s,"((?:[^"\\]|\\.)*)"\)', system)
+    table = re.search(r'keywords\[KW_COUNT\]=\{(.*?)\n\};', system, re.S)       # newer compilers keep a table
+    if table:
+        parsed += re.findall(r'\{"((?:[^"\\]|\\.)*)",', table.group(1))
+    for name in parsed:
         words.setdefault(name.replace('\\"', '"').replace('\\\\', '\\'), ('compiler', ''))
     # Comments are parsed while skipping white space (forth/system.c).
     if "**p=='('" in system:
