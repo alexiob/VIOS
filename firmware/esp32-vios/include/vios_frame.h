@@ -52,7 +52,7 @@ static const uint32_t VIOS_KICK_MARGIN_US = 1500, VIOS_KICK_MIN_US = 400;
  * console's measured 719, since cells into the GUI console window cost more
  * and a cell budget is not a time budget (kicked frames overran by 1-2 ms). */
 static const unsigned VIOS_KICK_CELLS_PER_MS = 240;
-static const uint32_t VIOS_GUI_FRAME_US = 3000;  // compositor time per frame (stops after the row that passes it); with the console service a flood frame stays within 4 ms
+static const uint32_t VIOS_GUI_FRAME_US = 2700;   // was 3000: the step overshoots by up to a row, and a vblank frame (lock wait + console + GUI) must stay under the 6 ms budget  // compositor time per frame (stops after the row that passes it); with the console service a flood frame stays within 4 ms
 
 /* The outermost lock call of the current display-lock owner (return address;
  * tools: addr2line on the ELF): the frame task names who made it wait. Only
