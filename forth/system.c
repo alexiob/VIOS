@@ -11,27 +11,37 @@
 #define DIRECT_BYTES 32768
 #define DATA_BYTES 8192
 #define SOURCE_BYTES 8192
+/* Word names live in a bump-allocated pool (NUL-terminated), not in a fixed
+ * 32-byte header field: resident names average ~6 characters, so this keeps
+ * ~10 KB of the 512-word table (extensible-compiler spec section 10.3). */
+#ifndef VIOS_FORTH_NAME_BYTES
+#define VIOS_FORTH_NAME_BYTES 5120
+#endif
+#define NAME_BYTES VIOS_FORTH_NAME_BYTES
 #define CONTROL_MAX 64
 #define HASH_BUCKETS VIOS_FORTH_HASH_BUCKETS
 
-enum { WK_PRIMITIVE,WK_COLON,WK_CONSTANT,WK_VARIABLE,WK_DEFER,WK_NATIVE };
+enum { WK_PRIMITIVE,WK_COLON,WK_CONSTANT,WK_VARIABLE,WK_DEFER,WK_NATIVE,WK_DOES,WK_MARKER };
+#define KIND_IMMEDIATE 0x80u   /* kind bit: run, not compiled, while compiling */
+#define KIND(n) (words[n].kind&0x7fu)
 enum { CS_IF,CS_ELSE,CS_BEGIN,CS_WHILE,CS_DO };
 struct word {
- char name[NAME_MAX+1]; fcell token,direct,aux;
- unsigned short link,source,length,token_length,direct_length,origin,map; unsigned char kind,opcode;
+ fcell token,direct,aux;
+ unsigned short name,link,source,length,token_length,direct_length,origin,map; unsigned char kind,opcode;
 };
 struct control { unsigned char kind; size_t token,direct; };
 static struct word words[WORDS_MAX];
 static unsigned short buckets[HASH_BUCKETS];
 static unsigned char token_code[TOKEN_BYTES],direct_code[DIRECT_BYTES],data_space[DATA_BYTES];
-static char source_space[SOURCE_BYTES];
+static char source_space[SOURCE_BYTES],names[NAME_BYTES];
+#define NAME(n) (names+words[n].name)
 static struct control controls[CONTROL_MAX];
 /* LEAVE and ?DO record forward branches resolved by their loop's end. */
 #define LEAVES_MAX 16
 static struct control leaves[LEAVES_MAX];
 static unsigned leave_used;
-static size_t token_used,direct_used,data_used,source_used,control_used;
-static size_t mark_token,mark_direct,mark_data,mark_source;
+static size_t token_used,direct_used,data_used,source_used,control_used,names_used;
+static size_t mark_token,mark_direct,mark_data,mark_source,mark_names;
 /* Source maps: before each token of a colon definition the compiler records
  * (token offset, direct offset, source offset). The code from one
  * entry's offset up to the next entry's belongs to that source token.
@@ -45,12 +55,20 @@ static struct {unsigned short token,direct,source;} source_map[SOURCE_MAP_MAX];
 static unsigned map_used,mark_map;
 static unsigned count;
 static int current;
+/* STATE (ANS): compiling, as distinct from an open definition (current>=0)
+ * since [ and ]; the STATE cell mirrors it for Forth code. */
+static unsigned char state,testing;   /* testing: a module's test word runs */
+static fcell state_address;
+static int latest=-1;   /* this unit's most recent definition: IMMEDIATE and DOES> act on it */
+static const char **input;   /* parse position of the innermost forth_eval */
+static unsigned eval_depth,open_depth;   /* EVALUATE nesting; the depth an open definition began at */
+static void set_state(unsigned char s){state=s;if(state_address)fvm_write_cell(state_address,s?FVM_MASK:0);}
 static enum forth_engine selected;
 static fcell base_address;
 static char error_text[96];
 static unsigned char transport_crc;
 static const char *vm_message(void);
-#define NATIVES_MAX 132 /* 6 B each on the eZ80; main 96 + sound 6 + GUI tools 9 (claude/vios-gui-tools-91fb31): 111-117, 2026-10-20; + G5 canvases 12 */
+#define NATIVES_MAX 150 /* + extensible compiler 18, 2026-10-21; 6 B each on the eZ80; main 96 + sound 6 + GUI tools 9 (claude/vios-gui-tools-91fb31): 111-117, 2026-10-20; + G5 canvases 12 */
 static struct {int (*callback)(void);unsigned flags;} natives[NATIVES_MAX];
 static unsigned native_count,origin_id;
 static int (*outer_hook)(const char *,const char **);
@@ -69,7 +87,7 @@ static struct {
 } observer_before;
 static void catalog_changed(void) {if(!++catalog_revision)++catalog_revision;}
 struct checkpoint {
- size_t token,direct,data,source;unsigned count,map;
+ size_t token,direct,data,source,names;unsigned count,map;
  unsigned short buckets[HASH_BUCKETS];
  unsigned char data_bytes[DATA_BYTES];
  fcell stack[FVM_DS],depth,ip,error,budget,ds_peak,rs_peak,base;
@@ -77,7 +95,7 @@ struct checkpoint {
 };
 static struct checkpoint transaction_before,activation_before;
 static unsigned char test_data[DATA_BYTES];
-static size_t activation_token,activation_direct,activation_data,activation_source;
+static size_t activation_token,activation_direct,activation_data,activation_source,activation_names;
 static unsigned activation_count;
 static unsigned transaction_words;
 static size_t transaction_token,transaction_direct,transaction_data;
@@ -162,8 +180,8 @@ static void decimal_number(fcell n) {
  while(i)platform_console_putc((unsigned char)b[--i]);
 }
 static void rollback(void) {
- if(current>=0) {token_used=mark_token;direct_used=mark_direct;data_used=mark_data;source_used=mark_source;map_used=mark_map;}
- current=-1;control_used=0;leave_used=0;
+ if(current>=0) {token_used=mark_token;direct_used=mark_direct;data_used=mark_data;source_used=mark_source;map_used=mark_map;names_used=mark_names;}
+ current=-1;control_used=0;leave_used=0;set_state(0);
 }
 /* Stage 4: the foreground's last runtime failure, captured before fail()
  * unwinds the stacks. Frames hold xts; names resolve at report time. */
@@ -208,10 +226,11 @@ static unsigned hash(const char *name) {
  unsigned h=0;while(*name)h=(h*33u+(unsigned char)*name++)&(HASH_BUCKETS-1);return h;
 }
 static int find(const char *name) {
- unsigned n=buckets[hash(name)];while(n) {if(equal(words[n-1].name,name))return (int)n-1;n=words[n-1].link;}return -1;
+ unsigned n=buckets[hash(name)];while(n) {if(equal(names+words[n-1].name,name))return (int)n-1;n=words[n-1].link;}return -1;
 }
 static fcell address(const unsigned char *p) {return fvm_address(p);}
 static void put_cell(unsigned char *p,fcell n) {p[0]=(unsigned char)n;p[1]=(unsigned char)(n>>8);p[2]=(unsigned char)(n>>16);}
+static fcell cell_at(const unsigned char *p){return (fcell)p[0]|((fcell)p[1]<<8)|((fcell)p[2]<<16);}
 static fcell primitive(unsigned op) {
 #ifdef __ez80__
  return fvm_direct_primitives[op];
@@ -244,8 +263,10 @@ static int begin_word(const char *name,unsigned kind) {
  created_unfilled=-1;
  if(count==WORDS_MAX)return fail("dictionary full");
  if(!*name||length(name)>NAME_MAX)return fail("invalid name");
- mark_token=token_used;mark_direct=direct_used;mark_data=data_used;mark_source=source_used;mark_map=map_used;
- current=(int)count;words[count].kind=(unsigned char)kind;copy(words[count].name,name);
+ mark_token=token_used;mark_direct=direct_used;mark_data=data_used;mark_source=source_used;mark_map=map_used;mark_names=names_used;
+ if(length(name)+1>NAME_BYTES-names_used)return fail("name space full");
+ current=(int)count;words[count].kind=(unsigned char)kind;words[count].name=(unsigned short)names_used;
+ copy(names+names_used,name);names_used+=length(name)+1;
  words[count].origin=(unsigned short)origin_id;
  words[count].aux=0;words[count].source=(unsigned short)source_used;words[count].length=0;words[count].map=(unsigned short)map_used;
  words[count].token=address(token_code+token_used);words[count].direct=address(direct_code+direct_used);
@@ -258,36 +279,27 @@ static int source_add(const char *s) {
  while(*s)source_space[source_used++]=*s++;
  source_space[source_used++]=' ';return 1;
 }
-static int string_literal(const char **input) {
- const char *p=*input;if(*p==' '||*p=='\t')++p;
- const char *start=p;while(*p&&*p!='"'&&*p!='\r'&&*p!='\n')++p;
- if(*p!='"')return fail("unterminated string");
- size_t n=(size_t)(p-start);
- if(n+1>DATA_BYTES-data_used)return fail("data space full");
- if(current<0&&fvm_depth>FVM_DS-2)return fail("data stack overflow");
- if(current>=0) {
-  if(n+2>SOURCE_BYTES-source_used)return fail("source dictionary full");
-  for(size_t i=0;i<n;++i)source_space[source_used++]=start[i];
-  source_space[source_used++]='"';source_space[source_used++]=' ';
- }
- fcell a=address(data_space+data_used);data_used+=n+1;
- for(size_t i=0;i<n;++i)fvm_write8(a+(fcell)i,(unsigned char)start[i]);
- fvm_write8(a+(fcell)n,0);*input=p+1;
- if(fvm_error)return fail(vm_message());
- return current>=0?(literal(a)&&literal((fcell)n)):(fvm_push(a)&&fvm_push((fcell)n));
-}
 static int publish(void) {
- unsigned h=hash(words[count].name);
+ unsigned h=hash(NAME(count));
  words[count].link=buckets[h];words[count].length=(unsigned short)(source_used-words[count].source);
  words[count].token_length=(unsigned short)(token_used-mark_token);
  words[count].direct_length=(unsigned short)(direct_used-mark_direct);
- buckets[h]=(unsigned short)(count+1);++count;current=-1;
+ buckets[h]=(unsigned short)(count+1);++count;current=-1;latest=(int)count-1;set_state(0);
  if(!transaction_active)catalog_changed();return 1;
 }
 static int compile_word(int n) {
- struct word *w=&words[n];
- if(w->kind==WK_PRIMITIVE)return op(w->opcode);
- if(w->kind==WK_CONSTANT||w->kind==WK_VARIABLE)return literal(w->aux);
+ struct word *w=&words[n];unsigned k=w->kind&0x7fu;
+ if(k==WK_PRIMITIVE)return op(w->opcode);
+ if(k==WK_CONSTANT||k==WK_VARIABLE)return literal(w->aux);
+ if(k==WK_DOES){
+  /* Inline a DOES> child like a variable: LIT body, then the call into its
+   * does-part, read back from the child's own code (token: LIT body CALL t
+   * EXIT; direct: docol LIT body d EXIT). One nest less than calling it. */
+  fcell t=cell_at(token_code+(w->token-address(token_code))+5),d=cell_at(direct_code+(w->direct-address(direct_code))+10);
+  if(!literal(w->aux)||!room(4,3))return 0;
+  token_code[token_used++]=F_CALL;put_cell(token_code+token_used,t);token_used+=3;
+  put_cell(direct_code+direct_used,d);direct_used+=3;return 1;
+ }
  if(!room(4,3))return 0;
  token_code[token_used++]=F_CALL;put_cell(token_code+token_used,w->token);token_used+=3;
  put_cell(direct_code+direct_used,w->direct);direct_used+=3;return 1;
@@ -306,6 +318,7 @@ static int call_xt(fcell xt) {
 }
 static fcell entry_ip(unsigned n){return selected==FORTH_DIRECT?words[n].direct+4:words[n].token;}
 /* 1: returned, 0: failed (error_text set), 2: background slice ended. */
+static unsigned char eval_returned;
 static int dispatch(void) {
  for(;;) {
   unsigned char result;
@@ -358,9 +371,16 @@ static int dispatch(void) {
   else if(code==F_NATIVE) {
    fcell id=fvm_pop();if(fvm_error)return fail(vm_message());
    if(id>=native_count)return fail("invalid native service");
-   if(transaction_active&&!(natives[id].flags&FORTH_NATIVE_PURE))return fail("native I/O disabled during module transaction");
-   if(running>=0&&!(natives[id].flags&(FORTH_NATIVE_PURE|FORTH_NATIVE_TASK)))return fail("native service unavailable in background task");
+   unsigned flags=natives[id].flags;
+   if(transaction_active&&!(flags&(FORTH_NATIVE_PURE|FORTH_NATIVE_DICT)))return fail("native I/O disabled during module transaction");
+   if(flags&FORTH_NATIVE_DICT){
+    if(running>=0)return fail("dictionary word unavailable in background task");
+    if(observer_active)return fail("dictionary word disabled during observer");
+    if(testing)return fail("dictionary word disabled during module test");
+   }
+   if(running>=0&&!(flags&(FORTH_NATIVE_PURE|FORTH_NATIVE_TASK)))return fail("native service unavailable in background task");
    if(!natives[id].callback())return error_text[0]?0:fail("native service failed");
+   if(eval_returned){eval_returned=0;return 1;}   /* a nested EVALUATE word reached its sentinel */
    if(running>=0&&yield_request){yield_request=0;if(fvm_error)return fail(vm_message());return 2;}
   }
   else if(!fvm_complex(code))return fail(vm_message());
@@ -526,7 +546,7 @@ void forth_emit(unsigned char c){out(c);}
 unsigned forth_current_task(void){return running<0?0u:(unsigned)running+1u;}
 int forth_task_info(unsigned id,struct forth_task_info *o) {
  if(!o||!id||id>FORTH_TASKS_MAX)return 0;const struct task *t=&tasks[id-1];
- o->state=t->state;o->xt=t->xt;o->name=t->xt&&t->xt<=count?words[t->xt-1].name:"";o->error=t->error;
+ o->state=t->state;o->xt=t->xt;o->name=t->xt&&t->xt<=count?NAME(t->xt-1):"";o->error=t->error;
  o->depth=t->depth;o->rdepth=t->rdepth;o->ds_peak=t->ds_peak;o->rs_peak=t->rs_peak;
  o->slices=t->slices;o->steps=t->steps;o->output_bytes=t->out_count;o->output_dropped=t->out_dropped;return 1;
 }
@@ -649,7 +669,7 @@ static void print_source_token(fcell xt,fcell offset,enum forth_engine engine){
 }
 static void trace_step(void) {
  fcell offset;fcell xt=code_xt(fvm_ip,&offset);--trace_left;++trace_steps;
- print("step ");decimal_number(trace_steps);print(" word ");print(xt&&xt<=count?words[xt-1].name:"?");print("+");decimal_number(offset);
+ print("step ");decimal_number(trace_steps);print(" word ");print(xt&&xt<=count?NAME(xt-1):"?");print("+");decimal_number(offset);
  print(" src ");print_source_token(xt,offset,selected);
  print(" depth ");decimal_number(fvm_depth);print(" rdepth ");decimal_number(fvm_rdepth);
  if(fvm_depth&&fvm_depth<=FVM_DS){print(" top ");number(fvm_ds[fvm_depth-1]);}print("\r\n");
@@ -668,21 +688,21 @@ static void crash_report(void) {
  print(" engine ");print(crash.engine==FORTH_DIRECT?"DIRECT":crash.engine==FORTH_TOKEN?"TOKEN":"C");
  print(" stale ");decimal_number(crash.catalog!=catalog_revision);print(" base ");decimal_number(crash.base);
  print(" message ");hex_text(crash.message);print(" ip ");decimal_number(crash.ip);
- print(" word ");hex_text(crash.xt&&crash.xt<=count?words[crash.xt-1].name:"");print(" offset ");decimal_number(crash.offset);
+ print(" word ");hex_text(crash.xt&&crash.xt<=count?NAME(crash.xt-1):"");print(" offset ");decimal_number(crash.offset);
  print(" src ");print_source_token(crash.catalog!=catalog_revision?0:crash.xt,crash.offset,crash.engine);
  print(" ds-depth ");decimal_number(crash.ds_depth);print(" rdepth ");decimal_number(crash.rdepth);print(" ldepth ");decimal_number(crash.ldepth);
  print(" ds");for(fcell i=0;i<CRASH_DS&&i<crash.ds_depth;++i){print(" ");decimal_number(crash.ds[i]);}print("\r\n");
  for(unsigned i=0;i<crash.frames;++i){
-  print("frame ");decimal_number(i);print(" word ");hex_text(crash.frame_xt[i]&&crash.frame_xt[i]<=count?words[crash.frame_xt[i]-1].name:"");
+  print("frame ");decimal_number(i);print(" word ");hex_text(crash.frame_xt[i]&&crash.frame_xt[i]<=count?NAME(crash.frame_xt[i]-1):"");
   print(" offset ");decimal_number(crash.frame_offset[i]);print(" src ");print_source_token(crash.catalog!=catalog_revision?0:crash.frame_xt[i],crash.frame_offset[i],crash.engine);print("\r\n");
  }
 }
 static void task_report(void) {
- static const char *const names[]={"free","ready","sleeping","done","failed","killed"};
+ static const char *const states[]={"free","ready","sleeping","done","failed","killed"};
  for(unsigned i=0;i<FORTH_TASKS_MAX;++i) {
   const struct task *t=&tasks[i];
-  print("task ");decimal_number(i+1);print(" state ");print(names[t->state]);print(" xt ");decimal_number(t->xt);
-  print(" name ");hex_text(t->xt&&t->xt<=count?words[t->xt-1].name:"");print(" slices ");decimal_number(t->slices);
+  print("task ");decimal_number(i+1);print(" state ");print(states[t->state]);print(" xt ");decimal_number(t->xt);
+  print(" name ");hex_text(t->xt&&t->xt<=count?NAME(t->xt-1):"");print(" slices ");decimal_number(t->slices);
   print(" steps ");decimal_number(t->steps);print(" depth ");decimal_number(t->depth);print(" rdepth ");decimal_number(t->rdepth);
   print(" ds-peak ");decimal_number(t->ds_peak);print(" rs-peak ");decimal_number(t->rs_peak);
   print(" out ");decimal_number(t->out_count);print(" dropped ");decimal_number(t->out_dropped);print(" error ");hex_text(t->error);
@@ -705,7 +725,7 @@ fcell forth_find_xt(const char *name) {
  while(name[i]){if(i==NAME_MAX)return 0;key[i]=upper(name[i]);++i;}key[i]=0;
  int n=find(key);return n<0?0:(fcell)(n+1);
 }
-const char *forth_xt_name(fcell xt){return xt&&xt<=count?words[xt-1].name:NULL;}
+const char *forth_xt_name(fcell xt){return xt&&xt<=count?NAME(xt-1):NULL;}
 int forth_register_command(int (*hook)(const char *,const char **)) {
  if(transaction_active)return fail("command registration during module transaction");
  outer_hook=hook;return 1;
@@ -768,14 +788,61 @@ static void leaves_resolve(unsigned depth){
  unsigned kept=0;for(unsigned i=0;i<leave_used;++i){if(leaves[i].kind==depth)patch(leaves[i]);else leaves[kept++]=leaves[i];}leave_used=kept;
 }
 static int compile_named(const char *name){int n=find(name);return n<0?fail("loop helper missing"):compile_word(n);}
-static int control_word(const char *s) {
+/* Compiler keywords (docs/superpowers/specs/2026-10-21-vios-extensible-
+ * compiler.md, Phase 0): one const table looked up by the dictionary's hash,
+ * instead of a chain of string compares that every token walked (~60% of
+ * compile time on the eZ80). Keywords win over dictionary words, as before.
+ * KF_POSTPONE: POSTPONE may compile it; KF_TOOL: interactive, refused inside
+ * a definition, an EVALUATE or a module transaction (KF_NOTX: transaction). */
+enum {
+ KW_SYNC,KW_ABORT,KW_COLON,KW_SQUOTE,KW_DOTQUOTE,KW_CHAR,KW_BCHAR,KW_SEMI,
+ KW_IF,KW_ELSE,KW_THEN,KW_BEGIN,KW_UNTIL,KW_AGAIN,KW_WHILE,KW_REPEAT,KW_DO,KW_LOOP,KW_PLUSLOOP,KW_QDO,KW_LEAVE,
+ KW_RECURSE,KW_EXIT,KW_TICK,KW_BTICK,KW_IS,KW_LBRACKET,KW_RBRACKET,KW_LITERAL,KW_IMMEDIATE,KW_POSTPONE,KW_DOES,
+ KW_BENCH,KW_TRACE,KW_TASKS,KW_TASKOUT,KW_LASTERROR,KW_TASKSLICE,KW_WORDS,KW_DOTS,KW_SEE,KW_RESOURCES,KW_ENGINE,KW_COUNT
+};
+#define KF_POSTPONE 1u
+#define KF_TOOL 2u
+#define KF_NOTX 4u
+#define KW_BUCKETS 16   /* low bits of the dictionary hash (HASH_BUCKETS >= 16) */
+#if HASH_BUCKETS<KW_BUCKETS
+#error VIOS_FORTH_HASH_BUCKETS must be at least 16
+#endif
+static const struct {char name[11];unsigned char flags;} keywords[KW_COUNT]={
+ {"SYNC",KF_NOTX},{"ABORT",KF_NOTX},{":",0},{"S\"",KF_POSTPONE},{".\"",KF_POSTPONE},{"CHAR",0},{"[CHAR]",KF_POSTPONE},{";",KF_POSTPONE},
+ {"IF",KF_POSTPONE},{"ELSE",KF_POSTPONE},{"THEN",KF_POSTPONE},{"BEGIN",KF_POSTPONE},{"UNTIL",KF_POSTPONE},{"AGAIN",KF_POSTPONE},
+ {"WHILE",KF_POSTPONE},{"REPEAT",KF_POSTPONE},{"DO",KF_POSTPONE},{"LOOP",KF_POSTPONE},{"+LOOP",KF_POSTPONE},{"?DO",KF_POSTPONE},{"LEAVE",KF_POSTPONE},
+ {"RECURSE",KF_POSTPONE},{"EXIT",KF_POSTPONE},{"'",0},{"[']",KF_POSTPONE},{"IS",KF_POSTPONE},{"[",KF_POSTPONE},{"]",0},{"LITERAL",KF_POSTPONE},
+ {"IMMEDIATE",0},{"POSTPONE",KF_POSTPONE},{"DOES>",0},
+ {"BENCH",KF_TOOL|KF_NOTX},{"TRACE",KF_TOOL|KF_NOTX},{"TASKS",KF_TOOL|KF_NOTX},{"TASK-OUT",KF_TOOL|KF_NOTX},{"LAST-ERROR",KF_TOOL|KF_NOTX},
+ {"TASK-SLICE",KF_TOOL},{"WORDS",KF_TOOL|KF_NOTX},{".S",KF_TOOL|KF_NOTX},{"SEE",KF_TOOL|KF_NOTX},{"RESOURCES",KF_TOOL|KF_NOTX},{"ENGINE",KF_TOOL|KF_NOTX}
+};
+static unsigned char keyword_head[KW_BUCKETS],keyword_next[KW_COUNT];   /* 1-based chains, built by forth_init */
+static void keywords_index(void){
+ for(unsigned i=0;i<KW_BUCKETS;++i)keyword_head[i]=0;
+ for(unsigned i=KW_COUNT;i-->0;){unsigned h=hash(keywords[i].name)&(KW_BUCKETS-1);keyword_next[i]=keyword_head[h];keyword_head[h]=(unsigned char)(i+1);}
+}
+/* 0..KW_COUNT-1, or -1; h is the token's dictionary hash. */
+static int keyword(const char *s,unsigned h){
+ for(unsigned k=keyword_head[h&(KW_BUCKETS-1)];k;k=keyword_next[k-1])if(equal(keywords[k-1].name,s))return (int)k-1;
+ return -1;
+}
+static int find_hashed(const char *name,unsigned h) {
+ unsigned n=buckets[h];while(n) {if(equal(names+words[n-1].name,name))return (int)n-1;n=words[n-1].link;}return -1;
+}
+static int compiling(void){return state&&current>=0;}
+/* Source text and source maps record what was typed: tokens evaluated by an
+ * EVALUATE inside a definition opened outside it are not recorded (their
+ * code maps to the token that ran the EVALUATE). */
+static int recording(void){return current>=0&&open_depth>=eval_depth;}
+static int run_word(unsigned n);
+static int control_word(unsigned id) {
  struct control c;
- if(current<0)return fail("compile-only word");
- if(equal(s,"LEAVE")) {
+ if(!compiling())return fail("compile-only word");
+ if(id==KW_LEAVE) {
   unsigned depth=loop_depth();if(!depth)return fail("LEAVE needs DO");
   return compile_named("UNLOOP")&&op(F_BRANCH)&&leave_push(depth);
  }
- if(equal(s,"?DO")) {
+ if(id==KW_QDO) {
   /* 2DUP = IF 2DROP skip-loop THEN DO ... : the skip is resolved at LOOP. */
   if(!compile_named("2DUP")||!op(F_EQ)||!op(F_ZBRANCH))return 0;
   size_t t=token_used,d=direct_used;if(!operand(0,0))return 0;
@@ -783,39 +850,38 @@ static int control_word(const char *s) {
   struct control enter={CS_IF,t,d};patch(enter);
   if(!op(F_DO))return 0;return control_push(CS_DO,token_used,direct_used);
  }
- if(equal(s,"IF")||equal(s,"WHILE")) {
-  if(equal(s,"WHILE")&&(!control_used||controls[control_used-1].kind!=CS_BEGIN))return fail("WHILE needs BEGIN");
+ if(id==KW_IF||id==KW_WHILE) {
+  if(id==KW_WHILE&&(!control_used||controls[control_used-1].kind!=CS_BEGIN))return fail("WHILE needs BEGIN");
   if(!op(F_ZBRANCH))return 0;
-  if(!control_push(equal(s,"IF")?CS_IF:CS_WHILE,token_used,direct_used))return 0;
+  if(!control_push(id==KW_IF?CS_IF:CS_WHILE,token_used,direct_used))return 0;
   return operand(0,0);
  }
- if(equal(s,"BEGIN"))return control_push(CS_BEGIN,token_used,direct_used);
- if(equal(s,"DO")){if(!op(F_DO))return 0;return control_push(CS_DO,token_used,direct_used);}
+ if(id==KW_BEGIN)return control_push(CS_BEGIN,token_used,direct_used);
+ if(id==KW_DO){if(!op(F_DO))return 0;return control_push(CS_DO,token_used,direct_used);}
  if(!control_used)return fail("unbalanced control flow");
  c=controls[--control_used];
- if(equal(s,"ELSE")) {
+ if(id==KW_ELSE) {
   if(c.kind!=CS_IF)return fail("ELSE needs IF");
   if(!op(F_BRANCH))return 0;
   size_t t=token_used,d=direct_used;if(!operand(0,0))return 0;patch(c);return control_push(CS_ELSE,t,d);
  }
- if(equal(s,"THEN")){if(c.kind!=CS_IF&&c.kind!=CS_ELSE)return fail("THEN needs IF");patch(c);return 1;}
- if(equal(s,"REPEAT")) {
+ if(id==KW_THEN){if(c.kind!=CS_IF&&c.kind!=CS_ELSE)return fail("THEN needs IF");patch(c);return 1;}
+ if(id==KW_REPEAT) {
   if(c.kind!=CS_WHILE||!control_used||controls[control_used-1].kind!=CS_BEGIN)return fail("REPEAT needs BEGIN WHILE");
   struct control begin=controls[--control_used];
   if(!op(F_BRANCH)||!operand(address(token_code+begin.token),address(direct_code+begin.direct)))return 0;patch(c);return 1;
  }
- if(equal(s,"LOOP")||equal(s,"+LOOP")) {
+ if(id==KW_LOOP||id==KW_PLUSLOOP) {
   if(c.kind!=CS_DO)return fail("LOOP needs DO");
   unsigned depth=loop_depth()+1;
-  int ok=equal(s,"LOOP")?op(F_LOOP)&&operand(address(token_code+c.token),address(direct_code+c.direct))
+  int ok=id==KW_LOOP?op(F_LOOP)&&operand(address(token_code+c.token),address(direct_code+c.direct))
    :compile_named("(+LOOP)")&&op(F_ZBRANCH)&&operand(address(token_code+c.token),address(direct_code+c.direct));
   if(ok)leaves_resolve(depth);return ok;
  }
  if(c.kind!=CS_BEGIN)return fail("loop needs BEGIN");
- return op(equal(s,"UNTIL")?F_ZBRANCH:F_BRANCH)&&operand(address(token_code+c.token),address(direct_code+c.direct));
+ return op(id==KW_UNTIL?F_ZBRANCH:F_BRANCH)&&operand(address(token_code+c.token),address(direct_code+c.direct));
 }
-static int defining(const char *kind,const char *name) {
- unsigned k=equal(kind,"CONSTANT")?WK_CONSTANT:equal(kind,"DEFER")?WK_DEFER:WK_VARIABLE;
+static int defining(unsigned k,const char *name) {
  fcell value=0;
  if(k==WK_CONSTANT){value=fvm_pop();if(fvm_error)return fail(vm_message());}
  if(!begin_word(name,k))return 0;
@@ -845,10 +911,10 @@ static int create_word(const char *name) {
 static void unpublish_created(void){
  unsigned n=(unsigned)created_unfilled;created_unfilled=-1;
  if(n+1!=count)return;   /* something was defined since: leave it */
- struct word *w=&words[n];unsigned h=hash(w->name);
+ struct word *w=&words[n];unsigned h=hash(names+w->name);
  if(buckets[h]!=(unsigned short)(n+1))return;
- buckets[h]=w->link;--count;
- token_used=mark_token;direct_used=mark_direct;source_used=w->source;map_used=mark_map;
+ buckets[h]=w->link;--count;if(latest==(int)n)latest=-1;
+ token_used=mark_token;direct_used=mark_direct;source_used=w->source;map_used=mark_map;names_used=w->name;
  if(!transaction_active)catalog_changed();
 }
 static void show_stack(void) {
@@ -859,12 +925,12 @@ static void show_word(int n) {
  if(words[n].length) {
   const char *p=source_space+words[n].source;
   for(unsigned i=0;i<words[n].length;++i)platform_console_putc((unsigned char)p[i]);
- }else {print(words[n].kind==WK_PRIMITIVE?"primitive ":"data word ");print(words[n].name);}
+ }else {print(KIND(n)==WK_PRIMITIVE?"primitive ":"data word ");print(NAME(n));}
  print("\r\n");
- print("word ");print(words[n].name);print(" xt ");decimal_number((fcell)(n+1));
- print(" kind ");decimal_number(words[n].kind);print(" token ");decimal_number(words[n].token);
+ print("word ");print(NAME(n));print(" xt ");decimal_number((fcell)(n+1));
+ print(" kind ");decimal_number(KIND(n));print(" token ");decimal_number(words[n].token);
  print(" direct ");decimal_number(words[n].direct);print(" token-bytes ");decimal_number(words[n].token_length);
- print(" direct-bytes ");decimal_number(words[n].direct_length);print("\r\n");
+ print(" direct-bytes ");decimal_number(words[n].direct_length);if(words[n].kind&KIND_IMMEDIATE)print(" immediate");print("\r\n");
  if(words[n].origin) {
   const char *module,*version;uint32_t crc;
   if(forth_module_origin(words[n].origin,&module,&version,&crc)) {
@@ -872,149 +938,383 @@ static void show_word(int n) {
   }
  }
 }
-int forth_eval(const char *source) {
- const char *p=source;char s[NAME_MAX+1],name[NAME_MAX+1];int got;
- error_text[0]=0;fvm_error=0;
+/* The parse position of the innermost forth_eval: parsing keywords run from
+ * POSTPONE, and parsing natives (CREATE, VARIABLE, MARKER...), read from it. */
+static int parse_name(char *name){
+ if(!input)return fail("no input source");
+ return need_token(input,name);
+}
+/* ( c-addr u ) in data space: compile the string, or push it. */
+static int string_literal(void) {
+ const char *p=*input;if(*p==' '||*p=='\t')++p;
+ const char *start=p;while(*p&&*p!='"'&&*p!='\r'&&*p!='\n')++p;
+ if(*p!='"')return fail("unterminated string");
+ size_t n=(size_t)(p-start);
+ if(n+1>DATA_BYTES-data_used)return fail("data space full");
+ if(!compiling()&&fvm_depth>FVM_DS-2)return fail("data stack overflow");
+ if(recording()) {
+  if(n+2>SOURCE_BYTES-source_used)return fail("source dictionary full");
+  for(size_t i=0;i<n;++i)source_space[source_used++]=start[i];
+  source_space[source_used++]='"';source_space[source_used++]=' ';
+ }
+ fcell a=address(data_space+data_used);data_used+=n+1;
+ for(size_t i=0;i<n;++i)fvm_write8(a+(fcell)i,(unsigned char)start[i]);
+ fvm_write8(a+(fcell)n,0);*input=p+1;
+ if(fvm_error)return fail(vm_message());
+ return compiling()?(literal(a)&&literal((fcell)n)):(fvm_push(a)&&fvm_push((fcell)n));
+}
+static unsigned keyword_native,compile_native,does_native;   /* word indices of (KEYWORD) COMPILE, (DOES>) */
+/* One keyword's action; input is the innermost parse position. Runs from the
+ * outer interpreter or, postponed, from (KEYWORD) inside a running word. */
+static int keyword_run(unsigned id) {
+ char name[NAME_MAX+1];
+ if(!input&&(id==KW_SQUOTE||id==KW_DOTQUOTE||id==KW_CHAR||id==KW_BCHAR||id==KW_TICK||id==KW_BTICK||id==KW_IS||id==KW_POSTPONE||id==KW_COLON||id==KW_SYNC||(keywords[id].flags&KF_TOOL)))return fail("no input source");
+ if(keywords[id].flags&KF_TOOL){
+  if(current>=0)return fail("interactive tool inside definition");
+  if(eval_depth)return fail("interactive tool inside EVALUATE");
+ }
+ switch(id){
+ case KW_SYNC:   /* Harness framing consumes no VM values and never enters a definition. */
+  if(eval_depth)return fail("SYNC inside EVALUATE");
+  if(!need_token(input,name))return 0;
+  print("@");print(name);print("\r\n");return 1;
+ case KW_COLON:
+  if(!need_token(input,name)||!begin_word(name,WK_COLON))return 0;
+  open_depth=eval_depth;set_state(1);
+  return source_add(":")&&source_add(name);
+ case KW_SQUOTE:return string_literal();
+ case KW_DOTQUOTE: {
+  /* ." text" = S" text" TYPE; TYPE is a native. */
+  int type=find("TYPE");if(type<0)return fail(".\" requires TYPE");
+  if(!string_literal())return 0;
+  return compiling()?compile_word(type):run_word((unsigned)type);
+ }
+ case KW_CHAR:case KW_BCHAR: {
+  if(id==KW_CHAR&&compiling())return fail("use [CHAR] in definitions");
+  /* Read the next token raw: the tokenizer case-folds names. */
+  const char *p=*input;
+  while(*p==' '||*p=='\t'||*p=='\r'||*p=='\n')++p;
+  if(!*p)return fail("missing name");
+  unsigned char ch=(unsigned char)*p;unsigned n=0;
+  while(*p&&*p!=' '&&*p!='\t'&&*p!='\r'&&*p!='\n'){if(n<NAME_MAX)name[n++]=*p;++p;}name[n]=0;*input=p;
+  if(recording()&&!source_add(name))return 0;
+  if(compiling())return literal(ch);
+  return fvm_push(ch)?1:fail(vm_message());
+ }
+ case KW_SEMI:
+  if(current<0)return fail("unexpected semicolon");
+  if(control_used)return fail("unbalanced control flow");
+  return op(F_EXIT)&&publish();
+ case KW_IF:case KW_ELSE:case KW_THEN:case KW_BEGIN:case KW_UNTIL:case KW_AGAIN:case KW_WHILE:case KW_REPEAT:
+ case KW_DO:case KW_LOOP:case KW_PLUSLOOP:case KW_QDO:case KW_LEAVE:
+  return control_word(id);
+ case KW_RECURSE:if(!compiling())return fail("RECURSE outside definition");return compile_word(current);
+ case KW_EXIT:if(!compiling())return unknown("EXIT");return op(F_EXIT);
+ case KW_TICK:case KW_BTICK:case KW_IS: {
+  if(!need_token(input,name))return 0;
+  if(recording()&&!source_add(name))return 0;
+  int n=find(name);if(n<0)return unknown(name);
+  if(id==KW_IS) {
+   if(KIND(n)!=WK_DEFER)return fail("IS requires deferred word");
+   if(compiling())return literal(words[n].aux)&&op(F_STORE);
+   fcell xt=fvm_pop();if(fvm_error)return fail(vm_message());if(!xt||xt>count)return fail("invalid execution token");
+   fvm_write_cell(words[n].aux,xt);return 1;
+  }
+  if(id==KW_TICK&&compiling())return fail("use ['] in definitions");
+  if(compiling())return literal((fcell)(n+1));
+  return fvm_push((fcell)(n+1))?1:fail(vm_message());
+ }
+ case KW_LBRACKET:set_state(0);return 1;
+ case KW_RBRACKET:if(current<0)return fail("] needs an open definition");set_state(1);return 1;
+ case KW_LITERAL: {
+  if(!compiling())return fail("compile-only word");
+  fcell x=fvm_pop();if(fvm_error)return fail(vm_message());return literal(x);
+ }
+ case KW_IMMEDIATE:
+  if(latest<0)return fail("IMMEDIATE needs a definition from this unit");
+  words[latest].kind|=KIND_IMMEDIATE;return 1;
+ case KW_POSTPONE: {
+  if(!compiling())return fail("compile-only word");
+  if(!need_token(input,name))return 0;
+  if(recording()&&!source_add(name))return 0;
+  unsigned h=hash(name);int k=keyword(name,h);
+  if(k>=0){
+   if(!(keywords[k].flags&KF_POSTPONE))return fail("keyword cannot be postponed");
+   return literal((fcell)k)&&compile_word((int)keyword_native);
+  }
+  int n=find_hashed(name,h);if(n<0)return unknown(name);
+  if(words[n].kind&KIND_IMMEDIATE)return compile_word(n);
+  return literal((fcell)(n+1))&&compile_word((int)compile_native);
+ }
+ case KW_DOES: {
+  /* The defining word ends here: LIT t LIT d (DOES>) EXIT, then the
+   * does-part, which in the direct stream gets a code field (CALL docol)
+   * so a child calls it as one cell. t/d: its token and direct addresses. */
+  if(!compiling())return fail("compile-only word");
+  if(control_used)return fail("DOES> inside control flow");
+  size_t lt,ld,mt,md;
+  if(!op(F_LIT))return 0;lt=token_used;ld=direct_used;if(!operand(0,0))return 0;
+  if(!op(F_LIT))return 0;mt=token_used;md=direct_used;if(!operand(0,0))return 0;
+  if(!compile_word((int)does_native)||!op(F_EXIT)||!room(0,4))return 0;
+  fcell t=address(token_code+token_used),d=address(direct_code+direct_used);
+  direct_code[direct_used++]=0xcd;put_cell(direct_code+direct_used,docol_address());direct_used+=3;
+  put_cell(token_code+lt,t);put_cell(direct_code+ld,t);put_cell(token_code+mt,d);put_cell(direct_code+md,d);
+  return 1;
+ }
+#ifdef __ez80__
+ case KW_BENCH: {extern void forth_benchmark(void);forth_benchmark();return 1;}
+#else
+ case KW_BENCH:return unknown("BENCH");
+#endif
+ case KW_TRACE: {
+  char count_text[NAME_MAX+1];fcell limit;
+  if(!need_token(input,name)||!need_token(input,count_text))return 0;
+  int n=find(name);if(n<0)return unknown(name);
+  if(parse_number(count_text,&limit)<=0||!limit||limit>100000)return fail("TRACE name n needs 1..100000 steps");
+  return trace_word((unsigned)n,limit);
+ }
+ case KW_TASKS:print("task-slice ");decimal_number(task_slice);print("\r\n");task_report();return 1;
+ case KW_TASKSLICE: {fcell n;if(!need_token(input,name))return 0;if(parse_number(name,&n)<=0||n<64||n>65535)return fail("TASK-SLICE needs 64..65535");task_slice=n;return 1;}
+ case KW_LASTERROR:crash_report();return 1;
+ case KW_TASKOUT: {if(!need_token(input,name))return 0;fcell n;if(parse_number(name,&n)<=0)return fail("task id required");return task_output(n);}
+ case KW_WORDS:for(unsigned i=0;i<count;++i){print(" ");print(NAME(i));}print(" \r\n");return 1;
+ case KW_DOTS:show_stack();return 1;
+ case KW_SEE: {if(!need_token(input,name))return 0;int n=find(name);if(n<0)return unknown(name);show_word(n);return 1;}
+ case KW_RESOURCES:forth_report();return 1;
+ case KW_ENGINE:
+  if(!need_token(input,name))return 0;
+  if(tasks_live())return fail("ENGINE refused while background tasks are live");
+  if(equal(name,"C"))selected=FORTH_REFERENCE;
+#ifdef __ez80__
+  else if(equal(name,"TOKEN"))selected=FORTH_TOKEN;
+  else if(equal(name,"DIRECT"))selected=FORTH_DIRECT;
+#endif
+  else return fail("engine unavailable");
+  return 1;
+ }
+ return fail("invalid keyword");
+}
+static int eval_tokens(const char *source) {
+ const char *p=source;char s[NAME_MAX+1];int got;
+ input=&p;error_text[0]=0;fvm_error=0;
  while((got=next_token(&p,s))>0) {
-  if(transaction_active&&(equal(s,"TRACE")||equal(s,"LAST-ERROR")||equal(s,"TASKS")||equal(s,"TASK-OUT")||equal(s,"ABORT")||equal(s,"ENGINE")||equal(s,"BENCH")||equal(s,"SYNC")||equal(s,"WORDS")||equal(s,".S")||equal(s,"SEE")||equal(s,"RESOURCES")))return fail("interactive tool disabled during module transaction");
-  if(current<0&&!transaction_active&&outer_hook) {
+  unsigned h=hash(s);int k=keyword(s,h);
+  if(k>=0&&transaction_active&&(keywords[k].flags&KF_NOTX))return fail("interactive tool disabled during module transaction");
+  if(current<0&&!transaction_active&&!eval_depth&&outer_hook) {
    int handled=outer_hook(s,&p);if(handled<0)return 0;if(handled)continue;
   }
-  /* Harness framing consumes no VM values and never enters a definition. */
-  if(equal(s,"SYNC")) {
-   if(!need_token(&p,name))return 0;
-   print("@");print(name);print("\r\n");continue;
-  }
-  if(equal(s,"ABORT")){rollback();fvm_reset();return 1;}
-  if(equal(s,":")) {
-   if(!need_token(&p,name)||!begin_word(name,WK_COLON))return 0;
-   if(!source_add(":")||!source_add(name))return 0;continue;
-  }
-  if(current>=0&&map_used<SOURCE_MAP_MAX){
-   source_map[map_used].token=(unsigned short)(token_used-mark_token);
-   source_map[map_used].direct=(unsigned short)(direct_used-mark_direct);source_map[map_used].source=(unsigned short)(source_used-words[current].source);++map_used;
-  }
-  if(current>=0&&!source_add(s))return 0;
-  if(equal(s,"S\"")){if(!string_literal(&p))return 0;continue;}
-  if(equal(s,".\"")) {
-   /* ." text" = S" text" TYPE; TYPE is library Forth (kernel prelude). */
-   int type=find("TYPE");if(type<0)return fail(".\" requires TYPE");
-   if(!string_literal(&p))return 0;
-   if(current>=0){if(!compile_word(type))return 0;}else if(!execute_index((unsigned)type))return 0;continue;
-  }
-  if(equal(s,"CHAR")||equal(s,"[CHAR]")) {
-   if(equal(s,"CHAR")&&current>=0)return fail("use [CHAR] in definitions");
-   /* Read the next token raw: the tokenizer case-folds names. */
-   while(*p==' '||*p=='\t'||*p=='\r'||*p=='\n')++p;
-   if(!*p)return fail("missing name");
-   unsigned char ch=(unsigned char)*p;unsigned n=0;
-   while(*p&&*p!=' '&&*p!='\t'&&*p!='\r'&&*p!='\n'){if(n<NAME_MAX)name[n++]=*p;++p;}name[n]=0;
-   if(current>=0&&!source_add(name))return 0;
-   if(current>=0){if(!literal(ch))return 0;}else if(!fvm_push(ch))return fail(vm_message());
-   continue;
-  }
-  if(equal(s,"CREATE")||equal(s,"ALLOT")||equal(s,"HERE")||equal(s,",")||equal(s,"C,")) {
-   /* Data-space words act at interpretation time only: VIOS definitions
-    * cannot grow managed data at run time (transactions and overlays
-    * account for data_used per definition). */
-   if(current>=0)return fail("data-space word inside definition");
-   if(equal(s,"CREATE")){if(!need_token(&p,name)||!create_word(name))return 0;continue;}
-   if(equal(s,"HERE")){if(!fvm_push(address(data_space+data_used)))return fail(vm_message());continue;}
-   fcell n=fvm_pop();if(fvm_error)return fail(vm_message());
-   size_t need=equal(s,"ALLOT")?(size_t)n:equal(s,",")?3u:1u;
-   if(equal(s,"ALLOT")&&(n&0x800000UL))return fail("negative ALLOT");
-   if(need>DATA_BYTES-data_used){if(created_unfilled>=0)unpublish_created();return fail("data space full");}
-   created_unfilled=-1;
-   fcell a=address(data_space+data_used);
-   if(equal(s,",")){fvm_write_cell(a,n);}else if(equal(s,"C,")){fvm_write8(a,(unsigned char)n);}else for(size_t i=0;i<need;++i)fvm_write8(a+(fcell)i,0);
-   if(fvm_error)return fail(vm_message());
-   data_used+=need;continue;
-  }
-  if(equal(s,";")) {
-   if(current<0)return fail("unexpected semicolon");
-   if(control_used)return fail("unbalanced control flow");
-   if(!op(F_EXIT)||!publish())return 0;continue;
-  }
-  if(equal(s,"VARIABLE")||equal(s,"CONSTANT")||equal(s,"DEFER")) {
-   if(current>=0)return fail("defining word inside definition");
-   if(!need_token(&p,name)||!defining(s,name))return 0;continue;
-  }
-  if(equal(s,"IF")||equal(s,"ELSE")||equal(s,"THEN")||equal(s,"BEGIN")||equal(s,"UNTIL")||equal(s,"AGAIN")||equal(s,"WHILE")||equal(s,"REPEAT")||equal(s,"DO")||equal(s,"LOOP")||equal(s,"+LOOP")||equal(s,"?DO")||equal(s,"LEAVE")) {
-   if(!control_word(s))return 0;continue;
-  }
-  if(equal(s,"RECURSE")) {if(current<0)return fail("RECURSE outside definition");if(!compile_word(current))return 0;continue;}
-  if(equal(s,"EXIT")&&current>=0){if(!op(F_EXIT))return 0;continue;}
-  if(equal(s,"'")||equal(s,"[']")||equal(s,"IS")) {
-   if(!need_token(&p,name))return 0;
-   if(current>=0&&!source_add(name))return 0;
-   int n=find(name);if(n<0)return unknown(name);
-   if(equal(s,"IS")) {
-    if(words[n].kind!=WK_DEFER)return fail("IS requires deferred word");
-    if(current>=0){if(!literal(words[n].aux)||!op(F_STORE))return 0;}
-    else {fcell xt=fvm_pop();if(fvm_error)return fail(vm_message());if(!xt||xt>count)return fail("invalid execution token");fvm_write_cell(words[n].aux,xt);}
-   }else {
-    if(equal(s,"'")&&current>=0)return fail("use ['] in definitions");
-    if(current>=0){if(!literal((fcell)(n+1)))return 0;}else if(!fvm_push((fcell)(n+1)))return fail(vm_message());
+  if(k==KW_ABORT){if(eval_depth)return fail("ABORT inside EVALUATE");rollback();fvm_reset();return 1;}
+  if(k==KW_SYNC||k==KW_COLON){if(!keyword_run((unsigned)k))return 0;continue;}
+  if(recording()){
+   if(map_used<SOURCE_MAP_MAX){
+    source_map[map_used].token=(unsigned short)(token_used-mark_token);
+    source_map[map_used].direct=(unsigned short)(direct_used-mark_direct);source_map[map_used].source=(unsigned short)(source_used-words[current].source);++map_used;
    }
+   if(!source_add(s))return 0;
+  }
+  if(k>=0){if(!keyword_run((unsigned)k))return 0;continue;}
+  int n=find_hashed(s,h);
+  if(n>=0){
+   if(compiling()&&!(words[n].kind&KIND_IMMEDIATE)){if(!compile_word(n))return 0;}
+   else if(!run_word((unsigned)n))return 0;
    continue;
   }
-#ifdef __ez80__
-  if(equal(s,"BENCH")) {
-   extern void forth_benchmark(void);
-   if(current>=0)return fail("interactive tool inside definition");
-   forth_benchmark();continue;
-  }
-#endif
-  if(equal(s,"TRACE")) {
-   if(current>=0)return fail("interactive tool inside definition");
-   char count_text[NAME_MAX+1];fcell limit;
-   if(!need_token(&p,name)||!need_token(&p,count_text))return 0;
-   int n=find(name);if(n<0)return unknown(name);
-   if(parse_number(count_text,&limit)<=0||!limit||limit>100000)return fail("TRACE name n needs 1..100000 steps");
-   if(!trace_word((unsigned)n,limit))return 0;continue;
-  }
-  if(equal(s,"TASKS")||equal(s,"TASK-OUT")||equal(s,"LAST-ERROR")||equal(s,"TASK-SLICE")) {
-   if(current>=0)return fail("interactive tool inside definition");
-   if(equal(s,"TASKS")){print("task-slice ");decimal_number(task_slice);print("\r\n");task_report();continue;}
-   if(equal(s,"TASK-SLICE")){fcell n;if(!need_token(&p,name))return 0;if(parse_number(name,&n)<=0||n<64||n>65535)return fail("TASK-SLICE needs 64..65535");task_slice=n;continue;}
-   if(equal(s,"LAST-ERROR")){crash_report();continue;}
-   if(!need_token(&p,name))return 0;fcell id;if(parse_number(name,&id)<=0)return fail("task id required");
-   if(!task_output(id))return 0;continue;
-  }
-  if(equal(s,"WORDS")||equal(s,".S")||equal(s,"SEE")||equal(s,"RESOURCES")||equal(s,"ENGINE")) {
-   if(current>=0)return fail("interactive tool inside definition");
-   if(equal(s,"WORDS")){for(unsigned i=0;i<count;++i){print(" ");print(words[i].name);}print(" \r\n");}
-   else if(equal(s,".S"))show_stack();
-   else if(equal(s,"SEE")){if(!need_token(&p,name))return 0;int n=find(name);if(n<0)return unknown(name);show_word(n);}
-   else if(equal(s,"RESOURCES"))forth_report();
-   else {
-    if(!need_token(&p,name))return 0;
-    if(tasks_live())return fail("ENGINE refused while background tasks are live");
-    if(equal(name,"C"))selected=FORTH_REFERENCE;
-#ifdef __ez80__
-    else if(equal(name,"TOKEN"))selected=FORTH_TOKEN;
-    else if(equal(name,"DIRECT"))selected=FORTH_DIRECT;
-#endif
-    else return fail("engine unavailable");
-   }
-   continue;
-  }
-  int n=find(s);
-  if(n>=0){if(current>=0){if(!compile_word(n))return 0;}else if(!execute_index((unsigned)n))return 0;continue;}
   fcell value;int numeric=parse_number(s,&value);
   if(numeric<0)return fail("number outside 24-bit range");
   if(!numeric)return unknown(s);
-  if(current>=0){if(!literal(value))return 0;}else if(!fvm_push(value))return fail(vm_message());
+  if(compiling()){if(!literal(value))return 0;}else if(!fvm_push(value))return fail(vm_message());
  }
  return got<0?0:1;
 }
+int forth_eval(const char *source) {
+ const char **saved=input;int ok=eval_tokens(source);input=saved;return ok;
+}
+/* Extensible-compiler natives (docs/superpowers/specs/2026-10-21-vios-
+ * extensible-compiler.md). FORTH_NATIVE_DICT ones change the dictionary:
+ * foreground and module transactions only (dispatch refuses them in tasks,
+ * observers and module tests). */
+static int pop_xt(fcell *xt){*xt=fvm_pop();if(fvm_error)return fail(vm_message());if(!*xt||*xt>count)return fail("invalid execution token");return 1;}
+static int native_keyword(void){   /* (KEYWORD) ( id -- ): a postponed keyword */
+ fcell id=fvm_pop();if(fvm_error)return fail(vm_message());
+ if(id>=KW_COUNT||!(keywords[id].flags&KF_POSTPONE))return fail("invalid postponed keyword");
+ return keyword_run((unsigned)id);
+}
+static int native_compile_comma(void){   /* COMPILE, ( xt -- ) */
+ fcell xt;if(!pop_xt(&xt))return 0;
+ if(current<0)return fail("COMPILE, needs an open definition");
+ return compile_word((int)(xt-1));
+}
+static int native_find(void){   /* FIND ( c-addr -- c-addr 0 | xt 1 | xt -1 ) */
+ if(!fvm_depth){fvm_error=FE_DS_UNDER;return fail(vm_message());}
+ fcell a=fvm_ds[fvm_depth-1];unsigned n=fvm_read8(a);char key[NAME_MAX+1];
+ if(fvm_error)return fail(vm_message());
+ if(!n||n>NAME_MAX)return fvm_push(0)?1:fail(vm_message());
+ for(unsigned i=0;i<n;++i)key[i]=upper((char)fvm_read8((a+1+i)&FVM_MASK));key[n]=0;
+ if(fvm_error)return fail(vm_message());
+ int w=find(key);if(w<0)return fvm_push(0)?1:fail(vm_message());
+ fvm_ds[fvm_depth-1]=(fcell)(w+1);
+ return fvm_push(words[w].kind&KIND_IMMEDIATE?1:FVM_MASK)?1:fail(vm_message());
+}
+/* Data space: CREATE , C, ALLOT HERE and VARIABLE CONSTANT DEFER are words,
+ * so defining words can use them at run time. The checkpoint counters and
+ * the overlay account for the growth inside module transactions. */
+static int native_create(void){char name[NAME_MAX+1];return parse_name(name)&&create_word(name);}
+static int native_variable(void){char name[NAME_MAX+1];return parse_name(name)&&defining(WK_VARIABLE,name);}
+static int native_constant(void){char name[NAME_MAX+1];return parse_name(name)&&defining(WK_CONSTANT,name);}
+static int native_defer(void){char name[NAME_MAX+1];return parse_name(name)&&defining(WK_DEFER,name);}
+static int native_here(void){return fvm_push(address(data_space+data_used))?1:fail(vm_message());}
+static int data_grow(unsigned what){   /* 0 ALLOT, 1 ",", 2 "C," */
+ fcell n=fvm_pop();if(fvm_error)return fail(vm_message());
+ size_t need=what==0?(size_t)n:what==1?3u:1u;
+ if(what==0&&(n&0x800000UL))return fail("negative ALLOT");
+ if(need>DATA_BYTES-data_used){if(created_unfilled>=0)unpublish_created();return fail("data space full");}
+ created_unfilled=-1;
+ fcell a=address(data_space+data_used);
+ if(what==1)fvm_write_cell(a,n);else if(what==2)fvm_write8(a,(unsigned char)n);else for(size_t i=0;i<need;++i)fvm_write8(a+(fcell)i,0);
+ if(fvm_error)return fail(vm_message());
+ data_used+=need;return 1;
+}
+static int native_allot(void){return data_grow(0);}
+static int native_comma(void){return data_grow(1);}
+static int native_ccomma(void){return data_grow(2);}
+/* (DOES>) ( t d -- ): give the unit's latest CREATE word the does-part at
+ * token address t / direct code field d. Its code is still the last in both
+ * streams, LIT body EXIT: rewind to after LIT body, append the call, EXIT. */
+static int native_does(void){
+ fcell d=fvm_pop(),t=fvm_pop();if(fvm_error)return fail(vm_message());
+ if(latest<0||KIND(latest)!=WK_VARIABLE)return fail("DOES> needs a CREATE word from this unit");
+ struct word *w=&words[latest];
+ if(w->token+w->token_length!=address(token_code+token_used)||w->direct+w->direct_length!=address(direct_code+direct_used))return fail("DOES> needs the latest CREATE");
+ size_t to=(size_t)(w->token-address(token_code))+4,dof=(size_t)(w->direct-address(direct_code))+4+6;
+ if(to+5>TOKEN_BYTES||dof+6>DIRECT_BYTES)return fail("code dictionary full");
+ token_used=to;direct_used=dof;
+ token_code[token_used++]=F_CALL;put_cell(token_code+token_used,t);token_used+=3;token_code[token_used++]=F_EXIT;
+ put_cell(direct_code+direct_used,d);direct_used+=3;put_cell(direct_code+direct_used,primitive(F_EXIT));direct_used+=3;
+ w->kind=(unsigned char)((w->kind&KIND_IMMEDIATE)|WK_DOES);
+ w->token_length=(unsigned short)(token_used-to+4);w->direct_length=(unsigned short)(direct_used-dof+10);
+ if(!transaction_active)catalog_changed();return 1;
+}
+static int native_to_body(void){   /* >BODY ( xt -- a-addr ) */
+ fcell xt;if(!pop_xt(&xt))return 0;unsigned k=KIND(xt-1);
+ if(k!=WK_VARIABLE&&k!=WK_DOES)return fail(">BODY needs a CREATE word");
+ return fvm_push(words[xt-1].aux)?1:fail(vm_message());
+}
+/* EVALUATE: nested interpretation from inside a running word. The nested
+ * word runs on the same VM context above a sentinel return address, the code
+ * of (EVAL-RETURN), whose trap ends the nested dispatch; depths and budget
+ * carry on. This is the one place Forth consumes recursive C frames, so the
+ * nesting is bounded. */
+#define EVAL_DEPTH_MAX 4
+#define EVAL_POOL 512
+static char eval_pool[EVAL_POOL];static size_t eval_pool_used;
+static unsigned eval_return_native;
+static int execute_nested(unsigned n){
+ if(fvm_rdepth>=FVM_RS)return fail("return stack overflow");
+ fcell ip=fvm_ip,rdepth=fvm_rdepth,ldepth=fvm_ldepth;
+ fvm_rs[fvm_rdepth++]=entry_ip(eval_return_native);if(fvm_rdepth>fvm_rs_peak)fvm_rs_peak=fvm_rdepth;
+ fvm_ip=entry_ip(n);++executing;int result=dispatch();--executing;
+ if(result!=1)return result?fail("EVALUATE cannot yield"):0;
+ if(fvm_rdepth!=rdepth||fvm_ldepth!=ldepth)return fail("EVALUATE left the return or loop stack unbalanced");
+ fvm_ip=ip;return 1;
+}
+static int run_word(unsigned n){return eval_depth?execute_nested(n):execute_index(n);}
+static int native_eval_return(void){if(!eval_depth)return fail("(EVAL-RETURN) outside EVALUATE");eval_returned=1;return 1;}
+static int native_evaluate(void){   /* EVALUATE ( c-addr u -- ) */
+ fcell u=fvm_pop(),a=fvm_pop();if(fvm_error)return fail(vm_message());
+ if(eval_depth==EVAL_DEPTH_MAX)return fail("EVALUATE nested too deep");
+ if(u>=EVAL_POOL-eval_pool_used)return fail("EVALUATE text too long");
+ char *text=eval_pool+eval_pool_used;
+ for(fcell i=0;i<u;++i){text[i]=(char)fvm_read8((a+i)&FVM_MASK);if(fvm_error)return fail(vm_message());}
+ text[u]=0;eval_pool_used+=u+1;++eval_depth;
+ int ok=forth_eval(text);
+ --eval_depth;eval_pool_used-=u+1;return ok;
+}
+/* MARKER name: a word that, run from the interpreter, removes itself and
+ * everything defined after it. aux holds data_used; the other marks are its
+ * own header's. Refused where it would orphan module records, live tasks,
+ * deferred bindings or a module's rollback checkpoint. */
+static unsigned marker_native;
+static int native_marker(void){
+ char name[NAME_MAX+1];fcell here=address(data_space+data_used);
+ if(!parse_name(name)||!begin_word(name,WK_MARKER))return 0;
+ words[count].aux=here;
+ if(!literal((fcell)(count+1))||!compile_word((int)marker_native)||!op(F_EXIT))return 0;
+ return publish();
+}
+static int native_marker_run(void){
+ fcell xt;if(!pop_xt(&xt))return 0;unsigned m=(unsigned)(xt-1);
+ if(KIND(m)!=WK_MARKER)return fail("not a marker");
+ if(current>=0)return fail("marker inside definition");
+ if(eval_depth||fvm_rdepth!=1)return fail("run a marker from the interpreter");
+ if(tasks_live())return fail("marker refused while background tasks are live");
+ if(transaction_active&&m<transaction_before.count)return fail("marker predates this module");
+ if(!transaction_active&&have_activation&&m<activation_count)return fail("marker would remove a module's rollback point");
+ unsigned owner=transaction_active?origin_id:0;
+ for(unsigned i=m;i<count;++i)if(words[i].origin!=owner)return fail("marker would remove module words");
+ for(unsigned i=0;i<m;++i)if(KIND(i)==WK_DEFER){fcell b=fvm_read_cell(words[i].aux);if(b>m)return fail("marker would leave a deferred word bound to a removed word");}
+ struct word *w=&words[m];
+ data_used=(size_t)(w->aux-address(data_space));token_used=(size_t)(w->token-address(token_code));
+ direct_used=(size_t)(w->direct-address(direct_code));source_used=w->source;names_used=w->name;
+ map_used=w->map;
+ for(unsigned i=0;i<HASH_BUCKETS;++i)while(buckets[i]>m)buckets[i]=words[buckets[i]-1].link;
+ count=m;latest=-1;created_unfilled=-1;
+ if(!transaction_active)catalog_changed();return 1;
+}
+/* The resident's own natives, in registration order (one table instead of
+ * ~40 calls: about 1 KB less eZ80 code). */
+#define P FORTH_NATIVE_PURE
+#define T FORTH_NATIVE_TASK
+#define D FORTH_NATIVE_DICT
+static const struct {char name[14];int (*callback)(void);unsigned char flags;} core_natives[]={
+ {"J",native_j,P},
+ {"UNLOOP",native_unloop,P},
+ {"(+LOOP)",native_plus_loop,P},
+ {"FILL",native_fill,P},
+ {"MOVE",native_move,P},
+ {"U.",native_udot,T},
+ {"TYPE",native_type,T},
+ {"SPAWN",native_spawn,T},
+ {"SPAWN-CON",native_spawn_console,T},
+ {"PAUSE",native_pause,T},
+ {"MS",native_ms,T},
+ {"TASK-KILL",native_kill,T},
+ {"TASK-STATE",native_state,T},
+ {"PREEMPT",native_preempt,T},
+ {"PREEMPT-STATS",native_preempt_stats,T},
+ {"FRAME-WAIT",native_frame_wait,T},
+ {"CRITICAL(",native_critical_begin,T},
+ {")CRITICAL",native_critical_end,T},
+ {"TASK-INPUT",native_task_input,T},
+ {"TASK-OUTPUT",native_task_output,T},
+ {"(KEYWORD)",native_keyword,D},
+ {"COMPILE,",native_compile_comma,D},
+ {"FIND",native_find,P},
+ {"CREATE",native_create,D},
+ {"VARIABLE",native_variable,D},
+ {"CONSTANT",native_constant,D},
+ {"DEFER",native_defer,D},
+ {"ALLOT",native_allot,D},
+ {",",native_comma,D},
+ {"C,",native_ccomma,D},
+ {"HERE",native_here,P},
+ {"(DOES>)",native_does,D},
+ {">BODY",native_to_body,P},
+ {"EVALUATE",native_evaluate,D},
+ {"(EVAL-RETURN)",native_eval_return,D},
+ {"MARKER",native_marker,D},
+ {"(MARKER)",native_marker_run,D}
+};
+#undef P
+#undef T
+#undef D
 void forth_init(void) {
  static const struct {const char *name;unsigned char op;} primitives[]={
  {"DUP",F_DUP},{"DROP",F_DROP},{"SWAP",F_SWAP},{"OVER",F_OVER},{"+",F_ADD},{"-",F_SUB},{"*",F_MUL},{"/",F_DIV},{"MOD",F_MOD},
  {"AND",F_AND},{"OR",F_OR},{"XOR",F_XOR},{"INVERT",F_INVERT},{"=",F_EQ},{"<",F_LT},{"U<",F_ULT},{"0=",F_ZEROEQ},
  {"@",F_FETCH},{"!",F_STORE},{"C@",F_CFETCH},{"C!",F_CSTORE},{"EMIT",F_EMIT},{".",F_DOT},{"CR",F_CR},{"KEY",F_KEY},
  {">R",F_TOR},{"R>",F_RFROM},{"R@",F_RFETCH},{"I",F_I},{"EXECUTE",F_EXECUTE},{"LSHIFT",F_LSHIFT},{"RSHIFT",F_RSHIFT},{"DEPTH",F_DEPTH}};
- token_used=direct_used=data_used=source_used=control_used=0;count=0;current=-1;map_used=mark_map=0;
+ token_used=direct_used=data_used=source_used=control_used=names_used=0;count=0;current=-1;map_used=mark_map=0;
+ state=testing=0;state_address=0;latest=-1;input=NULL;eval_depth=open_depth=0;eval_pool_used=0;eval_returned=0;keywords_index();
  native_count=origin_id=0;outer_hook=NULL;idle_hook=NULL;transaction_active=have_activation=0;
  observer_active=0;catalog_changed();
  forth_modules_reset();transport_crc=0;
@@ -1027,22 +1327,16 @@ void forth_init(void) {
   begin_word(primitives[i].name,WK_PRIMITIVE);words[count].opcode=primitives[i].op;
   op(primitives[i].op);op(F_EXIT);publish();
  }
- defining("VARIABLE","BASE");base_address=words[count-1].aux;fvm_write_cell(base_address,10);
+ defining(WK_VARIABLE,"BASE");base_address=words[count-1].aux;fvm_write_cell(base_address,10);
+ defining(WK_VARIABLE,"STATE");state_address=words[count-1].aux;
  for(unsigned i=0;i<FORTH_TASKS_MAX;++i){tasks[i].state=TS_FREE;tasks[i].console=tasks[i].in_handle=tasks[i].out_handle=tasks[i].finishing=0;tasks[i].xt=0;tasks[i].slices=tasks[i].steps=0;tasks[i].out_count=0;tasks[i].out_dropped=0;tasks[i].error[0]=0;tasks[i].depth=tasks[i].rdepth=0;tasks[i].ds_peak=tasks[i].rs_peak=0;}
  running=-1;scheduling=yield_request=0;next_task=0;
- forth_register_native("J",native_j,FORTH_NATIVE_PURE);forth_register_native("UNLOOP",native_unloop,FORTH_NATIVE_PURE);
- forth_register_native("(+LOOP)",native_plus_loop,FORTH_NATIVE_PURE);
- forth_register_native("FILL",native_fill,FORTH_NATIVE_PURE);forth_register_native("MOVE",native_move,FORTH_NATIVE_PURE);
- forth_register_native("U.",native_udot,FORTH_NATIVE_TASK);forth_register_native("TYPE",native_type,FORTH_NATIVE_TASK);
- forth_register_native("SPAWN",native_spawn,FORTH_NATIVE_TASK);forth_register_native("SPAWN-CON",native_spawn_console,FORTH_NATIVE_TASK);forth_register_native("PAUSE",native_pause,FORTH_NATIVE_TASK);
- forth_register_native("MS",native_ms,FORTH_NATIVE_TASK);forth_register_native("TASK-KILL",native_kill,FORTH_NATIVE_TASK);
- forth_register_native("TASK-STATE",native_state,FORTH_NATIVE_TASK);
  critical=0;preemptions=ticks_ignored=0;preempt_clear();
- forth_register_native("PREEMPT",native_preempt,FORTH_NATIVE_TASK);forth_register_native("PREEMPT-STATS",native_preempt_stats,FORTH_NATIVE_TASK);
- forth_register_native("FRAME-WAIT",native_frame_wait,FORTH_NATIVE_TASK);
- forth_register_native("CRITICAL(",native_critical_begin,FORTH_NATIVE_TASK);forth_register_native(")CRITICAL",native_critical_end,FORTH_NATIVE_TASK);
- forth_register_native("TASK-INPUT",native_task_input,FORTH_NATIVE_TASK);forth_register_native("TASK-OUTPUT",native_task_output,FORTH_NATIVE_TASK);
+ for(unsigned i=0;i<sizeof core_natives/sizeof core_natives[0];++i)forth_register_native(core_natives[i].name,core_natives[i].callback,core_natives[i].flags);
+ keyword_native=(unsigned)find("(KEYWORD)");compile_native=(unsigned)find("COMPILE,");does_native=(unsigned)find("(DOES>)");
+ eval_return_native=(unsigned)find("(EVAL-RETURN)");marker_native=(unsigned)find("(MARKER)");
  forth_eval(": 1+ 1 + ; : 1- 1 - ; : NEGATE 0 SWAP - ; : 2DUP OVER OVER ; : 2DROP DROP DROP ; : CELLS 3 * ; : CELL+ 3 + ; : TRUE -1 ; : FALSE 0 ; : HEX 16 BASE ! ; : DECIMAL 10 BASE ! ;");
+ latest=-1;
 }
 void forth_set_engine(enum forth_engine engine) {selected=engine;}
 void forth_transport_crc(int required) {transport_crc=(unsigned char)(required!=0);}
@@ -1066,24 +1360,24 @@ unsigned forth_word_count(void) {return count;}
 int forth_inspect_word(unsigned index,struct forth_word_info *out) {
  if(!out||index>=count)return 0;
  const struct word *w=&words[index];
- out->name=w->name;out->source=source_space+w->source;
- out->source_length=w->length;out->kind=w->kind;out->origin=w->origin;
+ out->name=names+w->name;out->source=source_space+w->source;
+ out->source_length=w->length;out->kind=w->kind&0x7fu;out->immediate=(w->kind&KIND_IMMEDIATE)!=0;out->origin=w->origin;
  out->xt=(fcell)(index+1);out->token_address=w->token;out->direct_address=w->direct;
  out->token_bytes=w->token_length;out->direct_bytes=w->direct_length;
  out->module=out->module_version=out->target_name=NULL;out->module_crc32=0;
  out->value=out->target_xt=0;out->value_valid=0;
  if(w->origin)forth_module_origin(w->origin,&out->module,&out->module_version,&out->module_crc32);
- if(w->kind==WK_CONSTANT){out->value=w->aux;out->value_valid=1;}
- else if(w->kind==WK_VARIABLE||w->kind==WK_DEFER) {
+ if(out->kind==WK_CONSTANT){out->value=w->aux;out->value_valid=1;}
+ else if(out->kind==WK_VARIABLE||out->kind==WK_DOES||out->kind==WK_DEFER) {
   fcell saved_error=fvm_error,base=address(data_space);
   /* Only compiler-owned, fully allocated managed cells may be read. */
   if(w->aux>=base&&data_used>=3&&(size_t)(w->aux-base)<=data_used-3) {
    fvm_error=0;out->value=fvm_read_cell(w->aux);out->value_valid=!fvm_error;
   }
   fvm_error=saved_error;
-  if(w->kind==WK_DEFER&&out->value_valid) {
+  if(out->kind==WK_DEFER&&out->value_valid) {
    out->target_xt=out->value;
-   if(out->target_xt&&out->target_xt<=count)out->target_name=words[out->target_xt-1].name;
+   if(out->target_xt&&out->target_xt<=count)out->target_name=NAME(out->target_xt-1);
   }
  }
  return 1;
@@ -1128,7 +1422,7 @@ int forth_observe(const char *name,fcell budget,char *error,size_t capacity) {
 }
 
 static void checkpoint_take(struct checkpoint *s) {
- s->token=token_used;s->direct=direct_used;s->data=data_used;s->source=source_used;s->count=count;s->map=map_used;
+ s->token=token_used;s->direct=direct_used;s->data=data_used;s->source=source_used;s->names=names_used;s->count=count;s->map=map_used;
  for(unsigned i=0;i<HASH_BUCKETS;++i)s->buckets[i]=buckets[i];
  for(unsigned i=0;i<DATA_BYTES;++i)s->data_bytes[i]=data_space[i];
  s->depth=fvm_depth;s->ip=fvm_ip;s->error=fvm_error;s->budget=fvm_budget;
@@ -1138,18 +1432,18 @@ static void checkpoint_take(struct checkpoint *s) {
 }
 static void checkpoint_restore(const struct checkpoint *s,int dictionary,int data) {
  if(dictionary) {
-  token_used=s->token;direct_used=s->direct;data_used=s->data;source_used=s->source;count=s->count;map_used=s->map;
+  token_used=s->token;direct_used=s->direct;data_used=s->data;source_used=s->source;names_used=s->names;count=s->count;map_used=s->map;
   for(unsigned i=0;i<HASH_BUCKETS;++i)buckets[i]=s->buckets[i];
  }
  if(data)for(unsigned i=0;i<DATA_BYTES;++i)data_space[i]=s->data_bytes[i];
- current=-1;control_used=0;leave_used=0;fvm_rdepth=fvm_ldepth=0;
+ current=-1;control_used=0;leave_used=0;state=0;latest=-1;fvm_rdepth=fvm_ldepth=0;
  fvm_depth=s->depth;fvm_ip=s->ip;fvm_error=s->error;fvm_budget=s->budget;
  fvm_ds_peak=s->ds_peak;fvm_rs_peak=s->rs_peak;selected=s->engine;
  for(unsigned i=0;i<FVM_DS;++i)fvm_ds[i]=s->stack[i];
 }
 static int transaction_bindings_valid(void) {
  fcell base=address(data_space);
- for(unsigned i=0;i<count;++i)if(words[i].kind==WK_DEFER) {
+ for(unsigned i=0;i<count;++i)if(KIND(i)==WK_DEFER) {
   fcell a=words[i].aux,n=fvm_read_cell(a);
   if(fvm_error||n>count)return fail("invalid deferred service binding");
   if(!n&&i<transaction_before.count) {
@@ -1166,7 +1460,7 @@ int forth_transaction_eval(const char *source,const char *test_word,unsigned ori
  if(!source)return forth_transaction_error("missing module source");
  checkpoint_take(&transaction_before);
  if(!fvm_overlay_begin(address(data_space),DATA_BYTES,data_space))return fail("module overlay unavailable");
- transaction_active=1;transaction_budget=1000000UL;origin_id=origin;selected=FORTH_REFERENCE;
+ transaction_active=1;transaction_budget=1000000UL;origin_id=origin;selected=FORTH_REFERENCE;latest=-1;
  fvm_reset();
  /* Source packages start in decimal; the caller's interactive BASE persists. */
  fvm_write_cell(base_address,10);
@@ -1175,7 +1469,8 @@ int forth_transaction_eval(const char *source,const char *test_word,unsigned ori
  if(fvm_depth){fail("module initialization leaves stack values");goto done;}
  fvm_overlay_copy(test_data);
  if(test_word&&*test_word) {
-  if(!forth_execute(test_word))goto done;
+  testing=1;int tested=forth_execute(test_word);testing=0;   /* tests may not change the dictionary */
+  if(!tested)goto done;
   if(fvm_depth!=1||!fvm_ds[0]){fail("module test must return one true flag");goto done;}
  }
  /* Test writes are discarded; only initializer effects become live. */
@@ -1184,11 +1479,11 @@ int forth_transaction_eval(const char *source,const char *test_word,unsigned ori
  transaction_words=count-transaction_before.count;transaction_token=token_used-transaction_before.token;
  transaction_direct=direct_used-transaction_before.direct;transaction_data=data_used-transaction_before.data;ok=1;
 done:
- copy(saved_error,error_text);transaction_active=0;origin_id=0;
+ copy(saved_error,error_text);transaction_active=0;origin_id=0;testing=0;latest=-1;
  if(ok&&commit) {
   activation_before=transaction_before;have_activation=1;
   activation_count=count;activation_token=token_used;activation_direct=direct_used;
-  activation_data=data_used;activation_source=source_used;
+  activation_data=data_used;activation_source=source_used;activation_names=names_used;
   fvm_overlay_commit();checkpoint_restore(&transaction_before,0,0);
   catalog_changed();
  }else {fvm_overlay_discard();checkpoint_restore(&transaction_before,1,0);}
@@ -1197,21 +1492,21 @@ done:
 void forth_transaction_forget_rollback(void){have_activation=0;}
 void forth_snapshot_base(struct forth_snapshot_base *b){
  b->token=(uint32_t)token_used;b->direct=(uint32_t)direct_used;b->data=(uint32_t)data_used;
- b->source=(uint32_t)source_used;b->count=count;b->map=map_used;
+ b->source=(uint32_t)source_used;b->count=count;b->map=map_used;b->names=(uint32_t)names_used;
 }
-/* Layout: the final counters and sizeof(struct word) (7 x u32), then the
+/* Layout: the final counters and sizeof(struct word) (8 x u32), then the
  * regions in this order. Regions past the base go first, so a failed read
  * of them leaves the base state's live bytes untouched until the last two. */
 #define SNAPSHOT_REGIONS(b,f) \
  {words+(b)->count,((f)->count-(b)->count)*sizeof(struct word)}, \
  {token_code+(b)->token,(f)->token-(b)->token},{direct_code+(b)->direct,(f)->direct-(b)->direct}, \
- {source_space+(b)->source,(f)->source-(b)->source},{source_map+(b)->map,((f)->map-(b)->map)*sizeof source_map[0]}, \
+ {source_space+(b)->source,(f)->source-(b)->source},{names+(b)->names,(f)->names-(b)->names},{source_map+(b)->map,((f)->map-(b)->map)*sizeof source_map[0]}, \
  {buckets,sizeof buckets},{data_space,(f)->data}
 struct snapshot_region {void *at;size_t size;};
 int forth_snapshot_write(const struct forth_snapshot_base *b,forth_snapshot_io put,void *ctx){
  struct forth_snapshot_base f;forth_snapshot_base(&f);
- if(transaction_active||current>=0||f.count<b->count||f.token<b->token||f.direct<b->direct||f.source<b->source||f.map<b->map)return 0;
- uint32_t header[7]={f.token,f.direct,f.data,f.source,f.count,f.map,(uint32_t)sizeof(struct word)};
+ if(transaction_active||current>=0||f.count<b->count||f.token<b->token||f.direct<b->direct||f.source<b->source||f.map<b->map||f.names<b->names)return 0;
+ uint32_t header[8]={f.token,f.direct,f.data,f.source,f.count,f.map,(uint32_t)sizeof(struct word),f.names};
  if(!put(header,sizeof header,ctx))return 0;
  struct snapshot_region regions[]={SNAPSHOT_REGIONS(b,&f)};
  for(unsigned i=0;i<sizeof regions/sizeof regions[0];++i)if(regions[i].size&&!put(regions[i].at,regions[i].size,ctx))return 0;
@@ -1219,22 +1514,22 @@ int forth_snapshot_write(const struct forth_snapshot_base *b,forth_snapshot_io p
 }
 int forth_snapshot_read(const struct forth_snapshot_base *b,forth_snapshot_io get,void *ctx){
  struct forth_snapshot_base now;forth_snapshot_base(&now);
- if(transaction_active||current>=0||now.token!=b->token||now.direct!=b->direct||now.data!=b->data||now.source!=b->source||now.count!=b->count||now.map!=b->map)return 0;
- uint32_t h[7];if(!get(h,sizeof h,ctx))return 0;
- struct forth_snapshot_base f={h[0],h[1],h[2],h[3],h[4],h[5]};
+ if(transaction_active||current>=0||now.token!=b->token||now.direct!=b->direct||now.data!=b->data||now.source!=b->source||now.count!=b->count||now.map!=b->map||now.names!=b->names)return 0;
+ uint32_t h[8];if(!get(h,sizeof h,ctx))return 0;
+ struct forth_snapshot_base f={h[0],h[1],h[2],h[3],h[4],h[5],h[7]};
  if(h[6]!=sizeof(struct word)||f.count<b->count||f.count>WORDS_MAX||f.token<b->token||f.token>TOKEN_BYTES||f.direct<b->direct||f.direct>DIRECT_BYTES
-    ||f.data>DATA_BYTES||f.source<b->source||f.source>SOURCE_BYTES||f.map<b->map||f.map>SOURCE_MAP_MAX)return 0;
+    ||f.data>DATA_BYTES||f.source<b->source||f.source>SOURCE_BYTES||f.map<b->map||f.map>SOURCE_MAP_MAX||f.names<b->names||f.names>NAME_BYTES)return 0;
  struct snapshot_region regions[]={SNAPSHOT_REGIONS(b,&f)};
  for(unsigned i=0;i<sizeof regions/sizeof regions[0];++i)if(regions[i].size&&!get(regions[i].at,regions[i].size,ctx))return 0;
- token_used=f.token;direct_used=f.direct;data_used=f.data;source_used=f.source;count=f.count;map_used=f.map;
- have_activation=0;current=-1;control_used=0;leave_used=0;catalog_changed();return 1;
+ token_used=f.token;direct_used=f.direct;data_used=f.data;source_used=f.source;names_used=f.names;count=f.count;map_used=f.map;
+ have_activation=0;current=-1;control_used=0;leave_used=0;state=0;latest=-1;catalog_changed();return 1;
 }
 void forth_transaction_sizes(unsigned *w,size_t *t,size_t *d,size_t *a){*w=transaction_words;*t=transaction_token;*d=transaction_direct;*a=transaction_data;}
 int forth_transaction_rollback(void) {
  if(!have_activation)return forth_transaction_error("no activation checkpoint");
  if(tasks_live())return forth_transaction_error("rollback refused while background tasks are live");
  if(transaction_active||current>=0||fvm_rdepth||fvm_ldepth)return forth_transaction_error("rollback requires idle VM");
- if(count!=activation_count||token_used!=activation_token||direct_used!=activation_direct||data_used!=activation_data||source_used!=activation_source)return forth_transaction_error("rollback blocked by later dictionary definitions");
+ if(count!=activation_count||token_used!=activation_token||direct_used!=activation_direct||data_used!=activation_data||source_used!=activation_source||names_used!=activation_names)return forth_transaction_error("rollback blocked by later dictionary definitions");
  checkpoint_restore(&activation_before,1,1);have_activation=0;catalog_changed();return 1;
 }
 void forth_repl(void) {

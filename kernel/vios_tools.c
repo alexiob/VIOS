@@ -218,13 +218,13 @@ static void browser_module_panes(int load) {
     rows_flush();
 }
 static void browser_module(void) { browser_module_panes(1); }
-static const char *const KINDS[] = {"primitive", "colon", "constant", "variable", "defer", "native"};
+static const char *const KINDS[] = {"primitive", "colon", "constant", "variable", "defer", "native", "does", "marker"};
 static void browser_word(void) {
     struct forth_word_info w;
     int i = word_at(word_row);
     if (i < 0 || !forth_inspect_word((unsigned)i, &w)) return;
     rows_begin(B_INFO);
-    put_s(w.kind < 6 ? KINDS[w.kind] : "?"); put_s(" xt "); put_u(w.xt); put_row();
+    put_s(w.kind < 8 ? KINDS[w.kind] : "?"); put_s(" xt "); put_u(w.xt); put_row();
     put_s("token "); put_u(w.token_bytes); put_s(" direct "); put_u(w.direct_bytes); put_row();
     if (w.module) { put_s("module "); put_s(w.module); put_row(); }
     if (w.value_valid) { put_s("value "); put_u(w.value); put_row(); }

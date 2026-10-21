@@ -69,7 +69,7 @@ class CPU:
    self.set(args[0],res); self.flags(res,24,res<0,bool(((left^right)&(left^res))&0x800000))
   elif op in ['or','and','xor','cp']:
    left=self.g(args[0]);x=args[1];right=self.rd(self.addr(x),1) if x.startswith('(') else self.g(x)
-   if op=='cp':self.flags(left-right,8,left<right)
+   if op=='cp':res=left-right;self.flags(res,8,left<right,bool(((left^right)&(left^res))&0x80))   # P/V is overflow for cp, as on the eZ80
    else:
     res={'or':lambda:left|right,'and':lambda:left&right,'xor':lambda:left^right}[op]();self.set('a',res);self.flags(res)
   elif op=='cpl':self.set('a',~self.g('a'))

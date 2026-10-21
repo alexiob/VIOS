@@ -5,6 +5,9 @@ enum forth_engine { FORTH_REFERENCE,FORTH_TOKEN,FORTH_DIRECT };
 #define FORTH_NATIVE_PURE 1u
 /* TASK callbacks may run inside a background task slice (no VM re-entry). */
 #define FORTH_NATIVE_TASK 2u
+/* DICT callbacks change the dictionary (CREATE, COMPILE, ...): foreground and
+ * module transactions only; refused in tasks, observers and module tests. */
+#define FORTH_NATIVE_DICT 4u
 #define FORTH_TASKS_MAX 4
 #define FORTH_TASK_DS 64
 #define FORTH_TASK_RS 64
@@ -90,7 +93,7 @@ void forth_transaction_sizes(unsigned *words,size_t *token,size_t *direct,size_t
  * data space up to its use. Only valid for the same resident build and base.
  * io moves exactly size bytes or returns 0. A failed read may leave the
  * dictionary inconsistent: the caller must reinitialise the runtime. */
-struct forth_snapshot_base {uint32_t token,direct,data,source,count,map;};
+struct forth_snapshot_base {uint32_t token,direct,data,source,count,map,names;};
 typedef int (*forth_snapshot_io)(void *data,size_t size,void *ctx);
 void forth_snapshot_base(struct forth_snapshot_base *base);
 int forth_snapshot_write(const struct forth_snapshot_base *base,forth_snapshot_io put,void *ctx);

@@ -3,14 +3,15 @@
 #include "forth/system.h"
 enum forth_word_kind {
  FORTH_WORD_PRIMITIVE=0, FORTH_WORD_COLON=1, FORTH_WORD_CONSTANT=2,
- FORTH_WORD_VARIABLE=3, FORTH_WORD_DEFER=4, FORTH_WORD_NATIVE=5
+ FORTH_WORD_VARIABLE=3, FORTH_WORD_DEFER=4, FORTH_WORD_NATIVE=5,
+ FORTH_WORD_DOES=6, FORTH_WORD_MARKER=7   /* a DOES> child; a MARKER */
 };
 struct forth_word_info {
  const char *name,*source,*module,*module_version,*target_name;
  fcell xt,token_address,direct_address,value,target_xt;
  unsigned kind,origin,source_length,token_bytes,direct_bytes;
  uint32_t module_crc32;
- int value_valid;
+ int value_valid,immediate;
 };
 struct forth_resources {
  unsigned words,words_max;

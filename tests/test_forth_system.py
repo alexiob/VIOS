@@ -23,21 +23,31 @@ class ForthSystemTests(unittest.TestCase):
   self.assertNotIn('ERR',out);self.assertIn('@A1B2C3D4',out);self.assertIn('@ABCD1234',out);self.assertIn('2B ',out)
  def test_metadata_radix_is_fixed_decimal(self):
   out=self.run_forth('HEX SEE DUP RESOURCES\n')
-  self.assertIn('words 65/512',out);self.assertIn('word DUP xt 1 kind 0',out)
+  self.assertIn('words 83/512',out);self.assertIn('word DUP xt 1 kind 0',out)
  def test_dictionary_supports_more_than_128_live_words(self):
   source=''.join(': CAP%d %d ;\n'%(n,n) for n in range(350))
   out=self.run_forth(source+'CAP349 . RESOURCES\n')
   self.assertNotIn('ERR',out);self.assertIn('349 ',out)
-  self.assertIn('words 415/512',out)
+  self.assertIn('words 433/512',out)
+ def test_name_pool_fills_cleanly_and_failed_definitions_return_their_names(self):
+  binary=ROOT/'build/tests/forth-system-names'
+  sources=['tests/forth_system_host.c','forth/system.c','forth/modules.c','forth/vm_reference.c','forth/vm_memory.c']
+  subprocess.run(['cc','-std=c99','-pedantic','-Wall','-Wextra','-Werror','-fsanitize=address,undefined',
+   '-DVIOS_FORTH_NAME_BYTES=600','-Iinclude',*[str(ROOT/p) for p in sources],'-o',str(binary)],check=True)
+  # A failed definition must give its name bytes back: 200 failures cost nothing.
+  failures=''.join(': LONG-FAILING-NAME-%03d UNDEFINED-WORD ;\n'%n for n in range(200))
+  fill=''.join(': A-RATHER-LONG-WORD-NAME-%03d %d ;\n'%(n,n) for n in range(40))
+  out=subprocess.run([str(binary)],input=failures+': SURVIVOR 77 ;\nSURVIVOR .\n'+fill+'A-RATHER-LONG-WORD-NAME-003 .\n2 3 + .\n',text=True,capture_output=True,check=True,timeout=10).stdout
+  self.assertIn('77 ',out);self.assertIn('name space full',out);self.assertIn('\n3 5',out);self.assertTrue(out.rstrip().endswith('5'))
  def test_port_dictionary_budget_is_compile_time_configurable(self):
   binary=ROOT/'build/tests/forth-system-small'
   sources=['tests/forth_system_host.c','forth/system.c','forth/modules.c','forth/vm_reference.c','forth/vm_memory.c']
   subprocess.run(['cc','-std=c99','-pedantic','-Wall','-Wextra','-Werror',
-   '-fsanitize=address,undefined','-DVIOS_FORTH_WORDS_MAX=69','-DVIOS_FORTH_HASH_BUCKETS=16',
+   '-fsanitize=address,undefined','-DVIOS_FORTH_WORDS_MAX=87','-DVIOS_FORTH_HASH_BUCKETS=16',
    '-Iinclude',*[str(ROOT/p) for p in sources],'-o',str(binary)],check=True)
   source=''.join(': P%d %d ;\n'%(n,n) for n in range(20))+'P3 . RESOURCES\n2 3 + .\n'
   out=subprocess.run([str(binary)],input=source,text=True,capture_output=True,check=True,timeout=10).stdout
-  self.assertIn('dictionary full',out);self.assertIn('words 69/69',out)   # 65 core words + P0..P3
+  self.assertIn('dictionary full',out);self.assertIn('words 87/87',out)   # 83 core words + P0..P3
   self.assertTrue(out.rstrip().endswith('5'))
  def test_tagged_repl_completion_and_key_input(self):
   source='@ABCDEF12 : LIVE\r@1234ABCD KEY ;\r@00000001 LIVE .\rZ@00000002 SEE LIVE\r@00000003 MISSING\r'

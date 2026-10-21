@@ -17,6 +17,7 @@ Default checks (none changes the boot slots or the workbench draft):
   pipeline   producer stdout -> consumer KEY
   handles    handles, pipes, devices (writes and removes a /VIOS temp file)
   tools      source maps, SD file service, TYPE (writes and removes a temp file)
+  extensible the extensible compiler: DOES>, POSTPONE, EVALUATE, MARKER on all engines
 Not by default: incremental (replaces the workbench draft; --with-incremental).
 
   vios_board_suite.py OUTDIR [--only gui,audio] [--soak-minutes 30]
@@ -29,7 +30,7 @@ import sys
 import time
 
 ROOT = Path(__file__).resolve().parents[1]
-CHECKS = ['gui', 'gui_tools', 'console', 'audio', 'core_words', 'tasks', 'pipeline', 'handles', 'tools']
+CHECKS = ['gui', 'gui_tools', 'console', 'audio', 'core_words', 'tasks', 'pipeline', 'handles', 'tools', 'extensible']
 
 
 def run(name, outdir):
