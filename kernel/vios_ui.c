@@ -34,11 +34,13 @@ static void op(const unsigned char *bytes, unsigned n) {
     if (!batching) flush();
 }
 
+/* The batch buffer is empty after the flush and carries the request. */
 static int request(const unsigned char *bytes, unsigned n, unsigned char *reply, unsigned capacity, unsigned *length) {
     flush();
-    unsigned char command[4 + 8] = {23, 0, 0xE4, (unsigned char)n};
-    for (unsigned i = 0; i < n; ++i) command[4 + i] = bytes[i];
-    return platform_vdp_request(command, 4 + n, REPLY, reply, capacity, length) && *length && reply[0] == bytes[0];
+    if (n > BATCH_MAX - 4) return 0;
+    batch[0] = 23; batch[1] = 0; batch[2] = 0xE4; batch[3] = (unsigned char)n;
+    for (unsigned i = 0; i < n; ++i) batch[4 + i] = bytes[i];
+    return platform_vdp_request(batch, 4 + n, REPLY, reply, capacity, length) && *length && reply[0] == bytes[0];
 }
 
 /* Stack helpers: pop k cells (last pushed first) into out[0..k-1] in push order. */
@@ -446,6 +448,14 @@ static int ui_text_get(void) {                          /* ( id addr max -- len 
     if (!vios_ui_text_read(b(a[0]), 0, n, to_forth, &f) || fvm_error) return fvm_error ? 0 : forth_error("UI-TEXT@: read failed");
     return fvm_push(n);
 }
+static int ui_wname(void) {                             /* ( addr len id -- ) a name for /dev/win */
+    fcell a[3];
+    if (!pop(a, 3) || !widget_id(a[2])) return 0;
+    unsigned char o[3 + 10] = {0x94, b(a[2]), b(a[1])};
+    if (!text(a[0], a[1], o + 3, 10)) return 0;
+    op(o, 3 + (unsigned)a[1]);
+    return 1;
+}
 static int widget_op(unsigned char code) { fcell id = fvm_pop(); if (fvm_error || !widget_id(id)) return 0; unsigned char o[] = {code, b(id)}; op(o, 2); return 1; }
 static int ui_wdelete(void) { return widget_op(0x87); }
 static int ui_wfocus(void) { return widget_op(0x88); }
@@ -465,12 +475,13 @@ static int ui_commit(void) { unsigned char o[] = {0x30}; batching = 0; op(o, 1);
 /* C clients (kernel/vios_tools.c) use the same encoder, batches and requests. */
 void vios_ui_op(const unsigned char *bytes, unsigned n) { op(bytes, n); }
 int vios_ui_request(const unsigned char *bytes, unsigned n, unsigned char *reply, unsigned capacity, unsigned *length) {
-    return n <= 8 && request(bytes, n, reply, capacity, length);
+    return request(bytes, n, reply, capacity, length);
 }
 void vios_ui_begin(void) { batching = 1; }
 void vios_ui_commit(void) { (void)ui_commit(); }
-static int (*claim)(const unsigned char *event, unsigned len);
+static int (*claim)(const unsigned char *event, unsigned len), (*route)(const unsigned char *event, unsigned len);
 void vios_ui_claim(int (*hook)(const unsigned char *event, unsigned len)) { claim = hook; }
+void vios_ui_route(int (*hook)(const unsigned char *event, unsigned len)) { route = hook; }
 
 static int ui_sync(void) {                              /* ( -- epoch generation errors ) */
     static unsigned char seq;
@@ -491,6 +502,7 @@ static int poll_events(void) {
         for (unsigned at = 3, k = 0; k < r[2] && at < n; ++k) {
             unsigned len = r[at++];
             if (at + len > n || len > VIOS_UI_EVENT_MAX) break;
+            if (route && len >= 3 && r[at + 1] == 0x13) { route(r + at, len); at += len; continue; }   /* /dev/win/N/event text */
             if (claim && claim(r + at, len)) { at += len; continue; }   /* a tool's own event */
             unsigned slot = (event_head + event_count++) % EVENT_RING;
             for (unsigned i = 0; i < len; ++i) events[slot][i] = r[at + i];
@@ -545,7 +557,7 @@ int vios_ui_init(void) {
         {"UI-SPRITE", ui_sprite}, {"UI-PIXELS", ui_pixels}, {"UI-SPRITE-AT", ui_sprite_at}, {"UI-SPRITE-SHOW", ui_sprite_show},
         {"UI-ARROW", ui_arrow}, {"UI-ANIMATE", ui_animate}, {"UI-STOP", ui_stop}, {"UI-POINTER", ui_pointer},
         {"UI-WIDGET", ui_widget}, {"UI-WTEXT", ui_wtext}, {"UI-WVALUE", ui_wvalue}, {"UI-LAYOUT", ui_layout}, {"UI-WSIZE", ui_wsize},
-        {"UI-ITEM", ui_item}, {"UI-ITEMS", ui_items}, {"UI-WDELETE", ui_wdelete}, {"UI-WFOCUS", ui_wfocus}, {"UI-WGET", ui_wget},
+        {"UI-ITEM", ui_item}, {"UI-ITEMS", ui_items}, {"UI-WDELETE", ui_wdelete}, {"UI-WFOCUS", ui_wfocus}, {"UI-WGET", ui_wget}, {"UI-WNAME", ui_wname},
         {"UI-BEGIN", ui_begin}, {"UI-COMMIT", ui_commit},
         {"UI-ROW+", ui_row},   /* append a list row; UI-ROW is the layout constant */ {"UI-COLUMNS", ui_columns}, {"UI-KEYS", ui_keys}, {"UI-TEXT", ui_text}, {"UI-TEXT+", ui_text_more},
         {"UI-INSERT", ui_insert}, {"UI-SELECT", ui_select}, {"UI-TEXT@", ui_text_get},

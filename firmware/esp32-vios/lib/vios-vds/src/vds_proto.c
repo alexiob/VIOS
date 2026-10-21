@@ -61,7 +61,15 @@ static size_t op_size(const uint8_t *b, size_t n) {
         s = 3;
         for (unsigned k = 0; k < b[2]; ++k) { if (s >= n) return 0; s += 1u + b[s]; }
         break;
-    case 0x93: s = n < 3 ? 0 : 3u + b[2]; break;
+    case 0x93: case 0x94: s = n < 3 ? 0 : 3u + b[2]; break;
+    case 0x95: s = 1; break;
+    case 0x96: case 0x97: s = 2; break;
+    case 0x98: case 0x99: s = 6; break;
+    case 0x9A: s = 3; break;
+    case 0x9B: s = 2; break;
+    case 0x9C: s = 8; break;
+    case 0x9D: s = n < 5 ? 0 : 5u + b[4]; break;
+    case 0x9E: s = 3; break;
     default: s = 0; break;
     }
     return s && s <= n ? s : 0;
@@ -69,6 +77,7 @@ static size_t op_size(const uint8_t *b, size_t n) {
 
 void vds_proto_event(vds_proto *p, uint8_t kind, uint8_t id, const uint8_t *args, uint8_t n) {
     uint8_t data[VDS_EVENT_MAX];
+    if (p->ui_route && p->ui_route(p->ui, kind, id, args, n)) return;
     if (n > sizeof data - 3) n = sizeof data - 3;
     data[0] = p->event_seq++;
     data[1] = kind;
@@ -189,7 +198,7 @@ static int apply(vds_proto *p, const uint8_t *b) {
     uint8_t op = b[0];
     if (op != 0x10 && op != 0x11) p->more_ok = 0;
     if (reserved(b)) return 0;
-    if ((op >= 0x59 && op <= 0x62) || op == 0x70 || op == 0x71 || op == 0x7B || (op >= 0x80 && op <= 0x93))
+    if ((op >= 0x59 && op <= 0x62) || op == 0x70 || op == 0x71 || op == 0x7B || (op >= 0x80 && op <= 0x9E))
         return p->ui_op ? p->ui_op(p->ui, b) : 0;
     switch (op) {
     case 0x01: {
@@ -317,7 +326,8 @@ int vds_proto_batch(vds_proto *p, const uint8_t *b, size_t len) {
     for (size_t at = 0; at < len;) {
         size_t s = op_size(b + at, len - at);
         uint8_t op = b[at];
-        if (op != 0x30 && op != 0x31 && op != 0x32 && op != 0x33 && op != 0x36 && op != 0x89 && op != 0x8C && op != 0x8E && !p->hold) { p->hold = 1; p->held_ms = 0; }
+        if (op != 0x30 && op != 0x31 && op != 0x32 && op != 0x33 && op != 0x36 && op != 0x89 && op != 0x8C && op != 0x8E &&
+            (op < 0x95 || op > 0x98) && op != 0x9B && op != 0x9C && op != 0x9E && !p->hold) { p->hold = 1; p->held_ms = 0; }
         if (!apply(p, b + at)) error(p, op, at);
         at += s;
         if (p->yield) p->yield(p->ctx);

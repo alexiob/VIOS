@@ -79,6 +79,30 @@
  *  91  id count(u16)                     list length (u16)
  *  92  id k (n ch*n)*k                   append k rows to a list
  *  93  id n width*n                      table column widths (n <= 8, 0: plain list)
+ *  94  id n ch*n                         widget name (at most 10, for /dev/win)
+ *  95                                    reply 95 widgets[8] windows[4] surfaces[2]: bit i set
+ *                                        when id i is in use (CPU window and surface ids only)
+ *  96  id                                reply 96 id kind window parent col row w h flags
+ *                                        value(s16) count(u16) layout gap fixed weight n name*n
+ *  97  id                                reply 97 id flags x(s16) y(s16) cols rows surface
+ *                                        surface_cols surface_rows focus(widget) n
+ *                                        (title length; read the title with 98)
+ *  98  what id index(u16) off            reply 98 what id index(u16) off n ch*n, n <= 23: text
+ *                                        from off of what 0 widget text, 1 list row index,
+ *                                        2 window title (n 0: past the end)
+ *  99  id col row w h                    move/resize a widget in place
+ *  9A  id flags                          widget flags in place (hide, disable, ...)
+ *  9B  from                              reply 9B from n id*n: widget ids in creation order
+ *                                        from position `from` (parents first), n <= 27
+ *  9C  file node step(u16) sub(u16) off  reply 9C status step(u16) sub(u16) n ch*n, n <= 23: text
+ *                                        of /dev/win file `file` (vds_files.c) for node from the
+ *                                        line at cursor (step, sub), from byte off of that line.
+ *                                        status 0 more of this line, 1 its last bytes (step, sub:
+ *                                        the next line), 2 end of file, 3 error (text: why)
+ *  9D  file node flags n ch*n            reply 9D ok node n ch*n: write to that file (flags 1:
+ *                                        append); node: the one made (new); text: why it failed
+ *  9E  node on                           route a node's events to it as STREAM events (13) whose
+ *                                        arguments are its text line (on 0: back to plain events)
  */
 #ifndef VIOS_VDS_PROTO_H
 #define VIOS_VDS_PROTO_H
@@ -128,6 +152,8 @@ typedef struct vds_proto {
     void (*ui_tick)(void *ui, uint32_t ms);      /* once per frame, before composing */
     void (*ui_after)(void *ui);                  /* after every applied batch */
     void (*ui_reset)(void *ui);
+    /* Optional: may take an event before it is queued (returns 1 if it did). */
+    int (*ui_route)(void *ui, uint8_t kind, uint8_t id, const uint8_t *args, uint8_t n);
     /* Optional: called between the ops of a batch and before ui_after, where
      * the state is consistent (composition is held while a batch runs). The
      * host may let a waiting frame in here instead of after the whole batch. */

@@ -845,6 +845,100 @@ static void reset_hook(void *ui) {
     vds_ui_init(u, p);
 }
 
+/* Inspection replies (ops 95-98): what exists, read without a CPU table. */
+static int inventory(vds_ui *u) {
+    vds *v = core(u);
+    uint8_t r[15] = {0x95};
+    for (unsigned i = 0; i < VDS_MAX_WIDGETS; ++i) if (u->widgets[i].used) r[1 + i / 8] |= (uint8_t)(1u << (i % 8));
+    for (unsigned i = 0; i < VDS_PROTO_WINDOWS; ++i) if (v->windows[i].used) r[9 + i / 8] |= (uint8_t)(1u << (i % 8));
+    for (unsigned i = 0; i < VDS_PROTO_SURFACES; ++i) if (v->surfaces[i].cells) r[13 + i / 8] |= (uint8_t)(1u << (i % 8));
+    vds_proto_reply(u->p, r, sizeof r);
+    return 1;
+}
+static int widget_info(vds_ui *u, uint8_t id) {
+    if (id >= VDS_MAX_WIDGETS || !u->widgets[id].used) return 0;
+    const vds_widget *w = &u->widgets[id];
+    uint8_t r[VDS_REPLY_MAX] = {0x96, id, w->kind, w->window, w->parent, w->col, w->row, w->w, w->h, w->flags,
+                                (uint8_t)w->value, (uint8_t)((uint16_t)w->value >> 8), (uint8_t)w->count, (uint8_t)(w->count >> 8),
+                                w->layout, w->gap, w->fixed, w->weight};
+    size_t n = strlen(w->name);
+    r[18] = (uint8_t)n;
+    memcpy(r + 19, w->name, n);
+    vds_proto_reply(u->p, r, (uint8_t)(19 + n));
+    return 1;
+}
+static int window_info(vds_ui *u, uint8_t id) {
+    vds *v = core(u);
+    if (id >= VDS_PROTO_WINDOWS || !v->windows[id].used) return 0;
+    const vds_window *w = &v->windows[id];
+    const vds_surface *s = w->surface < VDS_MAX_SURFACES ? &v->surfaces[w->surface] : 0;
+    uint8_t r[14] = {0x97, id, w->flags, (uint8_t)w->x, (uint8_t)((uint16_t)w->x >> 8), (uint8_t)w->y, (uint8_t)((uint16_t)w->y >> 8),
+                     w->cols, w->rows, w->surface, s ? s->cols : 0, s ? s->rows : 0, u->widget_focus[id], (uint8_t)strlen(w->title)};
+    vds_proto_reply(u->p, r, sizeof r);
+    return 1;
+}
+static int text_chunk(vds_ui *u, const uint8_t *b) {          /* 98 what id index(u16) off */
+    uint8_t what = b[1], id = b[2], off = b[5];
+    uint16_t index = (uint16_t)(b[3] | b[4] << 8);
+    const char *t;
+    size_t len;
+    if (what == 2) {
+        if (id >= VDS_PROTO_WINDOWS || !core(u)->windows[id].used) return 0;
+        t = core(u)->windows[id].title;
+        len = strlen(t);
+    } else {
+        if (id >= VDS_MAX_WIDGETS || !u->widgets[id].used || what > 1) return 0;
+        const vds_widget *w = &u->widgets[id];
+        if (what == 1 && (w->kind != VDS_WK_LIST || index >= w->count)) return 0;
+        t = what ? u->items[w->first + index] : w->text;
+        for (len = 0; len < (what ? VDS_ITEM_TEXT : VDS_WIDGET_TEXT) && t[len]; ++len) {}
+    }
+    uint8_t r[VDS_REPLY_MAX] = {0x98, what, id, b[3], b[4], off};
+    size_t n = off < len ? len - off : 0;
+    if (n > VDS_REPLY_MAX - 7) n = VDS_REPLY_MAX - 7;
+    r[6] = (uint8_t)n;
+    memcpy(r + 7, t + off, n);
+    vds_proto_reply(u->p, r, (uint8_t)(7 + n));
+    return 1;
+}
+
+/* Reply 9B from n id*n: widget ids in creation order from position `from`
+ * (parents come before their children), as many as fit. */
+static int creation_order(vds_ui *u, uint8_t from) {
+    uint8_t r[VDS_REPLY_MAX] = {0x9B, from, 0};
+    unsigned position = 0;
+    for (int last = -1;;) {                                 /* next larger seq each round */
+        int next = -1;
+        for (unsigned i = 0; i < VDS_MAX_WIDGETS; ++i)
+            if (u->widgets[i].used && (last < 0 || u->widgets[i].seq > u->widgets[last].seq) &&
+                (next < 0 || u->widgets[i].seq < u->widgets[next].seq)) next = (int)i;
+        if (next < 0 || r[2] == VDS_REPLY_MAX - 3) break;
+        if (position++ >= from) r[3 + r[2]++] = (uint8_t)next;
+        last = next;
+    }
+    vds_proto_reply(u->p, r, (uint8_t)(3 + r[2]));
+    return 1;
+}
+
+/* Op 9C: a chunk of a /dev/win line (vds_files.c). */
+static int file_read(vds_ui *u, const uint8_t *b) {
+    uint16_t step = (uint16_t)(b[3] | b[4] << 8), sub = (uint16_t)(b[5] | b[6] << 8);
+    char line[VDS_FILE_LINE];
+    int len = vds_files_line(u, b[1], b[2], &step, &sub, line);
+    uint8_t r[VDS_REPLY_MAX] = {0x9C, 2, (uint8_t)step, (uint8_t)(step >> 8), (uint8_t)sub, (uint8_t)(sub >> 8), 0};
+    unsigned off = b[7], n = 0;
+    if (len < 0) { r[1] = 3; n = (unsigned)strlen(line); off = 0; len = (int)n; }
+    else if (len) n = off < (unsigned)len ? (unsigned)len - off : 0;
+    if (n > VDS_REPLY_MAX - 7) n = VDS_REPLY_MAX - 7;
+    if (len > 0 && r[1] != 3) r[1] = off + n >= (unsigned)len ? 1 : 0;
+    r[6] = (uint8_t)n;
+    memcpy(r + 7, line + off, n);
+    vds_proto_reply(u->p, r, (uint8_t)(7 + n));
+    return 1;
+}
+
+static int route_hook(void *ui, uint8_t kind, uint8_t id, const uint8_t *args, uint8_t n) { return vds_files_event((vds_ui *)ui, kind, id, args, n); }
+
 static int op_hook(void *ui, const uint8_t *b) {
     vds_ui *u = (vds_ui *)ui;
     u->deferring = 1;                                       /* until after_hook */
@@ -929,6 +1023,33 @@ static int op_hook(void *ui, const uint8_t *b) {
         vds_proto_reply(u->p, r, (uint8_t)(5 + n));
         return 1;
     }
+    case 0x94: {
+        if (b[1] >= VDS_MAX_WIDGETS || !u->widgets[b[1]].used) return 0;
+        size_t n = b[2] < VDS_WIDGET_NAME ? b[2] : VDS_WIDGET_NAME;
+        memcpy(u->widgets[b[1]].name, b + 3, n);
+        u->widgets[b[1]].name[n] = 0;
+        return 1;
+    }
+    case 0x95: return inventory(u);
+    case 0x96: return widget_info(u, b[1]);
+    case 0x97: return window_info(u, b[1]);
+    case 0x98: return text_chunk(u, b);
+    case 0x99: return vds_ui_widget_place(u, b[1], b[2], b[3], b[4], b[5]);
+    case 0x9A: return vds_ui_widget_flags(u, b[1], b[2]);
+    case 0x9B: return creation_order(u, b[1]);
+    case 0x9C: return file_read(u, b);
+    case 0x9D: {
+        uint8_t r[VDS_REPLY_MAX] = {0x9D}, node = b[2];
+        char msg[VDS_FILE_LINE];
+        r[1] = (uint8_t)vds_files_write(u, b[1], &node, b[3] & 1, (const char *)b + 5, b[4], msg);
+        r[2] = node;
+        size_t n = strlen(msg) > VDS_REPLY_MAX - 4 ? VDS_REPLY_MAX - 4 : strlen(msg);
+        r[3] = (uint8_t)n;
+        memcpy(r + 4, msg, n);
+        vds_proto_reply(u->p, r, (uint8_t)(4 + n));
+        return 1;
+    }
+    case 0x9E: return vds_files_route(u, b[1], b[2]);
     }
     return 0;
 }
@@ -950,4 +1071,5 @@ void vds_ui_init(vds_ui *u, vds_proto *p) {
     p->ui_after = after_hook;
     p->ui_reset = reset_hook;
     p->ui_tick = tick_hook;
+    p->ui_route = route_hook;
 }

@@ -1,12 +1,13 @@
 /* Host test of the VDS wire protocol (lib/vios-vds/src/vds_proto.c): E4
  * batches build the same screen as direct API calls; malformed batches are
  * rejected without side effects; replies, events, hold/commit, raw mode,
- * reset and sprite upload; random batches never crash. Usage: vds_proto FONT.bin */
+ * reset and sprite upload; the inspection ops (94-98) /dev/win reads with; random
+ * batches never crash. Usage: vds_proto FONT.bin */
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "vds_proto.h"
+#include "vds_ui.h"
 
 #define W 640
 #define H 480
@@ -214,6 +215,80 @@ int main(int argc, char **argv) {
         assert(va.ndamage <= VDS_MAX_DAMAGE && va.count <= VDS_MAX_WINDOWS && p.pool_used <= VDS_PROTO_POOL);
     }
     assert(applied > 100);
+
+    /* Inspection (ops 94-98): what exists, read back from the server's own
+     * widget state (the CPU keeps no table), without starting a hold. */
+    static vds_ui u;
+    p.yield = 0; p.push_events = 0;
+    vds_ui_init(&u, &p);
+    begin(); b8(0x34); b8(0x01); b8(3); b8(30); b8(10); b8(48);
+    b8(0x50); b8(4); b8(3); b16(16); b16(24); b8(30); b8(10); b8(VDS_W_VISIBLE | VDS_W_DECOR);
+    b8(0x54); b8(4); b8(7); bytes("Greeter", 7);
+    b8(0x80); b8(7); b8(4); b8(VDS_WK_BUTTON); b8(255); b8(2); b8(1); b8(12); b8(1); b8(0);
+    b8(0x81); b8(7); b8(5); bytes("Hello", 5); b8(0x94); b8(7); b8(14); bytes("hello-button12", 14);
+    b8(0x80); b8(9); b8(4); b8(VDS_WK_LIST); b8(255); b8(2); b8(3); b8(20); b8(4); b8(0);
+    b8(0x92); b8(9); b8(2); b8(3); bytes("one", 3); b8(26); bytes("abcdefghijklmnopqrstuvwxyz", 26);
+    b8(0x30); assert(send_batch() && !p.errors);
+    begin(); b8(0x95); assert(send_batch() && !p.hold && last_code == VDS_PACKET_REPLY && last_n == 15);
+    assert(last[0] == 0x95 && last[1] == 0x80 && last[2] == 0x02 && !last[3] && last[9] == 0x10 && last[13] == 0x08 && !last[14]);
+    begin(); b8(0x96); b8(7); assert(send_batch() && !p.hold);
+    assert(last[1] == 7 && last[2] == VDS_WK_BUTTON && last[3] == 4 && last[4] == 255 && last[5] == 2 && last[6] == 1 && last[7] == 12 && last[8] == 1);
+    assert(last[18] == VDS_WIDGET_NAME && last_n == 19 + VDS_WIDGET_NAME && !memcmp(last + 19, "hello-butt", 10));   /* name cut to 10 */
+    begin(); b8(0x96); b8(9); assert(send_batch() && last[2] == VDS_WK_LIST && last[12] == 2 && last[13] == 0 && last[18] == 0);
+    begin(); b8(0x97); b8(4); assert(send_batch() && !p.hold && last_n == 14);
+    assert(last[1] == 4 && (last[2] & 3) == 3 && last[3] == 16 && last[5] == 24 && last[7] == 30 && last[8] == 10);
+    assert(last[9] == 3 && last[10] == 30 && last[11] == 10 && last[13] == 7);
+    begin(); b8(0x98); b8(2); b8(4); b16(0); b8(0); assert(send_batch() && last[6] == 7 && !memcmp(last + 7, "Greeter", 7));
+    begin(); b8(0x98); b8(0); b8(7); b16(0); b8(1); assert(send_batch() && last[5] == 1 && last[6] == 4 && !memcmp(last + 7, "ello", 4));
+    begin(); b8(0x98); b8(1); b8(9); b16(1); b8(0); assert(send_batch() && !p.hold);
+    assert(last[3] == 1 && last[6] == 23 && last_n == 30 && !memcmp(last + 7, "abcdefghijklmnopqrstuvw", 23));
+    begin(); b8(0x98); b8(1); b8(9); b16(1); b8(23); assert(send_batch() && last[6] == 3 && !memcmp(last + 7, "xyz", 3));
+    begin(); b8(0x98); b8(1); b8(9); b16(1); b8(26); assert(send_batch() && last[6] == 0 && last_n == 7);   /* past the end */
+    unsigned before_errors = p.errors;
+    begin(); b8(0x98); b8(1); b8(9); b16(2); b8(0); b8(0x96); b8(8); b8(0x97); b8(5); b8(0x98); b8(1); b8(7); b16(0); b8(0); b8(0x94); b8(8); b8(1); b8(65);
+    assert(send_batch() && p.errors == before_errors + 5);   /* no row 2, widget 8, window 5; a button has no rows; no name for 8 */
+    begin(); b8(0x94); b8(7); b8(9); bytes("abc", 3); assert(!send_batch());   /* truncated: the batch is refused */
+    before_errors = p.errors;
+    begin(); b8(0x80); b8(11); b8(4); b8(VDS_WK_BOX); b8(255); b8(0); b8(5); b8(30); b8(3); b8(0);
+    b8(0x80); b8(3); b8(4); b8(VDS_WK_LABEL); b8(11); b8(0); b8(0); b8(5); b8(1); b8(0); b8(0x30); assert(send_batch() && p.errors == before_errors);
+    begin(); b8(0x9B); b8(0); assert(send_batch() && !p.hold && last[2] == 4 && !memcmp(last + 3, "\x07\x09\x0b\x03", 4));
+    begin(); b8(0x9B); b8(3); assert(send_batch() && last[1] == 3 && last[2] == 1 && last[3] == 3);   /* parents first */
+    begin(); b8(0x99); b8(7); b8(4); b8(2); b8(9); b8(1); b8(0x9A); b8(7); b8(VDS_WF_HIDDEN); b8(0x96); b8(7); assert(send_batch());
+    assert(last[5] == 4 && last[6] == 2 && last[7] == 9 && last[9] == VDS_WF_HIDDEN && !strcmp(u.widgets[7].text, "Hello"));
+    begin(); b8(0x9A); b8(7); b8(0); b8(0x30); assert(send_batch() && p.errors == before_errors);
+    begin(); b8(0x87); b8(11); b8(0x9B); b8(0); assert(send_batch() && last[2] == 2);   /* the box took its label along */
+    begin(); b8(0x87); b8(7); b8(0x95); assert(send_batch() && last[1] == 0 && last[2] == 0x02);
+    begin(); b8(0x34); b8(0x95); assert(send_batch() && !last[2] && !last[9] && !last[13]);
+
+    /* Files (ops 9C-9E): /dev/win text rendered and parsed by the server. */
+    static const char make_text[] = "window - Files\nbutton w0 ok";
+    begin(); b8(0x9D); b8(VDS_FILE_NEW); b8(255); b8(0); b8(sizeof make_text - 1); bytes(make_text, sizeof make_text - 1); b8(0x30);
+    assert(send_batch() && last[0] == 0x9D && last[1] == 1 && last[2] == 0 && va.windows[0].used && u.widgets[0].used);
+    begin(); b8(0x9C); b8(VDS_FILE_LIST); b8(255); b16(0); b16(0); b8(0); assert(send_batch() && !p.hold);
+    assert(last[1] == 0 && last[6] == 23 && !memcmp(last + 7, "w0 window - Files 64 64", 23));          /* more of this line */
+    begin(); b8(0x9C); b8(VDS_FILE_LIST); b8(255); b16(0); b16(0); b8(23); assert(send_batch());
+    assert(last[1] == 1 && last[6] == 7 && !memcmp(last + 7, " 32 12\n", 7) && last[2] == 0 && last[4] == 1);   /* next: (0, 1) */
+    begin(); b8(0x9C); b8(VDS_FILE_LIST); b8(255); b16(0); b16(1); b8(0); assert(send_batch());
+    assert(last[1] == 1 && last[6] == 23 && !memcmp(last + 7, "0 button w0 ok 0 0 8 1\n", 23) && last[2] == 27 && last[4] == 1);
+    begin(); b8(0x9C); b8(VDS_FILE_LIST); b8(255); b16(27); b16(1); b8(0); assert(send_batch() && last[1] == 2 && last[6] == 0);
+    begin(); b8(0x9C); b8(VDS_FILE_CTL); b8(5); b16(0); b16(0); b8(0); assert(send_batch());
+    assert(last[1] == 3 && last[6] == 14 && !memcmp(last + 7, "no such widget", 14));                   /* an error says why */
+    static const char bad[] = "rect 1 2\n";
+    begin(); b8(0x9D); b8(VDS_FILE_CTL); b8(0); b8(0); b8(sizeof bad - 1); bytes(bad, sizeof bad - 1); assert(send_batch());
+    assert(last[1] == 0 && last[3] > 0 && !memcmp(last + 4, "rect:", 5));
+    begin(); b8(0x9D); b8(VDS_FILE_TEXT); b8(0); b8(0); b8(5); bytes("Hello", 5); b8(0x30); assert(send_batch() && last[1] == 1);
+    begin(); b8(0x9D); b8(VDS_FILE_TEXT); b8(0); b8(1); b8(3); bytes(" yo", 3); b8(0x30); assert(send_batch() && !strcmp(u.widgets[0].text, "Hello yo"));
+    uint8_t in_window = 0;
+    begin(); b8(0x9E); b8(0); b8(1); assert(send_batch());
+    vds_proto_event(&p, VDS_EVENT_ACTIVATE, 0, &in_window, 1);                                          /* routed: a STREAM line */
+    const uint8_t *queued = p.events[(p.event_head + p.event_count - 1) % VDS_EVENT_QUEUE];
+    assert(queued[1] == VDS_EVENT_STREAM && queued[2] == 0 && !memcmp(queued + 3, "activate\n", 9));
+    begin(); b8(0x9E); b8(0); b8(0); assert(send_batch());
+    vds_proto_event(&p, VDS_EVENT_ACTIVATE, 0, &in_window, 1);
+    queued = p.events[(p.event_head + p.event_count - 1) % VDS_EVENT_QUEUE];
+    assert(queued[1] == VDS_EVENT_ACTIVATE && queued[2] == 0);
+    before_errors = p.errors;
+    begin(); b8(0x9E); b8(VDS_NODE_WINDOW | 27); b8(1); assert(send_batch() && p.errors == before_errors + 1);   /* no such window id */
     printf("vds protocol checks passed: %u replies, %u events, %u random batches applied\n", replies, events, applied);
     return 0;
 }
