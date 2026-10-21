@@ -42,3 +42,25 @@ captured with `tools/vios_coldboot_capture.py`):
 
 (`no-sd-01` is a power blip during the replug with no data.) With the card
 back in, VIOS booted normally.
+
+## 3a. Power cuts during SAVE: passed
+
+`tools/vios_power_cut.py --mode save --rounds 5`
+([power-cut-save.json](owner-physical-tests-2026-10-21/power-cut-save.json)).
+Each round staged, activated and SAVEd new versions of a test module PCUT
+back to back until the owner pulled the USB-C cable; after replugging, the
+board booted and every PCUT package saved so far was loaded and tested.
+
+| Cut | Saves completed before it | Packages checked after it | Result |
+|---|---|---|---|
+| 1 | 21 | 21 | all loaded, tests passed |
+| 2 | 5 | 26 | all loaded, tests passed |
+| 3 | 9 | 35 | all loaded, tests passed |
+| 4 | 5 | 40 | all loaded, tests passed |
+| 5 | 4 (and any after the report's list) | 48 | all loaded, tests passed |
+
+Every boot: `boot confirmed B candidate NONE state CLEAN`. No package was
+torn or refused. The scripted check after cut 5 hit a port blip while the
+cable was replugged (the device appeared and vanished); it was run by hand
+with the script's own `verify()` over every package in `/VIOS/335FDFDB/`.
+The PCUT packages stay on the card (48 small files).
