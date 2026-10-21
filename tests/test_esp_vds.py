@@ -33,13 +33,25 @@ class EspVdsTests(unittest.TestCase):
             for name in ('vds-smalltalk.ppm', 'vds-turbo.ppm'):
                 self.assertEqual((Path(temp) / name).stat().st_size, len(b'P6\n640 480\n255\n') + 640 * 480 * 3)
 
+    def test_canvas_display_lists(self):
+        with tempfile.TemporaryDirectory() as temp:
+            binary, font = Path(temp) / 'vds_canvas', Path(temp) / 'font.bin'
+            font.write_bytes(agon_font())
+            subprocess.run(['cc', '-std=c99', '-pedantic', '-Wall', '-Wextra', '-Werror', '-g', '-O1',
+                            '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '-I' + str(VDS),
+                            str(VDS / 'vds.c'), str(VDS / 'vds_canvas.c'), str(FIRMWARE / 'tests/vds_canvas.c'),
+                            '-o', str(binary)], check=True)
+            result = subprocess.run([str(binary), str(font)], capture_output=True, text=True, timeout=120)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn('vds canvas checks passed', result.stdout)
+
     def test_wire_protocol_matches_api_and_rejects_malformed_batches(self):
         with tempfile.TemporaryDirectory() as temp:
             binary, font = Path(temp) / 'vds_proto', Path(temp) / 'font.bin'
             font.write_bytes(agon_font())
             subprocess.run(['cc', '-std=c99', '-pedantic', '-Wall', '-Wextra', '-Werror', '-g',
                             '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '-I' + str(VDS),
-                            str(VDS / 'vds.c'), str(VDS / 'vds_proto.c'), str(VDS / 'vds_ui.c'), str(VDS / 'vds_widget.c'), str(VDS / 'vds_text.c'), str(VDS / 'vds_files.c'),
+                            str(VDS / 'vds.c'), str(VDS / 'vds_proto.c'), str(VDS / 'vds_canvas.c'), str(VDS / 'vds_ui.c'), str(VDS / 'vds_widget.c'), str(VDS / 'vds_text.c'), str(VDS / 'vds_files.c'),
                             str(FIRMWARE / 'tests/vds_proto.c'),
                             '-o', str(binary)], check=True)
             result = subprocess.run([str(binary), str(font)], capture_output=True, text=True, timeout=120)
@@ -52,7 +64,7 @@ class EspVdsTests(unittest.TestCase):
             font.write_bytes(agon_font())
             subprocess.run(['cc', '-std=c99', '-pedantic', '-Wall', '-Wextra', '-Werror', '-g',
                             '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '-I' + str(VDS),
-                            str(VDS / 'vds.c'), str(VDS / 'vds_proto.c'), str(VDS / 'vds_ui.c'), str(VDS / 'vds_widget.c'), str(VDS / 'vds_text.c'), str(VDS / 'vds_files.c'),
+                            str(VDS / 'vds.c'), str(VDS / 'vds_proto.c'), str(VDS / 'vds_canvas.c'), str(VDS / 'vds_ui.c'), str(VDS / 'vds_widget.c'), str(VDS / 'vds_text.c'), str(VDS / 'vds_files.c'),
                             str(FIRMWARE / 'tests/vds_ui.c'), '-o', str(binary)], check=True)
             result = subprocess.run([str(binary), str(font)], capture_output=True, text=True, timeout=120)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
@@ -64,7 +76,7 @@ class EspVdsTests(unittest.TestCase):
             font.write_bytes(agon_font())
             subprocess.run(['cc', '-std=c99', '-pedantic', '-Wall', '-Wextra', '-Werror', '-g',
                             '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '-I' + str(VDS),
-                            str(VDS / 'vds.c'), str(VDS / 'vds_proto.c'), str(VDS / 'vds_ui.c'), str(VDS / 'vds_widget.c'), str(VDS / 'vds_text.c'), str(VDS / 'vds_files.c'),
+                            str(VDS / 'vds.c'), str(VDS / 'vds_proto.c'), str(VDS / 'vds_canvas.c'), str(VDS / 'vds_ui.c'), str(VDS / 'vds_widget.c'), str(VDS / 'vds_text.c'), str(VDS / 'vds_files.c'),
                             str(FIRMWARE / 'tests/vds_menu.c'), '-o', str(binary)], check=True)
             result = subprocess.run([str(binary), str(font), temp], capture_output=True, text=True, timeout=120)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
@@ -76,7 +88,7 @@ class EspVdsTests(unittest.TestCase):
             font.write_bytes(agon_font())
             subprocess.run(['cc', '-std=c99', '-pedantic', '-Wall', '-Wextra', '-Werror', '-g',
                             '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '-I' + str(VDS),
-                            str(VDS / 'vds.c'), str(VDS / 'vds_proto.c'), str(VDS / 'vds_ui.c'), str(VDS / 'vds_widget.c'), str(VDS / 'vds_text.c'), str(VDS / 'vds_files.c'),
+                            str(VDS / 'vds.c'), str(VDS / 'vds_proto.c'), str(VDS / 'vds_canvas.c'), str(VDS / 'vds_ui.c'), str(VDS / 'vds_widget.c'), str(VDS / 'vds_text.c'), str(VDS / 'vds_files.c'),
                             str(FIRMWARE / 'tests/vds_text.c'), '-o', str(binary)], check=True)
             result = subprocess.run([str(binary), str(font)], capture_output=True, text=True, timeout=120)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
@@ -88,7 +100,7 @@ class EspVdsTests(unittest.TestCase):
             font.write_bytes(agon_font())
             subprocess.run(['cc', '-std=c99', '-pedantic', '-Wall', '-Wextra', '-Werror', '-g',
                             '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '-I' + str(VDS),
-                            str(VDS / 'vds.c'), str(VDS / 'vds_proto.c'), str(VDS / 'vds_ui.c'), str(VDS / 'vds_widget.c'), str(VDS / 'vds_text.c'), str(VDS / 'vds_files.c'),
+                            str(VDS / 'vds.c'), str(VDS / 'vds_proto.c'), str(VDS / 'vds_canvas.c'), str(VDS / 'vds_ui.c'), str(VDS / 'vds_widget.c'), str(VDS / 'vds_text.c'), str(VDS / 'vds_files.c'),
                             str(FIRMWARE / 'tests/vds_widget.c'), '-o', str(binary)], check=True)
             result = subprocess.run([str(binary), str(font)], capture_output=True, text=True, timeout=120)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
@@ -123,7 +135,7 @@ class EspVdsTests(unittest.TestCase):
     def test_core_is_freestanding(self):
         source = ''.join(path.read_text() for path in sorted(VDS.glob('*.[ch]')))
         self.assertLessEqual(set(re.findall(r'#include\s*[<"]([^>"]+)', source)),
-                             {'vds.h', 'vds_proto.h', 'vds_ui.h', 'string.h', 'stddef.h', 'stdint.h'})
+                             {'vds.h', 'vds_proto.h', 'vds_ui.h', 'vds_canvas.h', 'string.h', 'stddef.h', 'stdint.h'})
         for banned in ('malloc(', 'free(', 'printf('):
             self.assertNotIn(banned, source, 'the core must not allocate or print')
 

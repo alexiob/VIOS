@@ -21,7 +21,7 @@ class ViosToolsTests(unittest.TestCase):
             font.write_bytes(agon_font())
             subprocess.run(['cc', '-std=c99', '-pedantic', '-Wall', '-Wextra', '-Werror', '-g',
                             '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '-Iinclude', '-I' + str(VDS),
-                            *files, *(str(VDS / f) for f in ('vds.c', 'vds_proto.c', 'vds_ui.c', 'vds_widget.c', 'vds_text.c', 'vds_files.c')),
+                            *files, *(str(VDS / f) for f in ('vds.c', 'vds_proto.c', 'vds_canvas.c', 'vds_ui.c', 'vds_widget.c', 'vds_text.c', 'vds_files.c')),
                             '-o', str(binary)], cwd=ROOT, check=True)
             result = subprocess.run([str(binary), str(font)], capture_output=True, text=True, timeout=120)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
