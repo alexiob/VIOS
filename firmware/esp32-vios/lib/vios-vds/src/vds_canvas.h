@@ -67,6 +67,11 @@ extern const uint8_t vds_icons[8][VDS_ICON_SIZE / 2 * VDS_ICON_SIZE];
 /* Rasterise dirty canvas rows, at least one band, then until about `budget`
  * pixels are done; damages what changed on screen. Returns pixels done. */
 uint32_t vds_canvas_prepare(vds *v, uint32_t budget);
+/* As vds_canvas_prepare, also stopping once budget_us microseconds have
+ * passed by v->clock_us (checked after each band of at most
+ * VDS_CANVAS_BAND_PX pixels). */
+#define VDS_CANVAS_BAND_PX (640u * 24u)
+uint32_t vds_canvas_prepare_within(vds *v, uint32_t budget, uint32_t budget_us);
 int vds_canvas_pending(const vds *v);
 /* Replay canvas id's list over its canvas-local rect r into `out` (rows of
  * (w + 1) / 2 bytes): what prepare draws. For tests and inspection. */

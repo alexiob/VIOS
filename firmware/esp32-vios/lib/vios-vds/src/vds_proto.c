@@ -479,7 +479,14 @@ int vds_proto_frame_within(vds_proto *p, uint32_t elapsed_ms, uint32_t budget, u
         if (p->held_ms < VDS_PROTO_HOLD_MS) return p->v->ndamage == 0;
         p->hold = 0;                                     /* a stalled client cannot hide output */
     }
-    uint32_t raster = vds_canvas_prepare(p->v, budget / 2);
+    /* Dirty canvases first, with up to half the frame's pixels and time. */
+    int timed = p->v->clock_us && budget_us != UINT32_MAX;
+    uint32_t started = timed ? p->v->clock_us(p->v->clock_ctx) : 0;
+    uint32_t raster = vds_canvas_prepare_within(p->v, budget / 2, timed ? budget_us / 2 : UINT32_MAX);
+    if (timed) {
+        uint32_t spent = p->v->clock_us(p->v->clock_ctx) - started;
+        budget_us = spent < budget_us ? budget_us - spent : 0;
+    }
     int done = vds_frame_within(p->v, budget > raster ? budget - raster : 0, budget_us);
     return done && !vds_canvas_pending(p->v);
 }

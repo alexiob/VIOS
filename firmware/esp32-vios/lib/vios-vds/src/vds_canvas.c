@@ -403,14 +403,18 @@ int vds_canvas_pending(const vds *v) {
 
 #define BAND_MIN 8                                      /* rows per replay, at least */
 
-uint32_t vds_canvas_prepare(vds *v, uint32_t budget) {
-    uint32_t done = 0;
+uint32_t vds_canvas_prepare(vds *v, uint32_t budget) { return vds_canvas_prepare_within(v, budget, UINT32_MAX); }
+
+uint32_t vds_canvas_prepare_within(vds *v, uint32_t budget, uint32_t budget_us) {
+    int timed = v->clock_us && budget_us != UINT32_MAX;
+    uint32_t started = timed ? v->clock_us(v->clock_ctx) : 0, done = 0;
     for (uint8_t k = 0; k < VDS_MAX_CANVASES; ++k) {
         vds_canvas *c = &v->canvases[k];
         while (c->used && !empty(c->dirty)) {
-            if (done && done >= budget) return done;
+            if (done && (done >= budget || (timed && (uint32_t)(v->clock_us(v->clock_ctx) - started) >= budget_us))) return done;
             vds_rect d = c->dirty;
             uint32_t left = budget > done ? budget - done : 0;
+            if (left > VDS_CANVAS_BAND_PX) left = VDS_CANVAS_BAND_PX;
             long rows = (long)(left / (uint32_t)d.w);
             if (rows < BAND_MIN) rows = BAND_MIN;
             if (rows > d.h) rows = d.h;

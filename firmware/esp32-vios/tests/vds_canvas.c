@@ -35,6 +35,8 @@ static int srnd(int lo, int hi) { return lo + (int)rnd((unsigned)(hi - lo + 1));
 
 static uint8_t get4(const uint8_t *row, int x) { return (x & 1) ? row[x >> 1] & 15 : row[x >> 1] >> 4; }
 static void put4(uint8_t *row, int x, uint8_t c) { row[x >> 1] = (x & 1) ? (uint8_t)((row[x >> 1] & 0xF0) | c) : (uint8_t)((row[x >> 1] & 0x0F) | c << 4); }
+static uint32_t ticks;
+static uint32_t fake_clock(void *ctx) { (void)ctx; return ticks += 10; }   /* 10 us per reading */
 static uint8_t px(int x, int y) { return get4(fb_a[y], x); }
 
 static void finish(void) {
@@ -354,6 +356,19 @@ static void check_budget(void) {
         assert(vds_canvas_set(&v, 0, (uint8_t)i, &far));
     }
     while (vds_canvas_pending(&v)) vds_canvas_prepare(&v, 1);
+    consistent();
+    /* A time budget stops after the band that used it up: one band per call
+     * with a clock that advances past the budget on every reading. */
+    v.clock_us = fake_clock;
+    assert(vds_canvas_set(&v, 0, 0, &bar));
+    calls = 0;
+    while (vds_canvas_pending(&v)) {
+        uint32_t done = vds_canvas_prepare_within(&v, UINT32_MAX, 5);
+        assert(done == VDS_CANVAS_BAND_PX);
+        ++calls;
+    }
+    assert(calls == 640u * 480u / VDS_CANVAS_BAND_PX);
+    v.clock_us = 0;
     consistent();
     assert(vds_canvas_delete(&v, 0) && vds_window_close(&v, 3));
 }
