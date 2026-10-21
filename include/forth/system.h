@@ -90,7 +90,7 @@ void forth_transaction_sizes(unsigned *words,size_t *token,size_t *direct,size_t
  * data space up to its use. Only valid for the same resident build and base.
  * io moves exactly size bytes or returns 0. A failed read may leave the
  * dictionary inconsistent: the caller must reinitialise the runtime. */
-struct forth_snapshot_base {uint32_t token,direct,data,source,count,map;};
+struct forth_snapshot_base {uint32_t token,direct,data,source,count,map,names;};
 typedef int (*forth_snapshot_io)(void *data,size_t size,void *ctx);
 void forth_snapshot_base(struct forth_snapshot_base *base);
 int forth_snapshot_write(const struct forth_snapshot_base *base,forth_snapshot_io put,void *ctx);

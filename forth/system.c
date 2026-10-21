@@ -11,27 +11,35 @@
 #define DIRECT_BYTES 32768
 #define DATA_BYTES 8192
 #define SOURCE_BYTES 8192
+/* Word names live in a bump-allocated pool (NUL-terminated), not in a fixed
+ * 32-byte header field: resident names average ~6 characters, so this keeps
+ * ~10 KB of the 512-word table (extensible-compiler spec section 10.3). */
+#ifndef VIOS_FORTH_NAME_BYTES
+#define VIOS_FORTH_NAME_BYTES 5120
+#endif
+#define NAME_BYTES VIOS_FORTH_NAME_BYTES
 #define CONTROL_MAX 64
 #define HASH_BUCKETS VIOS_FORTH_HASH_BUCKETS
 
 enum { WK_PRIMITIVE,WK_COLON,WK_CONSTANT,WK_VARIABLE,WK_DEFER,WK_NATIVE };
 enum { CS_IF,CS_ELSE,CS_BEGIN,CS_WHILE,CS_DO };
 struct word {
- char name[NAME_MAX+1]; fcell token,direct,aux;
- unsigned short link,source,length,token_length,direct_length,origin; unsigned char kind,opcode;
+ fcell token,direct,aux;
+ unsigned short name,link,source,length,token_length,direct_length,origin; unsigned char kind,opcode;
 };
 struct control { unsigned char kind; size_t token,direct; };
 static struct word words[WORDS_MAX];
 static unsigned short buckets[HASH_BUCKETS];
 static unsigned char token_code[TOKEN_BYTES],direct_code[DIRECT_BYTES],data_space[DATA_BYTES];
-static char source_space[SOURCE_BYTES];
+static char source_space[SOURCE_BYTES],names[NAME_BYTES];
+#define NAME(n) (names+words[n].name)
 static struct control controls[CONTROL_MAX];
 /* LEAVE and ?DO record forward branches resolved by their loop's end. */
 #define LEAVES_MAX 16
 static struct control leaves[LEAVES_MAX];
 static unsigned leave_used;
-static size_t token_used,direct_used,data_used,source_used,control_used;
-static size_t mark_token,mark_direct,mark_data,mark_source;
+static size_t token_used,direct_used,data_used,source_used,control_used,names_used;
+static size_t mark_token,mark_direct,mark_data,mark_source,mark_names;
 /* Source maps: before each token of a colon definition the compiler records
  * (word, token offset, direct offset, source offset). The code from one
  * entry's offset up to the next entry's belongs to that source token.
@@ -65,7 +73,7 @@ static struct {
 } observer_before;
 static void catalog_changed(void) {if(!++catalog_revision)++catalog_revision;}
 struct checkpoint {
- size_t token,direct,data,source;unsigned count,map;
+ size_t token,direct,data,source,names;unsigned count,map;
  unsigned short buckets[HASH_BUCKETS];
  unsigned char data_bytes[DATA_BYTES];
  fcell stack[FVM_DS],depth,ip,error,budget,ds_peak,rs_peak,base;
@@ -73,7 +81,7 @@ struct checkpoint {
 };
 static struct checkpoint transaction_before,activation_before;
 static unsigned char test_data[DATA_BYTES];
-static size_t activation_token,activation_direct,activation_data,activation_source;
+static size_t activation_token,activation_direct,activation_data,activation_source,activation_names;
 static unsigned activation_count;
 static unsigned transaction_words;
 static size_t transaction_token,transaction_direct,transaction_data;
@@ -158,7 +166,7 @@ static void decimal_number(fcell n) {
  while(i)platform_console_putc((unsigned char)b[--i]);
 }
 static void rollback(void) {
- if(current>=0) {token_used=mark_token;direct_used=mark_direct;data_used=mark_data;source_used=mark_source;map_used=mark_map;}
+ if(current>=0) {token_used=mark_token;direct_used=mark_direct;data_used=mark_data;source_used=mark_source;map_used=mark_map;names_used=mark_names;}
  current=-1;control_used=0;leave_used=0;
 }
 /* Stage 4: the foreground's last runtime failure, captured before fail()
@@ -204,7 +212,7 @@ static unsigned hash(const char *name) {
  unsigned h=0;while(*name)h=(h*33u+(unsigned char)*name++)&(HASH_BUCKETS-1);return h;
 }
 static int find(const char *name) {
- unsigned n=buckets[hash(name)];while(n) {if(equal(words[n-1].name,name))return (int)n-1;n=words[n-1].link;}return -1;
+ unsigned n=buckets[hash(name)];while(n) {if(equal(names+words[n-1].name,name))return (int)n-1;n=words[n-1].link;}return -1;
 }
 static fcell address(const unsigned char *p) {return fvm_address(p);}
 static void put_cell(unsigned char *p,fcell n) {p[0]=(unsigned char)n;p[1]=(unsigned char)(n>>8);p[2]=(unsigned char)(n>>16);}
@@ -240,8 +248,10 @@ static int begin_word(const char *name,unsigned kind) {
  created_unfilled=-1;
  if(count==WORDS_MAX)return fail("dictionary full");
  if(!*name||length(name)>NAME_MAX)return fail("invalid name");
- mark_token=token_used;mark_direct=direct_used;mark_data=data_used;mark_source=source_used;mark_map=map_used;
- current=(int)count;words[count].kind=(unsigned char)kind;copy(words[count].name,name);
+ mark_token=token_used;mark_direct=direct_used;mark_data=data_used;mark_source=source_used;mark_map=map_used;mark_names=names_used;
+ if(length(name)+1>NAME_BYTES-names_used)return fail("name space full");
+ current=(int)count;words[count].kind=(unsigned char)kind;words[count].name=(unsigned short)names_used;
+ copy(names+names_used,name);names_used+=length(name)+1;
  words[count].origin=(unsigned short)origin_id;
  words[count].aux=0;words[count].source=(unsigned short)source_used;words[count].length=0;
  words[count].token=address(token_code+token_used);words[count].direct=address(direct_code+direct_used);
@@ -273,7 +283,7 @@ static int string_literal(const char **input) {
  return current>=0?(literal(a)&&literal((fcell)n)):(fvm_push(a)&&fvm_push((fcell)n));
 }
 static int publish(void) {
- unsigned h=hash(words[count].name);
+ unsigned h=hash(NAME(count));
  words[count].link=buckets[h];words[count].length=(unsigned short)(source_used-words[count].source);
  words[count].token_length=(unsigned short)(token_used-mark_token);
  words[count].direct_length=(unsigned short)(direct_used-mark_direct);
@@ -522,7 +532,7 @@ void forth_emit(unsigned char c){out(c);}
 unsigned forth_current_task(void){return running<0?0u:(unsigned)running+1u;}
 int forth_task_info(unsigned id,struct forth_task_info *o) {
  if(!o||!id||id>FORTH_TASKS_MAX)return 0;const struct task *t=&tasks[id-1];
- o->state=t->state;o->xt=t->xt;o->name=t->xt&&t->xt<=count?words[t->xt-1].name:"";o->error=t->error;
+ o->state=t->state;o->xt=t->xt;o->name=t->xt&&t->xt<=count?NAME(t->xt-1):"";o->error=t->error;
  o->depth=t->depth;o->rdepth=t->rdepth;o->ds_peak=t->ds_peak;o->rs_peak=t->rs_peak;
  o->slices=t->slices;o->steps=t->steps;o->output_bytes=t->out_count;o->output_dropped=t->out_dropped;return 1;
 }
@@ -644,7 +654,7 @@ static void print_source_token(fcell xt,fcell offset,enum forth_engine engine){
 }
 static void trace_step(void) {
  fcell offset;fcell xt=code_xt(fvm_ip,&offset);--trace_left;++trace_steps;
- print("step ");decimal_number(trace_steps);print(" word ");print(xt&&xt<=count?words[xt-1].name:"?");print("+");decimal_number(offset);
+ print("step ");decimal_number(trace_steps);print(" word ");print(xt&&xt<=count?NAME(xt-1):"?");print("+");decimal_number(offset);
  print(" src ");print_source_token(xt,offset,selected);
  print(" depth ");decimal_number(fvm_depth);print(" rdepth ");decimal_number(fvm_rdepth);
  if(fvm_depth&&fvm_depth<=FVM_DS){print(" top ");number(fvm_ds[fvm_depth-1]);}print("\r\n");
@@ -663,21 +673,21 @@ static void crash_report(void) {
  print(" engine ");print(crash.engine==FORTH_DIRECT?"DIRECT":crash.engine==FORTH_TOKEN?"TOKEN":"C");
  print(" stale ");decimal_number(crash.catalog!=catalog_revision);print(" base ");decimal_number(crash.base);
  print(" message ");hex_text(crash.message);print(" ip ");decimal_number(crash.ip);
- print(" word ");hex_text(crash.xt&&crash.xt<=count?words[crash.xt-1].name:"");print(" offset ");decimal_number(crash.offset);
+ print(" word ");hex_text(crash.xt&&crash.xt<=count?NAME(crash.xt-1):"");print(" offset ");decimal_number(crash.offset);
  print(" src ");print_source_token(crash.catalog!=catalog_revision?0:crash.xt,crash.offset,crash.engine);
  print(" ds-depth ");decimal_number(crash.ds_depth);print(" rdepth ");decimal_number(crash.rdepth);print(" ldepth ");decimal_number(crash.ldepth);
  print(" ds");for(fcell i=0;i<CRASH_DS&&i<crash.ds_depth;++i){print(" ");decimal_number(crash.ds[i]);}print("\r\n");
  for(unsigned i=0;i<crash.frames;++i){
-  print("frame ");decimal_number(i);print(" word ");hex_text(crash.frame_xt[i]&&crash.frame_xt[i]<=count?words[crash.frame_xt[i]-1].name:"");
+  print("frame ");decimal_number(i);print(" word ");hex_text(crash.frame_xt[i]&&crash.frame_xt[i]<=count?NAME(crash.frame_xt[i]-1):"");
   print(" offset ");decimal_number(crash.frame_offset[i]);print(" src ");print_source_token(crash.catalog!=catalog_revision?0:crash.frame_xt[i],crash.frame_offset[i],crash.engine);print("\r\n");
  }
 }
 static void task_report(void) {
- static const char *const names[]={"free","ready","sleeping","done","failed","killed"};
+ static const char *const states[]={"free","ready","sleeping","done","failed","killed"};
  for(unsigned i=0;i<FORTH_TASKS_MAX;++i) {
   const struct task *t=&tasks[i];
-  print("task ");decimal_number(i+1);print(" state ");print(names[t->state]);print(" xt ");decimal_number(t->xt);
-  print(" name ");hex_text(t->xt&&t->xt<=count?words[t->xt-1].name:"");print(" slices ");decimal_number(t->slices);
+  print("task ");decimal_number(i+1);print(" state ");print(states[t->state]);print(" xt ");decimal_number(t->xt);
+  print(" name ");hex_text(t->xt&&t->xt<=count?NAME(t->xt-1):"");print(" slices ");decimal_number(t->slices);
   print(" steps ");decimal_number(t->steps);print(" depth ");decimal_number(t->depth);print(" rdepth ");decimal_number(t->rdepth);
   print(" ds-peak ");decimal_number(t->ds_peak);print(" rs-peak ");decimal_number(t->rs_peak);
   print(" out ");decimal_number(t->out_count);print(" dropped ");decimal_number(t->out_dropped);print(" error ");hex_text(t->error);
@@ -700,7 +710,7 @@ fcell forth_find_xt(const char *name) {
  while(name[i]){if(i==NAME_MAX)return 0;key[i]=upper(name[i]);++i;}key[i]=0;
  int n=find(key);return n<0?0:(fcell)(n+1);
 }
-const char *forth_xt_name(fcell xt){return xt&&xt<=count?words[xt-1].name:NULL;}
+const char *forth_xt_name(fcell xt){return xt&&xt<=count?NAME(xt-1):NULL;}
 int forth_register_command(int (*hook)(const char *,const char **)) {
  if(transaction_active)return fail("command registration during module transaction");
  outer_hook=hook;return 1;
@@ -840,10 +850,10 @@ static int create_word(const char *name) {
 static void unpublish_created(void){
  unsigned n=(unsigned)created_unfilled;created_unfilled=-1;
  if(n+1!=count)return;   /* something was defined since: leave it */
- struct word *w=&words[n];unsigned h=hash(w->name);
+ struct word *w=&words[n];unsigned h=hash(names+w->name);
  if(buckets[h]!=(unsigned short)(n+1))return;
  buckets[h]=w->link;--count;
- token_used=mark_token;direct_used=mark_direct;source_used=w->source;map_used=mark_map;
+ token_used=mark_token;direct_used=mark_direct;source_used=w->source;map_used=mark_map;names_used=w->name;
  if(!transaction_active)catalog_changed();
 }
 static void show_stack(void) {
@@ -854,9 +864,9 @@ static void show_word(int n) {
  if(words[n].length) {
   const char *p=source_space+words[n].source;
   for(unsigned i=0;i<words[n].length;++i)platform_console_putc((unsigned char)p[i]);
- }else {print(words[n].kind==WK_PRIMITIVE?"primitive ":"data word ");print(words[n].name);}
+ }else {print(words[n].kind==WK_PRIMITIVE?"primitive ":"data word ");print(NAME(n));}
  print("\r\n");
- print("word ");print(words[n].name);print(" xt ");decimal_number((fcell)(n+1));
+ print("word ");print(NAME(n));print(" xt ");decimal_number((fcell)(n+1));
  print(" kind ");decimal_number(words[n].kind);print(" token ");decimal_number(words[n].token);
  print(" direct ");decimal_number(words[n].direct);print(" token-bytes ");decimal_number(words[n].token_length);
  print(" direct-bytes ");decimal_number(words[n].direct_length);print("\r\n");
@@ -978,7 +988,7 @@ int forth_eval(const char *source) {
   }
   if(equal(s,"WORDS")||equal(s,".S")||equal(s,"SEE")||equal(s,"RESOURCES")||equal(s,"ENGINE")) {
    if(current>=0)return fail("interactive tool inside definition");
-   if(equal(s,"WORDS")){for(unsigned i=0;i<count;++i){print(" ");print(words[i].name);}print(" \r\n");}
+   if(equal(s,"WORDS")){for(unsigned i=0;i<count;++i){print(" ");print(NAME(i));}print(" \r\n");}
    else if(equal(s,".S"))show_stack();
    else if(equal(s,"SEE")){if(!need_token(&p,name))return 0;int n=find(name);if(n<0)return unknown(name);show_word(n);}
    else if(equal(s,"RESOURCES"))forth_report();
@@ -1009,7 +1019,7 @@ void forth_init(void) {
  {"AND",F_AND},{"OR",F_OR},{"XOR",F_XOR},{"INVERT",F_INVERT},{"=",F_EQ},{"<",F_LT},{"U<",F_ULT},{"0=",F_ZEROEQ},
  {"@",F_FETCH},{"!",F_STORE},{"C@",F_CFETCH},{"C!",F_CSTORE},{"EMIT",F_EMIT},{".",F_DOT},{"CR",F_CR},{"KEY",F_KEY},
  {">R",F_TOR},{"R>",F_RFROM},{"R@",F_RFETCH},{"I",F_I},{"EXECUTE",F_EXECUTE},{"LSHIFT",F_LSHIFT},{"RSHIFT",F_RSHIFT},{"DEPTH",F_DEPTH}};
- token_used=direct_used=data_used=source_used=control_used=0;count=0;current=-1;map_used=mark_map=0;
+ token_used=direct_used=data_used=source_used=control_used=names_used=0;count=0;current=-1;map_used=mark_map=0;
  native_count=origin_id=0;outer_hook=NULL;idle_hook=NULL;transaction_active=have_activation=0;
  observer_active=0;catalog_changed();
  forth_modules_reset();transport_crc=0;
@@ -1060,7 +1070,7 @@ unsigned forth_word_count(void) {return count;}
 int forth_inspect_word(unsigned index,struct forth_word_info *out) {
  if(!out||index>=count)return 0;
  const struct word *w=&words[index];
- out->name=w->name;out->source=source_space+w->source;
+ out->name=names+w->name;out->source=source_space+w->source;
  out->source_length=w->length;out->kind=w->kind;out->origin=w->origin;
  out->xt=(fcell)(index+1);out->token_address=w->token;out->direct_address=w->direct;
  out->token_bytes=w->token_length;out->direct_bytes=w->direct_length;
@@ -1077,7 +1087,7 @@ int forth_inspect_word(unsigned index,struct forth_word_info *out) {
   fvm_error=saved_error;
   if(w->kind==WK_DEFER&&out->value_valid) {
    out->target_xt=out->value;
-   if(out->target_xt&&out->target_xt<=count)out->target_name=words[out->target_xt-1].name;
+   if(out->target_xt&&out->target_xt<=count)out->target_name=NAME(out->target_xt-1);
   }
  }
  return 1;
@@ -1121,7 +1131,7 @@ int forth_observe(const char *name,fcell budget,char *error,size_t capacity) {
 }
 
 static void checkpoint_take(struct checkpoint *s) {
- s->token=token_used;s->direct=direct_used;s->data=data_used;s->source=source_used;s->count=count;s->map=map_used;
+ s->token=token_used;s->direct=direct_used;s->data=data_used;s->source=source_used;s->names=names_used;s->count=count;s->map=map_used;
  for(unsigned i=0;i<HASH_BUCKETS;++i)s->buckets[i]=buckets[i];
  for(unsigned i=0;i<DATA_BYTES;++i)s->data_bytes[i]=data_space[i];
  s->depth=fvm_depth;s->ip=fvm_ip;s->error=fvm_error;s->budget=fvm_budget;
@@ -1131,7 +1141,7 @@ static void checkpoint_take(struct checkpoint *s) {
 }
 static void checkpoint_restore(const struct checkpoint *s,int dictionary,int data) {
  if(dictionary) {
-  token_used=s->token;direct_used=s->direct;data_used=s->data;source_used=s->source;count=s->count;map_used=s->map;
+  token_used=s->token;direct_used=s->direct;data_used=s->data;source_used=s->source;names_used=s->names;count=s->count;map_used=s->map;
   for(unsigned i=0;i<HASH_BUCKETS;++i)buckets[i]=s->buckets[i];
  }
  if(data)for(unsigned i=0;i<DATA_BYTES;++i)data_space[i]=s->data_bytes[i];
@@ -1181,7 +1191,7 @@ done:
  if(ok&&commit) {
   activation_before=transaction_before;have_activation=1;
   activation_count=count;activation_token=token_used;activation_direct=direct_used;
-  activation_data=data_used;activation_source=source_used;
+  activation_data=data_used;activation_source=source_used;activation_names=names_used;
   fvm_overlay_commit();checkpoint_restore(&transaction_before,0,0);
   catalog_changed();
  }else {fvm_overlay_discard();checkpoint_restore(&transaction_before,1,0);}
@@ -1190,21 +1200,21 @@ done:
 void forth_transaction_forget_rollback(void){have_activation=0;}
 void forth_snapshot_base(struct forth_snapshot_base *b){
  b->token=(uint32_t)token_used;b->direct=(uint32_t)direct_used;b->data=(uint32_t)data_used;
- b->source=(uint32_t)source_used;b->count=count;b->map=map_used;
+ b->source=(uint32_t)source_used;b->count=count;b->map=map_used;b->names=(uint32_t)names_used;
 }
-/* Layout: the final counters and sizeof(struct word) (7 x u32), then the
+/* Layout: the final counters and sizeof(struct word) (8 x u32), then the
  * regions in this order. Regions past the base go first, so a failed read
  * of them leaves the base state's live bytes untouched until the last two. */
 #define SNAPSHOT_REGIONS(b,f) \
  {words+(b)->count,((f)->count-(b)->count)*sizeof(struct word)}, \
  {token_code+(b)->token,(f)->token-(b)->token},{direct_code+(b)->direct,(f)->direct-(b)->direct}, \
- {source_space+(b)->source,(f)->source-(b)->source},{source_map+(b)->map,((f)->map-(b)->map)*sizeof source_map[0]}, \
+ {source_space+(b)->source,(f)->source-(b)->source},{names+(b)->names,(f)->names-(b)->names},{source_map+(b)->map,((f)->map-(b)->map)*sizeof source_map[0]}, \
  {buckets,sizeof buckets},{data_space,(f)->data}
 struct snapshot_region {void *at;size_t size;};
 int forth_snapshot_write(const struct forth_snapshot_base *b,forth_snapshot_io put,void *ctx){
  struct forth_snapshot_base f;forth_snapshot_base(&f);
- if(transaction_active||current>=0||f.count<b->count||f.token<b->token||f.direct<b->direct||f.source<b->source||f.map<b->map)return 0;
- uint32_t header[7]={f.token,f.direct,f.data,f.source,f.count,f.map,(uint32_t)sizeof(struct word)};
+ if(transaction_active||current>=0||f.count<b->count||f.token<b->token||f.direct<b->direct||f.source<b->source||f.map<b->map||f.names<b->names)return 0;
+ uint32_t header[8]={f.token,f.direct,f.data,f.source,f.count,f.map,(uint32_t)sizeof(struct word),f.names};
  if(!put(header,sizeof header,ctx))return 0;
  struct snapshot_region regions[]={SNAPSHOT_REGIONS(b,&f)};
  for(unsigned i=0;i<sizeof regions/sizeof regions[0];++i)if(regions[i].size&&!put(regions[i].at,regions[i].size,ctx))return 0;
@@ -1212,14 +1222,14 @@ int forth_snapshot_write(const struct forth_snapshot_base *b,forth_snapshot_io p
 }
 int forth_snapshot_read(const struct forth_snapshot_base *b,forth_snapshot_io get,void *ctx){
  struct forth_snapshot_base now;forth_snapshot_base(&now);
- if(transaction_active||current>=0||now.token!=b->token||now.direct!=b->direct||now.data!=b->data||now.source!=b->source||now.count!=b->count||now.map!=b->map)return 0;
- uint32_t h[7];if(!get(h,sizeof h,ctx))return 0;
- struct forth_snapshot_base f={h[0],h[1],h[2],h[3],h[4],h[5]};
+ if(transaction_active||current>=0||now.token!=b->token||now.direct!=b->direct||now.data!=b->data||now.source!=b->source||now.count!=b->count||now.map!=b->map||now.names!=b->names)return 0;
+ uint32_t h[8];if(!get(h,sizeof h,ctx))return 0;
+ struct forth_snapshot_base f={h[0],h[1],h[2],h[3],h[4],h[5],h[7]};
  if(h[6]!=sizeof(struct word)||f.count<b->count||f.count>WORDS_MAX||f.token<b->token||f.token>TOKEN_BYTES||f.direct<b->direct||f.direct>DIRECT_BYTES
-    ||f.data>DATA_BYTES||f.source<b->source||f.source>SOURCE_BYTES||f.map<b->map||f.map>SOURCE_MAP_MAX)return 0;
+    ||f.data>DATA_BYTES||f.source<b->source||f.source>SOURCE_BYTES||f.map<b->map||f.map>SOURCE_MAP_MAX||f.names<b->names||f.names>NAME_BYTES)return 0;
  struct snapshot_region regions[]={SNAPSHOT_REGIONS(b,&f)};
  for(unsigned i=0;i<sizeof regions/sizeof regions[0];++i)if(regions[i].size&&!get(regions[i].at,regions[i].size,ctx))return 0;
- token_used=f.token;direct_used=f.direct;data_used=f.data;source_used=f.source;count=f.count;map_used=f.map;
+ token_used=f.token;direct_used=f.direct;data_used=f.data;source_used=f.source;names_used=f.names;count=f.count;map_used=f.map;
  have_activation=0;current=-1;control_used=0;leave_used=0;catalog_changed();return 1;
 }
 void forth_transaction_sizes(unsigned *w,size_t *t,size_t *d,size_t *a){*w=transaction_words;*t=transaction_token;*d=transaction_direct;*a=transaction_data;}
@@ -1227,7 +1237,7 @@ int forth_transaction_rollback(void) {
  if(!have_activation)return forth_transaction_error("no activation checkpoint");
  if(tasks_live())return forth_transaction_error("rollback refused while background tasks are live");
  if(transaction_active||current>=0||fvm_rdepth||fvm_ldepth)return forth_transaction_error("rollback requires idle VM");
- if(count!=activation_count||token_used!=activation_token||direct_used!=activation_direct||data_used!=activation_data||source_used!=activation_source)return forth_transaction_error("rollback blocked by later dictionary definitions");
+ if(count!=activation_count||token_used!=activation_token||direct_used!=activation_direct||data_used!=activation_data||source_used!=activation_source||names_used!=activation_names)return forth_transaction_error("rollback blocked by later dictionary definitions");
  checkpoint_restore(&activation_before,1,1);have_activation=0;catalog_changed();return 1;
 }
 void forth_repl(void) {
