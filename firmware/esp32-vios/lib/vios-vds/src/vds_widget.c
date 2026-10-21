@@ -104,10 +104,10 @@ static void layout_box(vds_ui *u, uint8_t box, unsigned depth) {
 }
 
 /* Pane dividers: in the middle of each gap between two visible panes (lists,
- * text views, boxes; not buttons or labels in a row) of a laid-out box, a
+ * text views, tab strips, boxes; not buttons or labels in a row) of a laid-out box, a
  * one-pixel line (vertical between side-by-side panes, horizontal between
  * stacked ones), black on the window body, white if the body is dark. */
-static int pane(const vds_widget *w) { return w->kind == VDS_WK_LIST || w->kind == VDS_WK_TEXT || w->kind == VDS_WK_BOX; }
+static int pane(const vds_widget *w) { return w->kind == VDS_WK_LIST || w->kind == VDS_WK_TEXT || w->kind == VDS_WK_TABS || w->kind == VDS_WK_BOX; }
 static int dark(const vds_style *st, uint8_t index) {
     uint8_t p = st->palette[index & 15];                            /* RGB222 */
     return 2u * (p >> 4 & 3) + 5u * (p >> 2 & 3) + (p & 3) < 12u;   /* weighted luma, max 24 */

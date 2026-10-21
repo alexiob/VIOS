@@ -66,15 +66,21 @@ def main():
             check('engine_refused_while_live', not ev('ENGINE TOKEN')['ok'])
             ev('1234')  # foreground marker: background faults below must not clear it
             ev(': TPR 72 EMIT 105 EMIT CR ; : TKK KEY ;')
-            # Both inside CRITICAL: with busy workers the tick runs tasks during this
-            # line, and a finished TPR's slot would be reused by TKK (same id).
-            spawned = ev("CRITICAL( ' TPR SPAWN ' TKK SPAWN )CRITICAL SWAP . .")['output'].split('\r\n')[1]
-            ids = [int(x) for x in spawned.split()]
+            # One after the other: TPR can finish within its own SPAWN line, and a
+            # finished task's slot is reused, so a second SPAWN in the same line
+            # may get the same id.
+            def spawn(word):
+                out = ev(f"' {word} SPAWN .")['output']
+                return int(out.split('\r\n')[1].split()[0])
+            printer = spawn('TPR')
             time.sleep(0.5)
-            states = {t['id']: t for t in c.tool('tasks')['tasks']}
-            check('printer_done', states[ids[0]]['state'] == 'done', states[ids[0]])
-            check('printer_output_isolated', c.tool('task_output', {'id': ids[0]})['text'] == 'Hi\r\n')
-            check('key_task_fails_alone', states[ids[1]]['state'] == 'failed' and 'KEY' in states[ids[1]]['error'], states[ids[1]])
+            state = {t['id']: t for t in c.tool('tasks')['tasks']}[printer]
+            check('printer_done', state['state'] == 'done' and state['name'] == 'TPR', state)
+            check('printer_output_isolated', c.tool('task_output', {'id': printer})['text'] == 'Hi\r\n')
+            keyer = spawn('TKK')
+            time.sleep(0.5)
+            state = {t['id']: t for t in c.tool('tasks')['tasks']}[keyer]
+            check('key_task_fails_alone', state['state'] == 'failed' and state['name'] == 'TKK' and 'KEY' in state['error'], state)
             ev(' '.join(f'{i} TASK-KILL' for i in workers))
             check('all_stopped', not any(t['state'] in ('ready', 'sleeping') for t in c.tool('tasks')['tasks']))
             stack = c.tool('stacks')['data_stack']

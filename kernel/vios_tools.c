@@ -56,9 +56,12 @@ static void wtext(unsigned char id, const char *s) {
     send(o, 3 + n);
 }
 static void wvalue(unsigned char id, unsigned v) { unsigned char o[] = {0x82, id, (unsigned char)v, (unsigned char)(v >> 8)}; send(o, 4); }
+/* Three column widths, or all zero for plain rows: then no columns are sent
+ * (zero-width columns would draw nothing, blanking the memory/boot tables). */
 static void columns(unsigned char id, unsigned char a, unsigned char b, unsigned char c, const char *header) {
     unsigned char o[] = {0x93, id, 3, a, b, c};
-    send(o, 6);
+    if (!a && !b && !c) o[2] = 0;
+    send(o, o[2] ? 6 : 3);
     wtext(id, header);
 }
 
@@ -124,11 +127,11 @@ static const unsigned char BUILD_WORKSPACE[] = {
     WINDOW(WORKSPACE, 7, 128, 40, 60, 16, DECOR, 255), WIDGET(W_ROOT, WORKSPACE, K_BOX, 255, 0, 0, F_FILL), LAYOUT(W_ROOT, 1, 0),
     WIDGET(W_TEXT, WORKSPACE, K_TEXT, W_ROOT, 0, 1, 0), 0};
 static const unsigned char BUILD_INSPECTOR[] = {
-    WINDOW(INSPECTOR, 8, 32, 32, 70, 34, DECOR, 14), WIDGET(I_ROOT, INSPECTOR, K_BOX, 255, 0, 0, F_FILL), LAYOUT(I_ROOT, 1, 0),
+    WINDOW(INSPECTOR, 8, 32, 32, 70, 34, DECOR, 14), WIDGET(I_ROOT, INSPECTOR, K_BOX, 255, 0, 0, F_FILL), LAYOUT(I_ROOT, 1, 1),   /* gap 1: dividers under the tabs and above the detail */
     WIDGET(I_TABS, INSPECTOR, K_TABS, I_ROOT, 1, 0, 0), WIDGET(I_TABLE, INSPECTOR, K_LIST, I_ROOT, 0, 1, F_PAGER),
     WIDGET(I_DETAIL, INSPECTOR, K_TEXT, I_ROOT, 0, 1, F_READONLY), 0};
 static const unsigned char BUILD_MANAGER[] = {
-    WINDOW(MANAGER, 9, 96, 48, 64, 30, DECOR, 15), WIDGET(M_ROOT, MANAGER, K_BOX, 255, 0, 0, F_FILL), LAYOUT(M_ROOT, 1, 0),
+    WINDOW(MANAGER, 9, 96, 48, 64, 30, DECOR, 15), WIDGET(M_ROOT, MANAGER, K_BOX, 255, 0, 0, F_FILL), LAYOUT(M_ROOT, 1, 1),     /* gap 1: dividers under the tabs and above the detail */
     WIDGET(M_TABS, MANAGER, K_TABS, M_ROOT, 1, 0, 0), WIDGET(M_TABLE, MANAGER, K_LIST, M_ROOT, 0, 1, 0),
     WIDGET(M_DETAIL, MANAGER, K_TEXT, M_ROOT, 0, 1, F_READONLY), 0};
 static const unsigned char BUILD_DIALOG[] = {
