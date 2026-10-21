@@ -399,7 +399,7 @@ To embed a different validated image, set `VIOS_IMAGE=/absolute/path/image.bin` 
 | `build/vios-resident.baud`, `.gui` | same | Sidecars with the internal rate and GUI flag. Keep them with the `.bin`. |
 | `build/agon-stage0.bin`, `agon-crc.bin`, `agon-flash.bin` | same | Small eZ80 stages the ESP runs over ZDI in dev mode: RAM setup (46 bytes), whole-image CRC, flash programmer. |
 | `build/viosboot.bin` | `make viosboot` | The SD boot stub, a MOS moslet at `0x0B0000` (3 KB). |
-| `firmware/esp32-vios/.pio/build/esp32-vios/firmware.bin` | `pio run ... -e esp32-vios` | The ESP32 application, at most `0x140000` bytes (one app slot). About 814 KB for main-51. |
+| `firmware/esp32-vios/.pio/build/esp32-vios/firmware.bin` | `pio run ... -e esp32-vios` | The ESP32 application, at most `0x140000` bytes (one app slot). About 830 KB (849,472 bytes) in 0.8.0. |
 | `firmware/esp32-vios/build-manifest.json` | same, post-build | Firmware size and SHA-256, the embedded resident's path, size, SHA-256, CRC-32, baud rate and GUI flag, the native stages, pinned sources and SHA-256 of every build input. |
 | `firmware/esp32-vios/include/vios_image.json` | same, pre-build | What was embedded (path, size, SHA-256, CRC-32, baud, GUI). |
 
@@ -572,18 +572,22 @@ A good install prints the boot events, then a JSON report, and exits with status
 event: BOOT VIOS v0.8 (c) 2026 Alessandro Iob
 event: BOOT VIOS VDP 1.04 mux-v1 zdi-edge 1us
 event: BOOT retained failures 0
-event: FIRMWARE app1 valid trial
+event: FIRMWARE app0 valid trial
 event: BOOT user mode: no ZDI; MOS and its stub load the resident
 event: BOOT link: MOS answered at the internal rate
 event: MOS: Agon Platform MOS Version 3.0.2 Arthur
 event: BOOT link: stub switched to 1152000
 event: BOOT stub loading the resident over the UART
-event: BOOT image sent: 968 blocks in 2127 ms (build 83 ms, send 1735 ms, slowest send 2724 us)
+event: BOOT image sent: 1042 blocks in 2291 ms (build 90 ms, send 1871 ms, slowest send 2517 us)
 event: BOOT stub runs this firmware's image
 event: HEALTH flag 0
 event: HEALTH flag 1
 event: FIRMWARE confirmed
 ```
+
+This is VIOS 0.8.0 installed into `app0`. The `FIRMWARE ... valid trial` and
+`FIRMWARE confirmed` lines appear only on the first boot of a newly installed
+slot.
 
 The backup directory now holds `otadata-<stamp>.bin` and `app0-<stamp>.bin` or `app1-<stamp>.bin` (whichever slot was overwritten). Keep them. Then restart the harness.
 
@@ -733,7 +737,7 @@ The whole boot takes about 6 to 8 seconds from power-on to a ready system. These
 | --- | --- |
 | 1.9 s | ESP firmware running; MOS banner |
 | 2.5 s | Boot stub running, link at 1,152,000 baud |
-| 4.4 s | Resident image transferred (about 2 s for 186 KB) |
+| 4.4 s | Resident image transferred (about 2 s; 0.8.0's 195 KB image takes 2.3 s in 1,042 blocks) |
 | 5.1 s | Resident running (`HEALTH flag 0`) |
 | 7.7 s | Modules loaded, health check passed (`HEALTH flag 1`, `BOOT READY`) |
 
