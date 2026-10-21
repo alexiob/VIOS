@@ -1,0 +1,219 @@
+# Canvases and icons (GUI G5): kernel/vios_ui.c, firmware/esp32-vios/lib/vios-vds/src/vds_canvas.c
+
+[[word]]
+name = "UI-CANVAS"
+section = "ui-canvas"
+effect = "( canvas surface x y w h bg flags -- )"
+desc = "Create or replace canvas 0..7: w x h pixels (up to 640 x 480) at pixel x y (x a multiple of 8) of a surface, background colour bg, flags UI-CV-VISIBLE and/or UI-CV-CLEAR (transparent: bg is the key colour). Replacing a canvas drops its items. All canvas rasters together are limited to 256 KB."
+example = "3 2 0 0 320 144 3 UI-CV-VISIBLE UI-CANVAS"
+board = true
+
+[[word]]
+name = "UI-CANVAS-AT"
+section = "ui-canvas"
+effect = "( canvas x y -- )"
+desc = "Move a canvas on its surface (x a multiple of 8)."
+board = true
+
+[[word]]
+name = "UI-CANVAS-FLAGS"
+section = "ui-canvas"
+effect = "( canvas flags -- )"
+desc = "Set a canvas's flags (UI-CV-VISIBLE, UI-CV-CLEAR): show, hide or make it transparent. Flags -1 deletes the canvas and its items."
+board = true
+
+[[word]]
+name = "UI-PEN"
+section = "ui-canvas"
+effect = "( canvas colour -- )"
+desc = "Choose the canvas and colour (0..15) that the following item words use. CPU state only: nothing is sent."
+example = "3 4 UI-PEN"
+
+[[word]]
+name = "UI-SHAPE"
+section = "ui-canvas"
+effect = "( item a b c d kind -- )"
+desc = "Set item 0..254 of the pen's canvas to a shape: kind 1 dot, 2 line, 3 rectangle outline, 4 filled bar, 5 oval, 6 disc, 9 stipple (with the second colour in bits 8..11 of kind). The named words UI-DOT ... UI-STIPPLE are colon definitions over it."
+board = true
+
+[[word]]
+name = "UI-DOT"
+section = "ui-canvas"
+effect = "( item x y -- )"
+desc = "Set an item to one pixel in the pen colour."
+board = true
+
+[[word]]
+name = "UI-LINE"
+section = "ui-canvas"
+effect = "( item x0 y0 x1 y1 -- )"
+desc = "Set an item to a line, both end points included."
+example = "0 10 130 300 130 UI-LINE"
+board = true
+
+[[word]]
+name = "UI-RECT"
+section = "ui-canvas"
+effect = "( item x y w h -- )"
+desc = "Set an item to a 1-pixel rectangle outline."
+board = true
+
+[[word]]
+name = "UI-BAR"
+section = "ui-canvas"
+effect = "( item x y w h -- )"
+desc = "Set an item to a filled rectangle."
+example = "1 20 60 30 70 UI-BAR"
+board = true
+
+[[word]]
+name = "UI-OVAL"
+section = "ui-canvas"
+effect = "( item x y w h -- )"
+desc = "Set an item to an ellipse outline inscribed in the box."
+board = true
+
+[[word]]
+name = "UI-DISC"
+section = "ui-canvas"
+effect = "( item x y w h -- )"
+desc = "Set an item to a filled ellipse inscribed in the box."
+board = true
+
+[[word]]
+name = "UI-STIPPLE"
+section = "ui-canvas"
+effect = "( item x y w h colour2 -- )"
+desc = "Set an item to a filled rectangle in a two-colour checker of the pen colour and colour2: the way to shade with 16 colours."
+board = true
+
+[[word]]
+name = "UI-PRINT"
+section = "ui-canvas"
+effect = "( addr n item x y -- )"
+desc = "Set an item to text (up to 20 characters) in the 8x8 font at pixel x y, in the pen colour, with a transparent background. Put a UI-BAR under it for a background."
+example = "S\" sales\" 2 20 132 UI-PRINT"
+board = true
+
+[[word]]
+name = "UI-ICON"
+section = "ui-canvas"
+effect = "( item x y bitmap -- )"
+desc = "Set an item to a bitmap (0..31; 24..31 are the built-in icons) at pixel x y; the bitmap's transparent colour is skipped."
+example = "5 4 4 UI-ICON-FOLDER UI-ICON"
+board = true
+
+[[word]]
+name = "UI-ERASE"
+section = "ui-canvas"
+effect = "( item -- )"
+desc = "Delete an item of the pen's canvas; 255 deletes them all."
+board = true
+
+[[word]]
+name = "UI-WIPE"
+section = "ui-canvas"
+effect = "( -- )"
+desc = "Delete every item of the pen's canvas (255 UI-ERASE)."
+board = true
+
+[[word]]
+name = "UI-NUDGE"
+section = "ui-canvas"
+effect = "( item dx dy -- )"
+desc = "Move an item by dx dy pixels."
+example = "1 0 -20 UI-NUDGE"
+board = true
+
+[[word]]
+name = "UI-INK"
+section = "ui-canvas"
+effect = "( item colour -- )"
+desc = "Recolour an item."
+board = true
+
+[[word]]
+name = "UI-BITMAP"
+section = "ui-canvas"
+effect = "( bitmap w h transparent -- )"
+desc = "Define your own bitmap 0..23, up to 64 x 64 pixels at 4 bits per pixel, with transparent as the colour that is not drawn. Fill it with UI-BITS. Bitmaps are shared by all canvases."
+board = true
+
+[[word]]
+name = "UI-BITS"
+section = "ui-canvas"
+effect = "( addr n bitmap offset -- )"
+desc = "Copy n bytes of 4-bit pixels (two a byte, rows packed) from addr into a bitmap at byte offset; sent in chunks of 64 bytes."
+board = true
+
+[[word]]
+name = "UI-CV-VISIBLE"
+section = "ui-const"
+effect = "( -- 1 )"
+desc = "Canvas flag: shown."
+
+[[word]]
+name = "UI-CV-CLEAR"
+section = "ui-const"
+effect = "( -- 2 )"
+desc = "Canvas flag: transparent; the background colour is the key and the surface's cells show through."
+
+[[word]]
+name = "UI-EV-CANVAS"
+section = "ui-const"
+effect = "( -- 19 )"
+desc = "Event kind: a click in a visible canvas, with the point in canvas pixels and the topmost item there (255 for none)."
+
+[[word]]
+name = "UI-TWEEN-CANVAS"
+section = "ui-const"
+effect = "( -- 2 )"
+desc = "UI-ANIMATE target: a canvas (properties UI-X and UI-Y slide it over its surface)."
+
+[[word]]
+name = "UI-ICON-DOCUMENT"
+section = "ui-const"
+effect = "( -- 24 )"
+desc = "Built-in 16x16 icon: a document."
+
+[[word]]
+name = "UI-ICON-FOLDER"
+section = "ui-const"
+effect = "( -- 25 )"
+desc = "Built-in 16x16 icon: a folder."
+
+[[word]]
+name = "UI-ICON-WORD"
+section = "ui-const"
+effect = "( -- 26 )"
+desc = "Built-in 16x16 icon: a Forth word."
+
+[[word]]
+name = "UI-ICON-MODULE"
+section = "ui-const"
+effect = "( -- 27 )"
+desc = "Built-in 16x16 icon: a module."
+
+[[word]]
+name = "UI-ICON-INFO"
+section = "ui-const"
+effect = "( -- 28 )"
+desc = "Built-in 16x16 icon: information."
+
+[[word]]
+name = "UI-ICON-WARNING"
+section = "ui-const"
+effect = "( -- 29 )"
+desc = "Built-in 16x16 icon: a warning."
+
+[[word]]
+name = "UI-ICON-ERROR"
+section = "ui-const"
+effect = "( -- 30 )"
+desc = "Built-in 16x16 icon: an error."
+
+[[word]]
+name = "UI-ICON-DISK"
+section = "ui-const"
+effect = "( -- 31 )"
+desc = "Built-in 16x16 icon: a disk."

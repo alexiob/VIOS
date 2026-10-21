@@ -126,6 +126,10 @@ static vds esp_v;static vds_proto esp_p;static vds_ui esp_u;
 static uint8_t esp_reply[32],esp_reply_n,esp_reply_valid;static int esp_nudged;
 static vds_cell *esp_cells(void *ctx,uint8_t id,uint16_t n){(void)ctx;return id<VDS_MAX_SURFACES&&n<=80*60?cell_store[id]:0;}
 static void esp_send(void *ctx,uint8_t code,const uint8_t *d,uint8_t n){(void)ctx;if(code==VDS_PACKET_EVENT){esp_nudged=1;return;}if(n>sizeof esp_reply)n=sizeof esp_reply;memcpy(esp_reply,d,n);esp_reply_n=n;esp_reply_valid=1;}
+#ifdef VDS_MAX_CANVASES
+static uint8_t canvas_store[VDS_MAX_CANVASES][VDS_CANVAS_ITEMS*sizeof(vds_item)+320*480];
+static void *canvas_mem(void *ctx,uint8_t id,uint32_t n){(void)ctx;return id<VDS_MAX_CANVASES&&n<=sizeof canvas_store[0]?canvas_store[id]:0;}
+#endif
 static void esp_frames(void){for(int i=0;i<4;++i)vds_proto_frame(&esp_p,20,UINT32_MAX);}
 /* GUI batches arrive as 23,0,E4,len then the payload, in one call or two;
  * other VDU traffic goes to the stub. Returns 0 when the bytes are not GUI. */
@@ -152,13 +156,22 @@ static void esp_init(const char *font_path){
  for(int y=0;y<480;++y)fb_rows[y]=fb[y];
  if(!vds_init(&esp_v,fb_rows,640,480,font)){fprintf(stderr,"vds_init\n");exit(2);}
  vds_proto_init(&esp_p,&esp_v,esp_cells,esp_send,0);vds_ui_init(&esp_u,&esp_p);
+#ifdef VDS_MAX_CANVASES
+ esp_p.canvas_mem=canvas_mem;vds_canvas_icons(&esp_v);
+#endif
  /* The board's Console window (include/vios_gui.h): surface 16, window 32. */
  vds_surface_init(&esp_v,VDS_CONSOLE_SURFACE,74,28,cell_store[VDS_CONSOLE_SURFACE],0x30);
  vds_window_open(&esp_v,VDS_CONSOLE_WINDOW,VDS_CONSOLE_SURFACE,16,228,74,28,VDS_W_VISIBLE|VDS_W_DECOR|VDS_W_SHADOW,"Console");
 }
 /* "#BLOCK @shot PATH" saves the screen as a PPM instead of evaluating. */
 static int esp_shot(const char *path){
- for(int i=0;i<1000&&!vds_frame(&esp_v,UINT32_MAX);++i);
+ for(int i=0;i<1000;++i){
+#ifdef VDS_MAX_CANVASES
+  vds_canvas_prepare(&esp_v,UINT32_MAX);if(vds_frame(&esp_v,UINT32_MAX)&&!vds_canvas_pending(&esp_v))break;
+#else
+  if(vds_frame(&esp_v,UINT32_MAX))break;
+#endif
+ }
  FILE *f=fopen(path,"wb");if(!f)return 0;
  fprintf(f,"P6\n640 480\n255\n");
  for(int y=0;y<480;++y)for(int x=0;x<640;++x){uint8_t i=(x&1)?fb[y][x>>1]&15:fb[y][x>>1]>>4,c=esp_v.style.palette[i];

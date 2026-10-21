@@ -330,11 +330,13 @@ def media(only=None):
             if any(l.strip() == 'runtime full' for l in lines):
                 # The whole resident runtime (handles, files, /dev/win) on the
                 # real display server: eval lines are blocks, shots dump the screen.
-                blocks = [f'#BLOCK @shot {out}/{l[5:].strip()}.ppm' if l.startswith('shot ') else f'#BLOCK {k}\n{l[5:]}'
+                unescape = lambda t: re.sub(r'\\(.)', lambda m: '\n' if m.group(1) == 'n' else m.group(1), t)
+                blocks = [f'#BLOCK @shot {out}/{l[5:].strip()}.ppm' if l.startswith('shot ') else f'#BLOCK {k}\n{unescape(l[5:])}'
                           for k, l in enumerate(lines) if l.startswith(('eval ', 'shot '))]
                 result = doc_host('--check', stdin='\n'.join(blocks) + '\n')
-                if 'FAIL' in result.stdout:
-                    sys.exit(f'{scene.name}: {result.stdout[result.stdout.index("FAIL") - 60:][:300]}')
+                failed = re.findall(r'#RESULT (\S+) FAIL (.*)', result.stdout)
+                if failed:
+                    sys.exit(f'{scene.name}: line {failed[0][0]}: {failed[0][1]}')
             else:
                 result = subprocess.run([str(BUILD / 'vios_shots'), str(BUILD / 'font.bin'), out],
                                         input='\n'.join(lines) + '\n', text=True, capture_output=True, cwd=ROOT)

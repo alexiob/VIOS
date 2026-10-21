@@ -1789,6 +1789,11 @@ stack. The offsets depend on the engine (token code offsets in the `C` and
 trace ends with `trace failed`; if it runs out of steps, with
 `trace step limit reached`.
 
+The source tokens come from a source map of 640 entries shared by every word
+defined since boot. After many definitions in one session, words defined later
+trace with `src -` instead of their tokens; `LAST-ERROR` shows `-` the same way.
+A reboot (or a fresh boot that loads your modules) clears the map.
+
 ### Differences from ANS Forth
 
 VIOS Forth follows the classic Forth model but is not an ANS/Forth-2012
@@ -2992,6 +2997,7 @@ handles; they are internal to `PIPELINE`.
 | `/dev/null` | read or write | reads return 0 (end); writes report every byte as written |
 | `/dev/cons` | write | bytes go to the console |
 | `/dev/tasks` | read | a snapshot of the task slots, one line each: `id state name slices steps error` |
+| `/dev/win`, `/dev/win/...`, `/dev/ui/tree` | read; write where the file accepts it | the display server's windows and widgets as text files: see [Windows as files: /dev/win](#windows-as-files-devwin) |
 
 ```forth
 S" /dev/cons" 2 OPEN CONSTANT CON
@@ -3817,9 +3823,14 @@ there is only one). Most events need nothing more:
 | [`UI-EV-WIN`](#w-ui-ev-win) | 16 | window | low byte: 1 moved, 2 close request, 3 zoomed, 4 restored | x, y, cols, rows |
 | [`UI-EV-COMMAND`](#w-ui-ev-command) | 17 | focused window | command id | source: 1 menu, 2 key, 3 palette |
 | [`UI-EV-ANIMDONE`](#w-ui-ev-animdone) | 18 | window or sprite | target + 256 * property | |
+| [`UI-EV-CANVAS`](#w-ui-ev-canvas) | 19 | canvas | x in canvas pixels | y, the item under the point (255 none) |
 
 For "low byte" rows take `arg 255 AND`, because the second byte of `arg` is
 already the next argument.
+
+Kind 20 carries the text lines of `/dev/win/N/event` files to the handle
+layer (see [Windows as files: /dev/win](#windows-as-files-devwin)); while such a
+file is open, that node's events never reach `UI-NEXT`.
 
 Some practical points:
 
@@ -3969,6 +3980,112 @@ UI-TWEEN-WINDOW 1 UI-Y 480 80 700 UI-SPRING UI-ANIMATE   \ the Notes window drop
 Window x positions are still snapped to 8 pixels during a tween unless the
 window has `UI-FREE-X` or the snap is 1; y moves pixel by pixel.
 
+### Canvases and icons
+
+A **canvas** puts pixel graphics into a window: lines, rectangles, filled
+boxes, ovals, discs, two-colour stipples, text at any pixel and icons. You
+describe the picture once as a **display list** that the ESP keeps, then
+change single items. The CPU never sends pixels and keeps no copy of the
+picture: only a two-byte *pen* (the current canvas and colour).
+
+![A canvas: a bar chart drawn with UI-BAR, UI-LINE and UI-PRINT, and the eight built-in icons](media/gui-canvas.png)
+
+**The model.**
+
+- A canvas is a `w × h` pixel rectangle placed on a **surface** at pixel
+  position `x y` (x a multiple of 8). Every window that shows the surface
+  shows the canvas, and it scrolls with the window. When the surface's *cells*
+  scroll (console style), the canvas stays where it is.
+- It has a background colour, or it is *transparent* (the surface's text
+  shows through wherever nothing is drawn).
+- Its **items** have ids 0–254 and draw in id order, higher ids on top.
+  Setting an item that exists replaces it, so you can leave gaps in the
+  numbering and fill them later.
+- The ESP keeps a 4-bit backing raster per canvas and redraws only the part
+  an edit touched, at the start of the next frame and within the frame's time
+  budget. A canvas therefore costs about what the same area of text costs to
+  compose, however many items it has.
+- Colours are palette indices 0–15. Indices 4–15 change with the style
+  (Smalltalk or Turbo Vision); 0–3 look the same in both.
+
+| Limit | Value |
+|---|---|
+| Canvases | 8 (ids 0–7) |
+| Canvas size | up to 640 × 480; all rasters together at most 256 KB |
+| Items | 255 per canvas (ids 0–254) |
+| Text item | up to 20 characters |
+| Bitmaps | 32 ids: 0–23 your own (up to 64 × 64, 4 bits per pixel), 24–31 built-in 16 × 16 icons |
+
+**Drawing.** Create the canvas with [`UI-CANVAS`](#w-ui-canvas), choose it
+and a colour with [`UI-PEN`](#w-ui-pen), then set items:
+
+| Word | Stack | Item |
+|---|---|---|
+| [`UI-DOT`](#w-ui-dot) | ( item x y -- ) | one pixel |
+| [`UI-LINE`](#w-ui-line) | ( item x0 y0 x1 y1 -- ) | a line, both ends included |
+| [`UI-RECT`](#w-ui-rect) | ( item x y w h -- ) | a 1-pixel outline |
+| [`UI-BAR`](#w-ui-bar) | ( item x y w h -- ) | a filled rectangle |
+| [`UI-OVAL`](#w-ui-oval) | ( item x y w h -- ) | an ellipse outline in the box |
+| [`UI-DISC`](#w-ui-disc) | ( item x y w h -- ) | a filled ellipse |
+| [`UI-STIPPLE`](#w-ui-stipple) | ( item x y w h colour2 -- ) | a checker of the pen colour and colour2: the 16-colour way to shade |
+| [`UI-PRINT`](#w-ui-print) | ( addr n item x y -- ) | text in the 8×8 font at any pixel, transparent background |
+| [`UI-ICON`](#w-ui-icon) | ( item x y bitmap -- ) | a bitmap; its transparent colour is skipped |
+
+The shapes all go through one native word, [`UI-SHAPE`](#w-ui-shape), so
+they cost no dictionary slots beyond their colon definitions. Coordinates are
+canvas pixels and may be negative; everything is clipped to the canvas.
+
+**Editing.** [`UI-NUDGE`](#w-ui-nudge) ( item dx dy -- ) moves an item,
+[`UI-INK`](#w-ui-ink) ( item colour -- ) recolours it,
+[`UI-ERASE`](#w-ui-erase) ( item -- ) deletes it, and
+[`UI-WIPE`](#w-ui-wipe) deletes them all. [`UI-CANVAS-AT`](#w-ui-canvas-at)
+moves the whole canvas on its surface, and
+[`UI-CANVAS-FLAGS`](#w-ui-canvas-flags) shows it, hides it, makes it
+transparent or (with flags −1) deletes it. A tween can slide a canvas
+without the CPU: target [`UI-TWEEN-CANVAS`](#w-ui-tween-canvas) in
+[`UI-ANIMATE`](#w-ui-animate).
+
+![Editing a canvas: each step replaces three bars, then recolours one item and nudges another; the ESP redraws only what changed](media/anim-canvas.gif)
+
+A bar chart in which one bar later changes:
+
+```forth
+2 40 18 48 UI-SURFACE                                \ surface 2: 40x18 cells
+5 2 160 100 40 18 UI-VISIBLE UI-DECOR OR UI-SHADOW OR UI-WINDOW
+S" Sales" 5 UI-TITLE
+3 2 0 0 320 144 3 UI-CV-VISIBLE UI-CANVAS             \ canvas 3 fills it, white
+3 0 UI-PEN  0 10 130 300 130 UI-LINE                  \ item 0: the axis
+3 4 UI-PEN  1 20 60 30 70 UI-BAR                      \ item 1: a bar in colour 4
+            2 70 90 30 40 UI-BAR                      \ item 2: another
+3 0 UI-PEN  S" Q1  Q2" 3 20 134 UI-PRINT              \ item 3: the captions
+UI-COMMIT
+1 0 -20 UI-NUDGE  UI-COMMIT                           \ later: bar 1 grows 20 px
+```
+
+**Icons.** Eight 16 × 16 icons are built into the firmware as bitmaps 24–31:
+[`UI-ICON-DOCUMENT`](#w-ui-icon-document), `UI-ICON-FOLDER`, `UI-ICON-WORD`,
+`UI-ICON-MODULE`, `UI-ICON-INFO`, `UI-ICON-WARNING`, `UI-ICON-ERROR` and
+`UI-ICON-DISK`. Your own bitmaps (ids 0–23) are defined with
+[`UI-BITMAP`](#w-ui-bitmap) ( bitmap w h transparent -- ) and filled with
+[`UI-BITS`](#w-ui-bits) ( addr n bitmap offset -- ): 4 bits per pixel, two
+pixels a byte, rows packed. The bitmap pool is shared by all canvases.
+
+```forth
+4 2 0 0 160 24 3 UI-CV-VISIBLE UI-CANVAS              \ a strip of icons on surface 2
+4 0 UI-PEN
+: ICONS ( -- ) 8 0 DO  I  I 20 * 4 +  4  I 24 +  UI-ICON  LOOP ;
+ICONS UI-COMMIT
+```
+
+**Events.** A click inside a visible canvas also queues a
+[`UI-EV-CANVAS`](#w-ui-ev-canvas) event: the canvas id, the point in canvas
+pixels and the topmost item there (255 for none), besides the ordinary pointer
+event. With the keyboard pointer (Ctrl+F12) this works without a mouse.
+
+**Resetting.** [`UI-RESET`](#w-ui-reset) drops every canvas and your
+bitmaps; the built-in icons stay.
+
+
 ### Sprites and the pointer
 
 Sprites are small 4-bit bitmaps drawn above all windows, higher ids on top. A
@@ -4026,6 +4143,113 @@ snap to 8. The server's own Console window comes back at once, and the GUI
 tools reinstall their commands and world menu, so the desktop stays usable.
 Close your own windows with `UI-CLOSE` when you only want to tidy up, and keep
 `UI-RESET` for test setups.
+
+### Windows as files: /dev/win
+
+Every window and widget the display server holds is also a set of text files
+under `/dev/win`, in the spirit of Plan 9's window system. You can build,
+inspect and drive a user interface with nothing but
+[`OPEN`](#w-open), [`READ`](#w-read), [`WRITE`](#w-write) and
+[`CLOSE`](#w-close) (see [Handles, Pipes and Devices](#handles-pipes-and-devices)),
+from Forth, from a task, or from the Mac. The ESP renders and parses the text,
+so the files always show the server's real state; the CPU only keeps the read
+position of each open handle.
+
+| File | Read | Write |
+|---|---|---|
+| `/dev/win` | one line per node: `id kind parent name rect` (windows first, then widgets in creation order) | — |
+| `/dev/win/new` | the id of the node made last | `kind parent name`, one node per line |
+| `/dev/win/N/ctl` | the node's properties, one per line | commands, one per line |
+| `/dev/win/N/text` | the content: a label's text, a list's rows, a text view's text, a window's title | replaces the content (later writes on the same handle append) |
+| `/dev/win/N/event` | the node's events as text lines (a stream: a read waits for the next) | — |
+| `/dev/ui/tree` | Forth source that rebuilds every window and widget | — |
+
+`N` is a widget id (`0`–`63`) or `w` and a window id (`w0`–`w26`). Names
+show spaces as `_` and `-` when empty. Kinds are `window`, `box`, `label`,
+`button`, `check`, `radio`, `input`, `list`, `progress`, `text` (a text view)
+and `tabs`.
+
+**Making nodes.** Write `window - Title` to `/dev/win/new` for a window (it
+gets the lowest free id and its own 32 × 12 surface), or `kind parent name`
+for a widget whose parent is a window (`w0`) or a box. The new node takes the
+lowest free id; reading `/dev/win/new` gives the id made last, and `/dev/win`
+lists them all.
+
+**ctl commands:** `rect a b c d` (a window: x y cols rows in pixels and
+cells; a widget: col row w h), `text T`, `name T`, `show 0|1`, `flags F`,
+`focus`, `raise` (a window), `value V`, `layout L G` and `size F W` (boxes and
+their children), `style S` (a widget's look: 0 normal, 1 strong, 2 fault, drawn
+in red), `theme T` (the whole display: 0 Smalltalk, 1 Turbo Vision), `close`
+(a window, freeing the surface it was given) and `delete`. From Forth,
+[`UI-WSTYLE`](#w-ui-wstyle) ( id style -- ) sets a widget's style.
+
+A small window built from the console with two helper words:
+
+```forth
+CREATE BUF 256 ALLOT
+: SPIT ( addr u path pu -- ) 2 OPEN >R R@ WRITE DROP R> CLOSE DROP ;
+: SLURP ( path pu -- ) 1 OPEN >R BUF 256 R@ READ BUF SWAP TYPE R> CLOSE DROP ;
+S" window - Greeter" S" /dev/win/new" SPIT
+S" /dev/win" SLURP
+```
+
+```text
+w0 window - Greeter 64 64 32 12
+```
+
+```forth
+S" label w0 msg" S" /dev/win/new" SPIT
+S" button w0 hello" S" /dev/win/new" SPIT
+S" rect 2 2 20 1" S" /dev/win/0/ctl" SPIT
+S" Hello from a file!" S" /dev/win/0/text" SPIT
+S" rect 2 5 12 1" S" /dev/win/1/ctl" SPIT
+S" text &Again" S" /dev/win/1/ctl" SPIT
+S" /dev/win/1/ctl" SLURP
+```
+
+```text
+kind button
+parent w0
+name hello
+rect 2 5 12 1
+show 1
+flags 0
+value 0
+count 0
+layout 0 0
+size 0 1
+focus 1
+style 0
+text &Again
+```
+
+![A window built only by writing to files under /dev/win: a label, a list, a button, a label in the fault style and a progress bar](media/devwin.png)
+
+**Events as a stream.** Opening `/dev/win/N/event` routes that node's events
+into a pipe as lines such as `activate`, `change 1`, `select 7`, `page -1`,
+`moved 80 48 40 16`, `close` or `command 12 1`, instead of
+[`UI-NEXT`](#w-ui-next). A task can wait on it with
+[`READ-WAIT`](#w-read-wait) without polling the display server; closing the
+file hands the node's events back to `UI-NEXT`.
+
+<!-- nocheck -->
+```forth
+CREATE EV 64 ALLOT
+: CLICKS ( -- )   \ a task: count the button's activations on the console
+  S" /dev/win/1/event" 1 OPEN >R
+  BEGIN EV 64 R@ READ-WAIT DUP 0 > WHILE EV SWAP TYPE REPEAT
+  DROP R> CLOSE DROP ;
+' CLICKS SPAWN-CON .
+```
+
+**Snapshots.** `/dev/ui/tree`, and the word [`UI-SNAPSHOT`](#w-ui-snapshot)
+that prints it, give Forth source (`UI-SURFACE`, `UI-WINDOW`, `UI-WIDGET`,
+`UI-ITEM`... lines) that rebuilds the current windows and widgets. Save it to
+a file and `LOAD` it to restore a layout, text views' text included (written
+with [`UI-TEXT`](#w-ui-text), [`UI-TEXT+`](#w-ui-textplus) and
+[`UI-CH`](#w-ui-ch) for newlines and quotes). [`UI-WNAME`](#w-ui-wname) ( addr len id -- ) gives a
+widget the name `/dev/win` shows.
+
 
 ### Off-screen composition
 
@@ -5524,9 +5748,9 @@ untouched, so you can load them together; run one loop at a time.
 
 <!-- BEGIN WORD REFERENCE (generated by tools/vios_manual.py words) -->
 
-This reference lists all 351 words that VIOS accepts, generated from the sources by `tools/vios_manual.py words`. **Kind** is how the word is made: *primitive* (a VM opcode), *native* (a C function), *prelude* or *colon* (defined in Forth; the definition is shown), *constant*, *variable*, *defer* (a replaceable binding), *compiler* (parsed by the outer interpreter) or *command* (a line command parsed by the kernel; the rest of the line is its argument). Words marked **board** do real work only on the board (on the host build they talk to stubs).
+This reference lists all 388 words that VIOS accepts, generated from the sources by `tools/vios_manual.py words`. **Kind** is how the word is made: *primitive* (a VM opcode), *native* (a C function), *prelude* or *colon* (defined in Forth; the definition is shown), *constant*, *variable*, *defer* (a replaceable binding), *compiler* (parsed by the outer interpreter) or *command* (a line command parsed by the kernel; the rest of the line is its argument). Words marked **board** do real work only on the board (on the host build they talk to stubs).
 
-**Sections:** [Stack](#ref-stack) · [Arithmetic](#ref-arith) · [Bits and logic](#ref-logic) · [Comparison](#ref-compare) · [Memory and data space](#ref-memory) · [Numbers and BASE](#ref-numbers) · [Control flow](#ref-control) · [Defining words](#ref-defining) · [Strings and characters](#ref-strings) · [Output](#ref-output) · [Input](#ref-input) · [Inspection and debugging](#ref-inspect) · [Engines and benchmarks](#ref-engine) · [System services](#ref-system) · [Time and interrupts](#ref-timing) · [Display and VDP](#ref-display) · [Audio](#ref-audio) · [Tasks](#ref-tasks) · [Pipes and pipelines](#ref-pipes) · [Handles and devices](#ref-handles) · [Files and loading](#ref-files) · [Modules](#ref-modules) · [Boot slots](#ref-boot) · [GUI: setup and batching](#ref-ui-setup) · [GUI: windows](#ref-ui-window) · [GUI: surfaces and cells](#ref-ui-surface) · [GUI: commands and menus](#ref-ui-menu) · [GUI: widgets](#ref-ui-widget) · [GUI: text views](#ref-ui-text) · [GUI: events](#ref-ui-event) · [GUI: animation](#ref-ui-anim) · [GUI: sprites and pointer](#ref-ui-sprite) · [GUI: constants](#ref-ui-const) · [GUI tools](#ref-tools) · [Text workbench](#ref-workbench)
+**Sections:** [Stack](#ref-stack) · [Arithmetic](#ref-arith) · [Bits and logic](#ref-logic) · [Comparison](#ref-compare) · [Memory and data space](#ref-memory) · [Numbers and BASE](#ref-numbers) · [Control flow](#ref-control) · [Defining words](#ref-defining) · [Strings and characters](#ref-strings) · [Output](#ref-output) · [Input](#ref-input) · [Inspection and debugging](#ref-inspect) · [Engines and benchmarks](#ref-engine) · [System services](#ref-system) · [Time and interrupts](#ref-timing) · [Display and VDP](#ref-display) · [Audio](#ref-audio) · [Tasks](#ref-tasks) · [Pipes and pipelines](#ref-pipes) · [Handles and devices](#ref-handles) · [Files and loading](#ref-files) · [Modules](#ref-modules) · [Boot slots](#ref-boot) · [GUI: setup and batching](#ref-ui-setup) · [GUI: windows](#ref-ui-window) · [GUI: surfaces and cells](#ref-ui-surface) · [GUI: commands and menus](#ref-ui-menu) · [GUI: widgets](#ref-ui-widget) · [GUI: text views](#ref-ui-text) · [GUI: events](#ref-ui-event) · [GUI: animation](#ref-ui-anim) · [GUI: canvases and icons](#ref-ui-canvas) · [GUI: sprites and pointer](#ref-ui-sprite) · [GUI: constants](#ref-ui-const) · [GUI tools](#ref-tools) · [Text workbench](#ref-workbench)
 
 <a id="ref-stack"></a>
 
@@ -5956,10 +6180,11 @@ Resetting, configuring and batching display-server operations.
 | <a id="w-ui-reset"></a>`UI-RESET` | `( -- )` | Reset the display server (op 34): close every window, undefine all sprites and surfaces, forget all commands, menus and widgets, go back to the Smalltalk style and 8-pixel snap, clear the error count and start a new epoch; the CPU's pending batch and event ring are dropped too. On the board this also closes the server's own Console window and removes the GUI tools' commands and world menu, which come back only after a reboot, so prefer closing your own windows with UI-CLOSE. Example: `UI-RESET` | native, board |
 | <a id="w-ui-raw"></a>`UI-RAW` | `( flag -- )` | While flag is true, legacy VDU drawing owns the screen and the compositor stops drawing; false gives the screen back and repaints everything (op 35). Example: `TRUE UI-RAW  FALSE UI-RAW` | native, board |
 | <a id="w-ui-style"></a>`UI-STYLE` | `( n -- )` | Switch the presentation style: 0 Smalltalk (grey desktop, white windows, title tabs, pop-up menus), 1 Turbo Vision (blue desktop, double frames, centred titles, menu bar and status line). Every window is re-decorated and repainted; no state is lost. Other values fail with an error. Example: `1 UI-STYLE  0 UI-STYLE` | native, board |
-| <a id="w-ui-snap"></a>`UI-SNAP` | `( n -- )` | Set the horizontal snap of window positions: 8 (default, client x on a cell boundary, fastest text drawing) or 1 (any pixel). Other values fail. A single window can opt out of snapping with the UI-FREE-X flag. Example: `1 UI-SNAP  8 UI-SNAP` | native, board |
+| <a id="w-ui-snap"></a>`UI-SNAP` | `( n -- )` | Set the horizontal snap of window positions: 8 (default, client x on a cell boundary, fastest text drawing) or 1 (any pixel). Other values fail. A single window can opt out of snapping with the UI-FREE-X flag. Example: `1 UI-SNAP  8 UI-SNAP` | variable, board |
 | <a id="w-ui-begin"></a>`UI-BEGIN` | `( -- )` | Start a batch: the following UI words collect their ops in the CPU's 250-byte buffer instead of sending each at once (a full buffer is sent and collecting goes on). End the batch with UI-COMMIT so the ESP shows the whole change at once. Example: `UI-BEGIN  S" Notes" 1 UI-TITLE  UI-COMMIT` | native, board |
 | <a id="w-ui-commit"></a>`UI-COMMIT` | `( -- )` | End a batch and send it with a COMMIT op (30): everything sent so far appears in the same frame. Also useful without UI-BEGIN: unbatched ops are held on the ESP until a commit or for at most 33 ms. Example: `UI-COMMIT` | native, board |
 | <a id="w-ui-sync"></a>`UI-SYNC` | `( -- epoch generation errors )` | Ask the display server for its state (op 31) and wait for the reply: epoch (counts UI-RESETs), generation (batches applied) and the number of refused ops since the last reset (at most 255). Fails with "UI-SYNC: no display server reply" when no server answers. Foreground only: it cannot run in a background task. | native, board |
+| <a id="w-ui-snapshot"></a>`UI-SNAPSHOT` | `( -- )` | Print Forth source that rebuilds the display server's current windows and widgets, text views' text included (the contents of /dev/ui/tree). Save it to a file and LOAD it to restore the layout. | colon, board |
 
 <a id="ref-ui-window"></a>
 
@@ -6028,6 +6253,8 @@ Widgets and their layout.
 | <a id="w-ui-wget"></a>`UI-WGET` | `( id addr -- value len )` | Read widget id back from the ESP: its value (signed; the caret position for an input field) and its text, of which at most 25 characters are copied to addr; len is the number copied. Fails with "UI-WGET: no such widget". Foreground only. | native, board |
 | <a id="w-ui-rowplus"></a>`UI-ROW+` | `( addr len id -- )` | Append one row to list widget id (protocol op 92), as UI-TEXT+ appends text. The row count grows by one; at most 1024 rows. Example: `S" first" 10 UI-ROW+` | native, board |
 | <a id="w-ui-columns"></a>`UI-COLUMNS` | `( w1 .. wn n id -- )` | Turn list id into a table with n columns (at most 8) of widths w1..wn cells (0..80 each); 0 UI-COLUMNS makes it a plain list again. Rows and the header (widget text) separate cells with a tab character; each cell is clipped to its width. Example: `8 12 2 3 UI-COLUMNS` | native, board |
+| <a id="w-ui-wname"></a>`UI-WNAME` | `( addr len id -- )` | Give widget id a name, as /dev/win lists it (spaces show as _). | native, board |
+| <a id="w-ui-wstyle"></a>`UI-WSTYLE` | `( id style -- )` | Set a widget's look: 0 normal, 1 strong, 2 fault (drawn in red). The same as writing style N to /dev/win/N/ctl. | native, board |
 
 <a id="ref-ui-text"></a>
 
@@ -6042,6 +6269,8 @@ Editable text views.
 | <a id="w-ui-insert"></a>`UI-INSERT` | `( addr len id -- )` | Insert at most 200 bytes at the caret of TextView id, replacing the selection; the inserted text is then selected (the Workspace's print it works this way). Example: `S"  9" 11 UI-INSERT` | native, board |
 | <a id="w-ui-select"></a>`UI-SELECT` | `( id caret anchor -- )` | Set the caret and the selection anchor of TextView id (byte offsets; caret = anchor means no selection). The view scrolls to show the caret. Example: `11 0 0 UI-SELECT` | native, board |
 | <a id="w-ui-textfetch"></a>`UI-TEXT@` | `( id addr max -- len )` | Copy the text of TextView id into addr, at most max bytes, and return the length copied; it asks for the length first, then reads 25 bytes per reply. Fails with "UI-TEXT@: no such TextView". Foreground only. | native, board |
+| <a id="w-ui-ch"></a>`UI-CH` | `( char id -- )` | Append one character to text view id (through UI-TEXT+). /dev/ui/tree uses it for newlines and quote characters that S" cannot hold. Definition: `: UI-CH >R UI-CH-BUF C! UI-CH-BUF 1 R> UI-TEXT+ ;` | colon, board |
+| <a id="w-ui-ch-buf"></a>`UI-CH-BUF` | `( -- addr )` | The one-byte buffer UI-CH sends from. Internal. | variable |
 
 <a id="ref-ui-event"></a>
 
@@ -6064,6 +6293,35 @@ Tweens and their easing.
 | --- | --- | --- | --- |
 | <a id="w-ui-animate"></a>`UI-ANIMATE` | `( target id prop from to ms easing -- )` | Start a tween run by the ESP at frame rate: target UI-TWEEN-WINDOW (window 0..26) or UI-TWEEN-SPRITE (0..15); prop UI-X, UI-Y (pixels) or, for windows, UI-SCROLL-ROW, UI-SCROLL-COL; from and to are signed; ms 0..65535 (0 jumps at once); easing UI-LINEAR, UI-IN-OUT, UI-OUT, UI-SPRING (overshoots). A new tween on the same target, id and property replaces the old one; at most 16 run at once. An ANIMDONE event reports the end. Example: `UI-TWEEN-WINDOW 1 UI-Y 0 120 400 UI-OUT UI-ANIMATE` | native, board |
 | <a id="w-ui-stop"></a>`UI-STOP` | `( target id prop -- )` | Stop the tween on that target, id and property where it is, without an ANIMDONE event. Example: `UI-TWEEN-WINDOW 1 UI-Y UI-STOP` | native, board |
+
+<a id="ref-ui-canvas"></a>
+
+### GUI: canvases and icons
+
+Pixel graphics as display lists the ESP keeps.
+
+| Word | Stack effect | Description | Kind |
+| --- | --- | --- | --- |
+| <a id="w-ui-canvas"></a>`UI-CANVAS` | `( canvas surface x y w h bg flags -- )` | Create or replace canvas 0..7: w x h pixels (up to 640 x 480) at pixel x y (x a multiple of 8) of a surface, background colour bg, flags UI-CV-VISIBLE and/or UI-CV-CLEAR (transparent: bg is the key colour). Replacing a canvas drops its items. All canvas rasters together are limited to 256 KB. Example: `3 2 0 0 320 144 3 UI-CV-VISIBLE UI-CANVAS` | native, board |
+| <a id="w-ui-canvas-at"></a>`UI-CANVAS-AT` | `( canvas x y -- )` | Move a canvas on its surface (x a multiple of 8). | native, board |
+| <a id="w-ui-canvas-flags"></a>`UI-CANVAS-FLAGS` | `( canvas flags -- )` | Set a canvas's flags (UI-CV-VISIBLE, UI-CV-CLEAR): show, hide or make it transparent. Flags -1 deletes the canvas and its items. | native, board |
+| <a id="w-ui-pen"></a>`UI-PEN` | `( canvas colour -- )` | Choose the canvas and colour (0..15) that the following item words use. CPU state only: nothing is sent. Example: `3 4 UI-PEN` | native |
+| <a id="w-ui-shape"></a>`UI-SHAPE` | `( item a b c d kind -- )` | Set item 0..254 of the pen's canvas to a shape: kind 1 dot, 2 line, 3 rectangle outline, 4 filled bar, 5 oval, 6 disc, 9 stipple (with the second colour in bits 8..11 of kind). The named words UI-DOT ... UI-STIPPLE are colon definitions over it. | native, board |
+| <a id="w-ui-dot"></a>`UI-DOT` | `( item x y -- )` | Set an item to one pixel in the pen colour. Definition: `: UI-DOT 0 0 1 UI-SHAPE ;` | colon, board |
+| <a id="w-ui-line"></a>`UI-LINE` | `( item x0 y0 x1 y1 -- )` | Set an item to a line, both end points included. Example: `0 10 130 300 130 UI-LINE` Definition: `: UI-LINE 2 UI-SHAPE ;` | colon, board |
+| <a id="w-ui-rect"></a>`UI-RECT` | `( item x y w h -- )` | Set an item to a 1-pixel rectangle outline. Definition: `: UI-RECT 3 UI-SHAPE ;` | colon, board |
+| <a id="w-ui-bar"></a>`UI-BAR` | `( item x y w h -- )` | Set an item to a filled rectangle. Example: `1 20 60 30 70 UI-BAR` Definition: `: UI-BAR 4 UI-SHAPE ;` | colon, board |
+| <a id="w-ui-oval"></a>`UI-OVAL` | `( item x y w h -- )` | Set an item to an ellipse outline inscribed in the box. Definition: `: UI-OVAL 5 UI-SHAPE ;` | colon, board |
+| <a id="w-ui-disc"></a>`UI-DISC` | `( item x y w h -- )` | Set an item to a filled ellipse inscribed in the box. Definition: `: UI-DISC 6 UI-SHAPE ;` | colon, board |
+| <a id="w-ui-stipple"></a>`UI-STIPPLE` | `( item x y w h colour2 -- )` | Set an item to a filled rectangle in a two-colour checker of the pen colour and colour2: the way to shade with 16 colours. Definition: `: UI-STIPPLE 256 * 9 + UI-SHAPE ;` | colon, board |
+| <a id="w-ui-print"></a>`UI-PRINT` | `( addr n item x y -- )` | Set an item to text (up to 20 characters) in the 8x8 font at pixel x y, in the pen colour, with a transparent background. Put a UI-BAR under it for a background. Example: `S" sales" 2 20 132 UI-PRINT` | native, board |
+| <a id="w-ui-icon"></a>`UI-ICON` | `( item x y bitmap -- )` | Set an item to a bitmap (0..31; 24..31 are the built-in icons) at pixel x y; the bitmap's transparent colour is skipped. Example: `5 4 4 UI-ICON-FOLDER UI-ICON` | native, board |
+| <a id="w-ui-erase"></a>`UI-ERASE` | `( item -- )` | Delete an item of the pen's canvas; 255 deletes them all. | native, board |
+| <a id="w-ui-wipe"></a>`UI-WIPE` | `( -- )` | Delete every item of the pen's canvas (255 UI-ERASE). Definition: `: UI-WIPE 255 UI-ERASE ;` | colon, board |
+| <a id="w-ui-nudge"></a>`UI-NUDGE` | `( item dx dy -- )` | Move an item by dx dy pixels. Example: `1 0 -20 UI-NUDGE` | native, board |
+| <a id="w-ui-ink"></a>`UI-INK` | `( item colour -- )` | Recolour an item. | native, board |
+| <a id="w-ui-bitmap"></a>`UI-BITMAP` | `( bitmap w h transparent -- )` | Define your own bitmap 0..23, up to 64 x 64 pixels at 4 bits per pixel, with transparent as the colour that is not drawn. Fill it with UI-BITS. Bitmaps are shared by all canvases. | native, board |
+| <a id="w-ui-bits"></a>`UI-BITS` | `( addr n bitmap offset -- )` | Copy n bytes of 4-bit pixels (two a byte, rows packed) from addr into a bitmap at byte offset; sent in chunks of 64 bytes. | native, board |
 
 <a id="ref-ui-sprite"></a>
 
@@ -6088,6 +6346,18 @@ Named values for flags, kinds, events and modifiers.
 
 | Word | Stack effect | Description | Kind |
 | --- | --- | --- | --- |
+| <a id="w-ui-cv-visible"></a>`UI-CV-VISIBLE` | `( -- 1 )` | Canvas flag: shown. | constant |
+| <a id="w-ui-cv-clear"></a>`UI-CV-CLEAR` | `( -- 2 )` | Canvas flag: transparent; the background colour is the key and the surface's cells show through. | constant |
+| <a id="w-ui-ev-canvas"></a>`UI-EV-CANVAS` | `( -- 19 )` | Event kind: a click in a visible canvas, with the point in canvas pixels and the topmost item there (255 for none). | constant |
+| <a id="w-ui-tween-canvas"></a>`UI-TWEEN-CANVAS` | `( -- 2 )` | UI-ANIMATE target: a canvas (properties UI-X and UI-Y slide it over its surface). | constant |
+| <a id="w-ui-icon-document"></a>`UI-ICON-DOCUMENT` | `( -- 24 )` | Built-in 16x16 icon: a document. | constant |
+| <a id="w-ui-icon-folder"></a>`UI-ICON-FOLDER` | `( -- 25 )` | Built-in 16x16 icon: a folder. | constant |
+| <a id="w-ui-icon-word"></a>`UI-ICON-WORD` | `( -- 26 )` | Built-in 16x16 icon: a Forth word. | constant |
+| <a id="w-ui-icon-module"></a>`UI-ICON-MODULE` | `( -- 27 )` | Built-in 16x16 icon: a module. | constant |
+| <a id="w-ui-icon-info"></a>`UI-ICON-INFO` | `( -- 28 )` | Built-in 16x16 icon: information. | constant |
+| <a id="w-ui-icon-warning"></a>`UI-ICON-WARNING` | `( -- 29 )` | Built-in 16x16 icon: a warning. | constant |
+| <a id="w-ui-icon-error"></a>`UI-ICON-ERROR` | `( -- 30 )` | Built-in 16x16 icon: an error. | constant |
+| <a id="w-ui-icon-disk"></a>`UI-ICON-DISK` | `( -- 31 )` | Built-in 16x16 icon: a disk. | constant |
 | <a id="w-ui-row"></a>`UI-ROW` | `( -- 2 )` | The layout code 2 for UI-LAYOUT: children side by side. (To append a list row use UI-ROW+.) Example: `UI-ROW .  \ 2` | constant |
 | <a id="w-ui-visible"></a>`UI-VISIBLE` | `( -- 1 )` | Window flag: shown. Example: `UI-VISIBLE UI-DECOR OR UI-SHADOW OR .  \ 7` | constant |
 | <a id="w-ui-decor"></a>`UI-DECOR` | `( -- 2 )` | Window flag: frame and title in the current style. Only visible decorated windows can take focus. Example: `UI-DECOR .  \ 2` | constant |
@@ -6198,7 +6468,7 @@ The full-screen text workbench and console view.
 
 All words in ASCII order:
 
-[`!`](#w-store) [`'`](#w-tick) [`(`](#w-lp) [`(+LOOP)`](#w-lppluslooprp) [`)CRITICAL`](#w-rpcritical) [`*`](#w-star) [`*/`](#w-starslash) [`+`](#w-plus) [`+!`](#w-plusstore) [`+LOOP`](#w-plusloop) [`,`](#w-comma) [`-`](#w--) [`-ROT`](#w--rot) [`.`](#w-dot) [`."`](#w-dotq) [`.HEX2`](#w-dothex2) [`.S`](#w-dots) [`/`](#w-slash) [`/MOD`](#w-slashmod) [`0<`](#w-0lt) [`0=`](#w-0eq) [`0>`](#w-0gt) [`1+`](#w-1plus) [`1-`](#w-1-) [`2*`](#w-2star) [`2DROP`](#w-2drop) [`2DUP`](#w-2dup) [`2OVER`](#w-2over) [`2SWAP`](#w-2swap) [`:`](#w-colon) [`;`](#w-semi) [`<`](#w-lt) [`<>`](#w-ltgt) [`=`](#w-eq) [`>`](#w-gt) [`>R`](#w-gtr) [`?`](#w-q) [`?DO`](#w-qdo) [`?DUP`](#w-qdup) [`@`](#w-fetch) [`ABORT`](#w-abort) [`ABS`](#w-abs) [`AGAIN`](#w-again) [`ALLOT`](#w-allot) [`AND`](#w-and) [`BASE`](#w-base) [`BEEP`](#w-beep) [`BEGIN`](#w-begin) [`BENCH`](#w-bench) [`BL`](#w-bl) [`BOOT-CONFIRM`](#w-boot-confirm) [`BOOT-MANIFEST`](#w-boot-manifest) [`BOOT-REVERT`](#w-boot-revert) [`BOOT-STATUS`](#w-boot-status) [`BOOT-TIMES`](#w-boot-times) [`BOOT-TRIAL`](#w-boot-trial) [`BOUNDS`](#w-bounds) [`C!`](#w-cstore) [`C,`](#w-ccomma) [`C@`](#w-cfetch) [`CELL+`](#w-cellplus) [`CELLS`](#w-cells) [`CHAR`](#w-char) [`CHAR@`](#w-charfetch) [`CLOCK-MS`](#w-clock-ms) [`CLOSE`](#w-close) [`CLS`](#w-cls) [`COLOUR`](#w-colour) [`CONSOLE-EMIT`](#w-console-emit) [`CONSOLE-KEY`](#w-console-key) [`CONSOLE-WRITE`](#w-console-write) [`CONSTANT`](#w-constant) [`COUNT`](#w-count) [`CR`](#w-cr) [`CREATE`](#w-create) [`CRITICAL(`](#w-criticallp) [`DECIMAL`](#w-decimal) [`DEFER`](#w-defer) [`DEPTH`](#w-depth) [`DEVICE`](#w-device) [`DIR`](#w-dir) [`DISPLAY-WRITE`](#w-display-write) [`DO`](#w-do) [`DROP`](#w-drop) [`DUMP`](#w-dump) [`DUP`](#w-dup) [`ELSE`](#w-else) [`EMIT`](#w-emit) [`ENGINE`](#w-engine) [`ERASE`](#w-erase) [`EXECUTE`](#w-execute) [`EXIT`](#w-exit) [`FALSE`](#w-false) [`FILE-READ`](#w-file-read) [`FILE-REMOVE`](#w-file-remove) [`FILE-WRITE`](#w-file-write) [`FILL`](#w-fill) [`FRAME-WAIT`](#w-frame-wait) [`FS-ERROR`](#w-fs-error) [`FS-READ`](#w-fs-read) [`FS-WRITE`](#w-fs-write) [`HANDLE-GET`](#w-handle-get) [`HANDLE-PUT`](#w-handle-put) [`HANDLES`](#w-handles) [`HERE`](#w-here) [`HEX`](#w-hex) [`I`](#w-i) [`IF`](#w-if) [`INCLUDE`](#w-include) [`INVERT`](#w-invert) [`IRQ-PROBE`](#w-irq-probe) [`IRQ-STATS`](#w-irq-stats) [`IS`](#w-is) [`J`](#w-j) [`KEY`](#w-key) [`LAST-ERROR`](#w-last-error) [`LEAVE`](#w-leave) [`LOAD`](#w-load) [`LOOP`](#w-loop) [`LSHIFT`](#w-lshift) [`MAX`](#w-max) [`MILLIS`](#w-millis) [`MILLIS2`](#w-millis2) [`MIN`](#w-min) [`MOD`](#w-mod) [`MODE`](#w-mode) [`MODULE-ACTIVATE`](#w-module-activate) [`MODULE-BEGIN`](#w-module-begin) [`MODULE-DATA`](#w-module-data) [`MODULE-DEP`](#w-module-dep) [`MODULE-DISCARD`](#w-module-discard) [`MODULE-LOAD`](#w-module-load) [`MODULE-ROLLBACK`](#w-module-rollback) [`MODULE-SOURCE`](#w-module-source) [`MODULE-STAGE`](#w-module-stage) [`MODULES`](#w-modules) [`MOVE`](#w-move) [`MS`](#w-ms) [`NEGATE`](#w-negate) [`NIP`](#w-nip) [`OPEN`](#w-open) [`OR`](#w-or) [`OVER`](#w-over) [`PAUSE`](#w-pause) [`PIPE`](#w-pipe) [`PIPELINE`](#w-pipeline) [`PIXEL@`](#w-pixelfetch) [`PL-R`](#w-pl-r) [`PL-W`](#w-pl-w) [`PLAY`](#w-play) [`PLOT`](#w-plot) [`PREEMPT`](#w-preempt) [`PREEMPT-STATS`](#w-preempt-stats) [`R>`](#w-rgt) [`R@`](#w-rfetch) [`READ`](#w-read) [`READ-WAIT`](#w-read-wait) [`REBOOT`](#w-reboot) [`RECURSE`](#w-recurse) [`REPEAT`](#w-repeat) [`RESOURCES`](#w-resources) [`ROT`](#w-rot) [`RSHIFT`](#w-rshift) [`S"`](#w-sq) [`SAVE`](#w-save) [`SD-MOUNT`](#w-sd-mount) [`SEE`](#w-see) [`SOUND?`](#w-soundq) [`SPACE`](#w-space) [`SPACES`](#w-spaces) [`SPAWN`](#w-spawn) [`SPAWN-CON`](#w-spawn-con) [`STOP`](#w-stop) [`SWAP`](#w-swap) [`SYNC`](#w-sync) [`TASK-INPUT`](#w-task-input) [`TASK-KILL`](#w-task-kill) [`TASK-OUT`](#w-task-out) [`TASK-OUTPUT`](#w-task-output) [`TASK-SLICE`](#w-task-slice) [`TASK-STATE`](#w-task-state) [`TASKS`](#w-tasks) [`THEN`](#w-then) [`TICKS`](#w-ticks) [`TIMER@`](#w-timerfetch) [`TONE`](#w-tone) [`TOOL`](#w-tool) [`TRACE`](#w-trace) [`TRUE`](#w-true) [`TUCK`](#w-tuck) [`TUNE`](#w-tune) [`TYPE`](#w-type) [`U.`](#w-udot) [`U<`](#w-ult) [`U>`](#w-ugt) [`UI-ACTIVE`](#w-ui-active) [`UI-ALT`](#w-ui-alt) [`UI-ANIMATE`](#w-ui-animate) [`UI-ARROW`](#w-ui-arrow) [`UI-BEGIN`](#w-ui-begin) [`UI-BOX`](#w-ui-box) [`UI-BUTTON`](#w-ui-button) [`UI-CARET`](#w-ui-caret) [`UI-CHECK`](#w-ui-check) [`UI-CHECKED`](#w-ui-checked) [`UI-CLIENT`](#w-ui-client) [`UI-CLOSE`](#w-ui-close) [`UI-COLUMN`](#w-ui-column) [`UI-COLUMNS`](#w-ui-columns) [`UI-COMMAND`](#w-ui-command) [`UI-COMMIT`](#w-ui-commit) [`UI-CTRL`](#w-ui-ctrl) [`UI-CURSOR`](#w-ui-cursor) [`UI-DECOR`](#w-ui-decor) [`UI-DISABLED`](#w-ui-disabled) [`UI-ENABLED`](#w-ui-enabled) [`UI-EV-ACTIVATE`](#w-ui-ev-activate) [`UI-EV-ANIMDONE`](#w-ui-ev-animdone) [`UI-EV-CHANGE`](#w-ui-ev-change) [`UI-EV-COMMAND`](#w-ui-ev-command) [`UI-EV-ERROR`](#w-ui-ev-error) [`UI-EV-EXPAND`](#w-ui-ev-expand) [`UI-EV-FOCUS`](#w-ui-ev-focus) [`UI-EV-OVERFLOW`](#w-ui-ev-overflow) [`UI-EV-PAGE`](#w-ui-ev-page) [`UI-EV-POINTER`](#w-ui-ev-pointer) [`UI-EV-SELECT`](#w-ui-ev-select) [`UI-EV-TEXT`](#w-ui-ev-text) [`UI-EV-WIN`](#w-ui-ev-win) [`UI-EVENT`](#w-ui-event) [`UI-FILL`](#w-ui-fill) [`UI-FLAGS`](#w-ui-flags) [`UI-FOCUS`](#w-ui-focus) [`UI-FREE-X`](#w-ui-free-x) [`UI-HIDDEN`](#w-ui-hidden) [`UI-IN-OUT`](#w-ui-in-out) [`UI-INPUT`](#w-ui-input) [`UI-INSERT`](#w-ui-insert) [`UI-ITEM`](#w-ui-item) [`UI-ITEMS`](#w-ui-items) [`UI-KEYS`](#w-ui-keys) [`UI-LABEL`](#w-ui-label) [`UI-LAYOUT`](#w-ui-layout) [`UI-LINEAR`](#w-ui-linear) [`UI-LIST`](#w-ui-list) [`UI-MENU`](#w-ui-menu) [`UI-MODAL`](#w-ui-modal) [`UI-NEXT`](#w-ui-next) [`UI-NONE`](#w-ui-none) [`UI-OUT`](#w-ui-out) [`UI-PAGER`](#w-ui-pager) [`UI-PIXELS`](#w-ui-pixels) [`UI-PLACE`](#w-ui-place) [`UI-POINTER`](#w-ui-pointer) [`UI-POPUP`](#w-ui-popup) [`UI-PROGRESS`](#w-ui-progress) [`UI-RADIO`](#w-ui-radio) [`UI-RAISE`](#w-ui-raise) [`UI-RAW`](#w-ui-raw) [`UI-READONLY`](#w-ui-readonly) [`UI-RESET`](#w-ui-reset) [`UI-ROW`](#w-ui-row) [`UI-ROW+`](#w-ui-rowplus) [`UI-SCROLL`](#w-ui-scroll) [`UI-SCROLL-COL`](#w-ui-scroll-col) [`UI-SCROLL-ROW`](#w-ui-scroll-row) [`UI-SELECT`](#w-ui-select) [`UI-SEPARATOR`](#w-ui-separator) [`UI-SHADOW`](#w-ui-shadow) [`UI-SHIFT`](#w-ui-shift) [`UI-SNAP`](#w-ui-snap) [`UI-SPRING`](#w-ui-spring) [`UI-SPRITE`](#w-ui-sprite) [`UI-SPRITE-AT`](#w-ui-sprite-at) [`UI-SPRITE-SHOW`](#w-ui-sprite-show) [`UI-STATE`](#w-ui-state) [`UI-STATUS`](#w-ui-status) [`UI-STOP`](#w-ui-stop) [`UI-STYLE`](#w-ui-style) [`UI-SUBMENU`](#w-ui-submenu) [`UI-SURFACE`](#w-ui-surface) [`UI-SYNC`](#w-ui-sync) [`UI-TABS`](#w-ui-tabs) [`UI-TEXT`](#w-ui-text) [`UI-TEXT+`](#w-ui-textplus) [`UI-TEXT@`](#w-ui-textfetch) [`UI-TEXTVIEW`](#w-ui-textview) [`UI-TITLE`](#w-ui-title) [`UI-TREE`](#w-ui-tree) [`UI-TWEEN-SPRITE`](#w-ui-tween-sprite) [`UI-TWEEN-WINDOW`](#w-ui-tween-window) [`UI-TYPE`](#w-ui-type) [`UI-VIEW`](#w-ui-view) [`UI-VISIBLE`](#w-ui-visible) [`UI-WDELETE`](#w-ui-wdelete) [`UI-WF-FILL`](#w-ui-wf-fill) [`UI-WFOCUS`](#w-ui-wfocus) [`UI-WGET`](#w-ui-wget) [`UI-WIDGET`](#w-ui-widget) [`UI-WINDOW`](#w-ui-window) [`UI-WSIZE`](#w-ui-wsize) [`UI-WTEXT`](#w-ui-wtext) [`UI-WVALUE`](#w-ui-wvalue) [`UI-X`](#w-ui-x) [`UI-Y`](#w-ui-y) [`UNLOOP`](#w-unloop) [`UNTIL`](#w-until) [`VARIABLE`](#w-variable) [`VDP-INFO`](#w-vdp-info) [`VDU`](#w-vdu) [`VOLUME`](#w-volume) [`VTYPE`](#w-vtype) [`WB-ACTIVATE`](#w-wb-activate) [`WB-BROWSE`](#w-wb-browse) [`WB-CLOSE`](#w-wb-close) [`WB-COMPOSE`](#w-wb-compose) [`WB-CONSOLE`](#w-wb-console) [`WB-CONSOLE-CLEAR`](#w-wb-console-clear) [`WB-CONSOLE?`](#w-wb-consoleq) [`WB-EDIT`](#w-wb-edit) [`WB-FLUSH`](#w-wb-flush) [`WB-FLUSH-FENCED`](#w-wb-flush-fenced) [`WB-KEY`](#w-wb-key) [`WB-META`](#w-wb-meta) [`WB-NEW`](#w-wb-new) [`WB-OPEN`](#w-wb-open) [`WB-PAINT`](#w-wb-paint) [`WB-PAINT-DEFAULT`](#w-wb-paint-default) [`WB-PATCH`](#w-wb-patch) [`WB-REDRAW`](#w-wb-redraw) [`WB-RENDER-STATS`](#w-wb-render-stats) [`WB-REPAINT`](#w-wb-repaint) [`WB-SAVE`](#w-wb-save) [`WB-SAVE-DEFAULT`](#w-wb-save-default) [`WB-SELECT`](#w-wb-select) [`WB-SOURCE`](#w-wb-source) [`WB-STAGE`](#w-wb-stage) [`WB-STATUS`](#w-wb-status) [`WB-UNDO`](#w-wb-undo) [`WB-VIEW`](#w-wb-view) [`WB-ZOOM`](#w-wb-zoom) [`WB-ZOOM?`](#w-wb-zoomq) [`WHILE`](#w-while) [`WITHIN`](#w-within) [`WORDS`](#w-words) [`WRITE`](#w-write) [`WRITE-ALL`](#w-write-all) [`XOR`](#w-xor) [`[']`](#w-lbtickrb) [`[CHAR]`](#w-lbcharrb) [`\`](#w-bs)
+[`!`](#w-store) [`'`](#w-tick) [`(`](#w-lp) [`(+LOOP)`](#w-lppluslooprp) [`)CRITICAL`](#w-rpcritical) [`*`](#w-star) [`*/`](#w-starslash) [`+`](#w-plus) [`+!`](#w-plusstore) [`+LOOP`](#w-plusloop) [`,`](#w-comma) [`-`](#w--) [`-ROT`](#w--rot) [`.`](#w-dot) [`."`](#w-dotq) [`.HEX2`](#w-dothex2) [`.S`](#w-dots) [`/`](#w-slash) [`/MOD`](#w-slashmod) [`0<`](#w-0lt) [`0=`](#w-0eq) [`0>`](#w-0gt) [`1+`](#w-1plus) [`1-`](#w-1-) [`2*`](#w-2star) [`2DROP`](#w-2drop) [`2DUP`](#w-2dup) [`2OVER`](#w-2over) [`2SWAP`](#w-2swap) [`:`](#w-colon) [`;`](#w-semi) [`<`](#w-lt) [`<>`](#w-ltgt) [`=`](#w-eq) [`>`](#w-gt) [`>R`](#w-gtr) [`?`](#w-q) [`?DO`](#w-qdo) [`?DUP`](#w-qdup) [`@`](#w-fetch) [`ABORT`](#w-abort) [`ABS`](#w-abs) [`AGAIN`](#w-again) [`ALLOT`](#w-allot) [`AND`](#w-and) [`BASE`](#w-base) [`BEEP`](#w-beep) [`BEGIN`](#w-begin) [`BENCH`](#w-bench) [`BL`](#w-bl) [`BOOT-CONFIRM`](#w-boot-confirm) [`BOOT-MANIFEST`](#w-boot-manifest) [`BOOT-REVERT`](#w-boot-revert) [`BOOT-STATUS`](#w-boot-status) [`BOOT-TIMES`](#w-boot-times) [`BOOT-TRIAL`](#w-boot-trial) [`BOUNDS`](#w-bounds) [`C!`](#w-cstore) [`C,`](#w-ccomma) [`C@`](#w-cfetch) [`CELL+`](#w-cellplus) [`CELLS`](#w-cells) [`CHAR`](#w-char) [`CHAR@`](#w-charfetch) [`CLOCK-MS`](#w-clock-ms) [`CLOSE`](#w-close) [`CLS`](#w-cls) [`COLOUR`](#w-colour) [`CONSOLE-EMIT`](#w-console-emit) [`CONSOLE-KEY`](#w-console-key) [`CONSOLE-WRITE`](#w-console-write) [`CONSTANT`](#w-constant) [`COUNT`](#w-count) [`CR`](#w-cr) [`CREATE`](#w-create) [`CRITICAL(`](#w-criticallp) [`DECIMAL`](#w-decimal) [`DEFER`](#w-defer) [`DEPTH`](#w-depth) [`DEVICE`](#w-device) [`DIR`](#w-dir) [`DISPLAY-WRITE`](#w-display-write) [`DO`](#w-do) [`DROP`](#w-drop) [`DUMP`](#w-dump) [`DUP`](#w-dup) [`ELSE`](#w-else) [`EMIT`](#w-emit) [`ENGINE`](#w-engine) [`ERASE`](#w-erase) [`EXECUTE`](#w-execute) [`EXIT`](#w-exit) [`FALSE`](#w-false) [`FILE-READ`](#w-file-read) [`FILE-REMOVE`](#w-file-remove) [`FILE-WRITE`](#w-file-write) [`FILL`](#w-fill) [`FRAME-WAIT`](#w-frame-wait) [`FS-ERROR`](#w-fs-error) [`FS-READ`](#w-fs-read) [`FS-WRITE`](#w-fs-write) [`HANDLE-GET`](#w-handle-get) [`HANDLE-PUT`](#w-handle-put) [`HANDLES`](#w-handles) [`HERE`](#w-here) [`HEX`](#w-hex) [`I`](#w-i) [`IF`](#w-if) [`INCLUDE`](#w-include) [`INVERT`](#w-invert) [`IRQ-PROBE`](#w-irq-probe) [`IRQ-STATS`](#w-irq-stats) [`IS`](#w-is) [`J`](#w-j) [`KEY`](#w-key) [`LAST-ERROR`](#w-last-error) [`LEAVE`](#w-leave) [`LOAD`](#w-load) [`LOOP`](#w-loop) [`LSHIFT`](#w-lshift) [`MAX`](#w-max) [`MILLIS`](#w-millis) [`MILLIS2`](#w-millis2) [`MIN`](#w-min) [`MOD`](#w-mod) [`MODE`](#w-mode) [`MODULE-ACTIVATE`](#w-module-activate) [`MODULE-BEGIN`](#w-module-begin) [`MODULE-DATA`](#w-module-data) [`MODULE-DEP`](#w-module-dep) [`MODULE-DISCARD`](#w-module-discard) [`MODULE-LOAD`](#w-module-load) [`MODULE-ROLLBACK`](#w-module-rollback) [`MODULE-SOURCE`](#w-module-source) [`MODULE-STAGE`](#w-module-stage) [`MODULES`](#w-modules) [`MOVE`](#w-move) [`MS`](#w-ms) [`NEGATE`](#w-negate) [`NIP`](#w-nip) [`OPEN`](#w-open) [`OR`](#w-or) [`OVER`](#w-over) [`PAUSE`](#w-pause) [`PIPE`](#w-pipe) [`PIPELINE`](#w-pipeline) [`PIXEL@`](#w-pixelfetch) [`PL-R`](#w-pl-r) [`PL-W`](#w-pl-w) [`PLAY`](#w-play) [`PLOT`](#w-plot) [`PREEMPT`](#w-preempt) [`PREEMPT-STATS`](#w-preempt-stats) [`R>`](#w-rgt) [`R@`](#w-rfetch) [`READ`](#w-read) [`READ-WAIT`](#w-read-wait) [`REBOOT`](#w-reboot) [`RECURSE`](#w-recurse) [`REPEAT`](#w-repeat) [`RESOURCES`](#w-resources) [`ROT`](#w-rot) [`RSHIFT`](#w-rshift) [`S"`](#w-sq) [`SAVE`](#w-save) [`SD-MOUNT`](#w-sd-mount) [`SEE`](#w-see) [`SOUND?`](#w-soundq) [`SPACE`](#w-space) [`SPACES`](#w-spaces) [`SPAWN`](#w-spawn) [`SPAWN-CON`](#w-spawn-con) [`STOP`](#w-stop) [`SWAP`](#w-swap) [`SYNC`](#w-sync) [`TASK-INPUT`](#w-task-input) [`TASK-KILL`](#w-task-kill) [`TASK-OUT`](#w-task-out) [`TASK-OUTPUT`](#w-task-output) [`TASK-SLICE`](#w-task-slice) [`TASK-STATE`](#w-task-state) [`TASKS`](#w-tasks) [`THEN`](#w-then) [`TICKS`](#w-ticks) [`TIMER@`](#w-timerfetch) [`TONE`](#w-tone) [`TOOL`](#w-tool) [`TRACE`](#w-trace) [`TRUE`](#w-true) [`TUCK`](#w-tuck) [`TUNE`](#w-tune) [`TYPE`](#w-type) [`U.`](#w-udot) [`U<`](#w-ult) [`U>`](#w-ugt) [`UI-ACTIVE`](#w-ui-active) [`UI-ALT`](#w-ui-alt) [`UI-ANIMATE`](#w-ui-animate) [`UI-ARROW`](#w-ui-arrow) [`UI-BAR`](#w-ui-bar) [`UI-BEGIN`](#w-ui-begin) [`UI-BITMAP`](#w-ui-bitmap) [`UI-BITS`](#w-ui-bits) [`UI-BOX`](#w-ui-box) [`UI-BUTTON`](#w-ui-button) [`UI-CANVAS`](#w-ui-canvas) [`UI-CANVAS-AT`](#w-ui-canvas-at) [`UI-CANVAS-FLAGS`](#w-ui-canvas-flags) [`UI-CARET`](#w-ui-caret) [`UI-CH`](#w-ui-ch) [`UI-CH-BUF`](#w-ui-ch-buf) [`UI-CHECK`](#w-ui-check) [`UI-CHECKED`](#w-ui-checked) [`UI-CLIENT`](#w-ui-client) [`UI-CLOSE`](#w-ui-close) [`UI-COLUMN`](#w-ui-column) [`UI-COLUMNS`](#w-ui-columns) [`UI-COMMAND`](#w-ui-command) [`UI-COMMIT`](#w-ui-commit) [`UI-CTRL`](#w-ui-ctrl) [`UI-CURSOR`](#w-ui-cursor) [`UI-CV-CLEAR`](#w-ui-cv-clear) [`UI-CV-VISIBLE`](#w-ui-cv-visible) [`UI-DECOR`](#w-ui-decor) [`UI-DISABLED`](#w-ui-disabled) [`UI-DISC`](#w-ui-disc) [`UI-DOT`](#w-ui-dot) [`UI-ENABLED`](#w-ui-enabled) [`UI-ERASE`](#w-ui-erase) [`UI-EV-ACTIVATE`](#w-ui-ev-activate) [`UI-EV-ANIMDONE`](#w-ui-ev-animdone) [`UI-EV-CANVAS`](#w-ui-ev-canvas) [`UI-EV-CHANGE`](#w-ui-ev-change) [`UI-EV-COMMAND`](#w-ui-ev-command) [`UI-EV-ERROR`](#w-ui-ev-error) [`UI-EV-EXPAND`](#w-ui-ev-expand) [`UI-EV-FOCUS`](#w-ui-ev-focus) [`UI-EV-OVERFLOW`](#w-ui-ev-overflow) [`UI-EV-PAGE`](#w-ui-ev-page) [`UI-EV-POINTER`](#w-ui-ev-pointer) [`UI-EV-SELECT`](#w-ui-ev-select) [`UI-EV-TEXT`](#w-ui-ev-text) [`UI-EV-WIN`](#w-ui-ev-win) [`UI-EVENT`](#w-ui-event) [`UI-FILL`](#w-ui-fill) [`UI-FLAGS`](#w-ui-flags) [`UI-FOCUS`](#w-ui-focus) [`UI-FREE-X`](#w-ui-free-x) [`UI-HIDDEN`](#w-ui-hidden) [`UI-ICON`](#w-ui-icon) [`UI-ICON-DISK`](#w-ui-icon-disk) [`UI-ICON-DOCUMENT`](#w-ui-icon-document) [`UI-ICON-ERROR`](#w-ui-icon-error) [`UI-ICON-FOLDER`](#w-ui-icon-folder) [`UI-ICON-INFO`](#w-ui-icon-info) [`UI-ICON-MODULE`](#w-ui-icon-module) [`UI-ICON-WARNING`](#w-ui-icon-warning) [`UI-ICON-WORD`](#w-ui-icon-word) [`UI-IN-OUT`](#w-ui-in-out) [`UI-INK`](#w-ui-ink) [`UI-INPUT`](#w-ui-input) [`UI-INSERT`](#w-ui-insert) [`UI-ITEM`](#w-ui-item) [`UI-ITEMS`](#w-ui-items) [`UI-KEYS`](#w-ui-keys) [`UI-LABEL`](#w-ui-label) [`UI-LAYOUT`](#w-ui-layout) [`UI-LINE`](#w-ui-line) [`UI-LINEAR`](#w-ui-linear) [`UI-LIST`](#w-ui-list) [`UI-MENU`](#w-ui-menu) [`UI-MODAL`](#w-ui-modal) [`UI-NEXT`](#w-ui-next) [`UI-NONE`](#w-ui-none) [`UI-NUDGE`](#w-ui-nudge) [`UI-OUT`](#w-ui-out) [`UI-OVAL`](#w-ui-oval) [`UI-PAGER`](#w-ui-pager) [`UI-PEN`](#w-ui-pen) [`UI-PIXELS`](#w-ui-pixels) [`UI-PLACE`](#w-ui-place) [`UI-POINTER`](#w-ui-pointer) [`UI-POPUP`](#w-ui-popup) [`UI-PRINT`](#w-ui-print) [`UI-PROGRESS`](#w-ui-progress) [`UI-RADIO`](#w-ui-radio) [`UI-RAISE`](#w-ui-raise) [`UI-RAW`](#w-ui-raw) [`UI-READONLY`](#w-ui-readonly) [`UI-RECT`](#w-ui-rect) [`UI-RESET`](#w-ui-reset) [`UI-ROW`](#w-ui-row) [`UI-ROW+`](#w-ui-rowplus) [`UI-SCROLL`](#w-ui-scroll) [`UI-SCROLL-COL`](#w-ui-scroll-col) [`UI-SCROLL-ROW`](#w-ui-scroll-row) [`UI-SELECT`](#w-ui-select) [`UI-SEPARATOR`](#w-ui-separator) [`UI-SHADOW`](#w-ui-shadow) [`UI-SHAPE`](#w-ui-shape) [`UI-SHIFT`](#w-ui-shift) [`UI-SNAP`](#w-ui-snap) [`UI-SNAPSHOT`](#w-ui-snapshot) [`UI-SPRING`](#w-ui-spring) [`UI-SPRITE`](#w-ui-sprite) [`UI-SPRITE-AT`](#w-ui-sprite-at) [`UI-SPRITE-SHOW`](#w-ui-sprite-show) [`UI-STATE`](#w-ui-state) [`UI-STATUS`](#w-ui-status) [`UI-STIPPLE`](#w-ui-stipple) [`UI-STOP`](#w-ui-stop) [`UI-STYLE`](#w-ui-style) [`UI-SUBMENU`](#w-ui-submenu) [`UI-SURFACE`](#w-ui-surface) [`UI-SYNC`](#w-ui-sync) [`UI-TABS`](#w-ui-tabs) [`UI-TEXT`](#w-ui-text) [`UI-TEXT+`](#w-ui-textplus) [`UI-TEXT@`](#w-ui-textfetch) [`UI-TEXTVIEW`](#w-ui-textview) [`UI-TITLE`](#w-ui-title) [`UI-TREE`](#w-ui-tree) [`UI-TWEEN-CANVAS`](#w-ui-tween-canvas) [`UI-TWEEN-SPRITE`](#w-ui-tween-sprite) [`UI-TWEEN-WINDOW`](#w-ui-tween-window) [`UI-TYPE`](#w-ui-type) [`UI-VIEW`](#w-ui-view) [`UI-VISIBLE`](#w-ui-visible) [`UI-WDELETE`](#w-ui-wdelete) [`UI-WF-FILL`](#w-ui-wf-fill) [`UI-WFOCUS`](#w-ui-wfocus) [`UI-WGET`](#w-ui-wget) [`UI-WIDGET`](#w-ui-widget) [`UI-WINDOW`](#w-ui-window) [`UI-WIPE`](#w-ui-wipe) [`UI-WNAME`](#w-ui-wname) [`UI-WSIZE`](#w-ui-wsize) [`UI-WSTYLE`](#w-ui-wstyle) [`UI-WTEXT`](#w-ui-wtext) [`UI-WVALUE`](#w-ui-wvalue) [`UI-X`](#w-ui-x) [`UI-Y`](#w-ui-y) [`UNLOOP`](#w-unloop) [`UNTIL`](#w-until) [`VARIABLE`](#w-variable) [`VDP-INFO`](#w-vdp-info) [`VDU`](#w-vdu) [`VOLUME`](#w-volume) [`VTYPE`](#w-vtype) [`WB-ACTIVATE`](#w-wb-activate) [`WB-BROWSE`](#w-wb-browse) [`WB-CLOSE`](#w-wb-close) [`WB-COMPOSE`](#w-wb-compose) [`WB-CONSOLE`](#w-wb-console) [`WB-CONSOLE-CLEAR`](#w-wb-console-clear) [`WB-CONSOLE?`](#w-wb-consoleq) [`WB-EDIT`](#w-wb-edit) [`WB-FLUSH`](#w-wb-flush) [`WB-FLUSH-FENCED`](#w-wb-flush-fenced) [`WB-KEY`](#w-wb-key) [`WB-META`](#w-wb-meta) [`WB-NEW`](#w-wb-new) [`WB-OPEN`](#w-wb-open) [`WB-PAINT`](#w-wb-paint) [`WB-PAINT-DEFAULT`](#w-wb-paint-default) [`WB-PATCH`](#w-wb-patch) [`WB-REDRAW`](#w-wb-redraw) [`WB-RENDER-STATS`](#w-wb-render-stats) [`WB-REPAINT`](#w-wb-repaint) [`WB-SAVE`](#w-wb-save) [`WB-SAVE-DEFAULT`](#w-wb-save-default) [`WB-SELECT`](#w-wb-select) [`WB-SOURCE`](#w-wb-source) [`WB-STAGE`](#w-wb-stage) [`WB-STATUS`](#w-wb-status) [`WB-UNDO`](#w-wb-undo) [`WB-VIEW`](#w-wb-view) [`WB-ZOOM`](#w-wb-zoom) [`WB-ZOOM?`](#w-wb-zoomq) [`WHILE`](#w-while) [`WITHIN`](#w-within) [`WORDS`](#w-words) [`WRITE`](#w-write) [`WRITE-ALL`](#w-write-all) [`XOR`](#w-xor) [`[']`](#w-lbtickrb) [`[CHAR]`](#w-lbcharrb) [`\`](#w-bs)
 
 <!-- END WORD REFERENCE -->
 

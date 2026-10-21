@@ -119,7 +119,14 @@ void vios_text_scroll(unsigned top, unsigned bottom, int dy) { (void)top; (void)
 static void fail(const char *what, const char *arg) { fprintf(stderr, "vios_shots: %s: %s\n", what, arg); exit(1); }
 static void idle(void) { for (int i = 0; i < 4; ++i) { vios_tools_idle(); vds_proto_frame(&p, 20, UINT32_MAX); } }
 static void press(uint8_t ascii, uint8_t mods, uint8_t vk) { vds_ui_key(&u, ascii, mods, vk, 1); vds_ui_key(&u, ascii, mods, vk, 0); idle(); }
+#ifdef VDS_MAX_CANVASES
+/* G5 canvases: memory for the items and backing rasters, as the board's PSRAM. */
+static uint8_t canvas_store[VDS_MAX_CANVASES][VDS_CANVAS_ITEMS * sizeof(vds_item) + W / 2 * H];
+static void *canvas_mem(void *ctx, uint8_t id, uint32_t n) { (void)ctx; return id < VDS_MAX_CANVASES && n <= sizeof canvas_store[0] ? canvas_store[id] : 0; }
+static void finish(void) { for (int i = 0; i < 1000; ++i) { vds_canvas_prepare(&v, UINT32_MAX); if (vds_frame(&v, UINT32_MAX) && !vds_canvas_pending(&v)) return; } }
+#else
 static void finish(void) { for (int i = 0; i < 1000; ++i) if (vds_frame(&v, UINT32_MAX)) return; }
+#endif
 
 /* The Console window: the server-owned surface 16 in window 32. */
 #define CON_COLS 80
@@ -206,6 +213,10 @@ int main(int argc, char **argv) {
     for (int y = 0; y < H; ++y) rows[y] = fb[y];
     if (!vds_init(&v, rows, W, H, font)) fail("vds_init", "");
     vds_proto_init(&p, &v, cell_mem, esp_send, 0);
+#ifdef VDS_MAX_CANVASES
+    p.canvas_mem = canvas_mem;
+    vds_canvas_icons(&v);
+#endif
     vds_ui_init(&u, &p);
     con_window();
     forth_init();
