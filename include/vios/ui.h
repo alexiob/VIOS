@@ -14,7 +14,7 @@
 #define VIOS_UI_TEXT_MAX 4096
 int vios_ui_init(void);
 /* C clients: ops go into the current batch (sent at once unless batching);
- * requests flush and wait for the display server's reply (op <= 8 bytes). */
+ * requests flush and wait for the display server's reply (ops <= 246 bytes). */
 void vios_ui_op(const unsigned char *bytes, unsigned n);
 int vios_ui_request(const unsigned char *bytes, unsigned n, unsigned char *reply, unsigned capacity, unsigned *length);
 void vios_ui_begin(void);
@@ -23,6 +23,9 @@ void vios_ui_commit(void);
  * event (seq kind id args...) from the UI-NEXT ring. */
 void vios_ui_claim(int (*hook)(const unsigned char *event, unsigned len));
 unsigned vios_ui_resets(void);   /* UI-RESETs so far: the tools reinstall after one */
+/* STREAM events (kind 0x13: a routed node's text line) go to hook instead
+ * (vios_handles.c: /dev/win/N/event). */
+void vios_ui_route(int (*hook)(const unsigned char *event, unsigned len));
 int vios_ui_poll(void);
 /* TextView text (chunked), state and read-back. */
 struct vios_ui_text_info { unsigned length, caret, anchor, revision, dirty; };

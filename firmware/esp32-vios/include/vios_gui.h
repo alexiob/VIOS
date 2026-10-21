@@ -62,6 +62,22 @@ static vds_cell *vios_gui_cell_memory(void *, uint8_t id, uint16_t count) {
     return vios_gui_cells[id];
 }
 
+/* G5 canvas memory (display list and raster), PSRAM, grown only: canvases
+ * are recreated with the same ids. The library caps all rasters at 256 KB. */
+static void *vios_gui_canvases[VDS_MAX_CANVASES];
+static uint32_t vios_gui_canvas_bytes[VDS_MAX_CANVASES];
+static void *vios_gui_canvas_memory(void *, uint8_t id, uint32_t bytes) {
+    if (id >= VDS_MAX_CANVASES || !bytes) return nullptr;
+    if (vios_gui_canvas_bytes[id] < bytes) {
+        void *memory = heap_caps_malloc(bytes, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+        if (!memory) return nullptr;
+        if (vios_gui_canvases[id]) heap_caps_free(vios_gui_canvases[id]);
+        vios_gui_canvases[id] = memory;
+        vios_gui_canvas_bytes[id] = bytes;
+    }
+    return vios_gui_canvases[id];
+}
+
 static void vios_gui_send(void *, uint8_t code, const uint8_t *data, uint8_t n) {
     if (processor) processor->send_packet(code, n, (uint8_t *)data);
 }
@@ -125,6 +141,7 @@ bool vios_gui_start() {
         }
         vios_gui_vds.clock_us = [](void *) -> uint32_t { return (uint32_t)esp_timer_get_time(); };   // frame time budgets
         vds_proto_init(vios_gui_proto, &vios_gui_vds, vios_gui_cell_memory, vios_gui_send, nullptr);
+        vios_gui_proto->canvas_mem = vios_gui_canvas_memory;
         /* A batch of the CPU's GUI ops held the display lock up to 4.9 ms
          * (gui_tools, 2026-10-20), delaying vblank frames: between ops, hand
          * the lock to a waiting vblank frame (it has the higher priority). */

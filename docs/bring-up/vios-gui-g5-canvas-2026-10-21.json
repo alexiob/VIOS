@@ -1,0 +1,256 @@
+{
+  "status": "passed",
+  "checks": {
+    "gui_on": {
+      "ok": true,
+      "detail": "GUI on windows 1 frames 1756 rows 34413 carried 614 errors 0 style 0 batch_max_us 0 batch_op 13 frame_max_us 9687 presents 15 deferred 0 forced 5 abandoned 0 present_us_max 9698 sync_frames_max 7 slow_us 9687 slow_px 0 slow_rows 0 slow_nd 0 slow_phase 2>0 ops_us 0 after_us 0 style_us 0 hold_us 0 wait_us 0 frame_wait 296 by loopTask at 400d8e48"
+    },
+    "picture_matches_host_replay": {
+      "ok": true,
+      "detail": []
+    },
+    "picture_not_blank": {
+      "ok": true,
+      "detail": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14
+      ]
+    },
+    "icons_drawn": {
+      "ok": true,
+      "detail": [
+        0,
+        2,
+        3,
+        0,
+        0,
+        0,
+        3,
+        3
+      ]
+    },
+    "picture_after_edits": {
+      "ok": true,
+      "detail": []
+    },
+    "canvas_event": {
+      "ok": true,
+      "detail": [
+        [
+          -1,
+          290,
+          4,
+          7
+        ],
+        [
+          -1,
+          130,
+          0,
+          19
+        ],
+        [
+          -1,
+          290,
+          4,
+          7
+        ]
+      ]
+    },
+    "no_protocol_errors": {
+      "ok": true,
+      "detail": 0
+    },
+    "frame_budget": {
+      "ok": true,
+      "detail": {
+        "frame_work_max": 4031,
+        "vblank_start_max": 69,
+        "present_work_max": 9716
+      }
+    },
+    "present_budget": {
+      "ok": true,
+      "detail": {
+        "frame_work_max": 4031,
+        "vblank_start_max": 69,
+        "present_work_max": 9716
+      }
+    }
+  },
+  "draw_s": 0.929,
+  "picture": {
+    "points": 64,
+    "mismatches": []
+  },
+  "draw_frames": {
+    "frames": 128,
+    "vblank_start_max": 39,
+    "frame_work_max": 3973,
+    "frame_gui_max": 2993,
+    "present_frames": 1,
+    "present_work_max": 5883,
+    "late_us": 39,
+    "loop_gap_max": 14612,
+    "protocol_errors": 0
+  },
+  "icons": [
+    0,
+    2,
+    3,
+    0,
+    0,
+    0,
+    3,
+    3
+  ],
+  "edits": {
+    "count": 100,
+    "seconds": 0.095,
+    "ms_per_edit": 0.95,
+    "bytes_per_edit": 11
+  },
+  "edit_frames": {
+    "frames": 64,
+    "vblank_start_max": 33,
+    "frame_work_max": 3989,
+    "frame_gui_max": 2873,
+    "present_frames": 1,
+    "present_work_max": 5165,
+    "late_us": 33,
+    "loop_gap_max": 5233,
+    "protocol_errors": 0
+  },
+  "drag_over_canvas": {
+    "frames": 112,
+    "vblank_start_max": 25,
+    "frame_work_max": 3866,
+    "frame_gui_max": 3026,
+    "present_frames": 1,
+    "present_work_max": 307,
+    "late_us": 25,
+    "loop_gap_max": 3951,
+    "protocol_errors": 0
+  },
+  "drag_over_text": {
+    "frames": 111,
+    "vblank_start_max": 25,
+    "frame_work_max": 3591,
+    "frame_gui_max": 3075,
+    "present_frames": 1,
+    "present_work_max": 5817,
+    "late_us": 25,
+    "loop_gap_max": 5886,
+    "protocol_errors": 0
+  },
+  "pointer_events": [
+    [
+      -1,
+      290,
+      4,
+      7
+    ],
+    [
+      -1,
+      130,
+      0,
+      19
+    ],
+    [
+      -1,
+      290,
+      4,
+      7
+    ]
+  ],
+  "after_close": [
+    3
+  ],
+  "protocol_errors": 0,
+  "sections": {
+    "start": {
+      "frames": 4040,
+      "vblank_start_max": 69,
+      "frame_work_max": 4031,
+      "frame_gui_max": 2870,
+      "present_frames": 2,
+      "present_work_max": 9716,
+      "late_us": 69,
+      "loop_gap_max": 11941,
+      "protocol_errors": 0
+    },
+    "draw": {
+      "frames": 128,
+      "vblank_start_max": 39,
+      "frame_work_max": 3973,
+      "frame_gui_max": 2993,
+      "present_frames": 1,
+      "present_work_max": 5883,
+      "late_us": 39,
+      "loop_gap_max": 14612,
+      "protocol_errors": 0
+    },
+    "edits": {
+      "frames": 64,
+      "vblank_start_max": 33,
+      "frame_work_max": 3989,
+      "frame_gui_max": 2873,
+      "present_frames": 1,
+      "present_work_max": 5165,
+      "late_us": 33,
+      "loop_gap_max": 5233,
+      "protocol_errors": 0
+    },
+    "over_open": {
+      "frames": 11,
+      "vblank_start_max": 20,
+      "frame_work_max": 3864,
+      "frame_gui_max": 2937,
+      "present_frames": 0,
+      "present_work_max": 0,
+      "late_us": 20,
+      "loop_gap_max": 6986,
+      "protocol_errors": 0
+    },
+    "drag_over_canvas": {
+      "frames": 112,
+      "vblank_start_max": 25,
+      "frame_work_max": 3866,
+      "frame_gui_max": 3026,
+      "present_frames": 1,
+      "present_work_max": 307,
+      "late_us": 25,
+      "loop_gap_max": 3951,
+      "protocol_errors": 0
+    },
+    "drag_over_text": {
+      "frames": 111,
+      "vblank_start_max": 25,
+      "frame_work_max": 3591,
+      "frame_gui_max": 3075,
+      "present_frames": 1,
+      "present_work_max": 5817,
+      "late_us": 25,
+      "loop_gap_max": 5886,
+      "protocol_errors": 0
+    }
+  },
+  "gui": "GUI on windows 1 frames 2157 rows 47617 carried 977 errors 0 style 0 batch_max_us 187 batch_op 31 frame_max_us 2843 presents 23 deferred 0 forced 7 abandoned 0 present_us_max 9698 sync_frames_max 7 slow_us 4984 slow_px 0 slow_rows 0 slow_nd 0 slow_phase 2>0 ops_us 187 after_us 0 style_us 2 hold_us 193 wait_us 4 frame_wait 72 by loopTask at 400d9026",
+  "frames": {
+    "frame_work_max": 4031,
+    "vblank_start_max": 69,
+    "present_work_max": 9716
+  }
+}
