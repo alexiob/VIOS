@@ -1,0 +1,420 @@
+# VIOS word reference: tasks, pipes, handles, files, audio, modules, boot.
+# Commands (parsed by the C command handler, not dictionary words) show their syntax after the stack effect.
+
+[[word]]
+name = "SPAWN"
+section = "tasks"
+effect = "( xt -- id )"
+desc = "Start xt as a background task in a free slot and return its id (1..4). The task's output (EMIT, TYPE, ., CR) goes to a private 128-byte ring that TASK-OUT reads; it starts with an empty stack and its spawner's BASE. Fails with \"no free task slot\" when all four slots are live, and inside a module transaction."
+example = ": T 6 7 * . ;  ' T SPAWN .  \\ 1"
+
+[[word]]
+name = "SPAWN-CON"
+section = "tasks"
+effect = "( xt -- id )"
+desc = "Like SPAWN, but the task's output goes to the console: it waits in the task's ring and is printed on its own lines when the REPL is idle, followed by a fresh prompt. This is how AUTORUN starts. A slot whose console text has not been printed yet is not reused."
+example = ": HI .\" hello\" CR ;  ' HI SPAWN-CON .  \\ 1"
+
+[[word]]
+name = "PAUSE"
+section = "tasks"
+effect = "( -- )"
+desc = "In a task: end the current slice now and let the others run. In the foreground: run one scheduler round, giving each ready task one slice. With tick preemption on, a task does not need PAUSE to share the CPU, but it is still the cheapest way to yield."
+example = "PAUSE"
+
+[[word]]
+name = "MS"
+section = "tasks"
+effect = "( u -- )"
+desc = "Wait u milliseconds. A task sleeps without using the CPU (state sleeping) and is woken by the scheduler. In the foreground the wait runs tasks meanwhile and Ctrl-C interrupts it. The task clock is the eZ80's 288 kHz timer, sampled at scheduling points."
+example = "10 MS"
+
+[[word]]
+name = "TASK-KILL"
+section = "tasks"
+effect = "( id -- )"
+desc = "Stop task id: its state becomes killed (5), its remaining output is delivered where possible and every handle it owns is closed. Killing a task that already ended does nothing; an id outside 1..4 fails with \"invalid task id\"."
+example = ": T BEGIN 5 MS AGAIN ;  ' T SPAWN DUP TASK-KILL TASK-STATE .  \\ 5"
+
+[[word]]
+name = "TASK-STATE"
+section = "tasks"
+effect = "( id -- n )"
+desc = "Return the state of task id: 0 free, 1 ready, 2 sleeping, 3 done, 4 failed, 5 killed. The state stays readable after the task ends until its slot is reused."
+example = ": T ;  ' T SPAWN  10 MS  TASK-STATE .  \\ 3"
+
+[[word]]
+name = "PREEMPT"
+section = "tasks"
+effect = "( flag -- )"
+desc = "Turn tick preemption on (non-zero, the default) or off (0). With it on, the board's timer ends a background slice after 4 ms and lets ready tasks run every 4 ms even while a foreground command computes. With it off, tasks switch only at PAUSE, MS, FRAME-WAIT, a waiting KEY, the end of an instruction budget (TASK-SLICE), or when the REPL is idle."
+example = "0 PREEMPT  1 PREEMPT"
+
+[[word]]
+name = "PREEMPT-STATS"
+section = "tasks"
+effect = "( -- )"
+desc = "Print \"preempt on|off|none switches N ignored N critical N\": whether preemption is on, how many tick switches happened, how many ticks were ignored (inside CRITICAL(, compilation, module transactions, TRACE) and the current CRITICAL( depth. \"none\" means no tick source is installed (host builds)."
+example = "PREEMPT-STATS"
+
+[[word]]
+name = "FRAME-WAIT"
+section = "tasks"
+effect = "( -- )"
+desc = "Sleep until the next 60 Hz frame boundary (multiples of 50/3 ms on the task clock, rounded up), so a render loop wakes at a steady rate whatever its own work took. In the foreground it waits like MS and Ctrl-C interrupts it."
+example = "FRAME-WAIT"
+
+[[word]]
+name = "CRITICAL("
+section = "tasks"
+effect = "( -- )"
+desc = "Begin a section in which timer ticks are ignored, so no other task runs until the matching )CRITICAL. Use it around read-modify-write of shared variables and multi-part VDU sequences. Sections nest up to 255 deep; the normal execution budget still bounds a forgotten )CRITICAL, and a failing command resets the depth."
+example = "VARIABLE HITS  CRITICAL( 1 HITS +! )CRITICAL  HITS @ .  \\ 1"
+
+[[word]]
+name = ")CRITICAL"
+section = "tasks"
+effect = "( -- )"
+desc = "End a section started by CRITICAL(. Extra )CRITICAL words are ignored."
+example = "CRITICAL( )CRITICAL"
+
+[[word]]
+name = "TASK-INPUT"
+section = "tasks"
+effect = "( id h -- )"
+desc = "Make handle h the standard input of task id: its KEY reads bytes from h. On an empty pipe KEY waits (the task retries on its next slice); at end of input KEY returns -1. The task takes ownership of h, which is closed when the task ends. Without TASK-INPUT, KEY in a task fails."
+
+[[word]]
+name = "TASK-OUTPUT"
+section = "tasks"
+effect = "( id h -- )"
+desc = "Make handle h the standard output of task id: EMIT, TYPE, . and CR go to h, drained from the task's ring between slices (a full pipe makes the task wait). The task takes ownership of h. If the reader closes the pipe the task fails with \"broken pipe\"."
+
+[[word]]
+name = "TASK-OUT"
+section = "tasks"
+effect = "( -- ) TASK-OUT id"
+desc = "Command: print and empty the output ring of task id as \"task-out ID hex BYTES dropped N\", the bytes in hexadecimal and N the bytes lost because the 128-byte ring was full. Use it to collect the output of a SPAWNed task."
+example = ": T 42 . ;  ' T SPAWN DROP  10 MS  TASK-OUT 1"
+
+[[word]]
+name = "TASK-SLICE"
+section = "tasks"
+effect = "( -- ) TASK-SLICE n"
+desc = "Command: set the instruction budget of one background slice, 64..65535 (default 1024). With preemption on, the 4 ms tick usually ends a slice first; with it off (or on host builds) this budget is the only bound."
+example = "TASK-SLICE 2048  TASK-SLICE 1024"
+
+[[word]]
+name = "TASKS"
+section = "tasks"
+effect = "( -- ) TASKS"
+desc = "Command: print \"task-slice N\", then one line per slot with state, xt, name (as hex bytes), slices and instructions run, stack depths and peaks, buffered and dropped output bytes, error text (hex) and the task's BASE."
+example = "TASKS"
+
+[[word]]
+name = "PIPE"
+section = "pipes"
+effect = "( -- hr hw | -err 0 )"
+desc = "Create a 128-byte pipe and return its read handle hr and write handle hw (hw on top). When no pipe or handle is free it returns a negative error code and 0 instead. Writes to a full pipe and reads from an empty one return -1 (try again); a read returns 0 once every writer has closed; a write fails with -2 once every reader has closed."
+example = "PIPE CLOSE . CLOSE .  \\ 0 0"
+
+[[word]]
+name = "PIPELINE"
+section = "pipes"
+effect = "( xt1 xt2 -- id1 id2 )"
+desc = "Run xt1 and xt2 as two tasks joined by a pipe: everything xt1 prints becomes xt2's KEY input, and xt2 prints to the console (SPAWN-CON). Returns both task ids, the consumer's id on top. Each task owns its end, so xt2 sees end of input (-1) when xt1 finishes."
+
+[[word]]
+name = "PL-R"
+section = "pipes"
+effect = "( -- addr )"
+desc = "Variable used by PIPELINE: the read handle of the pipe it created most recently. Internal; the consumer task owns that handle."
+example = "PL-R @ ."
+
+[[word]]
+name = "PL-W"
+section = "pipes"
+effect = "( -- addr )"
+desc = "Variable used by PIPELINE: the write handle of the pipe it created most recently. Internal; the producer task owns that handle."
+example = "PL-W @ ."
+
+[[word]]
+name = "OPEN"
+section = "handles"
+effect = "( addr u mode -- h | -err )"
+desc = "Open the path addr u for reading (mode 1) or writing (mode 2) and return a handle 1..8, or a negative error code (-4 nothing free, -5 bad path or file not found, -7 bad mode). SD files opened for writing are created or truncated. Paths: SD files, /host/... (Mac files through the harness), /dev/null, /dev/cons (write), /dev/tasks (read) and devices made with DEVICE."
+example = "S\" /dev/null\" 2 OPEN DUP . CLOSE .  \\ 1 0"
+
+[[word]]
+name = "CLOSE"
+section = "handles"
+effect = "( h -- 0 | -err )"
+desc = "Close handle h and return 0, -3 for a handle that is not open, or -6 when the file system reported an error while closing (the message is in HANDLES). Closing the last writer of a pipe gives its reader end of input."
+example = "S\" /dev/null\" 1 OPEN CLOSE .  \\ 0"
+
+[[word]]
+name = "READ"
+section = "handles"
+effect = "( addr u h -- n | -err )"
+desc = "Read up to u bytes from handle h into addr and return the count; 0 means end of input. Never blocks: an empty pipe returns -1. Other errors: -3 bad handle, -6 I/O error, -7 handle opened for writing. READ-WAIT is the blocking form."
+
+[[word]]
+name = "WRITE"
+section = "handles"
+effect = "( addr u h -- n | -err )"
+desc = "Write up to u bytes from addr to handle h and return how many were accepted, possibly fewer than u for a pipe. Never blocks: a full pipe returns -1; a pipe without readers returns -2. Other errors: -3 bad handle, -6 I/O error, -7 handle opened for reading. WRITE-ALL is the blocking form."
+example = "S\" /dev/null\" 2 OPEN CONSTANT N  S\" hi\" N WRITE .  N CLOSE .  \\ 2 0"
+
+[[word]]
+name = "READ-WAIT"
+section = "handles"
+effect = "( addr u h -- n )"
+desc = "Like READ, but while READ returns -1 (no data yet) it calls PAUSE and tries again. Returns the byte count, 0 at end of input, or another negative error code. Defined in Forth over READ, so you can replace the policy."
+
+[[word]]
+name = "WRITE-ALL"
+section = "handles"
+effect = "( addr u h -- 0 | -err )"
+desc = "Write all u bytes to h, calling PAUSE whenever the pipe is full, and return 0, or the first negative error code (such as -2 broken pipe). Defined in Forth over WRITE."
+example = "S\" /dev/null\" 2 OPEN CONSTANT N  S\" hi\" N WRITE-ALL .  N CLOSE .  \\ 0 0"
+
+[[word]]
+name = "DEVICE"
+section = "handles"
+effect = "( addr u xt -- )"
+desc = "Register /dev/NAME (addr u, 1..11 printable characters) served by the word xt, or replace an existing one; xt 0 removes it. Opening the device creates a pipe and starts xt as a task: opened for reading, the task's output is what you read; opened for writing, what you write is the task's KEY input. At most 4 devices."
+example = ": TEN 10 0 DO I . LOOP ;  S\" ten\" ' TEN DEVICE"
+
+[[word]]
+name = "HANDLES"
+section = "handles"
+effect = "( -- ) HANDLES"
+desc = "Command: list every open handle (number, kind file/pipe/null/cons/snapshot/host, direction, owner task, bytes moved, bytes buffered in a pipe, path), every registered device, and the last I/O error message."
+example = "HANDLES"
+
+[[word]]
+name = "HANDLE-GET"
+section = "handles"
+effect = "( -- ) HANDLE-GET h n"
+desc = "Command for host tools: read up to n bytes (1..64) from handle h without blocking and print \"get HEX\", or \"get -\" at end of input (an empty pipe prints \"get \" with no bytes)."
+
+[[word]]
+name = "HANDLE-PUT"
+section = "handles"
+effect = "( -- ) HANDLE-PUT h HEX"
+desc = "Command for host tools: write the bytes given as hexadecimal digits to handle h and print \"put N\", the number accepted (a pipe can take fewer)."
+
+[[word]]
+name = "SD-MOUNT"
+section = "files"
+effect = "( -- ior )"
+desc = "Mount the SD card again (after swapping it, for example) and return 0 on success or 1 on failure; FS-ERROR prints why. Only FAT32 cards are accepted. Note the result is 0 for success, not a Forth true flag."
+example = "SD-MOUNT .  \\ 0"
+
+[[word]]
+name = "FS-ERROR"
+section = "files"
+effect = "( -- )"
+desc = "Print the last SD file system message (\"ok\", \"file not found\", \"file exceeds buffer\", \"not FAT32\", ...) on its own line."
+example = "FS-ERROR"
+
+[[word]]
+name = "FILE-READ"
+section = "files"
+effect = "( addr u dest cap -- n ior )"
+desc = "Read the whole SD file named addr u into dest (at most cap bytes, capped at 4096) and return its length n and ior 0, or 0 and ior 1 on failure (FS-ERROR says why; a file larger than cap fails with \"file exceeds buffer\"). For larger files use OPEN and READ. Not for /host/ paths."
+example = "CREATE B 64 ALLOT  S\" /VIOS/T.TXT\" S\" abc\" FILE-WRITE DROP  S\" /VIOS/T.TXT\" B 64 FILE-READ . .  \\ 0 3"
+
+[[word]]
+name = "FILE-WRITE"
+section = "files"
+effect = "( addr u src n -- ior )"
+desc = "Create or replace the SD file named addr u with the n bytes at src, flushed to the card before it returns. Returns 0 on success, 1 on a file system error, 2 when n exceeds 4096. Not for /host/ paths."
+example = "S\" /VIOS/T.TXT\" S\" hello\" FILE-WRITE .  \\ 0"
+
+[[word]]
+name = "FILE-REMOVE"
+section = "files"
+effect = "( addr u -- ior )"
+desc = "Delete the SD file (or empty directory) named addr u. Returns 0 on success, 1 on failure."
+example = "S\" /VIOS/T.TXT\" S\" x\" FILE-WRITE DROP  S\" /VIOS/T.TXT\" FILE-REMOVE .  \\ 0"
+
+[[word]]
+name = "DIR"
+section = "files"
+effect = "( -- ) DIR path"
+desc = "Command: list an SD directory, one line per entry: \"entry NAME size N dir 0|1\". Paths are absolute; names are 8.3."
+example = "DIR /VIOS"
+
+[[word]]
+name = "LOAD"
+section = "files"
+effect = "( -- ) LOAD path"
+desc = "Command: read a Forth source file (at most 4096 bytes) from SD, or from the Mac for /host/ paths, and evaluate it. A file that ends inside a definition fails with \"incomplete definition in source file\". Files may LOAD or INCLUDE others up to 4 deep."
+example = "S\" /VIOS/HI.FTH\" S\" 6 7 * .\" FILE-WRITE DROP  LOAD /VIOS/HI.FTH  \\ 42"
+
+[[word]]
+name = "INCLUDE"
+section = "files"
+effect = "( -- ) INCLUDE path"
+desc = "Command: the same as LOAD (same code, same limits); both names are accepted."
+example = "S\" /VIOS/HI.FTH\" S\" 6 7 * .\" FILE-WRITE DROP  INCLUDE /VIOS/HI.FTH  \\ 42"
+
+[[word]]
+name = "TONE"
+section = "audio"
+effect = "( freq ms -- )"
+desc = "Play a square tone of freq Hz (up to 8191) for ms milliseconds on the first idle voice, or on voice 0 when all three are busy, so a tone does not cut a playing tune. Returns at once; the ESP times the note."
+example = "440 200 TONE"
+board = true
+
+[[word]]
+name = "TUNE"
+section = "audio"
+effect = "( addr u slot -- )"
+desc = "Store tune text (at most 255 bytes) in slot 0..7 on the ESP; u 0 frees the slot. The ESP checks the whole text first: an invalid tune is not stored (SOUND? cannot show where; the host harness's audio status can). Voices playing that slot stop. Tunes live in ESP RAM and are lost when the ESP restarts."
+example = "S\" t140 l8 cdefg>c\" 0 TUNE"
+board = true
+
+[[word]]
+name = "PLAY"
+section = "audio"
+effect = "( slot voice -- )"
+desc = "Start the tune in slot (0..7) on voice 0..2 from its beginning, with the default settings o4 l4 t120 v12 w0 q7. Nothing happens for an empty slot."
+example = "0 0 PLAY"
+board = true
+
+[[word]]
+name = "STOP"
+section = "audio"
+effect = "( voice -- )"
+desc = "Silence voice 0..2 and end its tune; -1 (or any value above 2) stops all voices."
+example = "-1 STOP"
+board = true
+
+[[word]]
+name = "VOLUME"
+section = "audio"
+effect = "( n -- )"
+desc = "Set the master volume, 0..127 (default 127). It scales all three voices."
+example = "100 VOLUME"
+board = true
+
+[[word]]
+name = "SOUND?"
+section = "audio"
+effect = "( -- mask )"
+desc = "Ask the ESP which voices are sounding: bit n is set while voice n plays a tone or tune. The only audio word that waits for a reply."
+example = "SOUND? ."
+board = true
+
+[[word]]
+name = "MODULE-BEGIN"
+section = "modules"
+effect = "( -- ) MODULE-BEGIN name version test|-"
+desc = "Command: start building a module source in the builder: name and version are 1..31 printable characters, test is the name of a word that must return one true flag after loading, or - for none. Follow with MODULE-DEP lines, MODULE-DATA lines and MODULE-STAGE."
+example = "MODULE-BEGIN DEMO 1.0 -"
+
+[[word]]
+name = "MODULE-DEP"
+section = "modules"
+effect = "( -- ) MODULE-DEP name crc"
+desc = "Command: pin a dependency of the module being built: the live module name with source CRC-32 crc (eight hex digits, as MODULES prints in decimal). Up to 4 per module; staging fails if the dependency is missing or has another CRC."
+
+[[word]]
+name = "MODULE-DATA"
+section = "modules"
+effect = "( -- ) MODULE-DATA hex"
+desc = "Command: append source bytes, given as an even number of hex digits (at most 232 digits, 116 bytes, per line, though 220 digits keep the line within the 235-character console limit; no 00 byte), to the module being built. The whole source is ASCII and at most 4096 bytes."
+example = "MODULE-BEGIN DEMO 1.0 -  MODULE-DATA 3A2058203B"
+
+[[word]]
+name = "MODULE-STAGE"
+section = "modules"
+effect = "( -- ) MODULE-STAGE"
+desc = "Command: check and dry-run the built source in a transaction (compile it, run the test word, then undo everything) and keep it as the pending module; prints \"staged NAME crc32 N\". Only one module can be pending; MODULE-ACTIVATE or MODULE-DISCARD it first."
+
+[[word]]
+name = "MODULE-ACTIVATE"
+section = "modules"
+effect = "( -- ) MODULE-ACTIVATE name"
+desc = "Command: compile the pending module for real in one transaction (the test word runs again) and make it the module's current generation; the old current becomes previous. If anything fails nothing changes."
+
+[[word]]
+name = "MODULE-ROLLBACK"
+section = "modules"
+effect = "( -- ) MODULE-ROLLBACK name"
+desc = "Command: undo the latest activation, which must be of name: its words disappear and the module records return to what they were. Only the most recent activation has a rollback checkpoint, and no module may be pending."
+
+[[word]]
+name = "MODULE-DISCARD"
+section = "modules"
+effect = "( -- ) MODULE-DISCARD"
+desc = "Command: drop the pending (staged) module and any module being built. Always succeeds."
+example = "MODULE-DISCARD"
+
+[[word]]
+name = "MODULE-SOURCE"
+section = "modules"
+effect = "( -- ) MODULE-SOURCE name [PREVIOUS]"
+desc = "Command: print the exact source of a module's current generation (or its previous one with PREVIOUS) as \"source-hex\" lines of up to 64 bytes in hex."
+
+[[word]]
+name = "MODULE-LOAD"
+section = "modules"
+effect = "( -- ) MODULE-LOAD path"
+desc = "Command: read a saved package (.VIM), check its header and CRCs, then compile and activate it in one transaction (dependencies must already be live). Boot uses the same path for each slot entry."
+
+[[word]]
+name = "MODULES"
+section = "modules"
+effect = "( -- ) MODULES"
+desc = "Command: list the active modules, one line each (\"module NAME version V crc32 N bytes N deps N active 1 previous 0|1\"), followed by a \"dependency\" line per pinned dependency. CRCs are printed in decimal."
+example = "MODULES"
+
+[[word]]
+name = "SAVE"
+section = "modules"
+effect = "( -- ) SAVE name [/path.ext]"
+desc = "Command: write the current generation of module name, and first every module it depends on, as immutable package files /VIOS/<CRC of name>/<CRC of package>.VIM, and print \"saved PATH\". With a path (8.3 name with an extension) it also writes a copy there. Writing the same package twice is harmless; different data at the same path is an error."
+
+[[word]]
+name = "BOOT-TRIAL"
+section = "boot"
+effect = "( -- ) BOOT-TRIAL"
+desc = "Command: write every active module (saved as packages, in dependency order) into the boot slot that is not confirmed (B when A is confirmed, otherwise A) and mark it as the candidate for the next boot. The next boot tries it; if it loads and passes the health check it becomes confirmed, otherwise the confirmed slot boots."
+
+[[word]]
+name = "BOOT-CONFIRM"
+section = "boot"
+effect = "( -- ) BOOT-CONFIRM"
+desc = "Command: confirm the running trial slot. Startup already confirms a healthy trial by itself, so this normally reports success without changes; it matters only if that automatic record write failed. Fails with \"no running trial boot to confirm\" otherwise."
+board = true
+
+[[word]]
+name = "BOOT-REVERT"
+section = "boot"
+effect = "( -- ) BOOT-REVERT"
+desc = "Command: cancel a pending trial, or, when none is pending, swap the confirmed slot with the previous confirmed one. Takes effect at the next boot; it does not reboot."
+
+[[word]]
+name = "BOOT-STATUS"
+section = "boot"
+effect = "( -- ) BOOT-STATUS"
+desc = "Command: print \"boot confirmed A|B|NONE candidate A|B|NONE state CLEAN|PENDING|TRIED current A|B|NONE generation N\": the slots in the boot record, the slot that was loaded at this boot, and the record's write count."
+example = "BOOT-STATUS"
+
+[[word]]
+name = "BOOT-MANIFEST"
+section = "boot"
+effect = "( -- ) BOOT-MANIFEST"
+desc = "Command: show what a power cycle would load: for the confirmed and the candidate slot a \"manifest\" line (module count and bundle CRC, or the error), then one \"manifest-module\" line per module with version, CRC and whether its package file is ok, bad or unreadable. Read-only."
+example = "BOOT-MANIFEST"
+
+[[word]]
+name = "BOOT-TIMES"
+section = "boot"
+effect = "( -- ) BOOT-TIMES"
+desc = "Command: print how long each startup step took in ms (storage, state, modules, health, finish, total), with the number of module loads, the slowest module, the boot-module cache result (hit, stale, corrupt, absent, unstamped, identity, saved) and the read/check/compile split."
+example = "BOOT-TIMES"
+

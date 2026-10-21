@@ -1,0 +1,429 @@
+/* VIOS manual: the look of the VIOS display server (lib/vios-vds) in CSS.
+ * Smalltalk style: a grey dithered desktop, white windows with black frames,
+ * hard shadows and yellow title tabs. Turbo Vision style: blue desktop and
+ * windows, double white frames, a grey menu bar with red mnemonics.
+ * Colours are the server's RGB222 palettes (0, 85, 170, 255 per channel). */
+
+@font-face {
+  font-family: "Agon8";
+  src: url("fonts/agon8.woff") format("woff");
+  font-display: swap;
+}
+
+:root {
+  --px: 2px;                                  /* one display pixel */
+  --desk-a: #555555;
+  --desk-b: #aaaaaa;
+  --win: #ffffff;
+  --ink: #000000;
+  --frame: #000000;
+  --shadow: #000000;
+  --tab: #ffffaa;
+  --tab-ink: #000000;
+  --sel: #000000;
+  --sel-ink: #ffffff;
+  --muted: #555555;
+  --link: #0000aa;
+  --code-bg: #ffffff;
+  --code-ink: #000000;
+  --inline-bg: #e6e6e6;
+  --bar: #ffffff;
+  --bar-ink: #000000;
+  --mn: inherit;
+  --rule: #000000;
+  --pixel: "Agon8", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --text: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color-scheme: light;
+}
+
+:root[data-style="turbo"] {
+  --desk-a: #000055;
+  --desk-b: #0055aa;
+  --win: #0000aa;
+  --ink: #ffffff;
+  --frame: #ffffff;
+  --shadow: #000000;
+  --tab: #0000aa;
+  --tab-ink: #ffffff;
+  --sel: #00aa00;
+  --sel-ink: #ffffff;
+  --muted: #aaaaaa;
+  --link: #55ffff;
+  --code-bg: #000055;
+  --code-ink: #ffff55;
+  --inline-bg: #000055;
+  --bar: #aaaaaa;
+  --bar-ink: #000000;
+  --mn: #ff0000;
+  --rule: #aaaaaa;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html {
+  background-color: var(--desk-a);
+  background-image: conic-gradient(var(--desk-b) 25%, var(--desk-a) 0 50%, var(--desk-b) 0 75%, var(--desk-a) 0);
+  background-size: calc(var(--px) * 2) calc(var(--px) * 2);
+  scroll-padding-top: 48px;
+}
+
+body {
+  margin: 0;
+  font: 16px/1.6 var(--text);
+  color: var(--ink);
+  -webkit-text-size-adjust: 100%;
+}
+
+/* ---------------------------------------------------------------- menu bar */
+
+/* The menu bar scrolls sideways when it is wider than the screen: a thin
+ * scroll bar and a fade at the clipped edge show that more items follow. */
+.menubar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 6px 16px;
+  background: var(--bar);
+  color: var(--bar-ink);
+  border-bottom: var(--px) solid var(--ink);
+  font: 16px/16px var(--pixel);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  white-space: nowrap;
+  scrollbar-width: thin;
+  scrollbar-color: var(--bar-ink) var(--bar);
+}
+:root[data-style="turbo"] .menubar { border-bottom-color: #000000; }
+.menubar::-webkit-scrollbar { height: 4px; }
+.menubar::-webkit-scrollbar-thumb { background: var(--bar-ink); }
+.menubar > * { flex: 0 0 auto; }
+.menubar.more-right { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent); }
+.menubar.more-left { -webkit-mask-image: linear-gradient(to left, #000 calc(100% - 40px), transparent); mask-image: linear-gradient(to left, #000 calc(100% - 40px), transparent); }
+.menubar.more-left.more-right { -webkit-mask-image: linear-gradient(to right, transparent, #000 40px, #000 calc(100% - 40px), transparent); mask-image: linear-gradient(to right, transparent, #000 40px, #000 calc(100% - 40px), transparent); }
+.menubar a, .menubar button {
+  color: inherit;
+  text-decoration: none;
+  font: inherit;
+  background: none;
+  border: 0;
+  padding: 4px 6px;
+  cursor: pointer;
+}
+.menubar a:hover, .menubar button:hover, .menubar a:focus-visible, .menubar button:focus-visible {
+  background: var(--sel);
+  color: var(--sel-ink);
+  outline: none;
+}
+.menubar nav { display: flex; gap: 4px; flex: 0 0 auto; }
+.menubar .logo { font-weight: normal; padding-right: 10px; border-right: var(--px) solid currentColor; }
+.mn { color: var(--mn); }
+
+/* ---------------------------------------------------------------- windows */
+
+.desktop {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 920px);
+  justify-content: center;
+  gap: 40px;
+  padding: 44px 24px 56px;
+  align-items: start;
+}
+
+.window {
+  position: relative;
+  background: var(--win);
+  color: var(--ink);
+  border: var(--px) solid var(--frame);
+  box-shadow: calc(var(--px) * 4) calc(var(--px) * 4) 0 var(--shadow);
+}
+:root[data-style="turbo"] .window {
+  border: calc(var(--px) * 3) double var(--frame);
+  outline: calc(var(--px) * 3) solid var(--win);
+}
+
+.tab {
+  font: 16px/16px var(--pixel);
+  background: var(--tab);
+  color: var(--tab-ink);
+  border: var(--px) solid var(--frame);
+  border-bottom: 0;
+  padding: 3px 10px 2px;
+}
+.title {
+  position: absolute;
+  left: 12px;
+  bottom: 100%;
+  max-width: calc(100% - 24px);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+:root[data-style="turbo"] .tab {
+  border: 0;
+  padding: 0 8px;
+}
+:root[data-style="turbo"] .title {
+  left: 50%;
+  bottom: auto;
+  top: -14px;
+  transform: translateX(-50%);
+}
+
+.main-window { padding: 28px 40px 32px; min-height: 60vh; }
+
+/* The contents window stays in view on wide screens. */
+.contents-window {
+  position: sticky;
+  top: 72px;
+  max-height: calc(100vh - 96px);
+  overflow: auto;
+  scrollbar-width: thin;
+}
+.contents-window details { padding: 0; }
+.contents-window summary {
+  position: sticky;
+  top: 0;
+  list-style: none;
+  cursor: pointer;
+  border: 0;
+  border-bottom: var(--px) solid var(--frame);
+  padding: 6px 12px;
+}
+.contents-window summary::-webkit-details-marker { display: none; }
+.toc { margin: 0; padding: 8px 0 12px; list-style: none; counter-reset: ch; font-size: 14px; line-height: 1.35; }
+.toc > li { counter-increment: ch; }
+.toc > li:first-child { counter-increment: none; }
+.toc a { display: block; padding: 3px 12px 3px 16px; color: inherit; text-decoration: none; }
+.toc > li > a::before { content: counter(ch) ". "; font-family: var(--pixel); font-size: 12px; color: var(--muted); }
+.toc > li:first-child > a::before { content: ""; }
+.toc a:hover { background: var(--sel); color: var(--sel-ink); }
+.toc a:hover::before { color: inherit; }
+.toc li.here > a { background: var(--sel); color: var(--sel-ink); }
+.toc li.here > a::before { color: inherit; }
+.toc ul { list-style: none; margin: 2px 0 6px; padding: 0 0 0 18px; border-left: var(--px) solid var(--rule); margin-left: 22px; }
+.toc ul a { padding: 2px 8px; font-size: 13px; }
+
+/* ---------------------------------------------------------------- text */
+
+article { max-width: 72ch; margin: 0 auto; }
+article > :first-child { margin-top: 0; }
+h1, h2, h3, h4 { font-family: var(--pixel); font-weight: normal; line-height: 1.25; letter-spacing: 0; }
+h1 { font-size: 32px; line-height: 40px; margin: 8px 0 20px; }
+h2 { font-size: 24px; margin: 40px 0 16px; }
+h2.inline { margin-top: 44px; padding-top: 16px; border-top: var(--px) solid var(--rule); }
+h3 {
+  font-size: 16px;
+  margin: 36px 0 12px;
+  padding-bottom: 6px;
+  border-bottom: var(--px) solid var(--rule);
+}
+h4 { font-size: 16px; margin: 28px 0 8px; color: var(--muted); }
+:root[data-style="turbo"] h4 { color: #ffff55; }
+p, ul, ol, table, pre, figure, blockquote { margin: 0 0 16px; }
+li { margin: 2px 0; }
+a { color: var(--link); text-underline-offset: 2px; }
+a:hover { background: var(--sel); color: var(--sel-ink); text-decoration: none; }
+strong { font-weight: 650; }
+hr { border: 0; border-top: var(--px) solid var(--rule); margin: 28px 0; }
+blockquote {
+  margin-left: 0;
+  padding: 10px 16px;
+  border: var(--px) solid var(--frame);
+  border-left-width: calc(var(--px) * 4);
+}
+blockquote > :last-child { margin-bottom: 0; }
+
+kbd { font-family: var(--pixel); font-size: 16px; }
+/* Inline code in running text uses a regular monospace: the 8x8 font is
+ * authentic in code blocks and headings but heavy inside sentences. */
+:not(pre) > code {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  background: var(--inline-bg);
+  padding: 1px 4px;
+  font-size: 0.9em;
+  line-height: 1;
+  word-break: break-word;
+}
+/* Code inside headings and table headers takes their colours and font. */
+th code, th a { color: inherit; }
+th code { font: inherit; background: none; padding: 0; }
+h1 code, h2 code, h3 code, h4 code { font-family: var(--pixel); font-size: 1em; background: none; padding: 0; }
+kbd {
+  border: var(--px) solid var(--frame);
+  padding: 0 4px;
+  font-size: 14px;
+  box-shadow: var(--px) var(--px) 0 var(--shadow);
+}
+/* Code blocks: a regular monospace for 80-column lines, framed like a VDS
+ * window with the language in an 8x8 title tab. */
+pre {
+  position: relative;
+  background: var(--code-bg);
+  color: var(--code-ink);
+  border: var(--px) solid var(--frame);
+  padding: 12px 14px;
+  overflow-x: auto;
+  font: 14px/1.5 ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  box-shadow: calc(var(--px) * 2) calc(var(--px) * 2) 0 var(--shadow);
+  tab-size: 4;
+}
+pre { margin-top: 34px; overflow: visible; }
+pre > code { display: block; overflow-x: auto; }
+pre[data-lang]::before {
+  content: attr(data-lang);
+  position: absolute;
+  left: 10px;
+  bottom: 100%;
+  margin-bottom: var(--px);
+  font: 12px/12px var(--pixel);
+  padding: 3px 8px 2px;
+  background: var(--tab);
+  color: var(--tab-ink);
+  border: var(--px) solid var(--frame);
+  border-bottom: 0;
+}
+:root[data-style="turbo"] pre[data-lang]::before { background: var(--sel); color: var(--sel-ink); border-color: var(--sel); }
+pre code { background: none; padding: 0; font: inherit; }
+
+/* Copy to clipboard: a pixel clipboard icon in a tab at the block's top right. */
+pre .copy {
+  position: absolute;
+  right: 10px;
+  bottom: 100%;
+  margin-bottom: var(--px);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 21px;
+  padding: 2px 7px;
+  font: 12px/12px var(--pixel);
+  color: var(--tab-ink);
+  background: var(--win);
+  border: var(--px) solid var(--frame);
+  border-bottom: 0;
+  cursor: pointer;
+}
+pre .copy svg { width: 12px; height: 12px; display: block; shape-rendering: crispEdges; fill: currentColor; }
+pre .copy:hover, pre .copy:focus-visible { background: var(--sel); color: var(--sel-ink); outline: none; }
+pre .copy.done { background: var(--tab); color: var(--tab-ink); }
+:root[data-style="turbo"] pre .copy { background: var(--code-bg); color: var(--code-ink); border-color: var(--sel); }
+
+
+/* Tables look like VDS table widgets: a selection-coloured header row. */
+.table-wrap { overflow-x: auto; margin: 0 0 18px; border: var(--px) solid var(--frame); }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; line-height: 1.45; margin: 0; }
+th {
+  background: var(--sel);
+  color: var(--sel-ink);
+  font: 14px/18px var(--pixel);
+  text-align: left;
+  padding: 6px 10px;
+  white-space: nowrap;
+}
+td { padding: 6px 10px; vertical-align: top; border-top: 1px solid var(--rule); }
+td code { white-space: nowrap; }
+td:nth-child(2) code { white-space: normal; }
+
+/* The word reference uses the whole window width. */
+.page-word-reference article, .page-word-reference .filter, .page-word-reference .pager { max-width: none; }
+.page-word-reference td:first-child { width: 17%; }
+.page-word-reference td:nth-child(2) { width: 24%; }
+.page-word-reference td:last-child { width: 8%; font-size: 13px; color: var(--muted); }
+.page-word-reference td:first-child code { font-family: var(--pixel); font-size: 16px; background: none; padding: 0; }
+tr:target, tr:has(a:target) { background: var(--tab); color: var(--tab-ink); }
+:root[data-style="turbo"] tr:has(a:target) { background: #00aaaa; }
+
+/* Screenshots: the real 640x480 frames, pixel-exact. */
+figure.shot { margin: 24px 0 28px; text-align: center; }
+figure.shot a { display: inline-block; background: none; }
+figure.shot img {
+  display: block;
+  width: 100%;
+  max-width: 640px;
+  height: auto;
+  image-rendering: pixelated;
+  border: var(--px) solid var(--frame);
+  box-shadow: calc(var(--px) * 4) calc(var(--px) * 4) 0 var(--shadow);
+}
+figure.shot figcaption { margin-top: 14px; font: 14px/1.4 var(--text); color: var(--muted); }
+figure.shot.anim figcaption::before { content: "\25B6  "; font-family: var(--pixel); }
+
+/* Pager: VDS buttons. */
+.pager {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  max-width: 72ch;
+  margin: 40px auto 0;
+  padding-top: 20px;
+  border-top: var(--px) solid var(--rule);
+}
+.button {
+  font: 16px/20px var(--pixel);
+  color: var(--ink);
+  text-decoration: none;
+  padding: 4px 6px;
+}
+.button[rel="next"] { margin-left: auto; text-align: right; }
+.button:hover, .button:focus-visible { background: var(--sel); color: var(--sel-ink); outline: none; }
+
+.filter { max-width: 72ch; margin: 0 auto 20px; font-family: var(--pixel); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.filter input {
+  flex: 1 1 240px;
+  font: 16px/20px var(--pixel);
+  padding: 6px 8px;
+  color: var(--ink);
+  background: var(--win);
+  border: var(--px) solid var(--frame);
+  border-radius: 0;
+  box-shadow: inset var(--px) var(--px) 0 var(--shadow);
+}
+.filter input:focus { outline: var(--px) solid var(--sel); outline-offset: 2px; }
+.filter .count { color: var(--muted); font-size: 14px; }
+
+
+:focus-visible { outline: var(--px) solid var(--link); outline-offset: 2px; }
+
+/* ---------------------------------------------------------------- narrow screens */
+
+@media (max-width: 1100px) {
+  .desktop { grid-template-columns: minmax(0, 920px); gap: 36px; padding: 36px 16px 48px; }
+  .contents-window { position: relative; top: 0; max-height: none; }
+  .contents-window:not(:has(details[open])) { box-shadow: calc(var(--px) * 2) calc(var(--px) * 2) 0 var(--shadow); }
+  .toc ul { display: none; }
+}
+
+@media (max-width: 640px) {
+  :root { --px: 2px; }
+  body { font-size: 16px; }
+  .desktop { padding: 30px 10px 40px; gap: 30px; }
+  .main-window { padding: 22px 16px 24px; }
+  .window { box-shadow: calc(var(--px) * 3) calc(var(--px) * 3) 0 var(--shadow); }
+  h1 { font-size: 24px; line-height: 32px; }
+  h2 { font-size: 20px; }
+  pre { margin-left: -6px; margin-right: -6px; padding: 10px; font-size: 13px; }
+  .menubar { gap: 8px; padding: 6px 8px; font-size: 14px; }
+  .title { font-size: 14px; }
+  figure.shot { margin-left: -6px; margin-right: -6px; }
+  table { font-size: 14px; }
+  article ul, article ol { padding-left: 22px; }
+  .page-word-reference td:first-child, .page-word-reference td:nth-child(2) { width: auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+@media print {
+  html { background: #fff; }
+  .menubar, .contents-window, .pager, .filter { display: none; }
+  .desktop { display: block; padding: 0; }
+  .window { border: 0; box-shadow: none; }
+  .title { position: static; }
+}

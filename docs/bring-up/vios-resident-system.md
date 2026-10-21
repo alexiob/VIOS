@@ -2,22 +2,26 @@
 
 The integrated physical-board acceptance passed: 137 checkpoints cover the transport, three engines, VDP replies, native SD module persistence, live replacement and true A/B source restarts. See [the acceptance report](vios-resident-accepted-run3.json) and [the progress ledger](vios-resident-progress.md). Recovery fault tests and host/native checks have separate reports below.
 
+Update (2026-10-21): this runbook records the October 16 resident profile. Since then the board boots untethered (MOS 3.0.2, written to the eZ80 flash on 2026-10-19, runs the SD stub `viosboot`, which loads the resident from the ESP firmware); the ZDI wire is only needed for dev boots and debug tools. The screen is the GUI desktop (mode 0, 640×480, 16 colours) with a Console window, ESP firmware is installed A/B with `tools/vios_firmware_ab.py`, and the harness has 72 tools. The [VIOS manual](../manual/VIOS-MANUAL.md) is the current reference; statements below that conflict with it are corrected in place or historical.
+
 ## Build and attach
 
 ```sh
 make test verify-forth-engine
 make vios-resident VIOS_INTERNAL_BAUD=1152000
+make viosboot
 VIOS_INTERNAL_BAUD=1152000 ~/.platformio/penv/bin/pio run -d firmware/esp32-vios -e esp32-vios
-.venv/bin/python tools/vios_harness.py --backend resident --tcp 127.0.0.1:8765
+ls /dev/cu.usbserial-*
+.venv/bin/python tools/vios_harness.py --backend resident --port /dev/cu.usbserial-210 --tcp 127.0.0.1:8765
 ```
 
-Use the MCP `connect` tool to attach to installed resident firmware. `connect` uploads nothing. `reboot` restarts the supervisor and reconnects through the same serial handle. Explicit `reboot(force=True)` (MCP `{"force":true}`, CLI `:recover`) abandons pending or uncertain execution and loses unsaved RAM. `deploy` waits for bootstrap, then explicitly replaces CPU RAM with the selected image and verifies its readback; it is a recovery/development operation. `--backend ram` retains the earlier temporary RAM bridge.
+Use the MCP `connect` tool to attach to installed resident firmware. `connect` uploads nothing. `reboot` restarts the supervisor and reconnects through the same serial handle. Explicit `reboot(force=True)` (MCP `{"force":true}`, CLI `:recover`) abandons pending or uncertain execution and loses unsaved RAM. `deploy` waits for bootstrap, then explicitly replaces CPU RAM with the selected image and verifies its readback; it is a recovery/development operation. `--backend ram` retains the earlier temporary RAM bridge. On an untethered board (no ZDI wire) `reboot`/`:recover` restarts only the ESP; the resident does not re-send its health report and the harness cannot reattach until a board reset, power cycle or harness restart.
 
-Only one process owns `/dev/cu.usbserial-22430`. A harness process keeps it open across clients and serializes operations. Opening the driver can reset the board electrically; initial attach permits 120 seconds. A newly attached session must be at an idle interpreter; use explicit force recovery for an unknown program already consuming `KEY` input.
+Only one process owns the board's serial port (`ls /dev/cu.usbserial-*`; currently `-210`, and the suffix can change, so pass `--port`). A harness process keeps it open across clients and serializes operations. Opening the driver can reset the board electrically; initial attach permits 120 seconds. A newly attached session must be at an idle interpreter; use explicit force recovery for an unknown program already consuming `KEY` input.
 
 ## Bootstrap and transport
 
-The ESP32 application contains the pinned VDP, a boot supervisor, the exact VIOS CPU image and a 46-byte Agon-specific native bootstrap. It discovers enabled on-chip SRAM, verifies the bootstrap there, runs it to configure external SRAM and checks native register readbacks plus a completion marker. Only then does it write and verify the main image at `040000`. The kernel uses no MOS calls. Original MOS remains in eZ80 flash.
+The ESP32 application contains the pinned VDP, a boot supervisor, the exact VIOS CPU image and a 46-byte Agon-specific native bootstrap. It discovers enabled on-chip SRAM, verifies the bootstrap there, runs it to configure external SRAM and checks native register readbacks plus a completion marker. Only then does it write and verify the main image at `040000`. The kernel uses no MOS calls. (This is the ZDI dev-boot path. The eZ80 flash now holds MOS 3.0.2, written once on 2026-10-19; untethered boots go through MOS and the `viosboot` stub, and normal installs never write the flash.)
 
 The bootstrap uses ordinary eZ80 instructions for hardware configuration. Instruction-store experiments produced unexpected register/operand behavior on this board; those experiments are preserved in the diagnostic logs, and their LD/OUT injection path is excluded from production startup. Runtime debug mapping reports the validated native bootstrap result.
 
@@ -25,9 +29,9 @@ USB uses 115200 baud, 8N1. The current CPU/VDP pair defaults to 1152000; matched
 
 Both UART2 flow-control directions are enabled. Native eZ80 code pauses RTS and drains up to 32 FIFO bytes before C parsing; input opens only at explicit receive windows. This fixes the measured continuous-burst overrun without host pacing. Fifty full-length source lines passed on hardware; `VDP-INFO` reported zero dropped/overrun observations afterward. The compiler regression for binary VDP output executes actual linked target code.
 
-VDP drawing, text, keyboard, audio and reply packets retain their native command path. Console output is explicit and is not automatically copied to VGA. Legacy terminal mode and blocking SHIFT paging are disabled in this profile. PS/2 keyboard remains available; mouse initialization is disabled because GPIO26/27 are reserved for the permanent ZDI links. See [the firmware protocol](../../firmware/esp32-vios/README.md).
+VDP drawing, text, keyboard, audio and reply packets retain their native command path. Console output is explicit; the ESP interprets the console stream into its own console view (today the GUI Console window or the full-screen text console). Legacy terminal mode and blocking SHIFT paging are disabled in this profile. PS/2 keyboard remains available; mouse initialization is disabled because GPIO26/27 are reserved for the permanent ZDI links. See [the firmware protocol](../../firmware/esp32-vios/README.md).
 
-The 48 host tools include 29 core tools for evaluation, source/module inspection, resources, stacks, benchmarks, bounded debug access, persistence and boot selection, plus 19 workbench tools. MCP/JSON/TCP execute on the Mac; there is no JSON parser or MCP server in the eZ80 VM. Loopback TCP uses the documented NDJSON transport, not MCP Streamable HTTP. CH340 is a serial USB device; this profile does not implement native USB Ethernet, a board TCP/IP stack, Wi-Fi or UDP mutation commands.
+The host harness registers 72 tools: core tools for evaluation, source/module inspection, resources, stacks, benchmarks, bounded debug access, persistence, SD files and boot selection, plus 19 workbench and 7 ESP-side tools (see the manual's [MCP tool reference](../manual/VIOS-MANUAL.md#mcp-tool-reference)). MCP/JSON/TCP execute on the Mac; there is no JSON parser or MCP server in the eZ80 VM. Loopback TCP uses the documented NDJSON transport, not MCP Streamable HTTP. CH340 is a serial USB device; this profile does not implement native USB Ethernet, a board TCP/IP stack, Wi-Fi or UDP mutation commands.
 
 ## Malleable services and source modules
 
@@ -47,7 +51,7 @@ Current limits are eight module names, two retained generations per name, one pe
 
 Two CRC-checked generation records journal confirmed/previous/candidate state. The old fallback identity is invalidated before reusing its storage. Failed confirmation writes restore the committed in-memory selection. Package files remain immutable and can be shared by source slots.
 
-Both slots share one FAT32 filesystem and SD card. This handles rejected updates; it does not provide media-failure isolation or make FAT power-fail atomic. This profile does **not** establish automatic ESP32 firmware A/B rollback. Its app0 update preserves the existing bootloader, partition table, OTA selection and app1.
+Both slots share one FAT32 filesystem and SD card. This handles rejected updates; it does not provide media-failure isolation or make FAT power-fail atomic. This October 16 profile did not establish ESP32 firmware A/B rollback. Firmware is now installed A/B with `tools/vios_firmware_ab.py`: it backs up `otadata` and the target slot, writes the inactive slot on trial, and the firmware confirms itself once the eZ80 reports healthy or falls back to the previous slot. The bootloader and partition table are never written. See the manual's [Installing](../manual/VIOS-MANUAL.md#installing) chapter.
 
 ## Recovery and evidence
 
@@ -55,13 +59,14 @@ An independent ESP32 task owns USB/control/ZDI. It starts before graphics initia
 
 The supervisor's 30-second boot deadline restarts the whole ESP32 after each of the first two failed attempts, clearing a stuck parser before loading the embedded CPU image. The third failed attempt leaves the CPU halted with USB debug available. A validated RTC no-init counter survives software resets; a healthy ready message or intentional `Z` clears it. An intentionally paused CPU suspends the deadline. A halted CPU cannot execute a Forth CLI; supervisor debug is the recovery route in that state. Healthy running programs have no runtime watchdog here. The planned hybrid workbench must retain the ordinary CLI independently of its panes.
 
-The complete pre-resident ESP32 backup is `backups/esp32/pre-vios-resident-2026-10-16.bin`. The extracted app0 restore image is `backups/esp32/pre-vios-resident-app0-2026-10-16.bin`, 0x140000 bytes, SHA256 `4b3bce4e667b2023289a0347fd27b9fd4bad61be8d746c1707a536a13cbc9376`. With the harness stopped, the application-only restore command is:
+The complete pre-resident ESP32 backup is `backups/esp32/pre-vios-resident-2026-10-16.bin`. The extracted app0 restore image is `backups/esp32/pre-vios-resident-app0-2026-10-16.bin`, 0x140000 bytes, SHA256 `4b3bce4e667b2023289a0347fd27b9fd4bad61be8d746c1707a536a13cbc9376`. To put an old image back, stop the harness and install it like any other build; it goes into the inactive slot, on trial, and the slot it replaces is backed up first (raw `esptool write-flash 0x10000` is no longer the procedure):
 
 ```sh
-.venv/bin/esptool --chip esp32 --port /dev/cu.usbserial-22430 --baud 115200 \
-  --after hard-reset write-flash 0x10000 \
-  backups/esp32/pre-vios-resident-app0-2026-10-16.bin
+.venv/bin/python tools/vios_firmware_ab.py --port /dev/cu.usbserial-210 \
+  install backups/esp32/pre-vios-resident-app0-2026-10-16.bin --backup-dir backups/ab-restore
 ```
+
+That 2026-10-16 image predates both untethered boot (it needs the ZDI wire) and the A/B scheme: it does not understand the trial marker, so it neither confirms nor rolls back by itself and the installer reports no verdict. Return with `tools/vios_firmware_ab.py ... rollback`.
 
 The explicit acceptance driver attaches without loading a ROM helper, records every checkpoint, verifies 50 maximum-sized source requests, three engines, debug readback, VDP replies, module replacement and three true supervisor restarts:
 
@@ -79,6 +84,6 @@ The accepted SD startup is slot A, with demonstration modules `LIVE1I`, `LIVE1P`
 
 [Whole-board power-cycle acceptance](vios-resident-power-cycle.json) also passed. The listener observed USB removal/reappearance after the user's power disconnect, attached without image upload in 35.969 seconds, and verified slot A, persisted values 11/12, DIRECT resources and mode 1 with zero receive drops. This tests physical reset separately from the earlier ESP software-restart cases.
 
-Measured footprint: CPU payload 72,292 bytes, BSS 190,082 bytes and a separate 4 KiB stack; the conservative linker region leaves 192,282 bytes before the stack. ESP32 app0 image is 630,544 bytes, with 37,948 bytes of static RAM (runtime heaps, task stacks, framebuffer and DMA allocations are additional). The host MCP/JSON implementation has no target parser footprint. See the [resident benchmark](../benchmarks/resident-2026-10-16.md) for timing and the final artifact manifest for hashes.
+Measured footprint (October 16; see `build/vios-resident.map` for the current build): CPU payload 72,292 bytes, BSS 190,082 bytes and a separate 4 KiB stack; the conservative linker region leaves 192,282 bytes before the stack. ESP32 app0 image is 630,544 bytes, with 37,948 bytes of static RAM (runtime heaps, task stacks, framebuffer and DMA allocations are additional). The host MCP/JSON implementation has no target parser footprint. See the [resident benchmark](../benchmarks/resident-2026-10-16.md) for timing and the final artifact manifest for hashes.
 
 The [accepted artifact manifest](../../artifacts/vios-resident-2026-10-16/manifest.json) identifies the exact binaries and source snapshot. Its `sd-startup/VIOS` directory contains CRC-verified host copies of the five demonstration packages, two bundles and two journals; [backup evidence](vios-resident-sd-startup-backup.json) records their hashes. The [live session record](vios-resident-live-session.json) records the running TCP harness. Use the [shared MCP stdio configuration](vios-harness.md#start-and-attach) when the CLI and an LLM should share that one owner.

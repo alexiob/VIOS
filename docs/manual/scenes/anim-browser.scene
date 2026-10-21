@@ -1,0 +1,26 @@
+# Live development in the Browser: add a word to a module and accept it.
+include setup
+prompt
+frame 500
+ctrlshift b
+frame 700
+key DOWN
+frame 400
+key DOWN
+frame 900
+key TAB
+key TAB
+key TAB
+key END c
+frame 600
+ktype : QUAD SQUARE SQUARE ;\n
+frame 600
+ctrl s
+frame 1600
+ctrlshift w
+key END c
+frame 500
+ktype \n3 QUAD
+frame 300
+ctrl p
+frame 2500
