@@ -1,0 +1,18 @@
+# The Workspace: do it, print it and inspect it.
+include setup
+prompt
+ctrlshift w
+key END c
+type \n7 CUBE
+ctrl p
+key END
+type \n: COUNTDOWN 0 3 DO I . -1 +LOOP ; COUNTDOWN CR
+ctrl d
+key END
+type \n2 3 4 5
+ctrl p
+key END
+shot workspace
+type \n100 SQUARE 42
+ctrl i
+shot inspector

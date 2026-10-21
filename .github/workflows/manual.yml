@@ -1,0 +1,91 @@
+# Build the VIOS manual site (docs/manual) and, when enabled, publish it.
+#
+# Every push or pull request that touches the manual builds the site and keeps
+# it as a workflow artifact. Publishing is off until the repository variable
+# MANUAL_DEPLOY says where (Settings > Secrets and variables > Actions >
+# Variables); see docs/manual/VIOS-MANUAL.md, "Appendix A: Hosting this manual":
+#   pages        GitHub Pages of this repository (a private repository needs a
+#                paid plan); set Settings > Pages > Source to "GitHub Actions".
+#   public-repo  push the built site to the repository named in the variable
+#                MANUAL_PUBLIC_REPO (e.g. alexiob/vios-manual), whose own Pages
+#                serve it from its gh-pages branch; needs the secret
+#                MANUAL_DEPLOY_KEY (a deploy key with write access there).
+# The screenshots and the word reference are generated on a developer machine
+# (make manual) and committed; this job only renders Markdown to HTML.
+name: Manual
+
+on:
+  push:
+    branches: [main]
+    paths: ['docs/manual/**', 'tools/manual/**', '.github/workflows/manual.yml']
+  pull_request:
+    paths: ['docs/manual/**', 'tools/manual/**', '.github/workflows/manual.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: manual-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            docs/manual
+            tools/manual
+            firmware/esp32-vios/vendor/agon-vdp/video
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: tools/manual/requirements.txt
+      - run: pip install -r tools/manual/requirements.txt
+      - run: python tools/manual/build_site.py --out build/site
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/site
+
+  deploy-pages:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.MANUAL_DEPLOY == 'pages'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
+
+  deploy-public-repo:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.MANUAL_DEPLOY == 'public-repo'
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: github-pages
+      - run: mkdir site && tar -xf artifact.tar -C site
+      - name: Push the site to the public repository's gh-pages branch
+        env:
+          DEPLOY_KEY: ${{ secrets.MANUAL_DEPLOY_KEY }}
+          TARGET: ${{ vars.MANUAL_PUBLIC_REPO }}
+        run: |
+          test -n "$DEPLOY_KEY" && test -n "$TARGET"
+          mkdir -p ~/.ssh && printf '%s\n' "$DEPLOY_KEY" > ~/.ssh/deploy && chmod 600 ~/.ssh/deploy
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          export GIT_SSH_COMMAND="ssh -i ~/.ssh/deploy -o IdentitiesOnly=yes"
+          cd site
+          git init -q -b gh-pages
+          git config user.name "VIOS manual bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Manual from ${GITHUB_REPOSITORY}@${GITHUB_SHA::7}"
+          git push -f "git@github.com:${TARGET}.git" gh-pages

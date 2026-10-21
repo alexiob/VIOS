@@ -184,3 +184,16 @@ build/vios-resident.bin: build/vios-resident.elf
 	@printf '%s\n' '$(VIOS_INTERNAL_BAUD)' > build/vios-resident.baud
 	@printf '%s\n' '$(VIOS_GUI)' > build/vios-resident.gui
 -include $(RESIDENT_OBJECTS:.o=.d)
+
+# The user manual (docs/manual): generated parts from the sources, then the
+# static site. Host only; see docs/manual/README.md.
+SITE_VENV := build/site-venv
+.PHONY: manual manual-site manual-preview
+manual:
+	python3 tools/vios_manual.py all
+$(SITE_VENV)/.ok: tools/manual/requirements.txt
+	python3 -m venv $(SITE_VENV) && $(SITE_VENV)/bin/pip install -q -r $< && touch $@
+manual-site: $(SITE_VENV)/.ok
+	$(SITE_VENV)/bin/python tools/manual/build_site.py
+manual-preview: manual-site
+	python3 -m http.server -d build/site --bind 127.0.0.1 8000

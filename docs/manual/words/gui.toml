@@ -1,0 +1,1070 @@
+# VIOS word reference: the GUI (ESP display server words), the GUI tools and
+# the text workbench commands.
+# Sources: kernel/vios_ui.c, include/vios/ui.h, kernel/vios_tools.c,
+# kernel/workbench_runtime.c, kernel/workbench.c,
+# firmware/esp32-vios/lib/vios-vds/src/vds_proto.h, vds_ui.h.
+#
+# Almost every UI-* word only sends bytes to the ESP: on the host build the
+# VDP is stubbed, so they run (and check their arguments) but show nothing.
+# Those are marked board = true. Words that wait for a reply from the display
+# server (UI-SYNC, UI-EVENT, UI-NEXT, UI-WGET, UI-TEXT@) fail on the host with
+# "no display server reply" and have no example.
+
+# ---------------------------------------------------------------- setup
+
+[[word]]
+name = "UI-RESET"
+section = "ui-setup"
+effect = "( -- )"
+desc = "Reset the display server (op 34): close every window, undefine all sprites and surfaces, forget all commands, menus and widgets, go back to the Smalltalk style and 8-pixel snap, clear the error count and start a new epoch; the CPU's pending batch and event ring are dropped too. On the board this also closes the server's own Console window and removes the GUI tools' commands and world menu, which come back only after a reboot, so prefer closing your own windows with UI-CLOSE."
+example = 'UI-RESET'
+board = true
+
+[[word]]
+name = "UI-RAW"
+section = "ui-setup"
+effect = "( flag -- )"
+desc = "While flag is true, legacy VDU drawing owns the screen and the compositor stops drawing; false gives the screen back and repaints everything (op 35)."
+example = 'TRUE UI-RAW  FALSE UI-RAW'
+board = true
+
+[[word]]
+name = "UI-STYLE"
+section = "ui-setup"
+effect = "( n -- )"
+desc = "Switch the presentation style: 0 Smalltalk (grey desktop, white windows, title tabs, pop-up menus), 1 Turbo Vision (blue desktop, double frames, centred titles, menu bar and status line). Every window is re-decorated and repainted; no state is lost. Other values fail with an error."
+example = '1 UI-STYLE  0 UI-STYLE'
+board = true
+
+[[word]]
+name = "UI-SNAP"
+section = "ui-setup"
+effect = "( n -- )"
+desc = "Set the horizontal snap of window positions: 8 (default, client x on a cell boundary, fastest text drawing) or 1 (any pixel). Other values fail. A single window can opt out of snapping with the UI-FREE-X flag."
+example = '1 UI-SNAP  8 UI-SNAP'
+board = true
+
+[[word]]
+name = "UI-BEGIN"
+section = "ui-setup"
+effect = "( -- )"
+desc = "Start a batch: the following UI words collect their ops in the CPU's 250-byte buffer instead of sending each at once (a full buffer is sent and collecting goes on). End the batch with UI-COMMIT so the ESP shows the whole change at once."
+example = 'UI-BEGIN  S" Notes" 1 UI-TITLE  UI-COMMIT'
+board = true
+
+[[word]]
+name = "UI-COMMIT"
+section = "ui-setup"
+effect = "( -- )"
+desc = "End a batch and send it with a COMMIT op (30): everything sent so far appears in the same frame. Also useful without UI-BEGIN: unbatched ops are held on the ESP until a commit or for at most 33 ms."
+example = 'UI-COMMIT'
+board = true
+
+[[word]]
+name = "UI-SYNC"
+section = "ui-setup"
+effect = "( -- epoch generation errors )"
+desc = "Ask the display server for its state (op 31) and wait for the reply: epoch (counts UI-RESETs), generation (batches applied) and the number of refused ops since the last reset (at most 255). Fails with \"UI-SYNC: no display server reply\" when no server answers. Foreground only: it cannot run in a background task."
+board = true
+
+# ---------------------------------------------------------------- surfaces
+
+[[word]]
+name = "UI-SURFACE"
+section = "ui-surface"
+effect = "( id cols rows attr -- )"
+desc = "Create (or resize and clear) surface id, a grid of cols x rows character cells filled with spaces in attr. Ids 0..10 belong to the CPU (5..9 are used by the GUI tools, 10 by the workbench); cols 1..80, rows 1..60. attr is fg + 16 * bg, palette indices; 0..3 are black, red, yellow and white in both styles."
+example = '0 40 10 48 UI-SURFACE'
+board = true
+
+[[word]]
+name = "UI-TYPE"
+section = "ui-surface"
+effect = "( addr len id col row attr -- )"
+desc = "Write a string of at most 255 characters into surface id at col, row in one attribute; longer text is sent in 64-character runs. Text past the right edge is clipped. Every window that shows the surface updates."
+example = 'S" Hello" 0 1 1 48 UI-TYPE'
+board = true
+
+[[word]]
+name = "UI-FILL"
+section = "ui-surface"
+effect = "( id col row w h char attr -- )"
+desc = "Fill a w x h rectangle of surface id with character char in attr. Characters 1 and 2 are the server's one-pixel vertical and horizontal line glyphs (used for pane dividers)."
+example = '0 0 0 40 10 32 48 UI-FILL'
+board = true
+
+[[word]]
+name = "UI-SCROLL"
+section = "ui-surface"
+effect = "( id dy attr -- )"
+desc = "Scroll the whole surface by dy rows, -127..127; a positive dy moves the text up. Vacated rows become spaces in attr."
+example = '0 1 48 UI-SCROLL'
+board = true
+
+[[word]]
+name = "UI-CARET"
+section = "ui-surface"
+effect = "( id col row shape blink -- )"
+desc = "Place the text caret of surface id at col, row. shape: 0 off, 1 block, 2 underline, 3 bar; a true blink makes the ESP blink it every 500 ms by itself."
+example = '0 5 1 2 TRUE UI-CARET'
+board = true
+
+# ---------------------------------------------------------------- windows
+
+[[word]]
+name = "UI-WINDOW"
+section = "ui-window"
+effect = "( id surface x y cols rows flags -- )"
+desc = "Open window id (0..26; 20..24 are the GUI tools', 26 the workbench's, so applications use 0..19) showing surface (or 255 for none). x, y is the pixel position of the client area's top-left corner (x snaps to 8 unless UI-FREE-X or UI-SNAP 1); cols x rows is its size in cells, 1..255. flags: UI-VISIBLE UI-DECOR UI-SHADOW UI-ACTIVE UI-FREE-X UI-MODAL, added together. The title starts empty (UI-TITLE)."
+example = '0 40 10 48 UI-SURFACE  1 0 160 120 40 10 7 UI-WINDOW'
+board = true
+
+[[word]]
+name = "UI-TITLE"
+section = "ui-window"
+effect = "( addr len id -- )"
+desc = "Set the title of window id (at most 31 characters, else an error). Smalltalk shows it in a tab above the top-left corner, Turbo Vision centred in the top frame."
+example = 'S" Notes" 1 UI-TITLE'
+board = true
+
+[[word]]
+name = "UI-PLACE"
+section = "ui-window"
+effect = "( id x y cols rows -- )"
+desc = "Move and resize window id in one step (pixels for x, y; cells for cols, rows, 1..255). Widgets inside lay themselves out again."
+example = '1 200 100 30 8 UI-PLACE'
+board = true
+
+[[word]]
+name = "UI-RAISE"
+section = "ui-window"
+effect = "( id -- )"
+desc = "Bring window id to the top of the stacking order without giving it the keyboard."
+example = '1 UI-RAISE'
+board = true
+
+[[word]]
+name = "UI-CLOSE"
+section = "ui-window"
+effect = "( id -- )"
+desc = "Close window id. The ESP forgets its widgets (their ids become free) and its pop-up menu binding; its surface stays and can be shown again."
+example = '1 UI-CLOSE'
+board = true
+
+[[word]]
+name = "UI-FOCUS"
+section = "ui-window"
+effect = "( id -- )"
+desc = "Give window id the keyboard: raise it, mark it active and send a FOCUS event. Only visible decorated windows can take focus, and none other than the topmost modal window while one is shown (the request is then refused as an ERROR event)."
+example = '1 UI-FOCUS'
+board = true
+
+[[word]]
+name = "UI-FLAGS"
+section = "ui-window"
+effect = "( id flags -- )"
+desc = "Replace the flags of window id (0..255): UI-VISIBLE 1, UI-DECOR 2, UI-SHADOW 4, UI-ACTIVE 8, UI-FREE-X 16, UI-MODAL 32. Clearing UI-VISIBLE hides the window without closing it."
+example = '1 UI-VISIBLE UI-DECOR OR UI-FLAGS'
+board = true
+
+[[word]]
+name = "UI-CLIENT"
+section = "ui-window"
+effect = "( id surface -- )"
+desc = "Show another surface in window id; several windows may show the same surface."
+example = '1 0 UI-CLIENT'
+board = true
+
+[[word]]
+name = "UI-VIEW"
+section = "ui-window"
+effect = "( id col row -- )"
+desc = "Scroll the client area of window id so that surface cell col, row is at its top-left corner (for a surface bigger than the window)."
+example = '1 0 2 UI-VIEW'
+board = true
+
+[[word]]
+name = "UI-KEYS"
+section = "ui-window"
+effect = "( id policy -- )"
+desc = "Key policy of window id: 0 (default) passes keys that no window-manager binding or widget uses on to the CPU's keyboard input; 1 drops them (F1 still goes through). The GUI tools use 1."
+example = '1 1 UI-KEYS  1 0 UI-KEYS'
+board = true
+
+# ---------------------------------------------------------------- commands and menus
+
+[[word]]
+name = "UI-COMMAND"
+section = "ui-menu"
+effect = "( addr len id flags vk mods ascii -- )"
+desc = "Define (or redefine) command id (0..65023; 32512..32767 = $7F00.. are the GUI tools') with a label of at most 23 characters ('&' marks the mnemonic). flags: UI-ENABLED (needed to be chosen), UI-CHECKED, UI-STATUS (shown on the Turbo Vision status line). The accelerator is vk (a virtual key such as 159..170 for F1..F12, or 0) or else ascii, plus mods (UI-CTRL UI-SHIFT UI-ALT). Choosing it from a menu, the palette or its accelerator sends a COMMAND event. The ESP holds 64 commands."
+example = 'S" &Quit" 100 UI-ENABLED 0 UI-CTRL 113 UI-COMMAND'
+board = true
+
+[[word]]
+name = "UI-MENU"
+section = "ui-menu"
+effect = "( item1 .. itemN n addr len menu -- )"
+desc = "Define menu 0..15 with a title (at most 15 characters) and n items (at most 16): command ids, UI-SEPARATOR, or `m UI-SUBMENU` for menu m. Note that n sits under the title string. Menu 0 is the world menu (Smalltalk) or the menu bar (Turbo Vision); the GUI tools define menu 0, 12, 14 and 15, so pick other ids unless you mean to replace them."
+example = '100 101 2 S" File" 1 UI-MENU'
+board = true
+
+[[word]]
+name = "UI-STATE"
+section = "ui-menu"
+effect = "( id flags -- )"
+desc = "Change the flags of command id: UI-ENABLED 2, UI-CHECKED 4 (a '*' in menus), UI-STATUS 8. Pass all the flags you want; the old ones are replaced."
+example = '100 UI-ENABLED UI-CHECKED OR UI-STATE'
+board = true
+
+[[word]]
+name = "UI-POPUP"
+section = "ui-menu"
+effect = "( id menu -- )"
+desc = "Bind menu 0..15 as the pop-up menu of window id, opened with Shift+F10 while the window has focus; 255 restores the default (the world menu). It does not open the menu."
+example = '1 1 UI-POPUP'
+board = true
+
+[[word]]
+name = "UI-SUBMENU"
+section = "ui-menu"
+effect = "( menu -- item )"
+desc = "Turn a menu id into a menu item that opens it as a submenu (65024 OR menu). Submenus nest at most three levels deep."
+example = '2 UI-SUBMENU .  \ 65026'
+
+# ---------------------------------------------------------------- sprites and pointer
+
+[[word]]
+name = "UI-SPRITE"
+section = "ui-sprite"
+effect = "( id w h hotx hoty transparent -- )"
+desc = "Define sprite id (0..15, 15 is the pointer by convention): w x h pixels (1..64), hotspot hotx, hoty inside it, and the colour index drawn as transparent (255: none). Pixels come from a 4096-byte pool on the ESP and start hidden; send them with UI-PIXELS."
+example = '1 8 8 4 4 15 UI-SPRITE'
+board = true
+
+[[word]]
+name = "UI-PIXELS"
+section = "ui-sprite"
+effect = "( addr len id offset -- )"
+desc = "Copy len bytes of 4-bit pixels into sprite id starting at byte offset (rows of (w + 1) / 2 bytes, high nibble = left pixel), in 64-byte runs. offset + len must stay within the sprite."
+example = 'CREATE PX 32 ALLOT  PX 32 34 FILL  1 8 8 4 4 15 UI-SPRITE  PX 32 1 0 UI-PIXELS'
+board = true
+
+[[word]]
+name = "UI-SPRITE-AT"
+section = "ui-sprite"
+effect = "( id x y -- )"
+desc = "Move sprite id so that its hotspot is at screen pixel x, y. Sprites draw above all windows, higher ids on top."
+example = '1 320 240 UI-SPRITE-AT'
+board = true
+
+[[word]]
+name = "UI-SPRITE-SHOW"
+section = "ui-sprite"
+effect = "( id flag -- )"
+desc = "Show (true) or hide (false) sprite id."
+example = '1 TRUE UI-SPRITE-SHOW'
+board = true
+
+[[word]]
+name = "UI-ARROW"
+section = "ui-sprite"
+effect = "( id -- )"
+desc = "Define sprite id as the built-in 12x16 arrow (black and white, hotspot at its tip). Usually `UI-CURSOR UI-ARROW`; the server also does this by itself on the first pointer move."
+example = 'UI-CURSOR UI-ARROW'
+board = true
+
+[[word]]
+name = "UI-POINTER"
+section = "ui-sprite"
+effect = "( x y buttons -- )"
+desc = "Report a pointer position and button state (bit 0 primary) to the server, as a mouse would: the arrow moves there and shows, a press focuses the window under it (and clicks the widget under it in the focused window's client area), and every button change sends a POINTER event. Ctrl+F12 gives the same pointer to the keyboard."
+example = '320 240 0 UI-POINTER'
+board = true
+
+# ---------------------------------------------------------------- animation
+
+[[word]]
+name = "UI-ANIMATE"
+section = "ui-anim"
+effect = "( target id prop from to ms easing -- )"
+desc = "Start a tween run by the ESP at frame rate: target UI-TWEEN-WINDOW (window 0..26) or UI-TWEEN-SPRITE (0..15); prop UI-X, UI-Y (pixels) or, for windows, UI-SCROLL-ROW, UI-SCROLL-COL; from and to are signed; ms 0..65535 (0 jumps at once); easing UI-LINEAR, UI-IN-OUT, UI-OUT, UI-SPRING (overshoots). A new tween on the same target, id and property replaces the old one; at most 16 run at once. An ANIMDONE event reports the end."
+example = 'UI-TWEEN-WINDOW 1 UI-Y 0 120 400 UI-OUT UI-ANIMATE'
+board = true
+
+[[word]]
+name = "UI-STOP"
+section = "ui-anim"
+effect = "( target id prop -- )"
+desc = "Stop the tween on that target, id and property where it is, without an ANIMDONE event."
+example = 'UI-TWEEN-WINDOW 1 UI-Y UI-STOP'
+board = true
+
+# ---------------------------------------------------------------- widgets
+
+[[word]]
+name = "UI-WIDGET"
+section = "ui-widget"
+effect = "( id window kind parent col row w h flags -- )"
+desc = "Create widget id (0..63, shared by all windows; 40..63 are the GUI tools') in window id. kind: UI-BOX UI-LABEL UI-BUTTON UI-CHECK UI-RADIO UI-INPUT UI-LIST UI-PROGRESS UI-TEXTVIEW UI-TABS (1..10). parent is a box widget of the same window or UI-NONE; col, row, w, h place it in client cells unless the parent box lays it out. flags: UI-HIDDEN UI-DISABLED UI-WF-FILL UI-READONLY UI-TREE UI-PAGER. Reusing an id replaces that widget; Tab order is creation order."
+example = '0 40 10 48 UI-SURFACE  1 0 160 120 40 10 7 UI-WINDOW  5 1 UI-BUTTON UI-NONE 0 0 10 1 0 UI-WIDGET'
+board = true
+
+[[word]]
+name = "UI-WTEXT"
+section = "ui-widget"
+effect = "( addr len id -- )"
+desc = "Set the text of widget id (at most 47 characters): the caption of a label, button, check box or radio ('&' marks a mnemonic, shown highlighted), the contents of an input field, the header of a table (cells separated by a tab character) or the tab labels of a tabs widget, separated by '|'."
+example = 'S" &Go" 5 UI-WTEXT'
+board = true
+
+[[word]]
+name = "UI-WVALUE"
+section = "ui-widget"
+effect = "( id value -- )"
+desc = "Set the value of widget id (signed 16 bits): 0/1 for a check box; nonzero selects a radio and clears the others with the same parent; 0..100 for a progress bar; the selected row of a list or tab of a tabs widget (clamped); the caret of an input field. For a TextView it sets (nonzero) or clears (0) the dirty flag. No event is sent."
+example = '5 1 UI-WVALUE'
+board = true
+
+[[word]]
+name = "UI-LAYOUT"
+section = "ui-widget"
+effect = "( id layout gap -- )"
+desc = "Make box id lay out its children in creation order: layout 0 none, 1 column (UI-COLUMN), 2 row (UI-ROW), with gap empty cells between them. Each child gets its fixed size from UI-WSIZE, the rest is shared by weight. A one-pixel divider line is drawn in the gap between two panes (lists, text views, boxes)."
+example = '0 1 UI-BOX UI-NONE 0 0 0 0 UI-WF-FILL UI-WIDGET  0 UI-COLUMN 1 UI-LAYOUT'
+board = true
+
+[[word]]
+name = "UI-WSIZE"
+section = "ui-widget"
+effect = "( id fixed weight -- )"
+desc = "Size of widget id inside a laid-out box: fixed cells along the box's direction (0..255), or, when fixed is 0, a share of the remaining room by weight (0 counts as 1; the default weight is 1)."
+example = '5 1 0 UI-WSIZE'
+board = true
+
+[[word]]
+name = "UI-ITEM"
+section = "ui-widget"
+effect = "( addr len id index -- )"
+desc = "Set row index (0..1023, below the list's count) of list widget id to a string of at most 31 characters. In a table, a tab character (9) separates the cells. Lists share a pool of 1024 rows on the ESP."
+example = 'S" alpha" 3 0 UI-ITEM'
+board = true
+
+[[word]]
+name = "UI-ITEMS"
+section = "ui-widget"
+effect = "( id count -- )"
+desc = "Set the number of rows of list widget id (0..1024). New rows start empty; fill them with UI-ITEM. Use this together with UI-ITEM to append rows from Forth (see UI-ROW)."
+example = '3 2 UI-ITEMS'
+board = true
+
+[[word]]
+name = "UI-WDELETE"
+section = "ui-widget"
+effect = "( id -- )"
+desc = "Delete widget id and all its children; its area is cleared and the window lays out again."
+example = '5 UI-WDELETE'
+board = true
+
+[[word]]
+name = "UI-WFOCUS"
+section = "ui-widget"
+effect = "( id -- )"
+desc = "Make widget id the focused widget of its window (it gets the keys while the window has focus). Disabled, hidden or non-interactive widgets are refused."
+example = '5 UI-WFOCUS'
+board = true
+
+[[word]]
+name = "UI-WGET"
+section = "ui-widget"
+effect = "( id addr -- value len )"
+desc = "Read widget id back from the ESP: its value (signed; the caret position for an input field) and its text, of which at most 25 characters are copied to addr; len is the number copied. Fails with \"UI-WGET: no such widget\". Foreground only."
+board = true
+
+[[word]]
+name = "UI-ROW"
+section = "ui-widget"
+effect = "( -- 2 )"
+desc = "The layout code 2 for UI-LAYOUT (children side by side). The dictionary holds two UI-ROWs: vios_ui_init first registers a native UI-ROW ( addr len id -- ) that appends a row to a list (op 92), then defines the constant `2 CONSTANT UI-ROW`, which shadows it. From Forth only the constant is reachable, so `S\" text\" 3 UI-ROW` leaves addr len 3 2 on the stack and appends nothing; to append, raise the count with UI-ITEMS and set the new row with UI-ITEM. (The GUI tools append rows with op 92 from C.)"
+example = 'UI-ROW .  \ 2'
+
+[[word]]
+name = "UI-COLUMNS"
+section = "ui-widget"
+effect = "( w1 .. wn n id -- )"
+desc = "Turn list id into a table with n columns (at most 8) of widths w1..wn cells (0..80 each); 0 UI-COLUMNS makes it a plain list again. Rows and the header (widget text) separate cells with a tab character; each cell is clipped to its width."
+example = '8 12 2 3 UI-COLUMNS'
+board = true
+
+# ---------------------------------------------------------------- text views
+
+[[word]]
+name = "UI-TEXT"
+section = "ui-text"
+effect = "( addr len id -- )"
+desc = "Replace the whole text of TextView id (at most 4096 bytes; lines end in a line feed, CR is dropped). The text is sent in 200-byte runs. The view is edited locally on the ESP from then on."
+example = 'S" : SQ DUP * ;" 11 UI-TEXT'
+board = true
+
+[[word]]
+name = "UI-TEXT+"
+section = "ui-text"
+effect = "( addr len id -- )"
+desc = "Append text to TextView id, up to its 4096-byte limit."
+example = 'S"  3 SQ ." 11 UI-TEXT+'
+board = true
+
+[[word]]
+name = "UI-INSERT"
+section = "ui-text"
+effect = "( addr len id -- )"
+desc = "Insert at most 200 bytes at the caret of TextView id, replacing the selection; the inserted text is then selected (the Workspace's print it works this way)."
+example = 'S"  9" 11 UI-INSERT'
+board = true
+
+[[word]]
+name = "UI-SELECT"
+section = "ui-text"
+effect = "( id caret anchor -- )"
+desc = "Set the caret and the selection anchor of TextView id (byte offsets; caret = anchor means no selection). The view scrolls to show the caret."
+example = '11 0 0 UI-SELECT'
+board = true
+
+[[word]]
+name = "UI-TEXT@"
+section = "ui-text"
+effect = "( id addr max -- len )"
+desc = "Copy the text of TextView id into addr, at most max bytes, and return the length copied; it asks for the length first, then reads 25 bytes per reply. Fails with \"UI-TEXT@: no such TextView\". Foreground only."
+board = true
+
+# ---------------------------------------------------------------- events
+
+[[word]]
+name = "UI-EVENT"
+section = "ui-event"
+effect = "( addr -- len )"
+desc = "Take the next event as raw bytes: seq kind id and up to 26 argument bytes (at most 29 bytes) are stored at addr and len is returned, or 0 when no event waits. When the CPU's 8-event ring is empty it polls the ESP first. Fails with \"UI-EVENT: no display server reply\". Foreground only."
+board = true
+
+[[word]]
+name = "UI-NEXT"
+section = "ui-event"
+effect = "( -- kind id arg true | false )"
+desc = "Take the next event, decoded: kind (UI-EV-*), id (window, widget or 0) and arg, the first two argument bytes as an unsigned little-endian number (one byte if the event has only one): the command id, list row, widget value, previous focus... For UI-EV-WIN use `arg 255 AND` for what happened (2 = close request). Returns false when nothing waits. Fails with \"UI-NEXT: no display server reply\". Foreground only."
+board = true
+
+# ---------------------------------------------------------------- constants: window flags
+
+[[word]]
+name = "UI-VISIBLE"
+section = "ui-const"
+effect = "( -- 1 )"
+desc = "Window flag: shown."
+example = 'UI-VISIBLE UI-DECOR OR UI-SHADOW OR .  \ 7'
+
+[[word]]
+name = "UI-DECOR"
+section = "ui-const"
+effect = "( -- 2 )"
+desc = "Window flag: frame and title in the current style. Only visible decorated windows can take focus."
+example = 'UI-DECOR .  \ 2'
+
+[[word]]
+name = "UI-SHADOW"
+section = "ui-const"
+effect = "( -- 4 )"
+desc = "Window flag: drop shadow (4 pixels in Smalltalk, two cells by one cell in Turbo Vision)."
+example = 'UI-SHADOW .  \ 4'
+
+[[word]]
+name = "UI-ACTIVE"
+section = "ui-const"
+effect = "( -- 8 )"
+desc = "Window flag: drawn as the active window. The server sets and clears it as focus moves."
+example = 'UI-ACTIVE .  \ 8'
+
+[[word]]
+name = "UI-FREE-X"
+section = "ui-const"
+effect = "( -- 16 )"
+desc = "Window flag: never snap this window's x position to 8 pixels."
+example = 'UI-FREE-X .  \ 16'
+
+[[word]]
+name = "UI-MODAL"
+section = "ui-const"
+effect = "( -- 32 )"
+desc = "Window flag: a dialog. The topmost visible modal window dims everything below it, keeps the focus, and turns Esc into a close request."
+example = 'UI-MODAL .  \ 32'
+
+# ---------------------------------------------------------------- constants: commands and keys
+
+[[word]]
+name = "UI-ENABLED"
+section = "ui-const"
+effect = "( -- 2 )"
+desc = "Command flag: can be chosen (menus show other commands greyed; accelerators and the palette ignore them)."
+example = 'UI-ENABLED .  \ 2'
+
+[[word]]
+name = "UI-CHECKED"
+section = "ui-const"
+effect = "( -- 4 )"
+desc = "Command flag: shown with a '*' in menus."
+example = 'UI-CHECKED .  \ 4'
+
+[[word]]
+name = "UI-STATUS"
+section = "ui-const"
+effect = "( -- 8 )"
+desc = "Command flag: listed with its accelerator on the Turbo Vision status line (bottom row). Commands without an accelerator are not shown."
+example = 'UI-STATUS .  \ 8'
+
+[[word]]
+name = "UI-SEPARATOR"
+section = "ui-const"
+effect = "( -- 65535 )"
+desc = "Menu item: a separator line."
+example = 'UI-SEPARATOR .  \ 65535'
+
+[[word]]
+name = "UI-CTRL"
+section = "ui-const"
+effect = "( -- 1 )"
+desc = "Accelerator modifier: Ctrl."
+example = 'UI-CTRL UI-SHIFT OR .  \ 3'
+
+[[word]]
+name = "UI-SHIFT"
+section = "ui-const"
+effect = "( -- 2 )"
+desc = "Accelerator modifier: Shift."
+example = 'UI-SHIFT .  \ 2'
+
+[[word]]
+name = "UI-ALT"
+section = "ui-const"
+effect = "( -- 4 )"
+desc = "Accelerator modifier: Alt (left or right)."
+example = 'UI-ALT .  \ 4'
+
+# ---------------------------------------------------------------- constants: events
+
+[[word]]
+name = "UI-EV-ACTIVATE"
+section = "ui-const"
+effect = "( -- 2 )"
+desc = "Event kind: a button was pressed, or Enter in an input field or list. id = widget, arg = its window."
+example = 'UI-EV-ACTIVATE .  \ 2'
+
+[[word]]
+name = "UI-EV-SELECT"
+section = "ui-const"
+effect = "( -- 3 )"
+desc = "Event kind: a list selection or a tab changed. id = widget, arg = the new row or tab."
+example = 'UI-EV-SELECT .  \ 3'
+
+[[word]]
+name = "UI-EV-CHANGE"
+section = "ui-const"
+effect = "( -- 4 )"
+desc = "Event kind: a check box or radio changed (arg = new value), an input field was edited (arg = text length), or a TextView became dirty (once). id = widget."
+example = 'UI-EV-CHANGE .  \ 4'
+
+[[word]]
+name = "UI-EV-TEXT"
+section = "ui-const"
+effect = "( -- 5 )"
+desc = "Event kind: a TextView command. id = widget; with UI-NEXT, `arg 255 AND` is what: 1 accept (Ctrl+S), 2 do it (Ctrl+D), 3 print it (Ctrl+P), 4 inspect it (Ctrl+I). UI-EVENT also gives the selection start and end (u16 each) and the window."
+example = 'UI-EV-TEXT .  \ 5'
+
+[[word]]
+name = "UI-EV-FOCUS"
+section = "ui-const"
+effect = "( -- 6 )"
+desc = "Event kind: window id got the keyboard; arg = the previous focus (255: none)."
+example = 'UI-EV-FOCUS .  \ 6'
+
+[[word]]
+name = "UI-EV-POINTER"
+section = "ui-const"
+effect = "( -- 7 )"
+desc = "Event kind: pointer buttons changed. id = window under the pointer (255: desktop), arg = x; UI-EVENT also gives y, the cell column and row, the part (1 client, 2 frame, 3 title tab) and the buttons."
+example = 'UI-EV-POINTER .  \ 7'
+
+[[word]]
+name = "UI-EV-EXPAND"
+section = "ui-const"
+effect = "( -- 8 )"
+desc = "Event kind: Right (open) or Left (close) on a row of a UI-TREE list. id = widget, arg = row; the open flag is the fourth argument byte (UI-EVENT). The CPU rewrites the rows."
+example = 'UI-EV-EXPAND .  \ 8'
+
+[[word]]
+name = "UI-EV-PAGE"
+section = "ui-const"
+effect = "( -- 9 )"
+desc = "Event kind: a UI-PAGER list was moved past its first or last row. id = widget; `arg 255 AND` is the direction as a signed byte: 1 / 255 (-1) for Down / Up, 2 / 254 (-2) for PgDn / PgUp. The CPU supplies the next rows."
+example = 'UI-EV-PAGE .  \ 9'
+
+[[word]]
+name = "UI-EV-OVERFLOW"
+section = "ui-const"
+effect = "( -- 14 )"
+desc = "Event kind: the ESP's 16-event queue was full and older events were lost; arg = how many. Resynchronise your view of the screen."
+example = 'UI-EV-OVERFLOW .  \ 14'
+
+[[word]]
+name = "UI-EV-ERROR"
+section = "ui-const"
+effect = "( -- 15 )"
+desc = "Event kind: the server refused an op (unknown window, full table, a malformed batch...). id = 0; arg = op code + 256 * its offset in the batch. UI-SYNC counts these."
+example = 'UI-EV-ERROR .  \ 15'
+
+[[word]]
+name = "UI-EV-WIN"
+section = "ui-const"
+effect = "( -- 16 )"
+desc = "Event kind: something happened to window id. `arg 255 AND` is what: 1 moved/resized by the keyboard, 2 close request (Ctrl+W, Alt+F3, Esc in a dialog), 3 zoomed, 4 restored. The server never closes a window by itself: close it with UI-CLOSE if you agree."
+example = 'UI-EV-WIN .  \ 16'
+
+[[word]]
+name = "UI-EV-COMMAND"
+section = "ui-const"
+effect = "( -- 17 )"
+desc = "Event kind: a command was chosen. id = the focused window, arg = the command id; the third argument byte (UI-EVENT) is the source: 1 menu, 2 accelerator, 3 palette."
+example = 'UI-EV-COMMAND .  \ 17'
+
+[[word]]
+name = "UI-EV-ANIMDONE"
+section = "ui-const"
+effect = "( -- 18 )"
+desc = "Event kind: a tween ended. id = window or sprite, arg = target + 256 * property."
+example = 'UI-EV-ANIMDONE .  \ 18'
+
+[[word]]
+name = "UI-CURSOR"
+section = "ui-const"
+effect = "( -- 15 )"
+desc = "The sprite id of the pointer (the topmost sprite)."
+example = 'UI-CURSOR .  \ 15'
+
+# ---------------------------------------------------------------- constants: animation
+
+[[word]]
+name = "UI-TWEEN-WINDOW"
+section = "ui-const"
+effect = "( -- 0 )"
+desc = "Tween target: a window."
+example = 'UI-TWEEN-WINDOW .  \ 0'
+
+[[word]]
+name = "UI-TWEEN-SPRITE"
+section = "ui-const"
+effect = "( -- 1 )"
+desc = "Tween target: a sprite (properties UI-X and UI-Y only)."
+example = 'UI-TWEEN-SPRITE .  \ 1'
+
+[[word]]
+name = "UI-X"
+section = "ui-const"
+effect = "( -- 0 )"
+desc = "Tween property: x position in pixels."
+example = 'UI-X .  \ 0'
+
+[[word]]
+name = "UI-Y"
+section = "ui-const"
+effect = "( -- 1 )"
+desc = "Tween property: y position in pixels."
+example = 'UI-Y .  \ 1'
+
+[[word]]
+name = "UI-SCROLL-ROW"
+section = "ui-const"
+effect = "( -- 2 )"
+desc = "Tween property of a window: the first surface row shown (0..255)."
+example = 'UI-SCROLL-ROW .  \ 2'
+
+[[word]]
+name = "UI-SCROLL-COL"
+section = "ui-const"
+effect = "( -- 3 )"
+desc = "Tween property of a window: the first surface column shown (0..255)."
+example = 'UI-SCROLL-COL .  \ 3'
+
+[[word]]
+name = "UI-LINEAR"
+section = "ui-const"
+effect = "( -- 0 )"
+desc = "Easing: constant speed."
+example = 'UI-LINEAR .  \ 0'
+
+[[word]]
+name = "UI-IN-OUT"
+section = "ui-const"
+effect = "( -- 1 )"
+desc = "Easing: slow start and slow end."
+example = 'UI-IN-OUT .  \ 1'
+
+[[word]]
+name = "UI-OUT"
+section = "ui-const"
+effect = "( -- 2 )"
+desc = "Easing: fast start, slow end."
+example = 'UI-OUT .  \ 2'
+
+[[word]]
+name = "UI-SPRING"
+section = "ui-const"
+effect = "( -- 3 )"
+desc = "Easing: overshoots the end and settles back."
+example = 'UI-SPRING .  \ 3'
+
+# ---------------------------------------------------------------- constants: widgets
+
+[[word]]
+name = "UI-BOX"
+section = "ui-const"
+effect = "( -- 1 )"
+desc = "Widget kind: an invisible container that lays out its children (UI-LAYOUT). With UI-WF-FILL and no parent it covers the window's client area and follows its size."
+example = 'UI-BOX .  \ 1'
+
+[[word]]
+name = "UI-LABEL"
+section = "ui-const"
+effect = "( -- 2 )"
+desc = "Widget kind: one line of text; not focusable."
+example = 'UI-LABEL .  \ 2'
+
+[[word]]
+name = "UI-BUTTON"
+section = "ui-const"
+effect = "( -- 3 )"
+desc = "Widget kind: a push button, drawn as [ text ] centred; Space, Enter or a click sends ACTIVATE."
+example = 'UI-BUTTON .  \ 3'
+
+[[word]]
+name = "UI-CHECK"
+section = "ui-const"
+effect = "( -- 4 )"
+desc = "Widget kind: a check box [x]; Space or a click toggles it and sends CHANGE with the new value."
+example = 'UI-CHECK .  \ 4'
+
+[[word]]
+name = "UI-RADIO"
+section = "ui-const"
+effect = "( -- 5 )"
+desc = "Widget kind: a radio button (*); radios with the same parent form a group. Space, a click, or Up/Down within the group selects and sends CHANGE."
+example = 'UI-RADIO .  \ 5'
+
+[[word]]
+name = "UI-INPUT"
+section = "ui-const"
+effect = "( -- 6 )"
+desc = "Widget kind: a one-line input field of up to 47 characters, edited on the ESP (Left, Right, Home, End, Backspace, Delete); every edit sends CHANGE, Enter sends ACTIVATE. Read it with UI-WGET."
+example = 'UI-INPUT .  \ 6'
+
+[[word]]
+name = "UI-LIST"
+section = "ui-const"
+effect = "( -- 7 )"
+desc = "Widget kind: a scrolling list (a table with UI-COLUMNS). Up, Down, PgUp, PgDn, Home, End and a letter (type-ahead) move the selection and send SELECT; Enter sends ACTIVATE."
+example = 'UI-LIST .  \ 7'
+
+[[word]]
+name = "UI-PROGRESS"
+section = "ui-const"
+effect = "( -- 8 )"
+desc = "Widget kind: a progress bar showing its value 0..100 as a bar and a percentage."
+example = 'UI-PROGRESS .  \ 8'
+
+[[word]]
+name = "UI-TEXTVIEW"
+section = "ui-const"
+effect = "( -- 9 )"
+desc = "Widget kind: a multi-line text editor (4096 bytes) run on the ESP, with selection, a 1 KB clipboard and the Smalltalk evaluation keys. At most 4 exist at a time, shared with the GUI tools."
+example = 'UI-TEXTVIEW .  \ 9'
+
+[[word]]
+name = "UI-TABS"
+section = "ui-const"
+effect = "( -- 10 )"
+desc = "Widget kind: a row of tabs from the widget text split at '|'; the value is the selected tab. Left/Right, or Ctrl+Tab anywhere in the window, change it and send SELECT."
+example = 'UI-TABS .  \ 10'
+
+[[word]]
+name = "UI-HIDDEN"
+section = "ui-const"
+effect = "( -- 1 )"
+desc = "Widget flag: not shown and skipped by layout and Tab."
+example = 'UI-HIDDEN .  \ 1'
+
+[[word]]
+name = "UI-DISABLED"
+section = "ui-const"
+effect = "( -- 2 )"
+desc = "Widget flag: greyed and not focusable."
+example = 'UI-DISABLED .  \ 2'
+
+[[word]]
+name = "UI-WF-FILL"
+section = "ui-const"
+effect = "( -- 4 )"
+desc = "Widget flag for a root box (parent UI-NONE): cover the whole client area and resize with the window."
+example = 'UI-WF-FILL .  \ 4'
+
+[[word]]
+name = "UI-READONLY"
+section = "ui-const"
+effect = "( -- 8 )"
+desc = "Widget flag for a TextView: the caret moves and text can be selected and copied, but not edited."
+example = 'UI-READONLY .  \ 8'
+
+[[word]]
+name = "UI-TREE"
+section = "ui-const"
+effect = "( -- 16 )"
+desc = "Widget flag for a list: Right and Left send EXPAND events for the selected row instead of doing nothing; type-ahead skips leading spaces, '+' and '-'."
+example = 'UI-TREE .  \ 16'
+
+[[word]]
+name = "UI-PAGER"
+section = "ui-const"
+effect = "( -- 32 )"
+desc = "Widget flag for a list: moving past the first or last row sends a PAGE event so the CPU can fill in the next rows (the Inspector's memory view)."
+example = 'UI-PAGER .  \ 32'
+
+[[word]]
+name = "UI-COLUMN"
+section = "ui-const"
+effect = "( -- 1 )"
+desc = "Layout code for UI-LAYOUT: children stacked top to bottom."
+example = 'UI-COLUMN .  \ 1'
+
+[[word]]
+name = "UI-NONE"
+section = "ui-const"
+effect = "( -- 255 )"
+desc = "No parent (a root widget), no surface, or no window: the server's 'none' id."
+example = 'UI-NONE .  \ 255'
+
+# ---------------------------------------------------------------- tools
+
+[[word]]
+name = "TOOL"
+section = "tools"
+effect = "( n -- )"
+desc = "Open GUI tool n, or focus it if it is already open: 0 Browser, 1 Workspace, 2 Inspector, 3 Manager; -1 closes every tool window (and the Confirm dialog). Other values fail. The tools need the display server, so on the host build TOOL fails."
+board = true
+
+# ---------------------------------------------------------------- text workbench
+
+[[word]]
+name = "WB-PAINT-DEFAULT"
+section = "workbench"
+effect = "( -- )"
+desc = "The native workbench painter: sends at most one batch of changed screen cells to the display. WB-PAINT is deferred to it by default."
+example = "' WB-PAINT-DEFAULT IS WB-PAINT"
+
+[[word]]
+name = "WB-SAVE-DEFAULT"
+section = "workbench"
+effect = "( -- )"
+desc = "The native save service behind WB-SAVE and F7: saves the exact active draft as its module package on SD. WB-SAVE refuses to run if this name has been redefined."
+board = true
+
+[[word]]
+name = "WB-PAINT"
+section = "workbench"
+effect = "( -- )"
+desc = "Deferred painter the workbench calls at the REPL idle boundary, on a temporary stack with a 4096-instruction budget. If a replacement fails, painting stops and the draft stays; restore it with `' WB-PAINT-DEFAULT IS WB-PAINT` and WB-REDRAW."
+example = "' WB-PAINT-DEFAULT IS WB-PAINT"
+
+[[word]]
+name = "WB-ACTIVATE"
+section = "workbench"
+effect = "( -- ) WB-ACTIVATE revision"
+desc = "Command: activate the draft staged at that revision (F6), if the live catalog has not changed since; prints a WB-STATUS line. Like every WB- command it reads its arguments from the rest of the line and cannot be compiled into a definition."
+board = true
+
+[[word]]
+name = "WB-BROWSE"
+section = "workbench"
+effect = "( -- ) WB-BROWSE MODULES | WORDS [module]"
+desc = "Command: switch the workbench browser to the module list or to the words (of one module), print one WB-ITEM line per entry (names in hex), then a WB-STATUS line."
+example = 'WB-BROWSE MODULES'
+
+[[word]]
+name = "WB-CLOSE"
+section = "workbench"
+effect = "( -- ) WB-CLOSE"
+desc = "Command: close the workbench (F10), keeping the draft in RAM; returns to the console view if it was opened before. Prints a WB-STATUS line."
+example = 'WB-CLOSE'
+
+[[word]]
+name = "WB-COMPOSE"
+section = "workbench"
+effect = "( -- ) WB-COMPOSE"
+desc = "Command: compose the workbench screen once and print the time it took in 288 kHz timer ticks (valid below 227 ms), for profiling."
+example = 'WB-COMPOSE'
+
+[[word]]
+name = "WB-CONSOLE"
+section = "workbench"
+effect = "( -- ) WB-CONSOLE"
+desc = "Command: show the REPL console (closing the workbench if open). Under the GUI the console is the Console window, brought to the front. Prints `WB-CONSOLE open 1`."
+example = 'WB-CONSOLE'
+
+[[word]]
+name = "WB-CONSOLE-CLEAR"
+section = "workbench"
+effect = "( -- ) WB-CONSOLE-CLEAR"
+desc = "Command: clear the console view's text on the ESP."
+example = 'WB-CONSOLE-CLEAR'
+
+[[word]]
+name = "WB-CONSOLE?"
+section = "workbench"
+effect = "( -- ) WB-CONSOLE?"
+desc = "Command: print whether the console view is open and whether it is the home view, e.g. `WB-CONSOLE open 1 home 1 renderer esp`."
+example = 'WB-CONSOLE?'
+
+[[word]]
+name = "WB-EDIT"
+section = "workbench"
+effect = "( -- ) WB-EDIT module discard"
+desc = "Command: load the active source of module into the draft (discard 1 is needed to replace a modified draft). The revision goes up by one."
+board = true
+
+[[word]]
+name = "WB-FLUSH"
+section = "workbench"
+effect = "( -- ) WB-FLUSH"
+desc = "Command: compose and paint until nothing is pending, then print the time, bytes, spans, batches and cells sent."
+example = 'WB-FLUSH'
+
+[[word]]
+name = "WB-FLUSH-FENCED"
+section = "workbench"
+effect = "( -- ) WB-FLUSH-FENCED"
+desc = "Command: as WB-FLUSH, then wait for a VDP reply so the ESP has also finished drawing (a completion fence before reading pixels back)."
+example = 'WB-FLUSH-FENCED'
+
+[[word]]
+name = "WB-KEY"
+section = "workbench"
+effect = "( -- ) WB-KEY code modifiers"
+desc = "Command: inject a key into the workbench as if typed: code is ASCII or 256 Up, 257 Down, 258 Left, 259 Right, 260 Home, 261 End, 262 Delete, 263 F5, 264 F6, 265 F7, 266 F8, 267 F10; modifiers 1 Ctrl, 4/8 Alt."
+board = true
+
+[[word]]
+name = "WB-META"
+section = "workbench"
+effect = "( -- ) WB-META revision version test|-"
+desc = "Command: set the draft's version and test word (`-` for none), keeping its dependencies. Revision-checked."
+board = true
+
+[[word]]
+name = "WB-NEW"
+section = "workbench"
+effect = "( -- ) WB-NEW module version discard"
+desc = "Command: start an empty draft for a new module (names up to 31 printable characters). discard 1 replaces a modified draft. Prints a WB-STATUS line with the new revision."
+board = true
+
+[[word]]
+name = "WB-OPEN"
+section = "workbench"
+effect = "( -- ) WB-OPEN"
+desc = "Command: open the text workbench (browser, inspector and source editor on an 80x60 screen; under the GUI a full-screen window that owns the keyboard). Needs the VIOS display mode (mode 0, 16 colours). Prints a WB-STATUS line."
+board = true
+
+[[word]]
+name = "WB-PATCH"
+section = "workbench"
+effect = "( -- ) WB-PATCH revision offset remove hex|-"
+desc = "Command: replace remove bytes at offset of the draft with the bytes given in hex (at most 80 bytes; `-` inserts nothing), only if revision is current. The revision goes up by one."
+board = true
+
+[[word]]
+name = "WB-REDRAW"
+section = "workbench"
+effect = "( -- ) WB-REDRAW"
+desc = "Command: full recovery: set the display mode again (outside the GUI), reset the renderer cache and repaint. Use after raw VDU or MODE changes."
+board = true
+
+[[word]]
+name = "WB-RENDER-STATS"
+section = "workbench"
+effect = "( -- ) WB-RENDER-STATS [RESET]"
+desc = "Command: print the painter's totals (cells, spans, batches, bytes, ticks, pending); RESET clears them first."
+example = 'WB-RENDER-STATS'
+
+[[word]]
+name = "WB-REPAINT"
+section = "workbench"
+effect = "( -- ) WB-REPAINT"
+desc = "Command: repaint the workbench screen without a mode change (falls back to WB-REDRAW if the mode is wrong)."
+board = true
+
+[[word]]
+name = "WB-SAVE"
+section = "workbench"
+effect = "( -- ) WB-SAVE revision"
+desc = "Command: save the exact active draft as its module package on SD (F7). It does not change the boot slots."
+board = true
+
+[[word]]
+name = "WB-SELECT"
+section = "workbench"
+effect = "( -- ) WB-SELECT MODULE name | WORD index"
+desc = "Command: select a module by name or a word by dictionary index in the workbench browser."
+board = true
+
+[[word]]
+name = "WB-SOURCE"
+section = "workbench"
+effect = "( -- ) WB-SOURCE offset count"
+desc = "Command: print up to 80 bytes of the draft from offset, in hex, with the revision and total length."
+board = true
+
+[[word]]
+name = "WB-STAGE"
+section = "workbench"
+effect = "( -- ) WB-STAGE revision"
+desc = "Command: compile and test the draft at that revision in an isolated transaction (F5), without changing the live system."
+board = true
+
+[[word]]
+name = "WB-STATUS"
+section = "workbench"
+effect = "( -- ) WB-STATUS"
+desc = "Command: print the workbench state: revision, catalog, open, draft, dirty, staged, active, saved, length, cursor, focus, word counts, and the module, version, test word and last error in hex."
+example = 'WB-STATUS'
+
+[[word]]
+name = "WB-UNDO"
+section = "workbench"
+effect = "( -- ) WB-UNDO revision"
+desc = "Command: restore the single undo snapshot taken before the last edit (F8). Fails with \"no undo snapshot\" when there is none."
+board = true
+
+[[word]]
+name = "WB-VIEW"
+section = "workbench"
+effect = "( -- ) WB-VIEW row count"
+desc = "Command: print count rows of the workbench's desired 80-column screen from row, characters and attributes in hex (a headless view)."
+board = true
+
+[[word]]
+name = "WB-ZOOM"
+section = "workbench"
+effect = "( -- ) WB-ZOOM 0|1"
+desc = "Command: 1 widens the source editor to all 80 columns, 0 restores the 54-column pane (Ctrl+Space toggles)."
+example = 'WB-ZOOM 0'
+
+[[word]]
+name = "WB-ZOOM?"
+section = "workbench"
+effect = "( -- ) WB-ZOOM?"
+desc = "Command: print `WB-ZOOM enabled 0` or `1`."
+example = 'WB-ZOOM?'

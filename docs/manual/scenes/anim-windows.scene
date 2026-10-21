@@ -1,0 +1,55 @@
+# Window management from the keyboard: F6 cycles, F5 zooms, Ctrl+F5 moves
+# (arrows) and resizes (Shift+arrows), Enter keeps the new place.
+include setup
+prompt
+ctrlshift w
+frame 900
+key F6
+frame 700
+key F6
+frame 700
+key F5
+frame 900
+key F5
+frame 700
+key F5 c
+key DOWN
+frame 120
+key DOWN
+frame 120
+key DOWN
+frame 120
+key DOWN
+frame 120
+key DOWN
+frame 120
+key DOWN
+frame 120
+key DOWN
+frame 120
+key DOWN
+frame 120
+key RIGHT
+frame 120
+key RIGHT
+frame 120
+key RIGHT
+frame 120
+key RIGHT
+frame 120
+key RIGHT
+frame 120
+key RIGHT
+frame 120
+key UP s
+frame 120
+key UP s
+frame 120
+key UP s
+frame 120
+key UP s
+frame 120
+key UP s
+frame 120
+key RETURN
+frame 1800

@@ -1,0 +1,16 @@
+# The desktop after boot: the server-owned Console window and a short session.
+include setup
+con 2 3 + .
+con : GREETING ." Welcome to VIOS!" CR ;
+con GREETING
+con 10 STARS CR
+con 7 CUBE .
+con 255 HEX . DECIMAL
+prompt
+shot desktop
+key F10
+shot world-menu
+key ESCAPE
+key k c
+type ins
+shot command-palette
