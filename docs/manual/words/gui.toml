@@ -354,7 +354,7 @@ board = true
 name = "UI-ITEMS"
 section = "ui-widget"
 effect = "( id count -- )"
-desc = "Set the number of rows of list widget id (0..1024). New rows start empty; fill them with UI-ITEM. Use this together with UI-ITEM to append rows from Forth (see UI-ROW)."
+desc = "Set the number of rows of list widget id (0..1024). New rows start empty; fill them with UI-ITEM. To append rows one at a time use UI-ROW+."
 example = '3 2 UI-ITEMS'
 board = true
 
@@ -383,10 +383,18 @@ board = true
 
 [[word]]
 name = "UI-ROW"
-section = "ui-widget"
+section = "ui-const"
 effect = "( -- 2 )"
-desc = "The layout code 2 for UI-LAYOUT (children side by side). The dictionary holds two UI-ROWs: vios_ui_init first registers a native UI-ROW ( addr len id -- ) that appends a row to a list (op 92), then defines the constant `2 CONSTANT UI-ROW`, which shadows it. From Forth only the constant is reachable, so `S\" text\" 3 UI-ROW` leaves addr len 3 2 on the stack and appends nothing; to append, raise the count with UI-ITEMS and set the new row with UI-ITEM. (The GUI tools append rows with op 92 from C.)"
+desc = "The layout code 2 for UI-LAYOUT: children side by side. (To append a list row use UI-ROW+.)"
 example = 'UI-ROW .  \ 2'
+
+[[word]]
+name = "UI-ROW+"
+section = "ui-widget"
+effect = "( addr len id -- )"
+desc = "Append one row to list widget id (protocol op 92), as UI-TEXT+ appends text. The row count grows by one; at most 1024 rows."
+example = 'S" first" 10 UI-ROW+'
+board = true
 
 [[word]]
 name = "UI-COLUMNS"

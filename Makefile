@@ -136,7 +136,7 @@ endif
 $(RESIDENT_UART_OBJECT): arch/ez80/uart0_raw.s
 	@mkdir -p $(dir $@)
 	$(EZAS) -march=ez80+full --defsym VIOS_UART0_BAUD=$(VIOS_INTERNAL_BAUD) arch/ez80/uart0_raw.s -o $@
-.PHONY: vios-resident
+.PHONY: vios-resident viosboot
 vios-resident: build/vios-resident.bin build/agon-stage0.bin build/agon-crc.bin build/agon-flash.bin
 # eZ80 flash programmer run over ZDI by the ESP (MF); see arch/ez80/agon_flash.s.
 build/agon-flash.o: arch/ez80/agon_flash.s

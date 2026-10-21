@@ -2,31 +2,38 @@
 
 The host harness exposes the running Forth system, source modules, boot selection and bounded hardware debug through MCP stdio or loopback NDJSON TCP. JSON, schemas and networking run on the Mac. The Agon executes Forth; the resident ESP32 application multiplexes console/control/status over USB serial while retaining its VDP. Integrated hardware acceptance is recorded in the [resident ledger](vios-resident-progress.md).
 
-The current interface has 65 tools, including 19 `wb_*` tools for shared live
+The current interface registers 72 tools (counted from `tools/vios_harness.py`),
+including 7 `esp_*` ESP-side tools and 19 `wb_*` tools for shared live
 browsing, exact source editing, inspection, stage/activate/save and display
-snapshots. See the [workbench runbook](vios-workbench.md). Full screen reads use
+snapshots. See the [workbench runbook](vios-workbench.md) and the manual's
+[MCP tool reference](../manual/VIOS-MANUAL.md#mcp-tool-reference). Full screen reads use
 one bounded native snapshot command and reject inconsistent surrounding state;
 physical editing during a read can produce a clean conflict instead of mixed data.
 
 ## Start and attach
 
 ```sh
-make vios-resident
-.venv/bin/python tools/vios_harness.py --backend resident --tcp 127.0.0.1:8765
+ls /dev/cu.usbserial-*        # e.g. /dev/cu.usbserial-210; the suffix can change
+.venv/bin/python tools/vios_harness.py --backend resident \
+    --port /dev/cu.usbserial-210 --tcp 127.0.0.1:8765
 ```
+
+Always pass `--port`: the code default (`/dev/cu.usbserial-224130`) is a suffix
+from an earlier USB setup.
 
 Call `connect` to attach to installed resident firmware. This does not deploy a CPU image or upload a ROM helper. Initial attachment permits 120 seconds because opening this board's serial driver can reset it. `deploy` is an explicit development/recovery operation that replaces CPU RAM and verifies every byte; it is unnecessary for ordinary resident startup. Construction, MCP initialization and tool listing do not open hardware.
 
-One harness process owns `/dev/cu.usbserial-22430` and keeps it open across clients. All operations share one lock. Do not run a second serial terminal or esptool against that port. Disconnecting a TCP client leaves the board/session intact. An initial `connect` assumes an idle REPL; an unknown program waiting for `KEY` requires explicit recovery rather than speculative input.
+One harness process owns the board's serial port and keeps it open across clients. All operations share one lock. Do not run a second serial terminal or esptool against that port. Disconnecting a TCP client leaves the board/session intact. An initial `connect` assumes an idle REPL; an unknown program waiting for `KEY` requires explicit recovery rather than speculative input.
 
-For MCP stdio, omit `--tcp`. Configure absolute paths, including the resident backend:
+For MCP stdio, omit `--tcp`. Configure absolute paths (replace `/path/to/agon-light-2` with your checkout), the resident backend and the port:
 
 ```json
 {
   "mcpServers": {
     "vios": {
-      "command": "/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/.venv/bin/python",
-      "args": ["/Users/alex/Documents/Projects/iob.dev/repos/agon-light-2/tools/vios_harness.py", "--backend", "resident"]
+      "command": "/path/to/agon-light-2/.venv/bin/python",
+      "args": ["/path/to/agon-light-2/tools/vios_harness.py",
+               "--backend", "resident", "--port", "/dev/cu.usbserial-210"]
     }
   }
 }
@@ -69,7 +76,7 @@ MCP uses the **2025-11-25** lifecycle and newline-delimited stdio JSON. Loopback
 {"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"evaluate","arguments":{"source":": SQUARE DUP * ;\n7 SQUARE . CR"}}}
 ```
 
-There are 29 tools. Schemas returned by `tools/list` are authoritative for argument bounds.
+The table lists the 46 core tools; the 19 `wb_*` and 7 `esp_*` tools are listed in the manual's [MCP tool reference](../manual/VIOS-MANUAL.md#mcp-tool-reference). Schemas returned by `tools/list` are authoritative for argument bounds.
 
 | Tools | Purpose |
 | --- | --- |
@@ -88,7 +95,8 @@ There are 29 tools. Schemas returned by `tools/list` are authoritative for argum
 | `snapshot` | Read-only structured state record (modules, exact sources, draft, stacks, BASE, engine, boot slot) with a live/dirty/staged/persisted summary (`persisted` = exact name+CRC32 in the confirmed boot bundle, null when unknown; `in_candidate` likewise); restorable by `tools/vios_fast_display_state.py`, fails closed on a torn read; CLI `:snapshot [FILE]` |
 | `boot_status`, `boot_trial`, `boot_confirm`, `boot_revert` | A/B source-bundle trial and selection |
 | `boot_manifest` | Read-only `BOOT-MANIFEST`: name, version, source CRC32 and package health (`ok`/`bad`/`unreadable`) in the confirmed and candidate bundles, i.e. what a power cycle loads. Snapshot only issues it with an empty data stack, since older firmware rejects the unknown word and a Forth error clears the stack |
-| `debug_registers`, `memory_read`, `memory_write`, `resume` | Bounded ZDI inspection/write/readback and state-preserving resume |
+| `sd_list`, `sd_put`, `sd_get` | SD directory listing, upload and download through handles |
+| `debug_registers`, `memory_read`, `memory_write`, `resume` | Bounded ZDI inspection/write/readback and state-preserving resume (need the ZDI wire) |
 
 Notifications never invoke board tools. Results include a JSON-encoded text content item and `isError`. Language/runtime failures are tool errors; malformed RPC or arguments return JSON-RPC errors. Frames are limited to 1 MiB. Module metadata/dependencies are validated before transmission.
 
@@ -110,9 +118,9 @@ A timeout returns `pending: true` without closing the port or discarding receive
 
 `console_input` accepts 1..16 bytes; callers must know the program's expected input. Ctrl-] remains reserved by the compatibility API. New source is refused while execution is pending. `remaining_source` reports unsent lines; it is never silently retried. A partial transmission, missing mutating acknowledgement or output-integrity failure leaves state uncertain.
 
-Normal `reboot` refuses pending execution, compilation or uncertain state. Explicit `reboot` with `{"force":true}` abandons that state and loses unsaved RAM changes, then waits for resident startup over the same serial handle. The CLI spells this `:recover`. A missing restart acknowledgement is ambiguous and is not automatically retried. Recovery does not erase SD packages or program eZ80 flash.
+Normal `reboot` refuses pending execution, compilation or uncertain state. Explicit `reboot` with `{"force":true}` abandons that state and loses unsaved RAM changes, then waits for resident startup over the same serial handle. The CLI spells this `:recover`. A missing restart acknowledgement is ambiguous and is not automatically retried. Recovery does not erase SD packages or program eZ80 flash. On an untethered board (no ZDI wire) the ESP cannot reset the eZ80, so `reboot`/`:recover` restarts only the ESP; the resident does not re-send its health report and the harness cannot reattach ("Untethered resident is not running yet") until a board reset, power cycle or harness restart (opening the port resets the board).
 
-Debug operations pause the CPU and restore its prior running/paused state. `resume` continues the existing PC; fresh deployment enters `040000`. Reads permit `040000..0BFFFF` in CRC-checked chunks. Writes permit at most 256 bytes below `0AF000`, with independent readback. Those range checks do not make arbitrary writes safe for running code/data.
+Debug operations need the ZDI wire (a dev boot). They pause the CPU and restore its prior running/paused state. `resume` continues the existing PC; fresh deployment enters `040000`. Reads permit `040000..0BFFFF` in CRC-checked chunks. Writes permit at most 256 bytes below `0AF000`, with independent readback. Those range checks do not make arbitrary writes safe for running code/data.
 
 ## Persistence, cost and evidence
 
@@ -133,3 +141,9 @@ host line boundary. Keys typed before that line is delivered are counted in
 `console-dropped`. The local line is echoed by the REPL when it executes, not
 while typing. While a command executes (for example an application `KEY`),
 keys pass through raw. Workbench routing is unchanged.
+
+Update (2026-10-21): since commit 872f8dd the physical line is edited and
+echoed on the ESP32 (cursor, Delete, Esc/Ctrl+C clear, 4-line history), not on
+the eZ80; the ESP sends the finished line whole. While a command runs, Ctrl+C
+interrupts it. See the manual's
+[Console and REPL](../manual/VIOS-MANUAL.md#the-console-and-repl) chapter.

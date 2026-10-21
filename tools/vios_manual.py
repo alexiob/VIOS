@@ -74,6 +74,7 @@ SECTIONS = {
     'ui-text': ('GUI: text views', 'Editable text views.'),
     'ui-event': ('GUI: events', 'Pulling and decoding display-server events.'),
     'ui-anim': ('GUI: animation', 'Tweens and their easing.'),
+    'ui-canvas': ('GUI: canvases and icons', 'Pixel graphics as display lists the ESP keeps.'),
     'ui-sprite': ('GUI: sprites and pointer', 'Sprites, the arrow and the keyboard pointer.'),
     'ui-const': ('GUI: constants', 'Named values for flags, kinds, events and modifiers.'),
     'tools': ('GUI tools', 'The Browser, Workspace, Inspector and Manager.'),

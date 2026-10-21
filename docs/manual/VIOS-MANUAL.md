@@ -633,7 +633,7 @@ The stub counts boots in `/vios/boot.cnt`, and the resident clears the count onc
 Recovery goes in levels, from least to most invasive. Use the first one that works.
 
 1. **In VIOS itself.** Kill a stuck task (`TASKS`, then `n TASK-KILL`), inspect the error with `LAST-ERROR`, revert a module with `MODULE-ROLLBACK`, or select the previous boot bundle with `BOOT-REVERT`. See [Modules and Persistence](#modules-and-persistence) and [Troubleshooting](#troubleshooting).
-2. **Restart.** Press the reset button, power-cycle the board, or stop and start the harness (opening the port resets the board). In the CLI, `:reboot` restarts from an idle prompt and `:recover` forces it. On an untethered board, though, these restart only the ESP32 (see [The Host Harness and MCP Tools](#the-host-harness-and-mcp-tools)). A full restart loses RAM work; saved modules come back from SD.
+2. **Restart.** Press the reset button, power-cycle the board, or stop and start the harness (opening the port resets the board). In the CLI, `:reboot` restarts from an idle prompt and `:recover` forces it. On an untethered board, though, these restart only the ESP32 and the resident carries on (see [The Host Harness and MCP Tools](#the-host-harness-and-mcp-tools)). A full restart loses RAM work; saved modules come back from SD.
 3. **Boot from the other image.** At the MOS prompt (shown when the stub gives up), run `viosboot force` or `viosboot sd`. Or fix the card from the Mac with `vios_sd_install.py install`.
 4. **Go back to the previous firmware.** Run `vios_firmware_ab.py ... rollback`, or install a backed-up slot image as shown above. A firmware on trial does this automatically when it fails.
 5. **The ZDI supervisor (wire attached).** With the two ZDI links fitted (see [Hardware and Wiring](#hardware-and-wiring)), the ESP boots in dev mode. It halts the eZ80, verifies a 46-byte native bootstrap in on-chip RAM, sets up external RAM, writes and CRC-checks the embedded resident, and starts it. This works whatever is on the SD card or in MOS. In this mode an independent USB control task can always halt the CPU, read registers and memory, and restart everything, even if a graphics command or Forth program has wedged the VDP. The harness exposes this through `debug_registers`, `memory_read`, `memory_write`, `resume`, `deploy` and `reboot(force=true)`. A 30-second boot watchdog restarts the ESP after each of the first two failed boots and leaves the CPU halted, with USB debug available, after the third.
@@ -2681,12 +2681,12 @@ WAIT-BOTH COUNTER @ .
 
 Rules for critical sections:
 
-- Keep them short: a few words. The depth counter is shared by everybody, so
-  while one task is inside, no tick switches anything.
-- A background slice still ends when its instruction budget (`TASK-SLICE`)
-  runs out, even inside `CRITICAL(`. The `PAUSE` after `)CRITICAL` above
-  starts every critical section at the beginning of a fresh slice, so the
-  budget never runs out inside it.
+- Keep them short: a few words. While one task is inside, no tick switches
+  anything.
+- Each task (and the foreground) has its own depth, and a background slice
+  whose instruction budget (`TASK-SLICE`) runs out inside a section continues
+  until `)CRITICAL`, so a section is never split. The `PAUSE` after
+  `)CRITICAL` above just gives the other task its turn.
 - Sections nest up to 255 deep. A forgotten `)CRITICAL` cannot hang the
   system: the normal execution budget still applies, and a command that fails
   resets the depth.
@@ -3738,22 +3738,16 @@ GALLERY
 
 ![The same window in the Turbo Vision style](media/gui-widget-gallery-turbo.png)
 
-#### Two meanings of UI-ROW
+#### Appending rows: UI-ROW+
 
-The dictionary contains `UI-ROW` twice. When the UI words are registered,
-`vios_ui_init` first adds a native `UI-ROW ( addr len id -- )` that appends a
-row to a list (protocol op 92), and then defines the layout constants, among
-them `2 CONSTANT UI-ROW`. The later definition shadows the earlier one, so from
-Forth `UI-ROW` is always the layout code 2:
+[`UI-ROW+`](#w-ui-rowplus) `( addr len id -- )` appends one row to list `id`
+(protocol op 92), like [`UI-TEXT+`](#w-ui-textplus) appends text. `UI-ROW`
+without the `+` is the layout constant 2 for [`UI-LAYOUT`](#w-ui-layout).
 
 ```forth
-UI-ROW .                                 \ 2: the layout constant
+10 0 UI-ITEMS                            \ list 10 starts empty
+S" first" 10 UI-ROW+  S" second" 10 UI-ROW+
 ```
-
-Writing `S" text" 10 UI-ROW` therefore appends nothing and leaves four numbers
-on the stack. To append a row from Forth, raise the count and set the new row:
-`11 10 UI-ITEMS  S" text" 10 10 UI-ITEM` for a list that had 10 rows. (The GUI
-tools, written in C, use op 92 directly to send many rows in one op.)
 
 ### Text views
 
@@ -4028,9 +4022,10 @@ with `PLOT` and friends directly (see [Display and Graphics](#display-and-graphi
 
 [`UI-RESET`](#w-ui-reset) resets the whole server: every window, surface,
 sprite, widget, command and menu goes, the style returns to Smalltalk and the
-snap to 8. That includes the server's own Console window and the GUI tools'
-commands and world menu, which come back only after a reboot. Close your own
-windows with `UI-CLOSE` instead, and keep `UI-RESET` for test setups.
+snap to 8. The server's own Console window comes back at once, and the GUI
+tools reinstall their commands and world menu, so the desktop stays usable.
+Close your own windows with `UI-CLOSE` when you only want to tidy up, and keep
+`UI-RESET` for test setups.
 
 ### Off-screen composition
 
@@ -4147,8 +4142,8 @@ status line at the bottom.
   space are. Every accept keeps the replaced version's code until the next
   restart, so when either figure passes 80 % the line adds `: save, restart`.
   On failure it says `not accepted:` and the reason, and the live module is not
-  touched. After an accept the words and info panes still show the previous
-  version until you press Ctrl+R or select the module again.
+  touched. After an accept the words and info panes show the new version at
+  once; the code pane keeps your text.
 
 ![Adding a word to a module and accepting it with Ctrl+S](media/anim-browser.gif)
 - *A single word.* The text (at most 255 bytes) is evaluated, so the word is
@@ -4161,7 +4156,7 @@ status line at the bottom.
 | Item | Effect |
 |---|---|
 | Accept | as Ctrl+S |
-| Save to SD | save the module's *active* source as its package on the SD card (`DEMO: saved to SD`). Edits you have not accepted are not saved. It is refused, with `not saved (accept first)`, while the text workbench holds a modified draft of another module |
+| Save to SD | save the module's *active* source as its package on the SD card (`DEMO: saved to SD`). Edits you have not accepted are not saved. When it fails, the status line says `not saved:` and the reason, for example while the text workbench holds a modified draft of another module |
 | Revert | reload the selected module's live source into the code pane, dropping your edits |
 | Refresh (Ctrl+R) | re-read the module list and the selected module |
 
@@ -4784,7 +4779,7 @@ Two rules keep the CLI honest:
 - **It never retries.** If a request fails halfway, the CLI says so and leaves the result marked uncertain. It never sends the request again.
 - **Pending execution blocks new source.** `KEY` gets only the bytes you send with `:input`.
 
-`:recover` differs with and without the ZDI wire. With the wire (dev boot), the supervisor halts the eZ80 and reloads the image embedded in the ESP firmware, so all RAM state is gone. Without the wire (untethered boot), the ESP cannot reset the eZ80. `:recover` then restarts only the ESP32. The resident keeps running, but it does not report itself healthy again, so the harness can refuse to reattach with "Untethered resident is not running yet". In that case stop and restart the harness, because opening the port resets the whole board, or press the board's reset button. See [Troubleshooting](#troubleshooting).
+`:recover` differs with and without the ZDI wire. With the wire (dev boot), the supervisor halts the eZ80 and reloads the image embedded in the ESP firmware, so all RAM state is gone. Without the wire (untethered boot), the ESP cannot reset the eZ80. `:recover` then restarts only the ESP32: the resident keeps running with its RAM state, reports itself healthy again when the ESP comes back, and the harness reattaches. If the eZ80 itself is wedged, stop and restart the harness (opening the port resets the whole board) or press the board's reset button. See [Troubleshooting](#troubleshooting).
 
 ### MCP tool reference
 

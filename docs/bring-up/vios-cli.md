@@ -10,7 +10,10 @@ leaves the shared harness and board session intact.
 Enter up to 235 printable ASCII bytes per source line. Unfinished definitions
 change the prompt to `compile> `; finish with `;` or use `:abort`. Local commands
 are `:help`, `:status` (resources), `:words`, `:await`, `:input HEX`, `:abort`,
-`:reboot`, `:recover` and `:quit`. `:reboot` requires a synchronized idle prompt and explicitly
+`:reboot`, `:recover` and `:quit`, plus inspection, SD and workbench commands
+(`:snapshot`, `:resync`, `:why`, `:trace`, `:graph`, `:events`, `:ls`, `:put`,
+`:get`, `:describe`, `:wb`, `:complete`); `:help` lists them all and the
+manual's [CLI section](../manual/VIOS-MANUAL.md#the-cli) explains each. `:reboot` requires a synchronized idle prompt and explicitly
 restarts resident firmware. While execution is pending, new source is blocked:
 for example, after `KEY .`, use `:input 41` and then `:await` to supply `A`.
 `:input` accepts 1–16 bytes; hex `1D` is reserved. Failed or uncertain operations
@@ -23,6 +26,10 @@ acknowledgment before a fresh empty attach. A missing acknowledgment leaves the
 session uncertain; it never triggers an automatic retry. `:recover` is also
 available after a failed board attach when the TCP harness remains reachable.
 Normal `:reboot` does not override pending or uncertain state.
+On an untethered board (no ZDI wire) the ESP cannot reset the eZ80, so
+`:reboot`/`:recover` restart only the ESP; the resident does not re-send its
+health report and the harness cannot reattach until a board reset, power cycle
+or harness restart (opening the port resets the board).
 `--timeout` sets the evaluation/await deadline
 (default 15 seconds); `--rpc-timeout` sets the TCP response deadline (default
 130 seconds, allowing resident boot). No JSON input is needed.

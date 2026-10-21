@@ -6,6 +6,33 @@ Read it before changing code or opening the serial device. Existing user
 instructions take precedence; the roadmap below is a recommendation, not a claim
 that its unimplemented designs have already been approved.
 
+## Update (2026-10-21)
+
+The complete, code-verified reference is now the
+[VIOS manual](docs/manual/VIOS-MANUAL.md); where this handoff disagrees with it,
+the manual and the code win. Main changes since this handoff was written:
+
+- **Untethered boot.** MOS 3.0.2 was written to the eZ80 flash on 2026-10-19
+  (owner-approved; see `docs/superpowers/specs/2026-10-19-vios-untethered-boot.md`
+  §16.7). MOS runs the SD stub `viosboot`, which loads the resident embedded in
+  the ESP firmware (or `/vios/vios.bin`). The ZDI wire is optional (dev boots,
+  debug tools). Normal installs never write the eZ80 flash.
+- **ESP firmware A/B.** Install with `tools/vios_firmware_ab.py` (backs up,
+  writes the inactive slot on trial, the firmware confirms itself or falls back).
+  Raw `esptool write-flash 0x10000` is no longer the procedure.
+- **Display.** The board boots into the GUI desktop (mode 0, 640×480,
+  16 colours) with a Console window; F1 toggles console/editor; Ctrl+Alt+F1
+  switches GUI ↔ full-screen text console. Lines are edited on the ESP.
+- **Tasks** are preempted by a 1 kHz timer tick. **Harness**: 72 MCP tools.
+- **Serial port**: currently `/dev/cu.usbserial-210`; the suffix changes, so
+  check `ls /dev/cu.usbserial-*` and pass `--port` (tool defaults still name
+  `-224130`).
+- **`:recover` / `reboot(force=true)`** on an untethered board restarts only
+  the ESP; the resident does not re-send health and the harness cannot
+  reattach until a board reset, power cycle or harness restart.
+- **Sizes**: the main-51 resident is about 186 KB with BSS ending at
+  `0xAAB15`; check `build/vios-resident.map` rather than numbers here.
+
 ## 1. Start here
 
 - Repository: <https://github.com/alexiob/VIOS>, private; branch `main`.
@@ -76,16 +103,16 @@ card, publishing services, or rewiring pins without discussion.
 
 | Area | Current implementation |
 | --- | --- |
-| Bare-metal startup | ESP32-resident supervisor uses ZDI and a verified 46-byte native stage0 to establish CPU RAM and load the embedded image at `0x040000`; runtime makes no MOS calls. |
+| Bare-metal startup | Untethered: MOS 3.0.2 runs the SD stub `viosboot`, which loads the ESP-embedded image at `0x040000`. Dev boot (ZDI wire): the ESP32 supervisor uses a verified 46-byte native stage0 to establish CPU RAM and load the image. The runtime makes no MOS calls. |
 | Forth | Resident interpreter/compiler, native 24-bit DIRECT and TOKEN engines, C reference, bounded stacks, definition/source inspection, deferred bindings and resource counters. |
 | Live modules | Stage/test/activate checked source with managed-data transaction overlay, pinned dependency CRCs, two retained generations, constrained rollback and exact source retrieval. |
 | Storage | Native SD SPI/block path, FatFs/FAT32, checked module packages, source loading, verified saves and source-based A/B startup. |
-| Host integration | One resident USB owner; human CLI and 65 MCP tools share serialized access over loopback NDJSON or MCP stdio. Binary COBS/CRC frames multiplex console/control/events over serial. |
+| Host integration | One resident USB owner; human CLI and 72 MCP tools share serialized access over loopback NDJSON or MCP stdio. Binary COBS/CRC frames multiplex console/control/events over serial. |
 | Recovery | Independent ESP USB/ZDI task; CPU register/memory inspection; explicit forced reboot during pending input or a stuck VDP; boot watchdog and bounded failed-boot handling. |
 | Workbench | Module/word browser, exact-source draft editor, live inspector, guarded editing/staging/activation/save, one undo snapshot, semantic keyboard events and headless equivalents. |
 | Rendering | Retained panes/source index, sparse glyph/style changes, native UART writer, compressed commands, ESP buffered viewport scrolls, full-width source mode and framebuffer-fenced diagnostics. |
-| Console (Oct 19) | Boot-time VGA REPL console (home view, F1 toggles editor), RAM-tapped output with circular shadow, hidden harness envelopes, cooked local line editor with history and blinking cursor, physical keys isolated from host frames. |
-| Tasks (Oct 18) | Four background Forth tasks swapped at trap boundaries, preempted by budget exhaustion (probe-verified exact resume), `PAUSE`/`MS`, per-task output rings or console attachment, UART-safe admission gate, measured 1024-instruction slice, `AUTORUN` boot task. |
+| Console | GUI desktop at boot with a Console window (F1 toggles editor, Ctrl+Alt+F1 GUI ↔ full-screen text console), hidden harness envelopes, line editor with history on the ESP, physical keys isolated from host frames. |
+| Tasks (Oct 18) | Four background Forth tasks swapped at trap boundaries, preempted by a 1 kHz timer tick (4 ms slices) and by budget exhaustion (probe-verified exact resume), `PAUSE`/`MS`, per-task output rings or console attachment, UART-safe admission gate, measured 1024-instruction slice, `AUTORUN` boot task. |
 | Handles (Oct 18) | Non-blocking `OPEN/CLOSE/READ/WRITE/PIPE`, Forth `READ-WAIT/WRITE-ALL`, SD streams, `/dev/null|cons|tasks`, per-task ownership cleanup. |
 | Inspection (Oct 18–19) | `LAST-ERROR` pre-unwind capture (word+offset, frames, stack), `TRACE` single-stepping on all engines, `snapshot`, `help`, `complete`, `module_graph`, `develop`, `resync`. |
 
@@ -121,9 +148,9 @@ not preserve a running heap, suspended stacks, open handles or arbitrary RAM.
 | --- | --- |
 | CPU | eZ80F92, ADL mode, 18.432 MHz; observed ID `0007`, revision `AA`. No MMU or user/kernel memory protection. |
 | CPU memory | 512 KiB external SRAM, 128 KiB on-chip flash, 8 KiB on-chip SRAM. Current payload is confined to `0x040000..0x0AFFFF`; do not treat the wider 24-bit address space as populated RAM. |
-| Current image | 111301-byte CPU binary; 255060-byte BSS; BSS end `0x99719`; 88295 bytes between BSS end and stack bottom `0xAF000`; separate 4 KiB native stack ends at `0xB0000`. This gap is not a promise of an implemented allocator. |
+| Current image | main-51: about 186 KB CPU binary, BSS end `0xAAB15`, about 17 KB below stack bottom `0xAF000`; separate 4 KiB native stack ends at `0xB0000`. Check `build/vios-resident.map` for the current build. This gap is not a promise of an implemented allocator. |
 | ESP32 | ESP32-PICO-D4, 4 MiB flash, 8 MiB PSRAM. Its graphics/asset memory is not mapped into eZ80 RAM. Accepted app0 image is 669568 bytes. |
-| Display | Pinned VDP 1.04 / vdp-gl; current mode 1 is 640×480, four colours, 80×60 at the exposed 8×8 font. Text is rasterized into the ESP framebuffer. |
+| Display | Pinned VDP 1.04 / vdp-gl; the ESP boots into the GUI compositor in mode 0 (640×480, 16 colours, 60 Hz). Text is rasterized into the ESP framebuffer. |
 | Serial | Host USB-C → CH340 → ESP UART0 at **115200 8N1**; separate internal CPU/VDP UART at **1152000**, with matched 384000 also tested and 115200 supported. Keep RTS/CTS. |
 | Storage | eZ80-owned microSD via SPI. The previously prepared FAT32 card contains VIOS source startup; do not reformat or alter its slot selection for ordinary development. |
 | Input | User attached VGA and a keyboard. The USB-A-shaped keyboard socket requires a PS/2-capable keyboard, not arbitrary USB HID. Mouse initialization is disabled because its default GPIO pins are used by ZDI. |
@@ -154,8 +181,9 @@ limits. Do not trade away tens of KiB casually on this target.
 
 ### Physical recovery wiring
 
-These links were required for the accepted resident boot and recovery, not just
-the original experiment:
+These links were required for the accepted October 16 resident boot and recovery.
+Since untethered boot they are optional: needed for dev boots and the ZDI
+debug tools, not for normal use:
 
 | Board GPIO header | Signal | ZDI header |
 | --- | --- | --- |
@@ -219,12 +247,14 @@ make verify-forth-engine
 .venv/bin/python tools/freeze_fast_display.py --verify-only
 
 # After tests, build the two firmware ends sequentially at the same rate.
-make vios-resident VIOS_INTERNAL_BAUD=1152000
+make vios-resident VIOS_INTERNAL_BAUD=1152000   # also builds build/agon-flash.bin, needed by the ESP embed step
+make viosboot                                    # SD boot stub
 VIOS_INTERNAL_BAUD=1152000 ~/.platformio/penv/bin/pio run -d firmware/esp32-vios -e esp32-vios
 ```
 
-Expected current host count is 184 tests (177 on October 16 plus 7 snapshot tests on October 18); linked native verification has 146
-probes. These are October 16 baseline results, not proof that a future tree or
+The host test count has grown well past the 184 tests of October 18; inspect
+the `make test` output rather than comparing with a fixed number. On October 16
+linked native verification had 146 probes. These are baseline results, not proof that a future tree or
 machine has passed. Inspect each new run and preserve failures.
 
 **Ordering matters:** host native tests can relink the CPU at the default rate.
@@ -232,8 +262,9 @@ Do not run tests concurrently with a paired firmware build. The `.baud` sidecar
 and embed guard reject CPU/ESP mismatches; do not bypass them. For 384000, use
 384000 in both build commands. Historical raw binaries default to 115200.
 
-Current outputs are `build/vios-resident.{bin,elf,map,baud}`,
-`build/agon-stage0.bin`,
+Current outputs are `build/vios-resident.{bin,elf,map,baud,gui}`,
+`build/agon-stage0.bin`, `build/agon-crc.bin`, `build/agon-flash.bin`,
+`build/viosboot.bin`,
 `firmware/esp32-vios/.pio/build/esp32-vios/firmware.bin`, and
 `firmware/esp32-vios/build-manifest.json`. Normal AgonDev CRT/libc examples may
 call MOS; keep the freestanding startup/linker and audit linked helper routines.
@@ -244,12 +275,12 @@ First inspect device presence, its current owner and port 8765. Such host checks
 do not require opening the board:
 
 ```sh
-ls /dev/cu.usbserial-*
-lsof /dev/cu.usbserial-22430
+ls /dev/cu.usbserial-*          # currently /dev/cu.usbserial-210
+lsof /dev/cu.usbserial-210
 lsof -nP -iTCP:8765 -sTCP:LISTEN
 ```
 
-If the board is absent, ask the user to connect it with SD and ZDI links intact.
+If the board is absent, ask the user to connect it with the SD card in (ZDI links only if a dev boot or ZDI debug is needed).
 The serial suffix can change. If another process owns it, identify that process
 and its state rather than starting another owner. **Opening/closing this serial
 driver can reset the ESP electrically.** Save live state before ownership changes.
@@ -257,7 +288,7 @@ driver can reset the ESP electrically.** Save live state before ownership change
 If no owner exists, start one persistent resident harness:
 
 ```sh
-.venv/bin/python tools/vios_harness.py --backend resident --tcp 127.0.0.1:8765
+.venv/bin/python tools/vios_harness.py --backend resident --port /dev/cu.usbserial-210 --tcp 127.0.0.1:8765
 ```
 
 MCP construction/tool listing does not open hardware. Explicit `connect` attaches
@@ -301,8 +332,10 @@ Useful tool families:
   `console_input` for `KEY`. A timeout is not permission to send the same
   mutation again. Unknown/CRC-failed outcomes remain uncertain and fail closed.
 - Debug/recover: `debug_registers`, `memory_read`, `resume`, explicit `reboot`.
-  `reboot(force=true)` / CLI `:recover` abandons RAM state. `deploy` replaces RAM;
-  ordinary attachment does not need it.
+  `reboot(force=true)` / CLI `:recover` abandons RAM state; on an untethered
+  board it restarts only the ESP and the harness cannot reattach until a board
+  reset, power cycle or harness restart. `deploy` and the ZDI debug tools need
+  the wire; ordinary attachment does not need `deploy`.
 
 Do not send raw ASCII terminal commands or old `SET CONSOLE`/hexload recipes into
 the current framed USB mux. See the harness code/schema for exact contracts.
@@ -344,21 +377,26 @@ historical facts to compare with, not values to enforce over newer user work.
 
 ### Firmware writes
 
-Application-only updates write **ESP app0 at `0x10000`, capacity `0x140000`**.
+Application-only updates write **one ESP app slot (`app0` or `app1`), capacity `0x140000`**, with `tools/vios_firmware_ab.py`.
 Stop the sole serial owner first, preserve current RAM work, identify the board,
 back up the actual installed app0/image and check its hashes before updating.
 Verify the paired manifest, image size and esptool's flash hash verification.
 Then establish a single persistent owner and recheck startup/health.
 
-After those prerequisites, the normal new-build write command is:
+After those prerequisites, the normal new-build install (it backs up `otadata`
+and the target slot, writes the inactive slot on trial, and the firmware
+confirms itself or falls back) is:
 
 ```sh
-.venv/bin/esptool --chip esp32 --port /dev/cu.usbserial-22430 --baud 115200 --after hard-reset write-flash 0x10000 firmware/esp32-vios/.pio/build/esp32-vios/firmware.bin
+.venv/bin/python tools/vios_firmware_ab.py --port /dev/cu.usbserial-210 \
+    install firmware/esp32-vios/.pio/build/esp32-vios/firmware.bin --backup-dir backups/ab-$(date +%Y-%m-%d)
 ```
 
-Never mix CPU/ESP rates or use a whole-device erase/write as a shortcut. Existing
-ESP bootloader/partition table/app1, eZ80 flash and SD boot selection were
-preserved. Changes to those are a separate recovery/design decision.
+Never mix CPU/ESP rates or use a whole-device erase/write as a shortcut. The ESP
+bootloader and partition table are never written. The eZ80 flash was
+written once, with owner approval, to install MOS 3.0.2 (2026-10-19);
+changes to it, the bootloader, partitions or SD boot selection are a separate
+recovery/design decision.
 
 The latest immutable release is
 [`artifacts/vios-fast-display-2026-10-16/`](artifacts/vios-fast-display-2026-10-16/RESTORE.md).
@@ -379,8 +417,8 @@ place. `freeze_fast_display.py` intentionally refuses an existing destination;
 use a new milestone destination and suitable evidence requirements for new work.
 
 Source A/B slots are dependency-ordered source bundles on one FAT32 card. They
-handle rejected source updates; they do not isolate media failure, make FAT
-power-fail atomic, or provide ESP firmware A/B rollback. See
+handle rejected source updates; they do not isolate media failure or make FAT
+power-fail atomic. ESP firmware A/B is separate (`tools/vios_firmware_ab.py`). See
 [`kernel/vios_boot.c`](kernel/vios_boot.c) before extending the scheme.
 
 ## 9. Measured performance and remaining qualification
