@@ -56,9 +56,12 @@ static void wtext(unsigned char id, const char *s) {
     send(o, 3 + n);
 }
 static void wvalue(unsigned char id, unsigned v) { unsigned char o[] = {0x82, id, (unsigned char)v, (unsigned char)(v >> 8)}; send(o, 4); }
+/* Three column widths, or all zero for plain rows: then no columns are sent
+ * (zero-width columns would draw nothing, blanking the memory/boot tables). */
 static void columns(unsigned char id, unsigned char a, unsigned char b, unsigned char c, const char *header) {
     unsigned char o[] = {0x93, id, 3, a, b, c};
-    send(o, 6);
+    if (!a && !b && !c) o[2] = 0;
+    send(o, o[2] ? 6 : 3);
     wtext(id, header);
 }
 

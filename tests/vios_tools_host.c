@@ -214,6 +214,7 @@ int main(int argc, char **argv) {
     assert(vds_ui_widget_focus(&u, I_TABLE));
     assert(key(9, VDS_MOD_CTRL, VDS_VK_TAB) && wd(I_TABS)->value == 1 && wd(I_TABLE)->count == 16);
     assert(!strncmp(item(I_TABLE, 0), "000000", 6));
+    assert(wd(I_TABLE)->ncols == 0 && "memory rows are plain text: zero-width columns would draw nothing");
     assert(key(0, 0, VDS_VK_HOME) && key(0, 0, VDS_VK_UP));                  /* past the top: one row up */
     assert(!strncmp(item(I_TABLE, 0), "FFFFF8", 6));
     assert(key(0, 0, VDS_VK_END) && key(0, 0, VDS_VK_DOWN) && key(0, 0, VDS_VK_DOWN));
@@ -231,6 +232,7 @@ int main(int argc, char **argv) {
 
     /* Manager: boot report; an action asks first, Esc or No cancels. */
     assert(ctrl_shift('m') && open(23) && strstr(text_of(M_DETAIL), "boot A confirmed") && wd(M_TABLE)->count == 3);
+    assert(wd(M_TABLE)->ncols == 0 && "boot actions are plain rows");
     assert(vds_ui_widget_focus(&u, M_TABLE) && key(0, 0, VDS_VK_RETURN) && open(24) && u.focus == 24);
     assert(u.widget_focus[24] == D_NO && key(0, 0, VDS_VK_RETURN) && !open(24) && !trials);
     assert(vds_ui_focus(&u, 23) && vds_ui_widget_focus(&u, M_TABLE) && key(0, 0, VDS_VK_RETURN) && open(24));
