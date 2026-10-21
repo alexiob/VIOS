@@ -69,11 +69,11 @@ static size_t op_size(const uint8_t *b, size_t n) {
     case 0xC4:
         if (n < 5) return 0;
         switch (b[3]) {
-        case VDS_ITEM_DOT: s = 9; break;
-        case VDS_ITEM_LINE: case VDS_ITEM_RECT: case VDS_ITEM_BAR: case VDS_ITEM_OVAL: case VDS_ITEM_DISC: s = 13; break;
-        case VDS_ITEM_TEXT: s = n < 10 ? 0 : 10u + b[9]; break;
-        case VDS_ITEM_ICON: s = 10; break;
-        case VDS_ITEM_STIPPLE: s = 14; break;
+        case VDS_DRAW_DOT: s = 9; break;
+        case VDS_DRAW_LINE: case VDS_DRAW_RECT: case VDS_DRAW_BAR: case VDS_DRAW_OVAL: case VDS_DRAW_DISC: s = 13; break;
+        case VDS_DRAW_TEXT: s = n < 10 ? 0 : 10u + b[9]; break;
+        case VDS_DRAW_ICON: s = 10; break;
+        case VDS_DRAW_STIPPLE: s = 14; break;
         default: s = 0; break;
         }
         break;
@@ -203,13 +203,13 @@ static size_t item_encode(const vds_item *it, uint8_t *b) {
     put16(b, (uint16_t)it->a);
     put16(b + 2, (uint16_t)it->b);
     switch (it->kind) {
-    case VDS_ITEM_DOT: return 4;
-    case VDS_ITEM_TEXT: b[4] = it->n; memcpy(b + 5, it->text, it->n); return 5u + it->n;
-    case VDS_ITEM_ICON: b[4] = it->extra; return 5;
+    case VDS_DRAW_DOT: return 4;
+    case VDS_DRAW_TEXT: b[4] = it->n; memcpy(b + 5, it->text, it->n); return 5u + it->n;
+    case VDS_DRAW_ICON: b[4] = it->extra; return 5;
     }
     put16(b + 4, (uint16_t)it->c);
     put16(b + 6, (uint16_t)it->d);
-    if (it->kind == VDS_ITEM_STIPPLE) { b[8] = it->extra; return 9; }
+    if (it->kind == VDS_DRAW_STIPPLE) { b[8] = it->extra; return 9; }
     return 8;
 }
 
@@ -221,17 +221,17 @@ static int set_item(vds_proto *p, const uint8_t *b) {
     it.a = s16(b + 5);
     it.b = s16(b + 7);
     switch (it.kind) {
-    case VDS_ITEM_TEXT:
+    case VDS_DRAW_TEXT:
         if (b[9] > VDS_CANVAS_TEXT_MAX) return 0;
         it.n = b[9];
         memcpy(it.text, b + 10, it.n);
         break;
-    case VDS_ITEM_ICON: it.extra = b[9]; break;
-    case VDS_ITEM_DOT: break;
+    case VDS_DRAW_ICON: it.extra = b[9]; break;
+    case VDS_DRAW_DOT: break;
     default:
         it.c = s16(b + 9);
         it.d = s16(b + 11);
-        if (it.kind == VDS_ITEM_STIPPLE) it.extra = b[13];
+        if (it.kind == VDS_DRAW_STIPPLE) it.extra = b[13];
     }
     return vds_canvas_set(p->v, b[1], b[2], &it);
 }

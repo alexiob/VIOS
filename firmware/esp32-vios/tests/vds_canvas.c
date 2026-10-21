@@ -85,27 +85,27 @@ static int covers(const vds_item *it, int x, int y, uint8_t *colour) {
     long a = it->a, b = it->b, w = it->c, h = it->d;
     *colour = it->colour;
     switch (it->kind) {
-    case VDS_ITEM_DOT: return x == a && y == b;
-    case VDS_ITEM_BAR: return x >= a && x < a + w && y >= b && y < b + h;
-    case VDS_ITEM_STIPPLE:
+    case VDS_DRAW_DOT: return x == a && y == b;
+    case VDS_DRAW_BAR: return x >= a && x < a + w && y >= b && y < b + h;
+    case VDS_DRAW_STIPPLE:
         if ((x + y) & 1) *colour = it->extra;
         return x >= a && x < a + w && y >= b && y < b + h;
-    case VDS_ITEM_RECT:
+    case VDS_DRAW_RECT:
         return x >= a && x < a + w && y >= b && y < b + h && (x == a || x == a + w - 1 || y == b || y == b + h - 1);
-    case VDS_ITEM_DISC: case VDS_ITEM_OVAL: {
+    case VDS_DRAW_DISC: case VDS_DRAW_OVAL: {
         if (w <= 0 || h <= 0) return 0;
 #define INSIDE(i, j) ((i) >= 0 && (i) < w && (j) >= 0 && (j) < h && \
         (long long)(2 * (i) + 1 - w) * (2 * (i) + 1 - w) * h * h + (long long)(2 * (j) + 1 - h) * (2 * (j) + 1 - h) * w * w <= (long long)w * w * h * h)
         long i = x - a, j = y - b;
         if (!INSIDE(i, j)) return 0;
-        return it->kind == VDS_ITEM_DISC || !INSIDE(i - 1, j) || !INSIDE(i + 1, j) || !INSIDE(i, j - 1) || !INSIDE(i, j + 1);
+        return it->kind == VDS_DRAW_DISC || !INSIDE(i - 1, j) || !INSIDE(i + 1, j) || !INSIDE(i, j - 1) || !INSIDE(i, j + 1);
     }
-    case VDS_ITEM_TEXT: {
+    case VDS_DRAW_TEXT: {
         long k = (x - a) >> 3;
         if (x < a || k >= it->n || y < b || y >= b + 8) return 0;
         return (font[(uint8_t)it->text[k] * 8 + (y - b)] & (0x80 >> ((x - a) & 7))) != 0;
     }
-    case VDS_ITEM_ICON: {
+    case VDS_DRAW_ICON: {
         const vds_bitmap *bm = &v.bitmaps[it->extra];
         if (!bm->used || x < a || x >= a + bm->w || y < b || y >= b + bm->h) return 0;
         *colour = get4(bm->pixels + (size_t)(y - b) * ((bm->w + 1u) / 2), (int)(x - a));
@@ -124,10 +124,10 @@ static vds_item random_item(int kind, int cw, int ch) {
     it.b = (int16_t)srnd(-40, ch + 10);
     it.c = (int16_t)srnd(-2, 90);
     it.d = (int16_t)srnd(-2, 70);
-    if (kind == VDS_ITEM_LINE) { it.c = (int16_t)srnd(-40, cw + 40); it.d = (int16_t)srnd(-40, ch + 40); }
-    if (kind == VDS_ITEM_STIPPLE) it.extra = (uint8_t)rnd(16);
-    if (kind == VDS_ITEM_ICON) it.extra = (uint8_t)(rnd(2) ? VDS_ICON_FIRST + rnd(8) : rnd(4));
-    if (kind == VDS_ITEM_TEXT) {
+    if (kind == VDS_DRAW_LINE) { it.c = (int16_t)srnd(-40, cw + 40); it.d = (int16_t)srnd(-40, ch + 40); }
+    if (kind == VDS_DRAW_STIPPLE) it.extra = (uint8_t)rnd(16);
+    if (kind == VDS_DRAW_ICON) it.extra = (uint8_t)(rnd(2) ? VDS_ICON_FIRST + rnd(8) : rnd(4));
+    if (kind == VDS_DRAW_TEXT) {
         it.n = (uint8_t)rnd(VDS_CANVAS_TEXT_MAX + 1);
         for (unsigned i = 0; i < it.n; ++i) it.text[i] = (char)(32 + rnd(224));
     }
@@ -142,7 +142,7 @@ static void check_kinds(void) {
         int n = 1 + (int)rnd(12);
         for (int i = 0; i < n; ++i) {
             int kind;
-            do kind = 1 + (int)rnd(VDS_ITEM_KINDS - 1); while (kind == VDS_ITEM_LINE);
+            do kind = 1 + (int)rnd(VDS_DRAW_KINDS - 1); while (kind == VDS_DRAW_LINE);
             list[i] = random_item(kind, CW, CH);
             assert(vds_canvas_set(&v, 0, (uint8_t)(i * 3), &list[i]));
         }
@@ -165,7 +165,7 @@ static void check_kinds(void) {
     }
     /* A 5x5 disc is the square without its corners. */
     assert(vds_canvas_create(&v, 0, 0, 0, 0, 16, 16, 0, 0, mem[0]));
-    vds_item d = {VDS_ITEM_DISC, 3, 0, 0, 1, 1, 5, 5, ""};
+    vds_item d = {VDS_DRAW_DISC, 3, 0, 0, 1, 1, 5, 5, ""};
     assert(vds_canvas_set(&v, 0, 0, &d));
     vds_rect all = {0, 0, 16, 16};
     vds_canvas_replay(&v, 0, all, &replayed[0][0]);
@@ -176,9 +176,10 @@ static void check_kinds(void) {
 static void check_lines(void) {
     for (int round = 0; round < 2000; ++round) {
         assert(vds_canvas_create(&v, 0, 0, 0, 0, CW, CH, 0, 0, mem[0]));
-        vds_item it = random_item(VDS_ITEM_LINE, CW, CH);
+        vds_item it = random_item(VDS_DRAW_LINE, CW, CH);
         it.colour = 3;
         if (round < 1000) { it.a = (int16_t)rnd(CW); it.b = (int16_t)rnd(CH); it.c = (int16_t)rnd(CW); it.d = (int16_t)rnd(CH); }
+        else if (round % 4 == 0) { it.a = (int16_t)srnd(-32768, 32767); it.c = (int16_t)srnd(-32768, 32767); it.b = (int16_t)srnd(-32768, 32767); it.d = (int16_t)srnd(-32768, 32767); }
         assert(vds_canvas_set(&v, 0, 7, &it));
         vds_rect all = {0, 0, CW, CH};
         vds_canvas_replay(&v, 0, all, &replayed[0][0]);
@@ -225,7 +226,7 @@ static void check_compositor(void) {
     assert(!(v.canvases[1].flags & VDS_CV_READY));
     vds_frame(&v, UINT32_MAX);
     assert(px(64 + 16, 48 + 8) == 3);                           /* not ready: still the cells */
-    vds_item bar = {VDS_ITEM_BAR, 1, 0, 0, 4, 4, 8, 8, ""};
+    vds_item bar = {VDS_DRAW_BAR, 1, 0, 0, 4, 4, 8, 8, ""};
     assert(vds_canvas_set(&v, 1, 10, &bar));
     consistent();
     assert(px(64 + 16, 48 + 8) == 2 && px(64 + 16 + 4, 48 + 8 + 4) == 1 && px(64 + 16 + 63, 48 + 8 + 31) == 2);
@@ -233,7 +234,7 @@ static void check_compositor(void) {
 
     /* Transparent: the background colour shows the cells ('H' at 0,0 is ink). */
     assert(vds_canvas_create(&v, 2, 0, 0, 0, 8, 8, 3, VDS_CV_VISIBLE | VDS_CV_CLEAR, mem[2]));
-    vds_item dot = {VDS_ITEM_DOT, 1, 0, 0, 7, 7, 0, 0, ""};
+    vds_item dot = {VDS_DRAW_DOT, 1, 0, 0, 7, 7, 0, 0, ""};
     assert(vds_canvas_set(&v, 2, 0, &dot));
     consistent();
     assert(px(64 + 1, 48 + 1) == (font['H' * 8 + 1] & 0x40 ? 0 : 3) && px(64 + 7, 48 + 7) == 1);
@@ -268,7 +269,7 @@ static void check_compositor(void) {
     assert(px(400 + 28, 200 + 20) == 1);
 
     /* Hit test: topmost item whose box holds the point. */
-    vds_item cover = {VDS_ITEM_RECT, 5, 0, 0, 0, 0, 10, 10, ""};
+    vds_item cover = {VDS_DRAW_RECT, 5, 0, 0, 0, 0, 10, 10, ""};
     assert(vds_canvas_set(&v, 1, 20, &cover));
     assert(vds_canvas_hit(&v, 1, 5, 5) == 20 && vds_canvas_hit(&v, 1, 20, 20) == 255);
     assert(vds_canvas_erase(&v, 1, 20) && vds_canvas_hit(&v, 1, 5, 5) == 10);
@@ -281,9 +282,9 @@ static void check_compositor(void) {
     assert(!vds_canvas_item(&v, 1, 11) && !vds_canvas_ink(&v, 1, 11, 1) && !vds_canvas_ink(&v, 1, 10, 16));
 
     /* Validation and the raster cap. */
-    vds_item bad = {VDS_ITEM_KINDS, 1, 0, 0, 0, 0, 1, 1, ""};
+    vds_item bad = {VDS_DRAW_KINDS, 1, 0, 0, 0, 0, 1, 1, ""};
     assert(!vds_canvas_set(&v, 1, 0, &bad) && !vds_canvas_set(&v, 1, 255, &bar) && !vds_canvas_set(&v, 7, 0, &bar));
-    bad.kind = VDS_ITEM_TEXT; bad.n = VDS_CANVAS_TEXT_MAX + 1;
+    bad.kind = VDS_DRAW_TEXT; bad.n = VDS_CANVAS_TEXT_MAX + 1;
     assert(!vds_canvas_set(&v, 1, 0, &bad));
     assert(!vds_canvas_create(&v, 3, 0, 0, 0, 641, 10, 0, 0, mem[3]) && !vds_canvas_create(&v, 3, 0, 0, 0, 10, 481, 0, 0, mem[3]));
     assert(!vds_canvas_create(&v, 3, VDS_MAX_SURFACES, 0, 0, 8, 8, 0, 0, mem[3]) && !vds_canvas_create(&v, 3, 0, 0, 0, 8, 8, 16, 0, mem[3]));
@@ -296,7 +297,7 @@ static void check_compositor(void) {
     /* Bitmaps: redefining one redraws the canvases that use it. */
     memset(bitmap_pixels[0], 0x11, sizeof bitmap_pixels[0]);
     assert(vds_bitmap_define(&v, 0, 4, 4, 15, bitmap_pixels[0]));
-    vds_item icon = {VDS_ITEM_ICON, 0, 0, 0, 40, 4, 0, 0, ""};
+    vds_item icon = {VDS_DRAW_ICON, 0, 0, 0, 40, 4, 0, 0, ""};
     assert(vds_canvas_set(&v, 1, 30, &icon));
     consistent();
     assert(px(64 + 24 + 40, 48 + 16 + 4) == 1);
@@ -332,7 +333,7 @@ static void check_budget(void) {
     assert(vds_window_open(&v, 3, 0, 0, 0, 80, 60, VDS_W_VISIBLE, ""));
     assert(vds_canvas_create(&v, 0, 0, 0, 0, 640, 480, 4, VDS_CV_VISIBLE, mem[0]));
     finish();
-    vds_item bar = {VDS_ITEM_BAR, 1, 0, 0, 0, 0, 640, 480, ""};
+    vds_item bar = {VDS_DRAW_BAR, 1, 0, 0, 0, 0, 640, 480, ""};
     assert(vds_canvas_set(&v, 0, 0, &bar));
     /* A full-screen change rasterises in bands over several frames, damaging
      * only the rows done; each call makes progress. */
@@ -346,6 +347,14 @@ static void check_budget(void) {
     assert(calls == 10);
     consistent();
     assert(px(0, 0) == 1 && px(639, 479) == 1);
+    /* Cost follows what a band draws, not the item's extent: 255 lines and
+     * rectangles spanning the s16 range, replayed in the smallest bands. */
+    for (unsigned i = 0; i < VDS_CANVAS_ITEMS; ++i) {
+        vds_item far = {(uint8_t)(i & 1 ? VDS_DRAW_LINE : VDS_DRAW_RECT), (uint8_t)(i & 15), 0, 0, -32768, (int16_t)(-32768 + (int)i), 32767, 32767, ""};
+        assert(vds_canvas_set(&v, 0, (uint8_t)i, &far));
+    }
+    while (vds_canvas_pending(&v)) vds_canvas_prepare(&v, 1);
+    consistent();
     assert(vds_canvas_delete(&v, 0) && vds_window_close(&v, 3));
 }
 
@@ -368,7 +377,7 @@ static void check_random(void) {
         case 2: vds_canvas_flags(&v, id, (uint8_t)rnd(4)); break;
         case 3: if (!rnd(4)) vds_canvas_delete(&v, id); break;
         case 4: case 5: case 6: case 7: {
-            vds_item it = random_item(1 + (int)rnd(VDS_ITEM_KINDS - 1), 200, 150);
+            vds_item it = random_item(1 + (int)rnd(VDS_DRAW_KINDS - 1), 200, 150);
             vds_canvas_set(&v, id, (uint8_t)rnd(40), &it);
             break;
         }

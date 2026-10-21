@@ -212,27 +212,27 @@ int main(int argc, char **argv) {
     b8(0x01); b8(2); b8(40); b8(12); b8(0x30);
     b8(0x50); b8(1); b8(2); b16(80); b16(60); b8(40); b8(12); b8(VDS_W_VISIBLE | VDS_W_DECOR);
     b8(0xC0); b8(3); b8(2); b16(16); b16(8); b16(160); b16(80); b8(3); b8(VDS_CV_VISIBLE);
-    b8(0xC4); b8(3); b8(0); b8(VDS_ITEM_LINE); b8(0); b16(0); b16(0); b16(159); b16(79);
-    b8(0xC4); b8(3); b8(1); b8(VDS_ITEM_DISC); b8(1); b16(10); b16(10); b16(40); b16(30);
-    b8(0xC4); b8(3); b8(2); b8(VDS_ITEM_TEXT); b8(0); b16(60); b16(4); b8(5); bytes("chart", 5);
-    b8(0xC4); b8(3); b8(3); b8(VDS_ITEM_ICON); b8(15); b16(100); b16(40); b8(VDS_ICON_FOLDER);
-    b8(0xC4); b8(3); b8(4); b8(VDS_ITEM_STIPPLE); b8(2); b16(120); b16(50); b16(30); b16(20); b8(0);
-    b8(0xC4); b8(3); b8(5); b8(VDS_ITEM_DOT); b8(1); b16(-3); b16(2);
+    b8(0xC4); b8(3); b8(0); b8(VDS_DRAW_LINE); b8(0); b16(0); b16(0); b16(159); b16(79);
+    b8(0xC4); b8(3); b8(1); b8(VDS_DRAW_DISC); b8(1); b16(10); b16(10); b16(40); b16(30);
+    b8(0xC4); b8(3); b8(2); b8(VDS_DRAW_TEXT); b8(0); b16(60); b16(4); b8(5); bytes("chart", 5);
+    b8(0xC4); b8(3); b8(3); b8(VDS_DRAW_ICON); b8(15); b16(100); b16(40); b8(VDS_ICON_FOLDER);
+    b8(0xC4); b8(3); b8(4); b8(VDS_DRAW_STIPPLE); b8(2); b16(120); b16(50); b16(30); b16(20); b8(0);
+    b8(0xC4); b8(3); b8(5); b8(VDS_DRAW_DOT); b8(1); b16(-3); b16(2);
     b8(0xC6); b8(3); b8(1); b16(5); b16(-2);
     b8(0xC7); b8(3); b8(0); b8(1);
     b8(0xC8); b8(0); b8(3); b8(2); b8(15);
     b8(0xC9); b8(0); b16(0); b8(4); b8(0x12); b8(0x3F); b8(0x45); b8(0x6F);
-    b8(0xC4); b8(3); b8(6); b8(VDS_ITEM_ICON); b8(0); b16(2); b16(70); b8(0);
+    b8(0xC4); b8(3); b8(6); b8(VDS_DRAW_ICON); b8(0); b16(2); b16(70); b8(0);
     assert(send_batch());
     assert(error_events == errors_before);
     static uint8_t bitmap[4] = {0x12, 0x3F, 0x45, 0x6F};
     vds_surface_init(&vb, 2, 40, 12, cells_b[2], 0x30);
     vds_window_open(&vb, 1, 2, 80, 60, 40, 12, VDS_W_VISIBLE | VDS_W_DECOR, "");
     assert(vds_canvas_create(&vb, 3, 2, 16, 8, 160, 80, 3, VDS_CV_VISIBLE, canvas_b));
-    vds_item it[7] = {{VDS_ITEM_LINE, 1, 0, 0, 0, 0, 159, 79, ""}, {VDS_ITEM_DISC, 1, 0, 0, 15, 8, 40, 30, ""},
-                      {VDS_ITEM_TEXT, 0, 0, 5, 60, 4, 0, 0, "chart"}, {VDS_ITEM_ICON, 15, VDS_ICON_FOLDER, 0, 100, 40, 0, 0, ""},
-                      {VDS_ITEM_STIPPLE, 2, 0, 0, 120, 50, 30, 20, ""}, {VDS_ITEM_DOT, 1, 0, 0, -3, 2, 0, 0, ""},
-                      {VDS_ITEM_ICON, 0, 0, 0, 2, 70, 0, 0, ""}};
+    vds_item it[7] = {{VDS_DRAW_LINE, 1, 0, 0, 0, 0, 159, 79, ""}, {VDS_DRAW_DISC, 1, 0, 0, 15, 8, 40, 30, ""},
+                      {VDS_DRAW_TEXT, 0, 0, 5, 60, 4, 0, 0, "chart"}, {VDS_DRAW_ICON, 15, VDS_ICON_FOLDER, 0, 100, 40, 0, 0, ""},
+                      {VDS_DRAW_STIPPLE, 2, 0, 0, 120, 50, 30, 20, ""}, {VDS_DRAW_DOT, 1, 0, 0, -3, 2, 0, 0, ""},
+                      {VDS_DRAW_ICON, 0, 0, 0, 2, 70, 0, 0, ""}};
     for (uint8_t i = 0; i < 7; ++i) assert(vds_canvas_set(&vb, 3, i, &it[i]));
     assert(vds_bitmap_define(&vb, 0, 3, 2, 15, bitmap));
     same_screen();
@@ -241,9 +241,9 @@ int main(int argc, char **argv) {
     assert(last_code == VDS_PACKET_REPLY && last_n == 18 && last[0] == 0xCB && last[2] == 1 && last[3] == VDS_CV_VISIBLE && last[4] == 2);
     assert(last[9] == 160 && last[11] == 80 && last[13] == 7);
     begin(); b8(0xCC); b8(3); b8(2); assert(send_batch());
-    assert(last_n == 15 && last[3] == VDS_ITEM_TEXT && last[5] == 60 && last[9] == 5 && !memcmp(last + 10, "chart", 5));
+    assert(last_n == 15 && last[3] == VDS_DRAW_TEXT && last[5] == 60 && last[9] == 5 && !memcmp(last + 10, "chart", 5));
     begin(); b8(0xCC); b8(3); b8(1); assert(send_batch());
-    assert(last_n == 13 && last[3] == VDS_ITEM_DISC && last[5] == 15 && last[7] == 8 && last[9] == 40);
+    assert(last_n == 13 && last[3] == VDS_DRAW_DISC && last[5] == 15 && last[7] == 8 && last[9] == 40);
     begin(); b8(0xCC); b8(3); b8(9); assert(send_batch());
     assert(last_n == 4 && last[3] == 0);
     begin(); b8(0xCA); b8(3); b16(20); b16(20); assert(send_batch());
@@ -256,12 +256,12 @@ int main(int argc, char **argv) {
     assert(last_n == 18 && last[2] == 0);
     /* An unknown item kind is malformed: the whole batch is dropped. */
     uint16_t generation = p.generation;
-    begin(); b8(0xC5); b8(3); b8(0); b8(0xC4); b8(3); b8(9); b8(VDS_ITEM_KINDS); b8(0); b16(0); b16(0);
+    begin(); b8(0xC5); b8(3); b8(0); b8(0xC4); b8(3); b8(9); b8(VDS_DRAW_KINDS); b8(0); b16(0); b16(0);
     assert(!send_batch() && p.generation == generation && vds_canvas_item(&va, 3, 0));
     /* Bad arguments are skipped with an error: x not a multiple of 8, long text, CPU-reserved surface. */
     unsigned errors = error_events;
     begin(); b8(0xC1); b8(3); b16(17); b16(0); assert(send_batch());
-    begin(); b8(0xC4); b8(3); b8(9); b8(VDS_ITEM_TEXT); b8(0); b16(0); b16(0); b8(21); for (int i = 0; i < 21; ++i) b8('x'); assert(send_batch());
+    begin(); b8(0xC4); b8(3); b8(9); b8(VDS_DRAW_TEXT); b8(0); b16(0); b16(0); b8(21); for (int i = 0; i < 21; ++i) b8('x'); assert(send_batch());
     begin(); b8(0xC0); b8(4); b8(VDS_PROTO_SURFACES); b16(0); b16(0); b16(8); b16(8); b8(0); b8(1); assert(send_batch());
     begin(); b8(0xC8); b8(VDS_ICON_FIRST); b8(4); b8(4); b8(15); assert(send_batch());          /* built-ins are read-only */
     assert(error_events == errors + 4);

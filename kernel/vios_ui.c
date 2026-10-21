@@ -230,6 +230,7 @@ static int ui_state(void) {                             /* ( id flags -- ) */
 }
 
 static int sprite_id(fcell id) { return range(id, 15, "UI sprite id 0..15"); }
+static int canvas_id(fcell id) { return range(id, 7, "UI canvas id 0..7"); }
 static int ui_sprite(void) {                            /* ( id w h hotx hoty transparent -- ) */
     fcell a[6];
     if (!pop(a, 6) || !sprite_id(a[0]) || !a[1] || !a[2] || a[1] > 64 || a[2] > 64 || a[3] >= a[1] || a[4] >= a[2])
@@ -271,9 +272,9 @@ static int ui_arrow(void) { fcell id = fvm_pop(); if (fvm_error || !sprite_id(id
 
 static int ui_animate(void) {                           /* ( target id prop from to ms easing -- ) */
     fcell a[7];
-    if (!pop(a, 7) || !range(a[0], 1, "UI-ANIMATE target: 0 window, 1 sprite") || !range(a[2], 3, "UI-ANIMATE property 0..3") ||
+    if (!pop(a, 7) || !range(a[0], 2, "UI-ANIMATE target: 0 window, 1 sprite, 2 canvas") || !range(a[2], a[0] ? 1 : 3, "UI-ANIMATE property") ||
         !range(a[5], 65535, "UI-ANIMATE: at most 65535 ms") || !range(a[6], 3, "UI-ANIMATE easing 0..3")) return 0;
-    if (a[0] == 0 ? !window_id(a[1]) : !sprite_id(a[1])) return 0;
+    if (a[0] == 0 ? !window_id(a[1]) : a[0] == 1 ? !sprite_id(a[1]) : !canvas_id(a[1])) return 0;
     unsigned char o[11] = {0x70, b(a[0]), b(a[1]), b(a[2])};
     le16(o + 4, s24(a[3]));
     le16(o + 6, s24(a[4]));
@@ -284,7 +285,7 @@ static int ui_animate(void) {                           /* ( target id prop from
 }
 static int ui_stop(void) {                              /* ( target id prop -- ) */
     fcell a[3];
-    if (!pop(a, 3) || !range(a[0], 1, "UI-STOP target") || !range(a[2], 3, "UI-STOP property")) return 0;
+    if (!pop(a, 3) || !range(a[0], 2, "UI-STOP target") || !range(a[2], 3, "UI-STOP property")) return 0;
     unsigned char o[] = {0x71, b(a[0]), b(a[1]), b(a[2])};
     op(o, sizeof o);
     return 1;
@@ -459,6 +460,129 @@ static int ui_wget(void) {                              /* ( id addr -- value le
     return fvm_push((fcell)s24((fcell)(int16_t)(r[2] | r[3] << 8) & FVM_MASK)) && fvm_push(r[4]);
 }
 
+/* G5 canvases: the CPU keeps no display list, only a pen (canvas, colour). */
+static unsigned char pen_canvas, pen_colour;
+static int item_id(fcell id) { return range(id, 254, "UI item id 0..254"); }
+static int coord(fcell v, unsigned char *out) {        /* s16, little endian */
+    int32_t c = s24(v);
+    if (c < -32768 || c > 32767) return forth_error("UI canvas coordinate out of range");
+    le16(out, c);
+    return 1;
+}
+static int ui_canvas(void) {                            /* ( canvas surface x y w h bg flags -- ) */
+    fcell a[8];
+    if (!pop(a, 8) || !canvas_id(a[0]) || !range(a[1], VIOS_UI_SURFACES - 1, "UI surface id 0..10") ||
+        !range(a[4], 640, "UI-CANVAS: 1..640 wide") || !range(a[5], 480, "UI-CANVAS: 1..480 high") || !range(a[6], 15, "UI colour 0..15") ||
+        !range(a[7], 3, "UI-CANVAS flags")) return 0;
+    if (!a[4] || !a[5] || (s24(a[2]) & 7)) return forth_error("UI-CANVAS: a size, and x a multiple of 8");
+    unsigned char o[13] = {0xC0, b(a[0]), b(a[1])};
+    if (!coord(a[2], o + 3) || !coord(a[3], o + 5)) return 0;
+    le16(o + 7, (int32_t)a[4]);
+    le16(o + 9, (int32_t)a[5]);
+    o[11] = b(a[6]);
+    o[12] = b(a[7]);
+    op(o, sizeof o);
+    return 1;
+}
+static int ui_canvas_at(void) {                         /* ( canvas x y -- ) */
+    fcell a[3];
+    if (!pop(a, 3) || !canvas_id(a[0])) return 0;
+    if (s24(a[1]) & 7) return forth_error("UI-CANVAS-AT: x a multiple of 8");
+    unsigned char o[6] = {0xC1, b(a[0])};
+    if (!coord(a[1], o + 2) || !coord(a[2], o + 4)) return 0;
+    op(o, sizeof o);
+    return 1;
+}
+static int ui_canvas_flags(void) {                      /* ( canvas flags -- ) flags -1 deletes */
+    fcell a[2];
+    if (!pop(a, 2) || !canvas_id(a[0])) return 0;
+    if (s24(a[1]) == -1) { unsigned char o[] = {0xC3, b(a[0])}; op(o, sizeof o); return 1; }
+    if (!range(a[1], 3, "UI-CANVAS-FLAGS: 0..3, or -1 to delete")) return 0;
+    unsigned char o[] = {0xC2, b(a[0]), b(a[1])};
+    op(o, sizeof o);
+    return 1;
+}
+static int ui_pen(void) {                               /* ( canvas colour -- ) */
+    fcell a[2];
+    if (!pop(a, 2) || !canvas_id(a[0]) || !range(a[1], 15, "UI colour 0..15")) return 0;
+    pen_canvas = b(a[0]);
+    pen_colour = b(a[1]);
+    return 1;
+}
+static int ui_shape(void) {                             /* ( item a b c d kind -- ) kind | colour2 << 8 for a stipple */
+    fcell a[6];
+    if (!pop(a, 6) || !item_id(a[0])) return 0;
+    unsigned kind = (unsigned)(a[5] & 0xFF), colour2 = (unsigned)(a[5] >> 8);
+    if (!((kind >= 1 && kind <= 6) || kind == 9) || colour2 > 15) return forth_error("UI-SHAPE kind 1..6, or 9 + 256 * colour2");
+    unsigned char o[14] = {0xC4, pen_canvas, b(a[0]), (unsigned char)kind, pen_colour};
+    if (!coord(a[1], o + 5) || !coord(a[2], o + 7) || !coord(a[3], o + 9) || !coord(a[4], o + 11)) return 0;
+    o[13] = (unsigned char)colour2;
+    op(o, kind == 1 ? 9u : kind == 9 ? 14u : 13u);
+    return 1;
+}
+static int ui_print(void) {                             /* ( addr n item x y -- ) */
+    fcell a[5];
+    if (!pop(a, 5) || !item_id(a[2])) return 0;
+    if (a[1] > 20) return forth_error("UI-PRINT: at most 20 characters");
+    unsigned char o[10 + 20] = {0xC4, pen_canvas, b(a[2]), 7, pen_colour};
+    if (!coord(a[3], o + 5) || !coord(a[4], o + 7) || !text(a[0], a[1], o + 10, 20)) return 0;
+    o[9] = b(a[1]);
+    op(o, 10u + (unsigned)a[1]);
+    return 1;
+}
+static int ui_icon(void) {                              /* ( item x y bitmap -- ) */
+    fcell a[4];
+    if (!pop(a, 4) || !item_id(a[0]) || !range(a[3], 31, "UI bitmap id 0..31")) return 0;
+    unsigned char o[10] = {0xC4, pen_canvas, b(a[0]), 8, pen_colour};
+    if (!coord(a[1], o + 5) || !coord(a[2], o + 7)) return 0;
+    o[9] = b(a[3]);
+    op(o, sizeof o);
+    return 1;
+}
+static int ui_erase(void) {                             /* ( item -- ) 255 erases every item */
+    fcell item = fvm_pop();
+    if (fvm_error || !range(item, 255, "UI item id 0..254, or 255")) return 0;
+    unsigned char o[] = {0xC5, pen_canvas, b(item)};
+    op(o, sizeof o);
+    return 1;
+}
+static int ui_nudge(void) {                             /* ( item dx dy -- ) */
+    fcell a[3];
+    if (!pop(a, 3) || !item_id(a[0])) return 0;
+    unsigned char o[7] = {0xC6, pen_canvas, b(a[0])};
+    if (!coord(a[1], o + 3) || !coord(a[2], o + 5)) return 0;
+    op(o, sizeof o);
+    return 1;
+}
+static int ui_ink(void) {                               /* ( item colour -- ) */
+    fcell a[2];
+    if (!pop(a, 2) || !item_id(a[0]) || !range(a[1], 15, "UI colour 0..15")) return 0;
+    unsigned char o[] = {0xC7, pen_canvas, b(a[0]), b(a[1])};
+    op(o, sizeof o);
+    return 1;
+}
+static int ui_bitmap(void) {                            /* ( bitmap w h transparent -- ) */
+    fcell a[4];
+    if (!pop(a, 4) || !range(a[0], 23, "UI bitmap id 0..23 (24..31 are built in)") || !range(a[3], 15, "UI colour 0..15")) return 0;
+    if (!a[1] || !a[2] || a[1] > 64 || a[2] > 64) return forth_error("UI-BITMAP: 1..64 pixels");
+    unsigned char o[] = {0xC8, b(a[0]), b(a[1]), b(a[2]), b(a[3])};
+    op(o, sizeof o);
+    return 1;
+}
+static int ui_bits(void) {                              /* ( addr len bitmap offset -- ) 4 bpp bytes */
+    fcell a[4];
+    if (!pop(a, 4) || !range(a[2], 23, "UI bitmap id 0..23") || !range(a[3] + a[1], 2048, "UI-BITS past the bitmap")) return 0;
+    unsigned char o[5 + 64];
+    for (fcell done = 0; done < a[1];) {
+        unsigned n = a[1] - done > 64 ? 64u : (unsigned)(a[1] - done);
+        o[0] = 0xC9; o[1] = b(a[2]); le16(o + 2, (int32_t)(a[3] + done)); o[4] = (unsigned char)n;
+        if (!text(a[0] + done, n, o + 5, 64)) return 0;
+        op(o, 5 + n);
+        done += n;
+    }
+    return 1;
+}
+
 static int ui_begin(void) { batching = 1; return 1; }
 static int ui_commit(void) { unsigned char o[] = {0x30}; batching = 0; op(o, 1); return 1; }
 
@@ -549,7 +673,10 @@ int vios_ui_init(void) {
         {"UI-BEGIN", ui_begin}, {"UI-COMMIT", ui_commit},
         {"UI-ROW+", ui_row},   /* append a list row; UI-ROW is the layout constant */ {"UI-COLUMNS", ui_columns}, {"UI-KEYS", ui_keys}, {"UI-TEXT", ui_text}, {"UI-TEXT+", ui_text_more},
         {"UI-INSERT", ui_insert}, {"UI-SELECT", ui_select}, {"UI-TEXT@", ui_text_get},
-        {"UI-SYNC", ui_sync}, {"UI-EVENT", ui_event}, {"UI-NEXT", ui_next}};
+        {"UI-SYNC", ui_sync}, {"UI-EVENT", ui_event}, {"UI-NEXT", ui_next},
+        {"UI-CANVAS", ui_canvas}, {"UI-CANVAS-AT", ui_canvas_at}, {"UI-CANVAS-FLAGS", ui_canvas_flags}, {"UI-PEN", ui_pen},
+        {"UI-SHAPE", ui_shape}, {"UI-PRINT", ui_print}, {"UI-ICON", ui_icon}, {"UI-ERASE", ui_erase}, {"UI-NUDGE", ui_nudge},
+        {"UI-INK", ui_ink}, {"UI-BITMAP", ui_bitmap}, {"UI-BITS", ui_bits}};
     batch_used = batching = event_head = event_count = 0;
     /* Words that only send bytes may run in background tasks; requests wait
      * for a reply and stay in the foreground. */
@@ -573,5 +700,12 @@ int vios_ui_init(void) {
         "4 CONSTANT UI-WF-FILL 1 CONSTANT UI-COLUMN 2 CONSTANT UI-ROW 255 CONSTANT UI-NONE "
         "2 CONSTANT UI-EV-ACTIVATE 3 CONSTANT UI-EV-SELECT 4 CONSTANT UI-EV-CHANGE "
         "9 CONSTANT UI-TEXTVIEW 10 CONSTANT UI-TABS 8 CONSTANT UI-READONLY 16 CONSTANT UI-TREE 32 CONSTANT UI-PAGER "
-        "5 CONSTANT UI-EV-TEXT 8 CONSTANT UI-EV-EXPAND 9 CONSTANT UI-EV-PAGE");
+        "5 CONSTANT UI-EV-TEXT 8 CONSTANT UI-EV-EXPAND 9 CONSTANT UI-EV-PAGE "
+        "19 CONSTANT UI-EV-CANVAS 2 CONSTANT UI-TWEEN-CANVAS 1 CONSTANT UI-CV-VISIBLE 2 CONSTANT UI-CV-CLEAR "
+        ": UI-DOT ( item x y -- ) 0 0 1 UI-SHAPE ; : UI-LINE ( item x0 y0 x1 y1 -- ) 2 UI-SHAPE ; "
+        ": UI-RECT ( item x y w h -- ) 3 UI-SHAPE ; : UI-BAR ( item x y w h -- ) 4 UI-SHAPE ; "
+        ": UI-OVAL ( item x y w h -- ) 5 UI-SHAPE ; : UI-DISC ( item x y w h -- ) 6 UI-SHAPE ; "
+        ": UI-STIPPLE ( item x y w h colour2 -- ) 256 * 9 + UI-SHAPE ; : UI-WIPE ( -- ) 255 UI-ERASE ; "
+        "24 CONSTANT UI-ICON-DOCUMENT 25 CONSTANT UI-ICON-FOLDER 26 CONSTANT UI-ICON-WORD 27 CONSTANT UI-ICON-MODULE "
+        "28 CONSTANT UI-ICON-INFO 29 CONSTANT UI-ICON-WARNING 30 CONSTANT UI-ICON-ERROR 31 CONSTANT UI-ICON-DISK");
 }

@@ -204,7 +204,7 @@ int main(int argc, char **argv) {
     /* G5: a press on a canvas also reports the canvas, its pixel and the item there. */
     static uint8_t canvas_mem[VDS_CANVAS_ITEMS * sizeof(vds_item) + 16 * 16];
     assert(vds_canvas_create(&v, 0, 0, 16, 8, 32, 16, 3, VDS_CV_VISIBLE, canvas_mem));
-    vds_item bar = {VDS_ITEM_BAR, 1, 0, 0, 0, 8, 8, 8, ""};
+    vds_item bar = {VDS_DRAW_BAR, 1, 0, 0, 0, 8, 8, 8, ""};
     assert(vds_canvas_set(&v, 0, 4, &bar));
     finish();
     ev_n = 0;

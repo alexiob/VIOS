@@ -22,6 +22,7 @@ static vds_rect unite(vds_rect a, vds_rect b) {
     int x1 = a.x + a.w > b.x + b.w ? a.x + a.w : b.x + b.w, y1 = a.y + a.h > b.y + b.h ? a.y + a.h : b.y + b.h;
     return rect(x0, y0, x1 - x0, y1 - y0);
 }
+static long labs_(long v) { return v < 0 ? -v : v; }
 static int contains(vds_rect r, int x, int y) { return x >= r.x && x < r.x + r.w && y >= r.y && y < r.y + r.h; }
 
 static vds_canvas *canvas(vds *v, uint8_t id) { return id < VDS_MAX_CANVASES && v->canvases[id].used ? &v->canvases[id] : 0; }
@@ -111,45 +112,67 @@ static void ellipse(const pen *p, const vds_item *it, int filled) {
     }
 }
 
+static long long ceil_div(long long a, long long b) { return a >= 0 ? (a + b - 1) / b : -((-a) / b); }   /* b > 0 */
+
+/* A line as a pure function of the major-axis step t = 0..du: the minor
+ * offset is t * dv / du rounded half up. Only the steps whose pixel lies in
+ * the clip are visited, so a band costs what it draws, however far away the
+ * endpoints are, and every band agrees with a whole replay. */
 static void line(const pen *p, const vds_item *it) {
-    long x = it->a, y = it->b, x1 = it->c, y1 = it->d;
-    long dx = x1 > x ? x1 - x : x - x1, dy = y1 > y ? y1 - y : y - y1;
-    int sx = x < x1 ? 1 : -1, sy = y < y1 ? 1 : -1;
-    long err = dx - dy;
-    for (;;) {
-        plot(p, (int)x, (int)y, it->colour);
-        if (x == x1 && y == y1) return;
-        long e2 = 2 * err;
-        if (e2 > -dy) { err -= dy; x += sx; }
-        if (e2 < dx) { err += dx; y += sy; }
+    int steep = labs_(it->d - it->b) > labs_(it->c - it->a);
+    long u0 = steep ? it->b : it->a, v0 = steep ? it->a : it->b, u1 = steep ? it->d : it->c, v1 = steep ? it->c : it->d;
+    long du = labs_(u1 - u0), dv = labs_(v1 - v0);
+    int su = u1 >= u0 ? 1 : -1, sv = v1 >= v0 ? 1 : -1;
+    long ulo = steep ? p->clip.y : p->clip.x, uhi = ulo + (steep ? p->clip.h : p->clip.w) - 1;
+    long vlo = steep ? p->clip.x : p->clip.y, vhi = vlo + (steep ? p->clip.w : p->clip.h) - 1;
+    long long tlo = su > 0 ? ulo - u0 : u0 - uhi, thi = su > 0 ? uhi - u0 : u0 - ulo;   /* steps inside the clip's u range */
+    long long klo = sv > 0 ? vlo - v0 : v0 - vhi, khi = sv > 0 ? vhi - v0 : v0 - vlo;   /* minor offsets inside its v range */
+    if (tlo < 0) tlo = 0;
+    if (thi > du) thi = du;
+    if (!dv) {
+        if (klo > 0 || khi < 0) return;
+    } else {                                    /* offset k at step t lies in [klo, khi] */
+        long long a = ceil_div((2 * klo - 1) * du, 2LL * dv), b = ceil_div((2 * khi + 1) * du, 2LL * dv) - 1;
+        if (a > tlo) tlo = a;
+        if (b < thi) thi = b;
+    }
+    for (long long t = tlo; t <= thi; ++t) {
+        long k = du ? (long)((2 * t * dv + du) / (2LL * du)) : 0;
+        long u = u0 + su * (long)t, v = v0 + sv * k;
+        plot(p, (int)(steep ? v : u), (int)(steep ? u : v), it->colour);
     }
 }
 
 static void draw(const pen *p, const vds_item *it) {
     uint8_t c = it->colour;
     switch (it->kind) {
-    case VDS_ITEM_DOT: plot(p, it->a, it->b, c); break;
-    case VDS_ITEM_LINE: line(p, it); break;
-    case VDS_ITEM_RECT:
+    case VDS_DRAW_DOT: plot(p, it->a, it->b, c); break;
+    case VDS_DRAW_LINE: line(p, it); break;
+    case VDS_DRAW_RECT:
         if (it->c <= 0 || it->d <= 0) break;
         span(p, it->b, it->a, it->a + it->c - 1, c);
         span(p, it->b + it->d - 1, it->a, it->a + it->c - 1, c);
-        for (int y = it->b + 1; y < it->b + it->d - 1; ++y) { plot(p, it->a, y, c); plot(p, it->a + it->c - 1, y, c); }
+        {
+            long y0 = it->b + 1L, y1 = (long)it->b + it->d - 1;     /* sides: only rows inside the clip */
+            if (y0 < p->clip.y) y0 = p->clip.y;
+            if (y1 > p->clip.y + p->clip.h) y1 = p->clip.y + p->clip.h;
+            for (long y = y0; y < y1; ++y) { plot(p, it->a, (int)y, c); plot(p, (int)(it->a + it->c - 1L), (int)y, c); }
+        }
         break;
-    case VDS_ITEM_BAR: {
+    case VDS_DRAW_BAR: {
         vds_rect r = clip(it->a, it->b, it->c, it->d, p->clip);
         for (int y = r.y; y < r.y + r.h; ++y) span(p, y, r.x, r.x + r.w - 1, c);
         break;
     }
-    case VDS_ITEM_STIPPLE: {
+    case VDS_DRAW_STIPPLE: {
         vds_rect r = clip(it->a, it->b, it->c, it->d, p->clip);
         for (int y = r.y; y < r.y + r.h; ++y)
             for (int x = r.x; x < r.x + r.w; ++x) plot(p, x, y, ((x + y) & 1) ? it->extra : c);
         break;
     }
-    case VDS_ITEM_OVAL: ellipse(p, it, 0); break;
-    case VDS_ITEM_DISC: ellipse(p, it, 1); break;
-    case VDS_ITEM_TEXT:
+    case VDS_DRAW_OVAL: ellipse(p, it, 0); break;
+    case VDS_DRAW_DISC: ellipse(p, it, 1); break;
+    case VDS_DRAW_TEXT:
         for (unsigned k = 0; k < it->n; ++k) {
             int gx = it->a + (int)k * 8;
             if (gx >= p->clip.x + p->clip.w || gx + 8 <= p->clip.x) continue;
@@ -159,7 +182,7 @@ static void draw(const pen *p, const vds_item *it) {
                     if (g[r] & (0x80 >> b)) plot(p, gx + b, it->b + r, c);
         }
         break;
-    case VDS_ITEM_ICON: {
+    case VDS_DRAW_ICON: {
         const vds_bitmap *bm = it->extra < VDS_MAX_BITMAPS ? &p->v->bitmaps[it->extra] : 0;
         if (!bm || !bm->used) break;
         vds_rect r = clip(it->a, it->b, bm->w, bm->h, p->clip);
@@ -181,16 +204,16 @@ vds_rect vds_canvas_item_box(const vds *v, uint8_t id, const vds_item *it) {
     if (!c || !it) return rect(0, 0, 0, 0);
     vds_rect all = whole(c);
     switch (it->kind) {
-    case VDS_ITEM_DOT: return clip(it->a, it->b, 1, 1, all);
-    case VDS_ITEM_LINE: {
+    case VDS_DRAW_DOT: return clip(it->a, it->b, 1, 1, all);
+    case VDS_DRAW_LINE: {
         long x0 = it->a < it->c ? it->a : it->c, y0 = it->b < it->d ? it->b : it->d;
         long x1 = it->a < it->c ? it->c : it->a, y1 = it->b < it->d ? it->d : it->b;
         return clip(x0, y0, x1 - x0 + 1, y1 - y0 + 1, all);
     }
-    case VDS_ITEM_RECT: case VDS_ITEM_BAR: case VDS_ITEM_OVAL: case VDS_ITEM_DISC: case VDS_ITEM_STIPPLE:
+    case VDS_DRAW_RECT: case VDS_DRAW_BAR: case VDS_DRAW_OVAL: case VDS_DRAW_DISC: case VDS_DRAW_STIPPLE:
         return clip(it->a, it->b, it->c, it->d, all);
-    case VDS_ITEM_TEXT: return clip(it->a, it->b, 8L * it->n, 8, all);
-    case VDS_ITEM_ICON: {
+    case VDS_DRAW_TEXT: return clip(it->a, it->b, 8L * it->n, 8, all);
+    case VDS_DRAW_ICON: {
         const vds_bitmap *bm = it->extra < VDS_MAX_BITMAPS ? &v->bitmaps[it->extra] : 0;
         return bm && bm->used ? clip(it->a, it->b, bm->w, bm->h, all) : rect(0, 0, 0, 0);
     }
@@ -277,14 +300,14 @@ int vds_canvas_delete(vds *v, uint8_t id) {
 
 int vds_canvas_set(vds *v, uint8_t id, uint8_t item, const vds_item *it) {
     vds_canvas *c = canvas(v, id);
-    if (!c || !it || item >= VDS_CANVAS_ITEMS || !it->kind || it->kind >= VDS_ITEM_KINDS || it->colour > 15 ||
-        (it->kind == VDS_ITEM_TEXT && it->n > VDS_CANVAS_TEXT_MAX) ||
-        (it->kind == VDS_ITEM_ICON && it->extra >= VDS_MAX_BITMAPS) || (it->kind == VDS_ITEM_STIPPLE && it->extra > 15))
+    if (!c || !it || item >= VDS_CANVAS_ITEMS || !it->kind || it->kind >= VDS_DRAW_KINDS || it->colour > 15 ||
+        (it->kind == VDS_DRAW_TEXT && it->n > VDS_CANVAS_TEXT_MAX) ||
+        (it->kind == VDS_DRAW_ICON && it->extra >= VDS_MAX_BITMAPS) || (it->kind == VDS_DRAW_STIPPLE && it->extra > 15))
         return 0;
     vds_item *slot = &items(c)[item];
     if (slot->kind) dirty(c, vds_canvas_item_box(v, id, slot));
     *slot = *it;
-    if (slot->kind != VDS_ITEM_TEXT) slot->n = 0;
+    if (slot->kind != VDS_DRAW_TEXT) slot->n = 0;
     dirty(c, vds_canvas_item_box(v, id, slot));
     return 1;
 }
@@ -310,7 +333,7 @@ int vds_canvas_shift(vds *v, uint8_t id, uint8_t item, int16_t dx, int16_t dy) {
     dirty(c, vds_canvas_item_box(v, id, it));
     it->a = (int16_t)(it->a + dx);
     it->b = (int16_t)(it->b + dy);
-    if (it->kind == VDS_ITEM_LINE) { it->c = (int16_t)(it->c + dx); it->d = (int16_t)(it->d + dy); }
+    if (it->kind == VDS_DRAW_LINE) { it->c = (int16_t)(it->c + dx); it->d = (int16_t)(it->d + dy); }
     dirty(c, vds_canvas_item_box(v, id, it));
     return 1;
 }
@@ -343,7 +366,7 @@ static void bitmap_users(vds *v, uint8_t id) {           /* redraw the canvases 
         vds_canvas *c = &v->canvases[k];
         if (!c->used) continue;
         for (unsigned i = 0; i < VDS_CANVAS_ITEMS; ++i)
-            if (items(c)[i].kind == VDS_ITEM_ICON && items(c)[i].extra == id) { dirty(c, whole(c)); break; }
+            if (items(c)[i].kind == VDS_DRAW_ICON && items(c)[i].extra == id) { dirty(c, whole(c)); break; }
     }
 }
 
