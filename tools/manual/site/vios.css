@@ -383,6 +383,15 @@ figure.shot img {
   border: var(--px) solid var(--frame);
   box-shadow: calc(var(--px) * 4) calc(var(--px) * 4) 0 var(--shadow);
 }
+/* Shrunk below 640 device pixels, nearest-neighbour scaling drops whole pixel
+ * rows, and with them the GUI's one-pixel pane dividers; smooth scaling keeps
+ * them as grey lines. A 2x screen never shrinks a screenshot that far. */
+figure.shot { container-type: inline-size; }
+@media (max-resolution: 1.99dppx) {
+  @container (max-width: 643px) {
+    figure.shot img { image-rendering: auto; }
+  }
+}
 figure.shot figcaption { margin-top: 14px; font: 14px/1.4 var(--text); color: var(--muted); }
 figure.shot.anim figcaption::before { content: "\25B6  "; font-family: var(--pixel); }
 
