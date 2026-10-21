@@ -87,6 +87,28 @@ typedef struct {
     const uint8_t *pixels;      /* owned by the adapter */
 } vds_sprite;
 
+/* G5 canvas (see vds_canvas.h): a pixel layer on a surface at surface pixel
+ * (x, y), x a multiple of 8, drawn over the surface's cells in every window
+ * that shows the surface. The compositor only copies `pixels` (4 bpp rows of
+ * (w + 1) / 2 bytes, high nibble left); vds_canvas.c keeps them up to date
+ * from the canvas's display list. Not shown until VDS_CV_READY. */
+#define VDS_MAX_CANVASES 8
+#define VDS_MAX_BITMAPS 32
+enum { VDS_CV_VISIBLE = 1, VDS_CV_CLEAR = 2, VDS_CV_READY = 128 };
+typedef struct {
+    uint8_t used, flags, surface, bg;   /* VDS_CV_CLEAR: bg pixels show the cells underneath */
+    int16_t x, y, w, h;
+    uint8_t *pixels;                    /* owned by the adapter */
+    void *items;                        /* display list, vds_canvas.c */
+    vds_rect dirty;                     /* canvas pixels still to rasterise */
+} vds_canvas;
+
+/* A 4 bpp bitmap for canvas ICON items, rows of (w + 1) / 2 bytes. */
+typedef struct {
+    uint8_t used, w, h, transparent;
+    const uint8_t *pixels;
+} vds_bitmap;
+
 typedef struct {
     uint32_t frames, rows, spans, pixels, carried, lut_misses, blits;   /* blits: scrolls done as pixel row copies */
 } vds_stats;
@@ -102,6 +124,8 @@ typedef struct vds {
     vds_surface surfaces[VDS_MAX_SURFACES];
     vds_window windows[VDS_MAX_WINDOWS];
     vds_sprite sprites[VDS_MAX_SPRITES];
+    vds_canvas canvases[VDS_MAX_CANVASES];
+    vds_bitmap bitmaps[VDS_MAX_BITMAPS];
     uint8_t order[VDS_MAX_WINDOWS], count;      /* z order, bottom first */
     vds_rect damage[VDS_MAX_DAMAGE];
     uint8_t ndamage;
@@ -166,6 +190,12 @@ int vds_sprite_move(vds *v, uint8_t id, int16_t x, int16_t y);
 int vds_sprite_show(vds *v, uint8_t id, int visible);
 int vds_sprite_undefine(vds *v, uint8_t id);
 vds_rect vds_sprite_rect(const vds *v, uint8_t id);
+
+/* Canvas damage: canvas-local rect r, in every visible window showing the
+ * canvas's surface (vds_canvas.c calls this; the canvas need not be ready). */
+void vds_damage_canvas(vds *v, uint8_t id, vds_rect r);
+/* Screen rect of canvas id inside window win (clipped to the client area). */
+vds_rect vds_canvas_on_window(const vds *v, uint8_t id, uint8_t win);
 
 /* Damage and frames. */
 void vds_damage(vds *v, vds_rect r);

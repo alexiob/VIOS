@@ -123,6 +123,26 @@ static void damage_surface(vds *v, uint8_t sid, int col, int row, int w, int h) 
     }
 }
 
+vds_rect vds_canvas_on_window(const vds *v, uint8_t id, uint8_t win) {
+    const vds_canvas *c = id < VDS_MAX_CANVASES ? &v->canvases[id] : 0;
+    const vds_window *w = win < VDS_MAX_WINDOWS ? &v->windows[win] : 0;
+    if (!c || !w || !c->used || !w->used || c->surface != w->surface) return rect(0, 0, 0, 0);
+    vds_rect r = rect(w->x + c->x - w->scroll_col * 8, w->y + c->y - w->scroll_row * 8, c->w, c->h);
+    return intersect(r, rect(w->x, w->y, w->cols * 8, w->rows * 8));
+}
+
+void vds_damage_canvas(vds *v, uint8_t id, vds_rect r) {
+    if (id >= VDS_MAX_CANVASES || !v->canvases[id].used) return;
+    const vds_canvas *c = &v->canvases[id];
+    for (unsigned i = 0; i < v->count; ++i) {
+        const vds_window *w = &v->windows[v->order[i]];
+        if (w->surface != c->surface || !(w->flags & VDS_W_VISIBLE)) continue;
+        vds_rect d = rect(w->x + c->x - w->scroll_col * 8 + r.x, w->y + c->y - w->scroll_row * 8 + r.y, r.w, r.h);
+        d = intersect(intersect(d, vds_canvas_on_window(v, id, v->order[i])), rect(0, 0, v->width, v->height));
+        if (!empty(d)) vds_damage(v, d);
+    }
+}
+
 /* ------------------------------------------------------------ pixels */
 
 static uint8_t *line(vds *v) { return (uint8_t *)v->line; }
@@ -204,6 +224,40 @@ static uint8_t cell_bits(const vds *v, uint8_t ch, int row) {
     return v->font[ch * 8 + row];
 }
 
+static int shown(const vds_canvas *c) {
+    return c->used && (c->flags & (VDS_CV_VISIBLE | VDS_CV_READY)) == (VDS_CV_VISIBLE | VDS_CV_READY);
+}
+
+/* Canvas pixels [a, b) of screen row y, the canvas's left edge at screen cx
+ * and its row cy. Opaque and byte aligned: a byte copy; otherwise per pixel. */
+static void canvas_row(vds *v, const vds_canvas *c, int cy, int cx, int a, int b) {
+    const uint8_t *src = c->pixels + (size_t)cy * ((c->w + 1u) / 2);
+    uint8_t *ln = line(v);
+    if (!(c->flags & VDS_CV_CLEAR) && !(a & 1) && !(cx & 1)) {
+        memcpy(ln + (a >> 1), src + ((a - cx) >> 1), (size_t)(b - a) >> 1);
+        if ((b - a) & 1) set_px(ln, b - 1, get_px(src, b - 1 - cx));
+        return;
+    }
+    for (int x = a; x < b; ++x) {
+        uint8_t col = get_px(src, x - cx);
+        if (!(c->flags & VDS_CV_CLEAR) || col != c->bg) set_px(ln, x, col);
+    }
+}
+
+static void canvases_row(vds *v, const vds_window *w, int gy, int x0, int x1) {
+    int left = w->x, right = w->x + w->cols * 8;
+    for (unsigned k = 0; k < VDS_MAX_CANVASES; ++k) {
+        const vds_canvas *c = &v->canvases[k];
+        if (!shown(c) || c->surface != w->surface) continue;
+        int cy = gy + w->scroll_row * 8 - c->y, cx = w->x + c->x - w->scroll_col * 8;
+        if (cy < 0 || cy >= c->h) continue;
+        int a = cx > x0 ? cx : x0, b = cx + c->w < x1 ? cx + c->w : x1;
+        if (a < left) a = left;
+        if (b > right) b = right;
+        if (a < b) canvas_row(v, c, cy, cx, a, b);
+    }
+}
+
 static void client_row(vds *v, const vds_window *w, int y, int x0, int x1) {
     int gy = y - w->y;
     if (gy < 0 || gy >= w->rows * 8) return;
@@ -229,6 +283,7 @@ static void client_row(vds *v, const vds_window *w, int y, int x0, int x1) {
             bits = cell_bits(v, cell.ch, grow);
         glyph(v, w->x + c * 8, bits, cell.attr, x0, x1);
     }
+    canvases_row(v, w, gy, x0, x1);
 }
 
 static void window_row(vds *v, const vds_window *w, int y, int x0, int x1) {
@@ -533,7 +588,13 @@ int vds_scroll_rect(vds *v, uint8_t id, uint8_t col, uint8_t row, uint8_t w, uin
         if (win->surface != id || !(win->flags & VDS_W_VISIBLE)) continue;
         vds_rect cells = rect(win->x + (col - win->scroll_col) * 8, win->y + (row - win->scroll_row) * 8, w * 8, h * 8);
         vds_rect r = intersect(intersect(cells, rect(win->x, win->y, win->cols * 8, win->rows * 8)), rect(0, 0, v->width, v->height));
-        if (!empty(r) && !blit_scroll(v, i, r, dy * 8)) vds_damage(v, r);
+        /* Canvases keep their place while the cells under them scroll, so
+         * copying their pixels would move them: recompose instead. */
+        int canvas = 0;
+        for (uint8_t k = 0; k < VDS_MAX_CANVASES && !canvas; ++k)
+            canvas = v->canvases[k].used && (v->canvases[k].flags & VDS_CV_VISIBLE) &&
+                     !empty(intersect(vds_canvas_on_window(v, k, v->order[i]), r));
+        if (!empty(r) && (canvas || !blit_scroll(v, i, r, dy * 8))) vds_damage(v, r);
     }
     if (sf->cur_shape) {   /* the caret's pixels moved with the copy; its cell did not */
         damage_surface(v, id, sf->cur_col, sf->cur_row - dy, 1, 1);

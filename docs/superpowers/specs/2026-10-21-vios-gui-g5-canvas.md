@@ -1,6 +1,8 @@
 # VIOS GUI G5: canvas display lists and icons (design addendum)
 
-Status: **proposal, 2026-10-21, awaiting owner review.** Nothing is built yet.
+Status: **approved by the owner, 2026-10-21**, with every recommendation in §10
+(raster backing, canvases on surfaces that stay put when cells scroll, eight
+built-in icons, bitmaps through `E4` chunks).
 
 This fills in the last unbuilt row of the
 [GUI windows design](2026-10-19-vios-gui-windows.md) (§14 G5, "Canvas display
