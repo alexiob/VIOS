@@ -268,3 +268,33 @@ Board (`tools/vios_gui_canvas_accept.py`, JSON under `docs/bring-up/`):
      the surface and needs a rule for that).
 3. Built-in icon set: the eight above, or none in G5.
 4. Bitmap upload through `E4` chunks instead of `A0` buffers.
+
+## 11. Implementation notes (2026-10-21)
+
+Built on branch `claude/competent-faraday-91e89a`.
+
+- **Library:** `vds_canvas.{h,c}` (list store, rasteriser, icons).
+  - `vds.c` composes canvas rows after the cells of each scanline.
+  - A cell scroll recomposes instead of blitting when a canvas is over it.
+  - Item kinds are `VDS_DRAW_*`: `vds_ui.h` already defines `VDS_ITEM_TEXT`.
+- **Budget:** `vds_proto_frame_within` rasterises first with half the frame's pixels and half its time.
+  - The device limits frames by time only, so rasterising stops by clock.
+  - It checks the clock after bands of at most 640 × 24 pixels.
+- **Lines** are a pure function of the major-axis step.
+  - Only the steps inside the band being drawn are visited.
+  - A far-away item therefore costs what it draws, and banded rasters always equal a whole replay.
+  - Rectangle sides are clipped the same way.
+- **Safety:** a replacing `C0` is checked in full (`vds_canvas_valid`) before the adapter is asked for memory.
+  - The adapter frees the old block when it grows one.
+- **CPU cost**, measured on the eZ80 build (`-Oz`):
+  - 2.8 KB of code plus about 1 KB of strings.
+  - BSS ends at `0xABA15` (main: `0xAAB15`), leaving 13.8 KB below the stack.
+  - The §5 estimate was 1.2 KB.
+- **ESP:**
+  - Flash: 827 KB of 1,310 KB.
+  - Internal RAM: the canvas and bitmap descriptors.
+  - PSRAM: the 16 KB bitmap pool, and canvas memory allocated on first use.
+- **Tests:**
+  - `firmware/esp32-vios/tests/vds_canvas.c`: per-kind goldens, line properties, compositor checks, budgets, and a 6000-step oracle.
+  - The protocol and UI tests cover ops `C0`–`CC`, the tween and the event.
+  - `tests/vios_ui_host.c` checks the Forth words end to end.
