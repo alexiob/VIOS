@@ -6273,10 +6273,10 @@ set, so adding the file changes nothing until you opt in:
 3. In `alexiob/vios-manual`: Settings → Deploy keys → **Add deploy key**,
    paste `vios-manual-deploy.pub`, tick **Allow write access**.
 4. In `alexiob/VIOS`: Settings → Secrets and variables → Actions:
-   - Secrets → **New repository secret** `MANUAL_DEPLOY_KEY` = the contents of
-     `vios-manual-deploy` (the private key). Then delete both key files.
-   - Variables → `MANUAL_DEPLOY` = `public-repo` and `MANUAL_PUBLIC_REPO` =
-     `alexiob/vios-manual`.
+    - Secrets → **New repository secret** `MANUAL_DEPLOY_KEY` = the contents of
+      `vios-manual-deploy` (the private key). Then delete both key files.
+    - Variables → `MANUAL_DEPLOY` = `public-repo` and `MANUAL_PUBLIC_REPO` =
+      `alexiob/vios-manual`.
 5. Push the branch with the manual to `main` (or run the workflow by hand:
    Actions → Manual → **Run workflow**). The first run creates the `gh-pages`
    branch in the public repository.

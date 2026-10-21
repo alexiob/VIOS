@@ -249,6 +249,9 @@ kbd { font-family: var(--pixel); font-size: 16px; }
   line-height: 1;
   word-break: break-word;
 }
+/* Code inside headings and table headers takes their colours and font. */
+th code, th a { color: inherit; }
+th code { font: inherit; background: none; padding: 0; }
 h1 code, h2 code, h3 code, h4 code { font-family: var(--pixel); font-size: 1em; background: none; padding: 0; }
 kbd {
   border: var(--px) solid var(--frame);

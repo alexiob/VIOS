@@ -248,11 +248,11 @@ def page(pid, title, body, chapters, prev, nxt):
 
 def build(out):
     text = MANUAL.read_text()
-    md = markdown.Markdown(extensions=['tables', 'fenced_code', 'toc', 'sane_lists', 'attr_list'],
+    md = markdown.Markdown(extensions=['tables', 'pymdownx.superfences', 'toc', 'sane_lists', 'attr_list'],
                            extension_configs={'toc': {'slugify': gh_slug}})
     body = figures(md.convert(text))
     # Code blocks carry their language as a title tab (forth, sh, text...).
-    body = re.sub(r'<pre><code class="language-([\w-]+)">', r'<pre data-lang="\1"><code class="language-\1">', body)
+    body = re.sub(r'<pre(?: class="highlight")?><code class="language-([\w-]+)">', r'<pre data-lang="\1"><code class="language-\1">', body)
     pages = link_pages(split_pages(body))
     home, chapters = pages[0], [p for p in pages[1:] if p[0] != 'contents']
     contents = next((p for p in pages if p[0] == 'contents'), None)
