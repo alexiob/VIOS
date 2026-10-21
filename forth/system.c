@@ -5,6 +5,7 @@
 #include "platform/console.h"
 #include "platform/system.h"
 #include "vios/config.h"
+#include "vios/version.h"
 #define WORDS_MAX VIOS_FORTH_WORDS_MAX
 #define NAME_MAX 31
 #define TOKEN_BYTES 16384
@@ -1534,7 +1535,7 @@ int forth_transaction_rollback(void) {
 }
 void forth_repl(void) {
  char line[256];unsigned used=0;int overflow=0,cr=0,changed=1;uint32_t idle_since=now_ms();
- print("\r\nVIOS Forth 24 / Agon Light 2\r\nvios> ");
+ print("\r\n" VIOS_BANNER " / Forth 24 / Agon Light 2\r\n" VIOS_COPYRIGHT "\r\nvios> ");
  if(line_mode_hook)line_mode_hook(1);
  for(;;) {
   int c=platform_console_getc();

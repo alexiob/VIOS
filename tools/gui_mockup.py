@@ -110,7 +110,7 @@ FORTH = [
     '',
     ': DEMO   ( -- )  TABLE ;',
 ]
-TRANSCRIPT = ['boot confirmed B', 'VIOS Forth 24 / Agon Light 2',
+TRANSCRIPT = ['boot confirmed B', 'VIOS v0.8 / Forth 24 / Agon Light 2', '(c) 2026 Alessandro Iob',
               'vios> 3 4 + .  7  ok', 'vios> DEMO', '    n    n^2     n^3',
               '   1      1       1', '   2      4       8', '   3      9      27',
               '   4     16      64', 'ok']
