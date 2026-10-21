@@ -2,8 +2,7 @@
 
 **VIOS** is a small, malleable operating system for the
 [Agon Light 2](https://www.olimex.com/Products/Retro-Computers/AgonLight2/),
-built around a resident Forth. The name reads *VI* (four, *Forth*, in Roman
-numerals) + *OS*. You type Forth at a console on the VGA screen or drive the
+built around a resident Forth. You type Forth at a console on the VGA screen or drive the
 same system from a Mac; you browse, edit and replace running code in
 Smalltalk-style windows; and you keep what you build as checked source modules
 on the SD card.

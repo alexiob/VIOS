@@ -77,6 +77,8 @@ body {
 
 /* ---------------------------------------------------------------- menu bar */
 
+/* The menu bar scrolls sideways when it is wider than the screen: a thin
+ * scroll bar and a fade at the clipped edge show that more items follow. */
 .menubar {
   position: sticky;
   top: 0;
@@ -90,11 +92,19 @@ body {
   border-bottom: var(--px) solid var(--ink);
   font: 16px/16px var(--pixel);
   overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
   white-space: nowrap;
-  scrollbar-width: none;
+  scrollbar-width: thin;
+  scrollbar-color: var(--bar-ink) var(--bar);
 }
 :root[data-style="turbo"] .menubar { border-bottom-color: #000000; }
-.menubar::-webkit-scrollbar { display: none; }
+.menubar::-webkit-scrollbar { height: 4px; }
+.menubar::-webkit-scrollbar-thumb { background: var(--bar-ink); }
+.menubar > * { flex: 0 0 auto; }
+.menubar.more-right { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent); }
+.menubar.more-left { -webkit-mask-image: linear-gradient(to left, #000 calc(100% - 40px), transparent); mask-image: linear-gradient(to left, #000 calc(100% - 40px), transparent); }
+.menubar.more-left.more-right { -webkit-mask-image: linear-gradient(to right, transparent, #000 40px, #000 calc(100% - 40px), transparent); mask-image: linear-gradient(to right, transparent, #000 40px, #000 calc(100% - 40px), transparent); }
 .menubar a, .menubar button {
   color: inherit;
   text-decoration: none;
@@ -109,7 +119,7 @@ body {
   color: var(--sel-ink);
   outline: none;
 }
-.menubar nav { display: flex; gap: 4px; }
+.menubar nav { display: flex; gap: 4px; flex: 0 0 auto; }
 .menubar .logo { font-weight: normal; padding-right: 10px; border-right: var(--px) solid currentColor; }
 .mn { color: var(--mn); }
 
@@ -259,8 +269,8 @@ pre {
   box-shadow: calc(var(--px) * 2) calc(var(--px) * 2) 0 var(--shadow);
   tab-size: 4;
 }
-pre[data-lang] { margin-top: 34px; overflow: visible; }
-pre[data-lang] > code { display: block; overflow-x: auto; }
+pre { margin-top: 34px; overflow: visible; }
+pre > code { display: block; overflow-x: auto; }
 pre[data-lang]::before {
   content: attr(data-lang);
   position: absolute;
@@ -276,6 +286,30 @@ pre[data-lang]::before {
 }
 :root[data-style="turbo"] pre[data-lang]::before { background: var(--sel); color: var(--sel-ink); border-color: var(--sel); }
 pre code { background: none; padding: 0; font: inherit; }
+
+/* Copy to clipboard: a pixel clipboard icon in a tab at the block's top right. */
+pre .copy {
+  position: absolute;
+  right: 10px;
+  bottom: 100%;
+  margin-bottom: var(--px);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 21px;
+  padding: 2px 7px;
+  font: 12px/12px var(--pixel);
+  color: var(--tab-ink);
+  background: var(--win);
+  border: var(--px) solid var(--frame);
+  border-bottom: 0;
+  cursor: pointer;
+}
+pre .copy svg { width: 12px; height: 12px; display: block; shape-rendering: crispEdges; fill: currentColor; }
+pre .copy:hover, pre .copy:focus-visible { background: var(--sel); color: var(--sel-ink); outline: none; }
+pre .copy.done { background: var(--tab); color: var(--tab-ink); }
+:root[data-style="turbo"] pre .copy { background: var(--code-bg); color: var(--code-ink); border-color: var(--sel); }
+
 
 /* Tables look like VDS table widgets: a selection-coloured header row. */
 .table-wrap { overflow-x: auto; margin: 0 0 18px; border: var(--px) solid var(--frame); }

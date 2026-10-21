@@ -43,8 +43,7 @@ latest renderer. Do not repeat the initial bring-up as if it were unfinished.
 
 ## 2. User intent and settled decisions
 
-**VIOS** is the OS and project name: **VI** is Fo(u)rth in Roman numerals,
-**OS** is operating system.
+**VIOS** is the OS and project name.
 
 The intended result is a small, malleable, self-contained operating/development
 environment inspired by Unix/Plan 9 and Smalltalk/Genera, built around resident
