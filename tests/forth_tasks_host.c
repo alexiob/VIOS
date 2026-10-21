@@ -76,6 +76,16 @@ int main(void){
  eval("TASK-SLICE 256");eval("0 A !");assert(value("' CA SPAWN")>=1);forth_tasks_run();
  eval("TASKS");assert(has("task-slice 256")&&has("steps 256 "));fails("TASK-SLICE 10","64..65535");
  eval("TASK-SLICE 1024");for(unsigned i=1;i<=FORTH_TASKS_MAX;++i){char k[24];snprintf(k,sizeof k,"%u TASK-KILL",i);eval(k);}
+ /* CRITICAL( ... )CRITICAL is atomic even when a slice's budget runs out
+  * inside it: two tasks x 1000 read-modify-writes of a shared counter with a
+  * delay between the read and the write never lose an update. */
+ eval("TASK-SLICE 64 VARIABLE SHARED 0 SHARED !");
+ eval(": BUMP 1000 0 DO CRITICAL( SHARED @ 20 0 DO LOOP 1+ SHARED ! )CRITICAL LOOP ;");
+ {fcell a=value("' BUMP SPAWN"),b=value("' BUMP SPAWN");unsigned rounds=0;
+  while((value("1 TASK-STATE")==1||value("2 TASK-STATE")==1)&&rounds<100000){forth_tasks_run();++rounds;}
+  assert(a==1&&b==2&&value("SHARED @")==2000&&"no update lost inside CRITICAL");
+  struct forth_task_info t;assert(forth_task_info(1,&t)&&t.slices>2&&"the slices really were cut");}
+ eval("TASK-SLICE 1024");
  /* forth_init clears every slot. */
  assert(value("' FOREVER SPAWN")==1);forth_init();assert(forth_tasks_run()==0);
  puts("background tasks: preemption, yield, sleep, isolation, output rings and guards passed");return 0;

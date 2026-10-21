@@ -182,7 +182,10 @@ int main(int argc, char **argv) {
     /* Tool widgets from Forth: a table, a TextView, read-back, the key policy. */
     p.errors = 0;                                                                   /* UI-WGET of widget 5 above */
     eval("10 1 UI-LIST UI-NONE 0 0 40 4 0 UI-WIDGET  8 12 2 10 UI-COLUMNS  S\" ID\tNAME\" 10 UI-WTEXT");
-    eval("S\" 1\tSQUARE\" 10 UI-ROW  S\" 2\tCUBE\" 10 UI-ROW  10 700 UI-ITEMS  S\" far\" 10 699 UI-ITEM");
+    eval("S\" 1\tSQUARE\" 10 UI-ROW+  S\" 2\tCUBE\" 10 UI-ROW+");                       /* UI-ROW is the layout constant */
+    assert(!fvm_depth && !p.errors && u.widgets[10].count == 2 && !strcmp(u.items[u.widgets[10].first], "1\tSQUARE") && !strcmp(u.items[u.widgets[10].first + 1], "2\tCUBE"));
+    eval("2 UI-ROW = 10 700 UI-ITEMS  S\" far\" 10 699 UI-ITEM");
+    assert(fvm_pop());
     assert(!p.errors && u.widgets[10].count == 700 && u.widgets[10].ncols == 2 && !strcmp(u.items[u.widgets[10].first + 699], "far"));
     eval("11 1 UI-TEXTVIEW UI-NONE 0 5 40 6 0 UI-WIDGET  S\" : SQ DUP * ;\" 11 UI-TEXT  S\"  3 SQ .\" 11 UI-TEXT+");
     eval("11 12 12 UI-SELECT  S\"  9\" 11 UI-INSERT  CREATE BIG 64 ALLOT  11 BIG 64 UI-TEXT@");

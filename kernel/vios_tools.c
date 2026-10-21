@@ -33,7 +33,7 @@ enum { B_ROOT = 40, B_ROW, B_MODULES, B_WORDS, B_INFO, B_CODE, B_STATUS,
 #define WINDOW_OF(t) ((unsigned char)(20 + (t)))
 static const char TITLES[] = "Browser\0Workspace\0Inspector\0Manager\0Confirm";
 static unsigned char open_tools, ready, inspector_tab, manager_tab, first_poll;
-static unsigned epoch, module_row, word_row, table_row[2], pending, pending_arg;
+static unsigned epoch, resets, module_row, word_row, table_row[2], pending, pending_arg;
 static uint32_t since_poll;
 static unsigned short last_tick;
 static char code_module[32];
@@ -185,7 +185,9 @@ static void browser_modules(void) {
     rows_flush();
     wvalue(B_MODULES, module_row);
 }
-static void browser_module(void) {                     /* words, facts and source of the selected module */
+/* Words and facts of the selected module; with load, its source too (an
+ * accept keeps the code pane as typed: it already holds the new source). */
+static void browser_module_panes(int load) {
     struct forth_word_info w;
     struct forth_module_info m, o;
     struct forth_module_dependency d;
@@ -194,9 +196,7 @@ static void browser_module(void) {                     /* words, facts and sourc
     rows_flush();
     word_row = 0;
     rows_begin(B_INFO);
-    code_module[0] = 0;
-    code_is_word = 0;
-    view_clear(B_CODE);
+    if (load) { code_module[0] = 0; code_is_word = 0; view_clear(B_CODE); }
     if (module_row >= 2 && forth_module_info(module_row - 2, &m)) {
         put_s("version "); put_s(m.version); put_row();
         put_s("crc "); put_x(m.source_crc32, 8); put_row();
@@ -212,11 +212,12 @@ static void browser_module(void) {                     /* words, facts and sourc
         const char *source = forth_module_source(m.name, 0);
         for (unsigned i = 0; i < 32; ++i) if (!(code_module[i] = m.name[i])) break;
         code_module[31] = 0;
-        if (source) vios_ui_text(B_CODE, source, len(source), 0);
+        if (load && source) vios_ui_text(B_CODE, source, len(source), 0);
         status(B_STATUS, m.name, m.active ? ": active  Ctrl+S accept  Shift+F10 menu" : ": not active");
     } else status(B_STATUS, module_row ? "core words" : "all words", "  Tab: next pane");
     rows_flush();
 }
+static void browser_module(void) { browser_module_panes(1); }
 static const char *const KINDS[] = {"primitive", "colon", "constant", "variable", "defer", "native"};
 static void browser_word(void) {
     struct forth_word_info w;
@@ -282,6 +283,7 @@ static void browser_accept(void) {
     }
     wvalue(B_CODE, 0);
     browser_modules();
+    browser_module_panes(0);                                /* new words and facts at once, not after Ctrl+R */
     /* Every accept keeps the retired version's code until restart: show the pools. */
     struct forth_resources r;
     forth_inspect_resources(&r);
@@ -493,7 +495,13 @@ static void command_event(unsigned cmd, unsigned tool) {
         else if (tool == BROWSER) { browser_modules(); browser_module(); }
         return;
     case C_SAVE:
-        if (tool == BROWSER && code_module[0]) status(B_STATUS, code_module, save_module(code_module) ? ": saved to SD" : ": not saved (accept first)");
+        if (tool == BROWSER && code_module[0]) {
+            if (save_module(code_module)) status(B_STATUS, code_module, ": saved to SD");
+            else {                                         /* the real reason: another module's draft, SD, ... */
+                const char *why = vios_workbench_error();
+                put_s(code_module); put_s(": not saved: "); put_s(why && *why ? why : forth_last_error()); wtext(B_STATUS, put_end());
+            }
+        }
         if (tool == MANAGER && manager_tab == 1) ask("Save this module to SD?", C_SAVE, table_row[1]);
         return;
     case C_ROLLBACK: if (tool == MANAGER && manager_tab == 1 && forth_module_info(table_row[1], &m)) ask("Roll back this module?", C_ROLLBACK, table_row[1]); return;
@@ -553,7 +561,7 @@ static void setup(void) {
 void vios_tools_idle(void) {
     if (!vios_text_owns_display()) return;
     unsigned e = platform_vdp_epoch();
-    if (!ready || e != epoch) { epoch = e; open_tools = 0; setup(); }
+    if (!ready || e != epoch || vios_ui_resets() != resets) { epoch = e; resets = vios_ui_resets(); open_tools = 0; setup(); }   /* ESP restart or UI-RESET */
     unsigned short now = platform_timer_read();
     since_poll += (unsigned short)(last_tick - now);       /* the timer counts down */
     last_tick = now;

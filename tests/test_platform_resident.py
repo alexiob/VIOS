@@ -27,6 +27,7 @@ class ResidentPlatformTests(unittest.TestCase):
     def test_task_gate_admits_only_quiet_input(self):self.run_probe('gate')
     def test_receive_by_interrupt_ring_gate_and_rts(self):self.run_probe('rx-isr')
     def test_esp_restart_resends_line_flags_once(self):self.run_probe('esp-restart')
+    def test_esp_restart_resends_health_after_a_healthy_boot(self):self.run_probe('esp-restart-ready')
     def test_line_mode_keys_are_plain_input(self):self.run_probe('line-keys')
     def test_echo_coalesces_streamed_input(self):self.run_probe('coalesce')
     def test_line_mode_notices_reach_the_esp_editor(self):self.run_probe('line-notice')

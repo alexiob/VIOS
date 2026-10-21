@@ -163,6 +163,7 @@ int main(int argc, char **argv) {
     assert(ctrl('s'));
     assert(forth_find_xt("QUAD") && strstr(forth_module_source("DEMO", 0), ": QUAD SQUARE SQUARE ;"));
     assert(strstr(u.widgets[B_STATUS].text, "DEMO active; words ") && !vds_ui_text(&u, B_CODE)->dirty);
+    assert(has_item(B_WORDS, "QUAD") && "the words pane shows the accepted version at once");
     eval("3 QUAD");
     assert(fvm_pop() == 81);
     /* A broken accept leaves the live module alone and says why. */
@@ -266,6 +267,18 @@ int main(int argc, char **argv) {
     idle();
     assert(!open(20) && !open(21) && !open(22) && !open(23) && vios_tools_open_mask() == 0);
     assert(!forth_eval("7 TOOL"));
+    fvm_reset();
+    /* UI-RESET clears the ESP, the tools' commands and menus too: the tools
+     * install them again, so their keys open them as before. */
+    eval("2 TOOL");
+    idle();
+    assert(open(22));
+    eval("UI-RESET");
+    idle();
+    assert(!open(22) && vios_tools_open_mask() == 0);
+    assert(ctrl_shift('b') && open(20));
+    eval("-1 TOOL");
+    idle();
     fvm_reset();
     assert(!p.errors && !fvm_depth);
     printf("vios tools checks passed: %u nudges, %u requests, %u bytes to the ESP, %u words\n", nudges, requests, bytes_to_esp, forth_word_count());

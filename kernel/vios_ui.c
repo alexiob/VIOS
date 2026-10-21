@@ -62,7 +62,11 @@ static int text(fcell addr, fcell len, unsigned char *out, unsigned max) {
     return 1;
 }
 
-static int ui_reset(void) { unsigned char o[] = {0x34}; batch_used = 0; event_count = 0; op(o, 1); return 1; }
+/* UI-RESET clears everything on the ESP, the tools' commands and menus too:
+ * the count lets the tools install them again (vios_tools_idle). */
+static unsigned resets;
+unsigned vios_ui_resets(void) { return resets; }
+static int ui_reset(void) { unsigned char o[] = {0x34}; batch_used = 0; event_count = 0; op(o, 1); ++resets; return 1; }
 static int ui_raw(void) { fcell f = fvm_pop(); if (fvm_error) return 0; unsigned char o[] = {0x35, (unsigned char)(f != 0)}; op(o, 2); return 1; }
 static int config(unsigned char key, fcell v, unsigned max, const char *what) {
     if (!range(v, max, what)) return 0;
@@ -543,7 +547,7 @@ int vios_ui_init(void) {
         {"UI-WIDGET", ui_widget}, {"UI-WTEXT", ui_wtext}, {"UI-WVALUE", ui_wvalue}, {"UI-LAYOUT", ui_layout}, {"UI-WSIZE", ui_wsize},
         {"UI-ITEM", ui_item}, {"UI-ITEMS", ui_items}, {"UI-WDELETE", ui_wdelete}, {"UI-WFOCUS", ui_wfocus}, {"UI-WGET", ui_wget},
         {"UI-BEGIN", ui_begin}, {"UI-COMMIT", ui_commit},
-        {"UI-ROW", ui_row}, {"UI-COLUMNS", ui_columns}, {"UI-KEYS", ui_keys}, {"UI-TEXT", ui_text}, {"UI-TEXT+", ui_text_more},
+        {"UI-ROW+", ui_row},   /* append a list row; UI-ROW is the layout constant */ {"UI-COLUMNS", ui_columns}, {"UI-KEYS", ui_keys}, {"UI-TEXT", ui_text}, {"UI-TEXT+", ui_text_more},
         {"UI-INSERT", ui_insert}, {"UI-SELECT", ui_select}, {"UI-TEXT@", ui_text_get},
         {"UI-SYNC", ui_sync}, {"UI-EVENT", ui_event}, {"UI-NEXT", ui_next}};
     batch_used = batching = event_head = event_count = 0;

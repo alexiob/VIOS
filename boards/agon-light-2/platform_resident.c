@@ -99,12 +99,17 @@ static void esp_line_update(void){
 }
 /* U5: the ESP restarted while VIOS kept running (user mode; it cannot reload
  * the CPU) and starts with its defaults: resend the line flags, count an
- * epoch for display owners (platform_vdp_epoch). Runs outside poll(). */
+ * epoch for display owners (platform_vdp_epoch), and, once this boot was
+ * healthy, say so again: otherwise the restarted ESP waits for a MOS stub
+ * that never comes and the host cannot connect. Runs outside poll(). */
 static unsigned esp_epoch;
+static int boot_reported_ready;
+static const unsigned char boot_ready_command[]={23,0,0xE2,1};
 static void esp_restart_check(void){
  unsigned char reason[4];unsigned n;
  if(!vdp_transport_packet(&rx,VIOS_PACKET_ESP_RESTART,reason,sizeof reason,&n))return;
  ++esp_epoch;esp_line_flags=0xFF;esp_line_update();
+ if(boot_reported_ready)platform_vdp_send(boot_ready_command,sizeof boot_ready_command);
 }
 unsigned platform_vdp_epoch(void){esp_restart_check();return esp_epoch;}
 int platform_vdp_nudged(void){unsigned char b[4];unsigned n;ez80_uart0_rx_pause();poll();return vdp_transport_packet(&rx,0xF0,b,sizeof b,&n);}
@@ -185,6 +190,6 @@ void platform_console_rx_interrupts(void){
  unsigned n;while((n=ez80_uart0_rx_drain(incoming))!=0)for(unsigned i=0;i<n;++i)vdp_transport_feed(&rx,incoming[i]);
  vios_rx_head=vios_rx_tail=0;rx_isr=1;vios_uart0_isr_enable();
 }
-void platform_boot_ready(void) {static const unsigned char command[]={23,0,0xE2,1};platform_vdp_send(command,sizeof command);}
+void platform_boot_ready(void) {platform_vdp_send(boot_ready_command,sizeof boot_ready_command);boot_reported_ready=1;}
 void platform_boot_trial(void) {static const unsigned char command[]={23,0,0xE2,0};platform_vdp_send(command,sizeof command);}
 const char *platform_identity(void) {return "VIOS / Agon Light 2 / native24 / VDP+USB multiplex / SD SPI";}

@@ -86,7 +86,7 @@ struct task {
  fcell xt,depth,rdepth,ldepth,ip,ds_peak,rs_peak,base;   /* base: the task's own BASE (B5) */
  uint32_t wake,slices,steps;
  unsigned short out_head,out_count;unsigned out_dropped;
- unsigned char state,console,in_handle,out_handle,finishing,out[FORTH_TASK_OUT];
+ unsigned char state,console,in_handle,out_handle,finishing,critical,out[FORTH_TASK_OUT];   /* critical: its own CRITICAL( depth */
  char error[48];
 };
 static struct task tasks[FORTH_TASKS_MAX];
@@ -94,6 +94,7 @@ static struct {
  fcell ds[FVM_DS],rs[FVM_RS],loops[FVM_LOOPS*2];
  fcell depth,rdepth,ldepth,ip,error,budget,ds_peak,rs_peak;
  char error_text[96];
+ unsigned char critical;
 } foreground;
 static int running=-1,scheduling,yield_request;
 static fcell task_slice=FORTH_TASK_SLICE; /* instructions per background slice */
@@ -326,7 +327,9 @@ static int dispatch(void) {
   }
   if(transaction_active)transaction_budget=fvm_budget;
   if(observer_active)observer_budget=fvm_budget;
-  if(running>=0&&fvm_error==FE_BUDGET){fvm_error=0;return 2;}
+  /* A slice ends when its budget runs out, but not inside CRITICAL( ...
+   * )CRITICAL: the section runs to its end (a wait inside it still yields). */
+  if(running>=0&&fvm_error==FE_BUDGET){fvm_error=0;if(critical){fvm_budget=task_slice;continue;}return 2;}
   if(tracing&&running<0&&fvm_error==FE_BUDGET){
    if(!trace_left)return fail("trace step limit reached");
    fvm_error=0;trace_step();fvm_budget=1;continue;
@@ -413,12 +416,14 @@ static void run_slice(unsigned id) {
  foreground.error=fvm_error;foreground.budget=fvm_budget;foreground.ds_peak=fvm_ds_peak;foreground.rs_peak=fvm_rs_peak;
  cells(foreground.ds,fvm_ds,fvm_depth);cells(foreground.rs,fvm_rs,fvm_rdepth);cells(foreground.loops,fvm_loops,fvm_ldepth*2);
  copy(foreground.error_text,error_text);
+ foreground.critical=critical;critical=t->critical;   /* CRITICAL( depth is per context, not global */
  cells(fvm_ds,t->ds,t->depth);cells(fvm_rs,t->rs,t->rdepth);cells(fvm_loops,t->loops,t->ldepth*2);
  fvm_depth=t->depth;fvm_rdepth=t->rdepth;fvm_ldepth=t->ldepth;fvm_ip=t->ip;fvm_error=0;fvm_budget=task_slice;
  fvm_ds_peak=t->ds_peak;fvm_rs_peak=t->rs_peak;error_text[0]=0;
  fcell foreground_base=fvm_read_cell(base_address);fvm_write_cell(base_address,t->base);   /* per-task BASE (B5) */
  running=(int)id;yield_request=0;preempt_clear();fvm_budget=task_slice;preempt_plan();if(tick_source)tick_source();
  int result=dispatch();running=-1;preempt_clear();
+ t->critical=critical;critical=foreground.critical;
  t->base=fvm_read_cell(base_address);fvm_write_cell(base_address,foreground_base);
  t->steps+=task_slice-fvm_budget;++t->slices;t->ds_peak=fvm_ds_peak;t->rs_peak=fvm_rs_peak;
  if(t->state==TS_KILLED){}
@@ -532,7 +537,7 @@ static unsigned task_start(fcell xt,int console,unsigned in_handle,unsigned out_
   if(t->state==TS_READY||t->state==TS_SLEEPING||(int)i==running)continue;
   if(t->console&&t->out_count)continue;   /* its held console text has not been printed yet */
   t->xt=xt;t->depth=t->rdepth=t->ldepth=0;t->ip=entry_ip((unsigned)(xt-1));t->ds_peak=t->rs_peak=0;
-  t->wake=t->slices=t->steps=0;t->out_head=t->out_count=0;t->out_dropped=0;t->error[0]=0;t->console=(unsigned char)console;
+  t->wake=t->slices=t->steps=0;t->out_head=t->out_count=0;t->out_dropped=0;t->error[0]=0;t->console=(unsigned char)console;t->critical=0;
   t->in_handle=(unsigned char)in_handle;t->out_handle=(unsigned char)out_handle;t->finishing=0;t->state=TS_READY;
   t->base=fvm_read_cell(base_address);   /* a new task starts in its spawner's radix */
   preempt_plan();return i+1;   /* a ready task: arm the foreground quantum now */
