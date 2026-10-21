@@ -6,7 +6,7 @@ For continued development, start with the [Claude handoff](CLAUDE_HANDOFF.md):
 current implementation, hardware/recovery workflow, known limits and the roadmap
 toward the full system.
 
-New here? Read the [user guide](docs/USER-GUIDE.md).
+New here? Read the [VIOS manual](docs/manual/VIOS-MANUAL.md) (build, install, set up and use VIOS; every word; examples). The older [user guide](docs/USER-GUIDE.md) is a short summary.
 
 ## October 18–19 additions
 
