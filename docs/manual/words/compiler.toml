@@ -1,0 +1,103 @@
+# The extensible compiler: forth/system.c (spec 2026-10-21-vios-extensible-compiler.md)
+
+[[word]]
+name = "STATE"
+section = "compiler"
+effect = "( -- addr )"
+desc = "A variable that holds true while a definition is being compiled and false while interpreting. Read it, do not store into it: use [ and ] to switch."
+example = "STATE @ .  \\ 0"
+
+[[word]]
+name = "["
+section = "compiler"
+effect = "( -- )"
+desc = "Parser keyword: switch to interpreting inside an open definition, for example to compute a value at compile time."
+example = ": DAY [ 60 60 * 24 * ] LITERAL ;"
+
+[[word]]
+name = "]"
+section = "compiler"
+effect = "( -- )"
+desc = "Parser keyword: switch back to compiling. Needs an open definition."
+
+[[word]]
+name = "LITERAL"
+section = "compiler"
+effect = "compile: ( x -- )  run: ( -- x )"
+desc = "Parser keyword, compile-only: compile the number on the stack as a literal, typically after [ ... ]."
+
+[[word]]
+name = "IMMEDIATE"
+section = "compiler"
+effect = "( -- )"
+desc = "Parser keyword: make the word just defined immediate, so inside definitions it runs at compile time instead of being compiled. It applies only to a word defined in the same unit (line, LOAD or module)."
+example = ": UNLESS POSTPONE 0= POSTPONE IF ; IMMEDIATE"
+
+[[word]]
+name = "POSTPONE"
+section = "compiler"
+effect = "( \"name\" -- )"
+desc = "Parser keyword, compile-only: compile name's compilation behaviour into the current definition. For an ordinary word that compiles code that will compile a call to it; for an immediate word or a control keyword (IF, THEN, DO ...) it makes the word act when the new word runs. Postponing a parsing keyword (S\", .\", [CHAR], ['], IS, POSTPONE) is refused."
+
+[[word]]
+name = "COMPILE,"
+section = "compiler"
+effect = "( xt -- )"
+desc = "Compile a call to xt into the open definition (constants and variables are inlined, as the compiler does). Refused in background tasks."
+
+[[word]]
+name = "FIND"
+section = "compiler"
+effect = "( c-addr -- c-addr 0 | xt 1 | xt -1 )"
+desc = "Look up a counted string (case-insensitive): 1 for an immediate word, -1 for an ordinary one, 0 if not found. Parser keywords are not dictionary words and give 0."
+
+[[word]]
+name = "EVALUATE"
+section = "compiler"
+effect = "( i*x addr u -- j*x )"
+desc = "Interpret a string as if it were typed, sharing the compiler state, so inside an immediate word it compiles into the open definition (a text macro). Nests up to 4 levels, at most 512 bytes of text each. Refused in background tasks; outer commands, SYNC and ABORT are not available inside it."
+example = "S\" 2 3 + .\" EVALUATE  \\ 5"
+
+[[word]]
+name = "DOES>"
+section = "defining"
+effect = "( -- )  child: ( -- addr ) then the code after DOES>"
+desc = "Parser keyword, used in a defining word after CREATE: ends the defining part; each word it creates then pushes its data address and runs the code after DOES>. Callers inline a child's address."
+example = ": CONST CREATE , DOES> @ ;  42 CONST ANSWER  ANSWER .  \\ 42"
+
+[[word]]
+name = ">BODY"
+section = "defining"
+effect = "( xt -- addr )"
+desc = "The data address of a word made by CREATE, VARIABLE or a DOES> defining word; fails for other kinds."
+
+[[word]]
+name = "MARKER"
+section = "defining"
+effect = "( \"name\" -- )  name: ( -- )"
+desc = "Create a word that, when run, removes itself and every word defined after it and gives back their dictionary, code, data, name and source-map space. It refuses to remove module words, words a DEFER is still bound to, or code while tasks are live. Run it from the prompt."
+example = "MARKER SCRATCH"
+
+[[word]]
+name = "(MARKER)"
+section = "defining"
+effect = "( -- )"
+desc = "Internal: the code a MARKER word runs to cut the dictionary back."
+
+[[word]]
+name = "(DOES>)"
+section = "defining"
+effect = "( t d -- )"
+desc = "Internal: compiled by DOES>; at run time it turns the word just CREATEd into a child that runs the does-part."
+
+[[word]]
+name = "(KEYWORD)"
+section = "compiler"
+effect = "( id -- )"
+desc = "Internal: compiled by POSTPONE of a control keyword; runs that keyword's compiler action when the new word executes."
+
+[[word]]
+name = "(EVAL-RETURN)"
+section = "compiler"
+effect = "( -- )"
+desc = "Internal: the return point EVALUATE uses to come back from words it runs."

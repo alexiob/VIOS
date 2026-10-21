@@ -443,28 +443,28 @@ example = ': SHOW BOUNDS ?DO I C@ EMIT LOOP ;  S" hi" SHOW  \ hi'
 name = ","
 section = "memory"
 effect = "( x -- )"
-desc = "Parser keyword: append a cell to data space. Interpretation only (\"data-space word inside definition\"); fails with \"data space full\" past 8192 bytes."
+desc = "Append a cell to data space. Works at the prompt and inside definitions (defining words); refused in background tasks. Fails with \"data space full\" past 8192 bytes."
 example = 'CREATE T1 10 , 20 ,  T1 CELL+ @ .  \ 20'
 
 [[word]]
 name = "C,"
 section = "memory"
 effect = "( c -- )"
-desc = "Parser keyword: append one byte to data space. Interpretation only."
+desc = "Append one byte to data space. Works at the prompt and inside definitions; refused in background tasks."
 example = 'CREATE CS1 3 C, 65 C, 66 C, 67 C,  CS1 COUNT TYPE  \ ABC'
 
 [[word]]
 name = "ALLOT"
 section = "memory"
 effect = "( u -- )"
-desc = "Parser keyword: reserve u zeroed bytes of data space. Interpretation only; a negative u fails (\"negative ALLOT\"). If the first ALLOT after CREATE does not fit, the CREATEd word is removed again."
+desc = "Reserve u zeroed bytes of data space; a negative u fails (\"negative ALLOT\"). Works inside definitions too (defining words with DOES>). If the first ALLOT after CREATE does not fit, the CREATEd word is removed again."
 example = 'CREATE BUF1 16 ALLOT  BUF1 16 ERASE'
 
 [[word]]
 name = "HERE"
 section = "memory"
 effect = "( -- addr )"
-desc = "Parser keyword: the next free data-space address. Interpretation only; to use it later, save it with CONSTANT."
+desc = "The next free data-space address. Works at the prompt and inside definitions."
 example = 'HERE 3 ALLOT HERE SWAP - .  \ 3'
 
 # ---------------------------------------------------------------- numbers
@@ -672,28 +672,28 @@ example = ': HELLO ." hello" ;  HELLO  \ hello'
 name = "VARIABLE"
 section = "defining"
 effect = "( \"name\" -- )  name: ( -- addr )"
-desc = "Parser keyword: create a word that pushes the address of a fresh 3-byte cell in data space, initialised to 0. Interpretation only."
+desc = "Create a word that pushes the address of a fresh 3-byte cell in data space, initialised to 0. A dictionary word: it can be used inside definitions, ticked and postponed."
 example = 'VARIABLE SCORE  10 SCORE !  SCORE ?  \ 10'
 
 [[word]]
 name = "CONSTANT"
 section = "defining"
 effect = "( x \"name\" -- )  name: ( -- x )"
-desc = "Parser keyword: create a word that pushes x. Callers compile the value as a literal, so redefining the constant later does not change them."
+desc = "Create a word that pushes x. Callers compile the value as a literal, so redefining the constant later does not change them. A dictionary word, usable inside defining words."
 example = '7 CONSTANT DAYS  DAYS .  \ 7'
 
 [[word]]
 name = "CREATE"
 section = "defining"
 effect = "( \"name\" -- )  name: ( -- addr )"
-desc = "Parser keyword: create a word that pushes the current data-space address; reserve its body with ALLOT, `,` or `C,`. Interpretation only; there is no DOES>."
+desc = "Create a word that pushes its data-space address; reserve its body with ALLOT, `,` or `C,`. Works inside definitions, where DOES> can then give the new word its own behaviour (see Extending the compiler)."
 example = 'CREATE PRIMES 2 , 3 , 5 ,  PRIMES 2 CELLS + @ .  \ 5'
 
 [[word]]
 name = "DEFER"
 section = "defining"
 effect = "( \"name\" -- )  name: ( i*x -- j*x )"
-desc = "Parser keyword: create a replaceable binding. Calling it runs the word stored with IS; compiled callers follow every rebinding. Executing an unbound DEFER fails with \"invalid execution token\"."
+desc = "Create a replaceable binding. Calling it runs the word stored with IS; compiled callers follow every rebinding. Executing an unbound DEFER fails with \"invalid execution token\". A dictionary word."
 example = "DEFER GREET  : HI .\" hi\" ;  ' HI IS GREET  GREET  \\ hi"
 
 [[word]]
@@ -857,7 +857,7 @@ example = 'WORDS'
 name = "SEE"
 section = "inspect"
 effect = "( \"name\" -- )"
-desc = "Parser keyword: show a colon word's stored source (upper case, comments removed) or `primitive NAME` / `data word NAME`, then a metadata line: xt, kind (0 primitive, 1 colon, 2 constant, 3 variable, 4 defer, 5 native), code addresses and sizes for both code formats, and the module it came from."
+desc = "Parser keyword: show a colon word's stored source (upper case, comments removed) or `primitive NAME` / `data word NAME`, then a metadata line: xt, kind (0 primitive, 1 colon, 2 constant, 3 variable, 4 defer, 5 native, 6 does, 7 marker), code addresses and sizes for both code formats, the module it came from, and ` immediate` for an immediate word."
 example = ': CUBE DUP DUP * * ;  SEE CUBE'
 
 [[word]]

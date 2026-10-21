@@ -1247,7 +1247,7 @@ several lines at the prompt: while one is open, the prompt reads
 
 Definitions cannot nest (`nested definition`), and some words are refused
 inside them; the error names the reason (`compile-only word`,
-`data-space word inside definition`, `interactive tool inside definition`).
+`interactive tool inside definition`).
 
 #### How a line is read
 
@@ -1259,15 +1259,18 @@ For each token the reader tries, in this order:
    [Modules and Persistence](#modules-and-persistence).
 2. **Parser keywords**: `:` `;` `IF` `ELSE` `THEN` `BEGIN` `UNTIL` `AGAIN`
    `WHILE` `REPEAT` `DO` `?DO` `LOOP` `+LOOP` `LEAVE` `RECURSE` `EXIT`
-   `VARIABLE` `CONSTANT` `DEFER` `IS` `'` `[']` `CHAR` `[CHAR]` `S"` `."`
-   `CREATE` `ALLOT` `HERE` `,` `C,` and the tools `WORDS` `.S` `SEE`
-   `RESOURCES` `ENGINE` `TRACE` `LAST-ERROR` `ABORT` `SYNC` (plus
-   `TASKS`, `TASK-OUT`, `TASK-SLICE` and, on the board, `BENCH`). These are
-   handled by the compiler itself. They are not dictionary entries: `WORDS`
-   does not list them, `'` cannot take their execution token, and defining a
-   word with the same name has no effect on them.
+   `IS` `'` `[']` `CHAR` `[CHAR]` `S"` `."` `[` `]` `LITERAL` `IMMEDIATE`
+   `POSTPONE` `DOES>` and the tools `WORDS` `.S` `SEE` `RESOURCES` `ENGINE`
+   `TRACE` `LAST-ERROR` `ABORT` `SYNC` (plus `TASKS`, `TASK-OUT`,
+   `TASK-SLICE` and, on the board, `BENCH`). These are handled by the
+   compiler itself. They are not dictionary entries: `WORDS` does not list
+   them, `'` cannot take their execution token, and defining a word with the
+   same name has no effect on them. The control-structure and string keywords
+   can still be used in your own compiling words through
+   [`POSTPONE`](#w-postpone) (see [Extending the compiler](#extending-the-compiler)).
 3. **Dictionary words**, newest definition first. Interactively the word
-   runs; inside a definition a call to it is compiled.
+   runs; inside a definition a call to it is compiled, unless the word is
+   *immediate*, in which case it runs at once, during compilation.
 4. **Numbers**, as described above.
 
 #### Comments
@@ -1435,12 +1438,11 @@ SCRATCH 4 TYPE CR
 
 Rules that differ from other Forths:
 
-- `CREATE`, `ALLOT`, `HERE`, `,` and `C,` act only at interpretation time;
-  inside a definition they fail with `data-space word inside definition`.
-  Data space cannot grow while a word runs. To use an address later, save
-  it with `HERE CONSTANT NAME`.
-- There is no `DOES>`. A defining word cannot be written in Forth; use
-  `CREATE` directly or a table plus an accessor word.
+- `CREATE`, `ALLOT`, `HERE`, `,`, `C,`, `VARIABLE`, `CONSTANT` and `DEFER`
+  are ordinary words, so they also work inside definitions: that is how you
+  write your own defining words with [`DOES>`](#w-doesgt) (see
+  [Extending the compiler](#extending-the-compiler)). Words that grow the
+  dictionary are refused in background tasks.
 - `ALLOT` refuses negative sizes (`negative ALLOT`), and a request that does
   not fit fails with `data space full`. If that happens on the first `ALLOT`
   after a `CREATE`, the new word is removed again, so no name is left
@@ -1595,6 +1597,104 @@ A module may rebind a service while it loads, but it may not *unbind* one
 that was active before (`cannot unbind an active service during module
 activation`); see [Modules and Persistence](#modules-and-persistence).
 
+### Extending the compiler
+
+The compiler can be extended from Forth: you can write words that run while a
+definition is being compiled, build your own control structures, and define
+new defining words. These are the classic Forth tools; VIOS implements them on
+all three engines.
+
+**Immediate words.** [`IMMEDIATE`](#w-immediate) marks the word just defined
+as immediate: inside a definition it runs at once instead of being compiled.
+[`POSTPONE`](#w-postpone) `name` compiles what `name` would do inside a
+definition, so an immediate word can lay down code. A new control word built
+on `IF`:
+
+```forth
+: UNLESS ( flag -- ) POSTPONE 0= POSTPONE IF ; IMMEDIATE
+: CHECK ( n -- ) 0> UNLESS ." not positive " THEN ;
+-5 CHECK  7 CHECK CR
+```
+
+```text
+not positive
+```
+
+`SEE` shows ` immediate` at the end of an immediate word's metadata line.
+`IMMEDIATE` applies only to a word defined in the same unit (the same line
+or `LOAD`, or the same module); it cannot re-flag a module's words from the
+console.
+
+**Compile-time arithmetic.** [`[`](#w-lb) switches to interpreting inside a
+definition and [`]`](#w-rb) switches back; [`LITERAL`](#w-literal) compiles
+the number on the stack. [`STATE`](#w-state) holds true while compiling.
+
+```forth
+: SECONDS-PER-DAY [ 60 60 * 24 * ] LITERAL ;
+SECONDS-PER-DAY .
+```
+
+```text
+86400
+```
+
+**Defining words.** Because [`CREATE`](#w-create), [`ALLOT`](#w-allot) and
+[`,`](#w-comma) now work inside definitions, [`DOES>`](#w-doesgt) can give
+the words a defining word makes their own behaviour: each child pushes its
+data address and runs the code after `DOES>`. [`>BODY`](#w-gtbody) gives a
+child's data address from its execution token.
+
+```forth
+: CONST ( x "name" -- ) CREATE , DOES> @ ;
+42 CONST ANSWER  ANSWER .
+: ARRAY ( n "name" -- ) CREATE CELLS ALLOT DOES> ( i -- addr ) SWAP CELLS + ;
+10 ARRAY SCORES  77 3 SCORES !  3 SCORES @ .
+' ANSWER >BODY @ .
+```
+
+```text
+42 77 42
+```
+
+Callers of a `DOES>` child inline its data address, so it runs about as fast
+as a dedicated "does" primitive would.
+
+**Text as code.** [`EVALUATE`](#w-evaluate) `( addr u -- )` interprets a
+string as if typed, sharing the compiler state, so it also works as a text
+macro inside an immediate word. It nests up to 4 levels deep and takes at most
+512 bytes of text per level.
+
+```forth
+S" 2 3 + ." EVALUATE
+: SQ S" DUP *" EVALUATE ; IMMEDIATE
+: CUBE3 DUP SQ * ;  4 CUBE3 .
+```
+
+**Looking words up.** [`FIND`](#w-find) `( c-addr -- c-addr 0 | xt 1 | xt -1 )`
+looks up a counted string (1: immediate, -1: normal; parser keywords give 0).
+[`COMPILE,`](#w-compilecomma) `( xt -- )` compiles a call to a word into the
+open definition.
+
+**Throwing code away.** [`MARKER`](#w-marker) `name` makes a word that, when
+run, removes itself and everything defined after it, and gives back the
+dictionary entries, code, data and source-map space they used:
+
+```forth
+MARKER SCRATCH
+: TEMP1 1 ; : TEMP2 2 ;
+SCRATCH
+```
+
+A marker refuses to cut through module words, a `DEFER` still bound to a word
+it would remove, or code a live task might run. Use modules for code you keep.
+
+**Where they run.** Words that grow the dictionary (`CREATE`, `,`, `ALLOT`,
+`COMPILE,`, `EVALUATE`, markers ...) work at the prompt and in module source,
+but are refused in background tasks, in a module's test word and in observer
+hooks. Immediate words used in module source run on the C reference engine
+inside the module's transaction, so a module that fails to compile still
+leaves nothing behind.
+
 ### Execution engines
 
 The compiler emits every colon definition in two forms at once:
@@ -1701,7 +1801,6 @@ The messages you will meet most:
 | `compile-only word` | `IF`, `DO` and friends outside a definition |
 | `unbalanced control flow` | `;` with an open `IF`/`BEGIN`/`DO`, or `THEN` without `IF` |
 | `nested definition` | `:` inside a definition |
-| `data-space word inside definition` | `CREATE`, `ALLOT`, `HERE`, `,`, `C,` in a definition |
 | `use ['] in definitions` / `use [CHAR] in definitions` | `'` or `CHAR` in a definition |
 | `invalid execution token` | `EXECUTE` of 0 or a bad xt, an unbound `DEFER` |
 | `dictionary full` / `code dictionary full` / `source dictionary full` / `data space full` | an arena is exhausted (see [Limits](#limits)) |
@@ -1804,12 +1903,13 @@ system. The main differences:
 - **Symmetric division**: `/` and `MOD` truncate toward zero. `*/` has no
   double-cell intermediate. There are no double-cell words (`M*`, `UM/MOD`,
   `D+` ...).
-- **A fixed compiler instead of an extensible one**: control structures,
-  defining words and string words are parser keywords. There is no
-  `IMMEDIATE`, `POSTPONE`, `[` `]`, `LITERAL`, `STATE`, `EVALUATE`,
-  `DOES>`, `>BODY`, `FIND`, `MARKER` or `FORGET`.
-- **Data space only at interpretation time**: `CREATE ALLOT HERE , C,` are
-  refused inside definitions.
+- **Keywords instead of immediate words**: control structures and string
+  words are parser keywords, not dictionary entries. `FIND` returns 0 for them
+  and `'` refuses them, but [`POSTPONE`](#w-postpone) handles them, so
+  `: UNLESS POSTPONE 0= POSTPONE IF ; IMMEDIATE` works. `POSTPONE` of a
+  parsing keyword (`S"`, `."`, `[CHAR]`, `[']`, `IS`, `POSTPONE`) is refused.
+- **No `FORGET`**: use [`MARKER`](#w-marker), or modules, to remove code.
+  There is no `CS-PICK`/`CS-ROLL`; the control-flow stack is internal.
 - **`'` and `CHAR` are interpretation-only**; use `[']` and `[CHAR]` in
   definitions.
 - **Separate loop stack**: `>R` inside a `DO` loop does not hide `I`; still
@@ -1841,6 +1941,8 @@ list is in [Appendix B: Limits and Numbers](#appendix-b-limits-and-numbers)):
 | --- | --- | --- |
 | Dictionary entries | 512 | `include/vios/config.h` |
 | Name length | 31 characters | `forth/system.c` |
+| Name pool (all word names) | 5120 bytes | `forth/system.c` (`VIOS_FORTH_NAME_BYTES`) |
+| `EVALUATE` nesting / text | 4 levels, 512 bytes each | `forth/system.c` (`EVAL_POOL`) |
 | Token code arena | 16384 bytes | `forth/system.c` |
 | Direct code arena | 32768 bytes | `forth/system.c` |
 | Data space | 8192 bytes | `forth/system.c` |
@@ -1851,7 +1953,7 @@ list is in [Appendix B: Limits and Numbers](#appendix-b-limits-and-numbers)):
 | Open control structures while compiling | 64 | `forth/system.c` |
 | Pending `LEAVE`/`?DO` exits | 16 per definition | `forth/system.c` |
 | Source-map entries (for `TRACE`/`LAST-ERROR` source tokens) | 1792 | `forth/system.c` |
-| Native services | 120 | `forth/system.c` |
+| Native services | 150 | `forth/system.c` |
 | Instructions per interactive command | 1,000,000 | `forth/system.c` |
 | `TRACE` steps | 1..100000 | `forth/system.c` |
 | REPL input line | 255 characters | `forth/system.c` |
@@ -5751,9 +5853,9 @@ untouched, so you can load them together; run one loop at a time.
 
 <!-- BEGIN WORD REFERENCE (generated by tools/vios_manual.py words) -->
 
-This reference lists all 388 words that VIOS accepts, generated from the sources by `tools/vios_manual.py words`. **Kind** is how the word is made: *primitive* (a VM opcode), *native* (a C function), *prelude* or *colon* (defined in Forth; the definition is shown), *constant*, *variable*, *defer* (a replaceable binding), *compiler* (parsed by the outer interpreter) or *command* (a line command parsed by the kernel; the rest of the line is its argument). Words marked **board** do real work only on the board (on the host build they talk to stubs).
+This reference lists all 404 words that VIOS accepts, generated from the sources by `tools/vios_manual.py words`. **Kind** is how the word is made: *primitive* (a VM opcode), *native* (a C function), *prelude* or *colon* (defined in Forth; the definition is shown), *constant*, *variable*, *defer* (a replaceable binding), *compiler* (parsed by the outer interpreter) or *command* (a line command parsed by the kernel; the rest of the line is its argument). Words marked **board** do real work only on the board (on the host build they talk to stubs).
 
-**Sections:** [Stack](#ref-stack) · [Arithmetic](#ref-arith) · [Bits and logic](#ref-logic) · [Comparison](#ref-compare) · [Memory and data space](#ref-memory) · [Numbers and BASE](#ref-numbers) · [Control flow](#ref-control) · [Defining words](#ref-defining) · [Strings and characters](#ref-strings) · [Output](#ref-output) · [Input](#ref-input) · [Inspection and debugging](#ref-inspect) · [Engines and benchmarks](#ref-engine) · [System services](#ref-system) · [Time and interrupts](#ref-timing) · [Display and VDP](#ref-display) · [Audio](#ref-audio) · [Tasks](#ref-tasks) · [Pipes and pipelines](#ref-pipes) · [Handles and devices](#ref-handles) · [Files and loading](#ref-files) · [Modules](#ref-modules) · [Boot slots](#ref-boot) · [GUI: setup and batching](#ref-ui-setup) · [GUI: windows](#ref-ui-window) · [GUI: surfaces and cells](#ref-ui-surface) · [GUI: commands and menus](#ref-ui-menu) · [GUI: widgets](#ref-ui-widget) · [GUI: text views](#ref-ui-text) · [GUI: events](#ref-ui-event) · [GUI: animation](#ref-ui-anim) · [GUI: canvases and icons](#ref-ui-canvas) · [GUI: sprites and pointer](#ref-ui-sprite) · [GUI: constants](#ref-ui-const) · [GUI tools](#ref-tools) · [Text workbench](#ref-workbench)
+**Sections:** [Stack](#ref-stack) · [Arithmetic](#ref-arith) · [Bits and logic](#ref-logic) · [Comparison](#ref-compare) · [Memory and data space](#ref-memory) · [Numbers and BASE](#ref-numbers) · [Control flow](#ref-control) · [Defining words](#ref-defining) · [Extending the compiler](#ref-compiler) · [Strings and characters](#ref-strings) · [Output](#ref-output) · [Input](#ref-input) · [Inspection and debugging](#ref-inspect) · [Engines and benchmarks](#ref-engine) · [System services](#ref-system) · [Time and interrupts](#ref-timing) · [Display and VDP](#ref-display) · [Audio](#ref-audio) · [Tasks](#ref-tasks) · [Pipes and pipelines](#ref-pipes) · [Handles and devices](#ref-handles) · [Files and loading](#ref-files) · [Modules](#ref-modules) · [Boot slots](#ref-boot) · [GUI: setup and batching](#ref-ui-setup) · [GUI: windows](#ref-ui-window) · [GUI: surfaces and cells](#ref-ui-surface) · [GUI: commands and menus](#ref-ui-menu) · [GUI: widgets](#ref-ui-widget) · [GUI: text views](#ref-ui-text) · [GUI: events](#ref-ui-event) · [GUI: animation](#ref-ui-anim) · [GUI: canvases and icons](#ref-ui-canvas) · [GUI: sprites and pointer](#ref-ui-sprite) · [GUI: constants](#ref-ui-const) · [GUI tools](#ref-tools) · [Text workbench](#ref-workbench)
 
 <a id="ref-stack"></a>
 
@@ -5860,10 +5962,10 @@ Fetching, storing and reserving data space.
 | <a id="w-q"></a>`?` | `( addr -- )` | Print the cell at addr (`@ .`). Example: `VARIABLE Q1  99 Q1 !  Q1 ?  \ 99` Definition: `: ? @ . ;` | prelude |
 | <a id="w-erase"></a>`ERASE` | `( addr u -- )` | Set u bytes to zero (`0 FILL`). Example: `CREATE E1 4 ALLOT  E1 4 ERASE  E1 C@ .  \ 0` Definition: `: ERASE 0 FILL ;` | prelude |
 | <a id="w-bounds"></a>`BOUNDS` | `( addr u -- addr+u addr )` | Turn an address and length into DO loop limits. Example: `: SHOW BOUNDS ?DO I C@ EMIT LOOP ;  S" hi" SHOW  \ hi` Definition: `: BOUNDS OVER + SWAP ;` | prelude |
-| <a id="w-comma"></a>`,` | `( x -- )` | Parser keyword: append a cell to data space. Interpretation only ("data-space word inside definition"); fails with "data space full" past 8192 bytes. Example: `CREATE T1 10 , 20 ,  T1 CELL+ @ .  \ 20` | compiler |
-| <a id="w-ccomma"></a>`C,` | `( c -- )` | Parser keyword: append one byte to data space. Interpretation only. Example: `CREATE CS1 3 C, 65 C, 66 C, 67 C,  CS1 COUNT TYPE  \ ABC` | compiler |
-| <a id="w-allot"></a>`ALLOT` | `( u -- )` | Parser keyword: reserve u zeroed bytes of data space. Interpretation only; a negative u fails ("negative ALLOT"). If the first ALLOT after CREATE does not fit, the CREATEd word is removed again. Example: `CREATE BUF1 16 ALLOT  BUF1 16 ERASE` | compiler |
-| <a id="w-here"></a>`HERE` | `( -- addr )` | Parser keyword: the next free data-space address. Interpretation only; to use it later, save it with CONSTANT. Example: `HERE 3 ALLOT HERE SWAP - .  \ 3` | compiler |
+| <a id="w-comma"></a>`,` | `( x -- )` | Append a cell to data space. Works at the prompt and inside definitions (defining words); refused in background tasks. Fails with "data space full" past 8192 bytes. Example: `CREATE T1 10 , 20 ,  T1 CELL+ @ .  \ 20` | native |
+| <a id="w-ccomma"></a>`C,` | `( c -- )` | Append one byte to data space. Works at the prompt and inside definitions; refused in background tasks. Example: `CREATE CS1 3 C, 65 C, 66 C, 67 C,  CS1 COUNT TYPE  \ ABC` | native |
+| <a id="w-allot"></a>`ALLOT` | `( u -- )` | Reserve u zeroed bytes of data space; a negative u fails ("negative ALLOT"). Works inside definitions too (defining words with DOES>). If the first ALLOT after CREATE does not fit, the CREATEd word is removed again. Example: `CREATE BUF1 16 ALLOT  BUF1 16 ERASE` | native |
+| <a id="w-here"></a>`HERE` | `( -- addr )` | The next free data-space address. Works at the prompt and inside definitions. Example: `HERE 3 ALLOT HERE SWAP - .  \ 3` | native |
 
 <a id="ref-numbers"></a>
 
@@ -5917,13 +6019,38 @@ Words that create other words.
 
 | Word | Stack effect | Description | Kind |
 | --- | --- | --- | --- |
+| <a id="w-doesgt"></a>`DOES>` | `( -- )  child: ( -- addr ) then the code after DOES>` | Parser keyword, used in a defining word after CREATE: ends the defining part; each word it creates then pushes its data address and runs the code after DOES>. Callers inline a child's address. Example: `: CONST CREATE , DOES> @ ;  42 CONST ANSWER  ANSWER .  \ 42` | compiler |
+| <a id="w-gtbody"></a>`>BODY` | `( xt -- addr )` | The data address of a word made by CREATE, VARIABLE or a DOES> defining word; fails for other kinds. | native |
+| <a id="w-marker"></a>`MARKER` | `( "name" -- )  name: ( -- )` | Create a word that, when run, removes itself and every word defined after it and gives back their dictionary, code, data, name and source-map space. It refuses to remove module words, words a DEFER is still bound to, or code while tasks are live. Run it from the prompt. Example: `MARKER SCRATCH` | native |
+| <a id="w-lpmarkerrp"></a>`(MARKER)` | `( -- )` | Internal: the code a MARKER word runs to cut the dictionary back. | native |
+| <a id="w-lpdoesgtrp"></a>`(DOES>)` | `( t d -- )` | Internal: compiled by DOES>; at run time it turns the word just CREATEd into a child that runs the does-part. | native |
 | <a id="w-colon"></a>`:` | `( "name" -- )` | Parser keyword: start a colon definition. Names are 1..31 characters, case-insensitive (stored upper case); definitions cannot nest. The word becomes visible only at `;`, and a definition that fails is discarded. Redefining a name does not change words already compiled against the old one. Example: `: SQ DUP * ;  7 SQ .  \ 49` | compiler |
 | <a id="w-semi"></a>`;` | `( -- )` | Parser keyword: end the current definition and publish it. Fails with "unbalanced control flow" if an IF/BEGIN/DO is still open, or "unexpected semicolon" outside a definition. Example: `: HELLO ." hello" ;  HELLO  \ hello` | compiler |
-| <a id="w-variable"></a>`VARIABLE` | `( "name" -- )  name: ( -- addr )` | Parser keyword: create a word that pushes the address of a fresh 3-byte cell in data space, initialised to 0. Interpretation only. Example: `VARIABLE SCORE  10 SCORE !  SCORE ?  \ 10` | compiler |
-| <a id="w-constant"></a>`CONSTANT` | `( x "name" -- )  name: ( -- x )` | Parser keyword: create a word that pushes x. Callers compile the value as a literal, so redefining the constant later does not change them. Example: `7 CONSTANT DAYS  DAYS .  \ 7` | compiler |
-| <a id="w-create"></a>`CREATE` | `( "name" -- )  name: ( -- addr )` | Parser keyword: create a word that pushes the current data-space address; reserve its body with ALLOT, `,` or `C,`. Interpretation only; there is no DOES>. Example: `CREATE PRIMES 2 , 3 , 5 ,  PRIMES 2 CELLS + @ .  \ 5` | compiler |
-| <a id="w-defer"></a>`DEFER` | `( "name" -- )  name: ( i*x -- j*x )` | Parser keyword: create a replaceable binding. Calling it runs the word stored with IS; compiled callers follow every rebinding. Executing an unbound DEFER fails with "invalid execution token". Example: `DEFER GREET  : HI ." hi" ;  ' HI IS GREET  GREET  \ hi` | compiler |
+| <a id="w-variable"></a>`VARIABLE` | `( "name" -- )  name: ( -- addr )` | Create a word that pushes the address of a fresh 3-byte cell in data space, initialised to 0. A dictionary word: it can be used inside definitions, ticked and postponed. Example: `VARIABLE SCORE  10 SCORE !  SCORE ?  \ 10` | native |
+| <a id="w-constant"></a>`CONSTANT` | `( x "name" -- )  name: ( -- x )` | Create a word that pushes x. Callers compile the value as a literal, so redefining the constant later does not change them. A dictionary word, usable inside defining words. Example: `7 CONSTANT DAYS  DAYS .  \ 7` | native |
+| <a id="w-create"></a>`CREATE` | `( "name" -- )  name: ( -- addr )` | Create a word that pushes its data-space address; reserve its body with ALLOT, `,` or `C,`. Works inside definitions, where DOES> can then give the new word its own behaviour (see Extending the compiler). Example: `CREATE PRIMES 2 , 3 , 5 ,  PRIMES 2 CELLS + @ .  \ 5` | native |
+| <a id="w-defer"></a>`DEFER` | `( "name" -- )  name: ( i*x -- j*x )` | Create a replaceable binding. Calling it runs the word stored with IS; compiled callers follow every rebinding. Executing an unbound DEFER fails with "invalid execution token". A dictionary word. Example: `DEFER GREET  : HI ." hi" ;  ' HI IS GREET  GREET  \ hi` | native |
 | <a id="w-is"></a>`IS` | `( xt "name" -- )` | Parser keyword: bind the DEFER name to xt. Works interactively (checks xt) and inside definitions (stores at run time). Fails with "IS requires deferred word" for any other kind of word. Example: `DEFER SHOUT  : LOUD ." HEY" ;  : ARM ['] LOUD IS SHOUT ;  ARM SHOUT  \ HEY` | compiler |
+
+<a id="ref-compiler"></a>
+
+### Extending the compiler
+
+Compile-time execution, macros and text evaluation.
+
+| Word | Stack effect | Description | Kind |
+| --- | --- | --- | --- |
+| <a id="w-state"></a>`STATE` | `( -- addr )` | A variable that holds true while a definition is being compiled and false while interpreting. Read it, do not store into it: use [ and ] to switch. Example: `STATE @ .  \ 0` | variable |
+| <a id="w-lb"></a>`[` | `( -- )` | Parser keyword: switch to interpreting inside an open definition, for example to compute a value at compile time. Example: `: DAY [ 60 60 * 24 * ] LITERAL ;` | compiler |
+| <a id="w-rb"></a>`]` | `( -- )` | Parser keyword: switch back to compiling. Needs an open definition. | compiler |
+| <a id="w-literal"></a>`LITERAL` | `compile: ( x -- )  run: ( -- x )` | Parser keyword, compile-only: compile the number on the stack as a literal, typically after [ ... ]. | compiler |
+| <a id="w-immediate"></a>`IMMEDIATE` | `( -- )` | Parser keyword: make the word just defined immediate, so inside definitions it runs at compile time instead of being compiled. It applies only to a word defined in the same unit (line, LOAD or module). Example: `: UNLESS POSTPONE 0= POSTPONE IF ; IMMEDIATE` | compiler |
+| <a id="w-postpone"></a>`POSTPONE` | `( "name" -- )` | Parser keyword, compile-only: compile name's compilation behaviour into the current definition. For an ordinary word that compiles code that will compile a call to it; for an immediate word or a control keyword (IF, THEN, DO ...) it makes the word act when the new word runs. Postponing a parsing keyword (S", .", [CHAR], ['], IS, POSTPONE) is refused. | compiler |
+| <a id="w-compilecomma"></a>`COMPILE,` | `( xt -- )` | Compile a call to xt into the open definition (constants and variables are inlined, as the compiler does). Refused in background tasks. | native |
+| <a id="w-find"></a>`FIND` | `( c-addr -- c-addr 0 \| xt 1 \| xt -1 )` | Look up a counted string (case-insensitive): 1 for an immediate word, -1 for an ordinary one, 0 if not found. Parser keywords are not dictionary words and give 0. | native |
+| <a id="w-evaluate"></a>`EVALUATE` | `( i*x addr u -- j*x )` | Interpret a string as if it were typed, sharing the compiler state, so inside an immediate word it compiles into the open definition (a text macro). Nests up to 4 levels, at most 512 bytes of text each. Refused in background tasks; outer commands, SYNC and ABORT are not available inside it. Example: `S" 2 3 + ." EVALUATE  \ 5` | native |
+| <a id="w-lpkeywordrp"></a>`(KEYWORD)` | `( id -- )` | Internal: compiled by POSTPONE of a control keyword; runs that keyword's compiler action when the new word executes. | native |
+| <a id="w-lpeval-returnrp"></a>`(EVAL-RETURN)` | `( -- )` | Internal: the return point EVALUATE uses to come back from words it runs. | native |
 
 <a id="ref-strings"></a>
 
@@ -5980,7 +6107,7 @@ Looking inside the running system.
 | <a id="w-dots"></a>`.S` | `( -- )` | Parser keyword: print `<depth>` and the data stack bottom to top as signed numbers, without changing it. Interpretation only. Example: `1 2 3 .S  \ <3> 1 2 3` | compiler |
 | <a id="w-dump"></a>`DUMP` | `( addr u -- )` | Hex dump of u bytes. Each byte is two hex digits; a new line with the address starts at every 16-byte boundary (so an unaligned start has no address on its first line). BASE is restored afterwards. Example: `S" ABC" DUMP` | prelude |
 | <a id="w-words"></a>`WORDS` | `( -- )` | Parser keyword: list every dictionary entry, oldest first, including shadowed older definitions. Parser keywords (IF, VARIABLE, SEE ...) and outer commands are not dictionary entries and are not listed. Example: `WORDS` | compiler |
-| <a id="w-see"></a>`SEE` | `( "name" -- )` | Parser keyword: show a colon word's stored source (upper case, comments removed) or `primitive NAME` / `data word NAME`, then a metadata line: xt, kind (0 primitive, 1 colon, 2 constant, 3 variable, 4 defer, 5 native), code addresses and sizes for both code formats, and the module it came from. Example: `: CUBE DUP DUP * * ;  SEE CUBE` | compiler |
+| <a id="w-see"></a>`SEE` | `( "name" -- )` | Parser keyword: show a colon word's stored source (upper case, comments removed) or `primitive NAME` / `data word NAME`, then a metadata line: xt, kind (0 primitive, 1 colon, 2 constant, 3 variable, 4 defer, 5 native, 6 does, 7 marker), code addresses and sizes for both code formats, the module it came from, and ` immediate` for an immediate word. Example: `: CUBE DUP DUP * * ;  SEE CUBE` | compiler |
 | <a id="w-resources"></a>`RESOURCES` | `( -- )` | Parser keyword: one line with the engine, words used/512, token, direct, data and source bytes used, source-map entries used/1792 (the map TRACE and LAST-ERROR read), and the peak data and return stack depths. Example: `RESOURCES` | compiler |
 | <a id="w-last-error"></a>`LAST-ERROR` | `( -- )` | Parser keyword: report the last foreground runtime failure as captured before the stacks were cleared: serial, engine, whether the dictionary changed since (stale), BASE, message, failing word, code offset and source token, stack depths, the top 8 data cells, then one `frame` line per caller (up to 16). The message and word names are printed as hex bytes; the host CLI's `:why` decodes them. Example: `LAST-ERROR` | compiler |
 | <a id="w-trace"></a>`TRACE` | `( i*x "name" "n" -- j*x )` | Parser keyword: run name one VM instruction at a time for at most n (1..100000) steps, printing step number, word+offset, source token, stack depths and top of stack before each, then `trace returned` or `trace failed`. Uses the current engine. Interpretation only. Example: `: SQ2 DUP * ;  4 TRACE SQ2 10 .` | compiler |
@@ -6471,7 +6598,7 @@ The full-screen text workbench and console view.
 
 All words in ASCII order:
 
-[`!`](#w-store) [`'`](#w-tick) [`(`](#w-lp) [`(+LOOP)`](#w-lppluslooprp) [`)CRITICAL`](#w-rpcritical) [`*`](#w-star) [`*/`](#w-starslash) [`+`](#w-plus) [`+!`](#w-plusstore) [`+LOOP`](#w-plusloop) [`,`](#w-comma) [`-`](#w--) [`-ROT`](#w--rot) [`.`](#w-dot) [`."`](#w-dotq) [`.HEX2`](#w-dothex2) [`.S`](#w-dots) [`/`](#w-slash) [`/MOD`](#w-slashmod) [`0<`](#w-0lt) [`0=`](#w-0eq) [`0>`](#w-0gt) [`1+`](#w-1plus) [`1-`](#w-1-) [`2*`](#w-2star) [`2DROP`](#w-2drop) [`2DUP`](#w-2dup) [`2OVER`](#w-2over) [`2SWAP`](#w-2swap) [`:`](#w-colon) [`;`](#w-semi) [`<`](#w-lt) [`<>`](#w-ltgt) [`=`](#w-eq) [`>`](#w-gt) [`>R`](#w-gtr) [`?`](#w-q) [`?DO`](#w-qdo) [`?DUP`](#w-qdup) [`@`](#w-fetch) [`ABORT`](#w-abort) [`ABS`](#w-abs) [`AGAIN`](#w-again) [`ALLOT`](#w-allot) [`AND`](#w-and) [`BASE`](#w-base) [`BEEP`](#w-beep) [`BEGIN`](#w-begin) [`BENCH`](#w-bench) [`BL`](#w-bl) [`BOOT-CONFIRM`](#w-boot-confirm) [`BOOT-MANIFEST`](#w-boot-manifest) [`BOOT-REVERT`](#w-boot-revert) [`BOOT-STATUS`](#w-boot-status) [`BOOT-TIMES`](#w-boot-times) [`BOOT-TRIAL`](#w-boot-trial) [`BOUNDS`](#w-bounds) [`C!`](#w-cstore) [`C,`](#w-ccomma) [`C@`](#w-cfetch) [`CELL+`](#w-cellplus) [`CELLS`](#w-cells) [`CHAR`](#w-char) [`CHAR@`](#w-charfetch) [`CLOCK-MS`](#w-clock-ms) [`CLOSE`](#w-close) [`CLS`](#w-cls) [`COLOUR`](#w-colour) [`CONSOLE-EMIT`](#w-console-emit) [`CONSOLE-KEY`](#w-console-key) [`CONSOLE-WRITE`](#w-console-write) [`CONSTANT`](#w-constant) [`COUNT`](#w-count) [`CR`](#w-cr) [`CREATE`](#w-create) [`CRITICAL(`](#w-criticallp) [`DECIMAL`](#w-decimal) [`DEFER`](#w-defer) [`DEPTH`](#w-depth) [`DEVICE`](#w-device) [`DIR`](#w-dir) [`DISPLAY-WRITE`](#w-display-write) [`DO`](#w-do) [`DROP`](#w-drop) [`DUMP`](#w-dump) [`DUP`](#w-dup) [`ELSE`](#w-else) [`EMIT`](#w-emit) [`ENGINE`](#w-engine) [`ERASE`](#w-erase) [`EXECUTE`](#w-execute) [`EXIT`](#w-exit) [`FALSE`](#w-false) [`FILE-READ`](#w-file-read) [`FILE-REMOVE`](#w-file-remove) [`FILE-WRITE`](#w-file-write) [`FILL`](#w-fill) [`FRAME-WAIT`](#w-frame-wait) [`FS-ERROR`](#w-fs-error) [`FS-READ`](#w-fs-read) [`FS-WRITE`](#w-fs-write) [`HANDLE-GET`](#w-handle-get) [`HANDLE-PUT`](#w-handle-put) [`HANDLES`](#w-handles) [`HERE`](#w-here) [`HEX`](#w-hex) [`I`](#w-i) [`IF`](#w-if) [`INCLUDE`](#w-include) [`INVERT`](#w-invert) [`IRQ-PROBE`](#w-irq-probe) [`IRQ-STATS`](#w-irq-stats) [`IS`](#w-is) [`J`](#w-j) [`KEY`](#w-key) [`LAST-ERROR`](#w-last-error) [`LEAVE`](#w-leave) [`LOAD`](#w-load) [`LOOP`](#w-loop) [`LSHIFT`](#w-lshift) [`MAX`](#w-max) [`MILLIS`](#w-millis) [`MILLIS2`](#w-millis2) [`MIN`](#w-min) [`MOD`](#w-mod) [`MODE`](#w-mode) [`MODULE-ACTIVATE`](#w-module-activate) [`MODULE-BEGIN`](#w-module-begin) [`MODULE-DATA`](#w-module-data) [`MODULE-DEP`](#w-module-dep) [`MODULE-DISCARD`](#w-module-discard) [`MODULE-LOAD`](#w-module-load) [`MODULE-ROLLBACK`](#w-module-rollback) [`MODULE-SOURCE`](#w-module-source) [`MODULE-STAGE`](#w-module-stage) [`MODULES`](#w-modules) [`MOVE`](#w-move) [`MS`](#w-ms) [`NEGATE`](#w-negate) [`NIP`](#w-nip) [`OPEN`](#w-open) [`OR`](#w-or) [`OVER`](#w-over) [`PAUSE`](#w-pause) [`PIPE`](#w-pipe) [`PIPELINE`](#w-pipeline) [`PIXEL@`](#w-pixelfetch) [`PL-R`](#w-pl-r) [`PL-W`](#w-pl-w) [`PLAY`](#w-play) [`PLOT`](#w-plot) [`PREEMPT`](#w-preempt) [`PREEMPT-STATS`](#w-preempt-stats) [`R>`](#w-rgt) [`R@`](#w-rfetch) [`READ`](#w-read) [`READ-WAIT`](#w-read-wait) [`REBOOT`](#w-reboot) [`RECURSE`](#w-recurse) [`REPEAT`](#w-repeat) [`RESOURCES`](#w-resources) [`ROT`](#w-rot) [`RSHIFT`](#w-rshift) [`S"`](#w-sq) [`SAVE`](#w-save) [`SD-MOUNT`](#w-sd-mount) [`SEE`](#w-see) [`SOUND?`](#w-soundq) [`SPACE`](#w-space) [`SPACES`](#w-spaces) [`SPAWN`](#w-spawn) [`SPAWN-CON`](#w-spawn-con) [`STOP`](#w-stop) [`SWAP`](#w-swap) [`SYNC`](#w-sync) [`TASK-INPUT`](#w-task-input) [`TASK-KILL`](#w-task-kill) [`TASK-OUT`](#w-task-out) [`TASK-OUTPUT`](#w-task-output) [`TASK-SLICE`](#w-task-slice) [`TASK-STATE`](#w-task-state) [`TASKS`](#w-tasks) [`THEN`](#w-then) [`TICKS`](#w-ticks) [`TIMER@`](#w-timerfetch) [`TONE`](#w-tone) [`TOOL`](#w-tool) [`TRACE`](#w-trace) [`TRUE`](#w-true) [`TUCK`](#w-tuck) [`TUNE`](#w-tune) [`TYPE`](#w-type) [`U.`](#w-udot) [`U<`](#w-ult) [`U>`](#w-ugt) [`UI-ACTIVE`](#w-ui-active) [`UI-ALT`](#w-ui-alt) [`UI-ANIMATE`](#w-ui-animate) [`UI-ARROW`](#w-ui-arrow) [`UI-BAR`](#w-ui-bar) [`UI-BEGIN`](#w-ui-begin) [`UI-BITMAP`](#w-ui-bitmap) [`UI-BITS`](#w-ui-bits) [`UI-BOX`](#w-ui-box) [`UI-BUTTON`](#w-ui-button) [`UI-CANVAS`](#w-ui-canvas) [`UI-CANVAS-AT`](#w-ui-canvas-at) [`UI-CANVAS-FLAGS`](#w-ui-canvas-flags) [`UI-CARET`](#w-ui-caret) [`UI-CH`](#w-ui-ch) [`UI-CH-BUF`](#w-ui-ch-buf) [`UI-CHECK`](#w-ui-check) [`UI-CHECKED`](#w-ui-checked) [`UI-CLIENT`](#w-ui-client) [`UI-CLOSE`](#w-ui-close) [`UI-COLUMN`](#w-ui-column) [`UI-COLUMNS`](#w-ui-columns) [`UI-COMMAND`](#w-ui-command) [`UI-COMMIT`](#w-ui-commit) [`UI-CTRL`](#w-ui-ctrl) [`UI-CURSOR`](#w-ui-cursor) [`UI-CV-CLEAR`](#w-ui-cv-clear) [`UI-CV-VISIBLE`](#w-ui-cv-visible) [`UI-DECOR`](#w-ui-decor) [`UI-DISABLED`](#w-ui-disabled) [`UI-DISC`](#w-ui-disc) [`UI-DOT`](#w-ui-dot) [`UI-ENABLED`](#w-ui-enabled) [`UI-ERASE`](#w-ui-erase) [`UI-EV-ACTIVATE`](#w-ui-ev-activate) [`UI-EV-ANIMDONE`](#w-ui-ev-animdone) [`UI-EV-CANVAS`](#w-ui-ev-canvas) [`UI-EV-CHANGE`](#w-ui-ev-change) [`UI-EV-COMMAND`](#w-ui-ev-command) [`UI-EV-ERROR`](#w-ui-ev-error) [`UI-EV-EXPAND`](#w-ui-ev-expand) [`UI-EV-FOCUS`](#w-ui-ev-focus) [`UI-EV-OVERFLOW`](#w-ui-ev-overflow) [`UI-EV-PAGE`](#w-ui-ev-page) [`UI-EV-POINTER`](#w-ui-ev-pointer) [`UI-EV-SELECT`](#w-ui-ev-select) [`UI-EV-TEXT`](#w-ui-ev-text) [`UI-EV-WIN`](#w-ui-ev-win) [`UI-EVENT`](#w-ui-event) [`UI-FILL`](#w-ui-fill) [`UI-FLAGS`](#w-ui-flags) [`UI-FOCUS`](#w-ui-focus) [`UI-FREE-X`](#w-ui-free-x) [`UI-HIDDEN`](#w-ui-hidden) [`UI-ICON`](#w-ui-icon) [`UI-ICON-DISK`](#w-ui-icon-disk) [`UI-ICON-DOCUMENT`](#w-ui-icon-document) [`UI-ICON-ERROR`](#w-ui-icon-error) [`UI-ICON-FOLDER`](#w-ui-icon-folder) [`UI-ICON-INFO`](#w-ui-icon-info) [`UI-ICON-MODULE`](#w-ui-icon-module) [`UI-ICON-WARNING`](#w-ui-icon-warning) [`UI-ICON-WORD`](#w-ui-icon-word) [`UI-IN-OUT`](#w-ui-in-out) [`UI-INK`](#w-ui-ink) [`UI-INPUT`](#w-ui-input) [`UI-INSERT`](#w-ui-insert) [`UI-ITEM`](#w-ui-item) [`UI-ITEMS`](#w-ui-items) [`UI-KEYS`](#w-ui-keys) [`UI-LABEL`](#w-ui-label) [`UI-LAYOUT`](#w-ui-layout) [`UI-LINE`](#w-ui-line) [`UI-LINEAR`](#w-ui-linear) [`UI-LIST`](#w-ui-list) [`UI-MENU`](#w-ui-menu) [`UI-MODAL`](#w-ui-modal) [`UI-NEXT`](#w-ui-next) [`UI-NONE`](#w-ui-none) [`UI-NUDGE`](#w-ui-nudge) [`UI-OUT`](#w-ui-out) [`UI-OVAL`](#w-ui-oval) [`UI-PAGER`](#w-ui-pager) [`UI-PEN`](#w-ui-pen) [`UI-PIXELS`](#w-ui-pixels) [`UI-PLACE`](#w-ui-place) [`UI-POINTER`](#w-ui-pointer) [`UI-POPUP`](#w-ui-popup) [`UI-PRINT`](#w-ui-print) [`UI-PROGRESS`](#w-ui-progress) [`UI-RADIO`](#w-ui-radio) [`UI-RAISE`](#w-ui-raise) [`UI-RAW`](#w-ui-raw) [`UI-READONLY`](#w-ui-readonly) [`UI-RECT`](#w-ui-rect) [`UI-RESET`](#w-ui-reset) [`UI-ROW`](#w-ui-row) [`UI-ROW+`](#w-ui-rowplus) [`UI-SCROLL`](#w-ui-scroll) [`UI-SCROLL-COL`](#w-ui-scroll-col) [`UI-SCROLL-ROW`](#w-ui-scroll-row) [`UI-SELECT`](#w-ui-select) [`UI-SEPARATOR`](#w-ui-separator) [`UI-SHADOW`](#w-ui-shadow) [`UI-SHAPE`](#w-ui-shape) [`UI-SHIFT`](#w-ui-shift) [`UI-SNAP`](#w-ui-snap) [`UI-SNAPSHOT`](#w-ui-snapshot) [`UI-SPRING`](#w-ui-spring) [`UI-SPRITE`](#w-ui-sprite) [`UI-SPRITE-AT`](#w-ui-sprite-at) [`UI-SPRITE-SHOW`](#w-ui-sprite-show) [`UI-STATE`](#w-ui-state) [`UI-STATUS`](#w-ui-status) [`UI-STIPPLE`](#w-ui-stipple) [`UI-STOP`](#w-ui-stop) [`UI-STYLE`](#w-ui-style) [`UI-SUBMENU`](#w-ui-submenu) [`UI-SURFACE`](#w-ui-surface) [`UI-SYNC`](#w-ui-sync) [`UI-TABS`](#w-ui-tabs) [`UI-TEXT`](#w-ui-text) [`UI-TEXT+`](#w-ui-textplus) [`UI-TEXT@`](#w-ui-textfetch) [`UI-TEXTVIEW`](#w-ui-textview) [`UI-TITLE`](#w-ui-title) [`UI-TREE`](#w-ui-tree) [`UI-TWEEN-CANVAS`](#w-ui-tween-canvas) [`UI-TWEEN-SPRITE`](#w-ui-tween-sprite) [`UI-TWEEN-WINDOW`](#w-ui-tween-window) [`UI-TYPE`](#w-ui-type) [`UI-VIEW`](#w-ui-view) [`UI-VISIBLE`](#w-ui-visible) [`UI-WDELETE`](#w-ui-wdelete) [`UI-WF-FILL`](#w-ui-wf-fill) [`UI-WFOCUS`](#w-ui-wfocus) [`UI-WGET`](#w-ui-wget) [`UI-WIDGET`](#w-ui-widget) [`UI-WINDOW`](#w-ui-window) [`UI-WIPE`](#w-ui-wipe) [`UI-WNAME`](#w-ui-wname) [`UI-WSIZE`](#w-ui-wsize) [`UI-WSTYLE`](#w-ui-wstyle) [`UI-WTEXT`](#w-ui-wtext) [`UI-WVALUE`](#w-ui-wvalue) [`UI-X`](#w-ui-x) [`UI-Y`](#w-ui-y) [`UNLOOP`](#w-unloop) [`UNTIL`](#w-until) [`VARIABLE`](#w-variable) [`VDP-INFO`](#w-vdp-info) [`VDU`](#w-vdu) [`VOLUME`](#w-volume) [`VTYPE`](#w-vtype) [`WB-ACTIVATE`](#w-wb-activate) [`WB-BROWSE`](#w-wb-browse) [`WB-CLOSE`](#w-wb-close) [`WB-COMPOSE`](#w-wb-compose) [`WB-CONSOLE`](#w-wb-console) [`WB-CONSOLE-CLEAR`](#w-wb-console-clear) [`WB-CONSOLE?`](#w-wb-consoleq) [`WB-EDIT`](#w-wb-edit) [`WB-FLUSH`](#w-wb-flush) [`WB-FLUSH-FENCED`](#w-wb-flush-fenced) [`WB-KEY`](#w-wb-key) [`WB-META`](#w-wb-meta) [`WB-NEW`](#w-wb-new) [`WB-OPEN`](#w-wb-open) [`WB-PAINT`](#w-wb-paint) [`WB-PAINT-DEFAULT`](#w-wb-paint-default) [`WB-PATCH`](#w-wb-patch) [`WB-REDRAW`](#w-wb-redraw) [`WB-RENDER-STATS`](#w-wb-render-stats) [`WB-REPAINT`](#w-wb-repaint) [`WB-SAVE`](#w-wb-save) [`WB-SAVE-DEFAULT`](#w-wb-save-default) [`WB-SELECT`](#w-wb-select) [`WB-SOURCE`](#w-wb-source) [`WB-STAGE`](#w-wb-stage) [`WB-STATUS`](#w-wb-status) [`WB-UNDO`](#w-wb-undo) [`WB-VIEW`](#w-wb-view) [`WB-ZOOM`](#w-wb-zoom) [`WB-ZOOM?`](#w-wb-zoomq) [`WHILE`](#w-while) [`WITHIN`](#w-within) [`WORDS`](#w-words) [`WRITE`](#w-write) [`WRITE-ALL`](#w-write-all) [`XOR`](#w-xor) [`[']`](#w-lbtickrb) [`[CHAR]`](#w-lbcharrb) [`\`](#w-bs)
+[`!`](#w-store) [`'`](#w-tick) [`(`](#w-lp) [`(+LOOP)`](#w-lppluslooprp) [`(DOES>)`](#w-lpdoesgtrp) [`(EVAL-RETURN)`](#w-lpeval-returnrp) [`(KEYWORD)`](#w-lpkeywordrp) [`(MARKER)`](#w-lpmarkerrp) [`)CRITICAL`](#w-rpcritical) [`*`](#w-star) [`*/`](#w-starslash) [`+`](#w-plus) [`+!`](#w-plusstore) [`+LOOP`](#w-plusloop) [`,`](#w-comma) [`-`](#w--) [`-ROT`](#w--rot) [`.`](#w-dot) [`."`](#w-dotq) [`.HEX2`](#w-dothex2) [`.S`](#w-dots) [`/`](#w-slash) [`/MOD`](#w-slashmod) [`0<`](#w-0lt) [`0=`](#w-0eq) [`0>`](#w-0gt) [`1+`](#w-1plus) [`1-`](#w-1-) [`2*`](#w-2star) [`2DROP`](#w-2drop) [`2DUP`](#w-2dup) [`2OVER`](#w-2over) [`2SWAP`](#w-2swap) [`:`](#w-colon) [`;`](#w-semi) [`<`](#w-lt) [`<>`](#w-ltgt) [`=`](#w-eq) [`>`](#w-gt) [`>BODY`](#w-gtbody) [`>R`](#w-gtr) [`?`](#w-q) [`?DO`](#w-qdo) [`?DUP`](#w-qdup) [`@`](#w-fetch) [`ABORT`](#w-abort) [`ABS`](#w-abs) [`AGAIN`](#w-again) [`ALLOT`](#w-allot) [`AND`](#w-and) [`BASE`](#w-base) [`BEEP`](#w-beep) [`BEGIN`](#w-begin) [`BENCH`](#w-bench) [`BL`](#w-bl) [`BOOT-CONFIRM`](#w-boot-confirm) [`BOOT-MANIFEST`](#w-boot-manifest) [`BOOT-REVERT`](#w-boot-revert) [`BOOT-STATUS`](#w-boot-status) [`BOOT-TIMES`](#w-boot-times) [`BOOT-TRIAL`](#w-boot-trial) [`BOUNDS`](#w-bounds) [`C!`](#w-cstore) [`C,`](#w-ccomma) [`C@`](#w-cfetch) [`CELL+`](#w-cellplus) [`CELLS`](#w-cells) [`CHAR`](#w-char) [`CHAR@`](#w-charfetch) [`CLOCK-MS`](#w-clock-ms) [`CLOSE`](#w-close) [`CLS`](#w-cls) [`COLOUR`](#w-colour) [`COMPILE,`](#w-compilecomma) [`CONSOLE-EMIT`](#w-console-emit) [`CONSOLE-KEY`](#w-console-key) [`CONSOLE-WRITE`](#w-console-write) [`CONSTANT`](#w-constant) [`COUNT`](#w-count) [`CR`](#w-cr) [`CREATE`](#w-create) [`CRITICAL(`](#w-criticallp) [`DECIMAL`](#w-decimal) [`DEFER`](#w-defer) [`DEPTH`](#w-depth) [`DEVICE`](#w-device) [`DIR`](#w-dir) [`DISPLAY-WRITE`](#w-display-write) [`DO`](#w-do) [`DOES>`](#w-doesgt) [`DROP`](#w-drop) [`DUMP`](#w-dump) [`DUP`](#w-dup) [`ELSE`](#w-else) [`EMIT`](#w-emit) [`ENGINE`](#w-engine) [`ERASE`](#w-erase) [`EVALUATE`](#w-evaluate) [`EXECUTE`](#w-execute) [`EXIT`](#w-exit) [`FALSE`](#w-false) [`FILE-READ`](#w-file-read) [`FILE-REMOVE`](#w-file-remove) [`FILE-WRITE`](#w-file-write) [`FILL`](#w-fill) [`FIND`](#w-find) [`FRAME-WAIT`](#w-frame-wait) [`FS-ERROR`](#w-fs-error) [`FS-READ`](#w-fs-read) [`FS-WRITE`](#w-fs-write) [`HANDLE-GET`](#w-handle-get) [`HANDLE-PUT`](#w-handle-put) [`HANDLES`](#w-handles) [`HERE`](#w-here) [`HEX`](#w-hex) [`I`](#w-i) [`IF`](#w-if) [`IMMEDIATE`](#w-immediate) [`INCLUDE`](#w-include) [`INVERT`](#w-invert) [`IRQ-PROBE`](#w-irq-probe) [`IRQ-STATS`](#w-irq-stats) [`IS`](#w-is) [`J`](#w-j) [`KEY`](#w-key) [`LAST-ERROR`](#w-last-error) [`LEAVE`](#w-leave) [`LITERAL`](#w-literal) [`LOAD`](#w-load) [`LOOP`](#w-loop) [`LSHIFT`](#w-lshift) [`MARKER`](#w-marker) [`MAX`](#w-max) [`MILLIS`](#w-millis) [`MILLIS2`](#w-millis2) [`MIN`](#w-min) [`MOD`](#w-mod) [`MODE`](#w-mode) [`MODULE-ACTIVATE`](#w-module-activate) [`MODULE-BEGIN`](#w-module-begin) [`MODULE-DATA`](#w-module-data) [`MODULE-DEP`](#w-module-dep) [`MODULE-DISCARD`](#w-module-discard) [`MODULE-LOAD`](#w-module-load) [`MODULE-ROLLBACK`](#w-module-rollback) [`MODULE-SOURCE`](#w-module-source) [`MODULE-STAGE`](#w-module-stage) [`MODULES`](#w-modules) [`MOVE`](#w-move) [`MS`](#w-ms) [`NEGATE`](#w-negate) [`NIP`](#w-nip) [`OPEN`](#w-open) [`OR`](#w-or) [`OVER`](#w-over) [`PAUSE`](#w-pause) [`PIPE`](#w-pipe) [`PIPELINE`](#w-pipeline) [`PIXEL@`](#w-pixelfetch) [`PL-R`](#w-pl-r) [`PL-W`](#w-pl-w) [`PLAY`](#w-play) [`PLOT`](#w-plot) [`POSTPONE`](#w-postpone) [`PREEMPT`](#w-preempt) [`PREEMPT-STATS`](#w-preempt-stats) [`R>`](#w-rgt) [`R@`](#w-rfetch) [`READ`](#w-read) [`READ-WAIT`](#w-read-wait) [`REBOOT`](#w-reboot) [`RECURSE`](#w-recurse) [`REPEAT`](#w-repeat) [`RESOURCES`](#w-resources) [`ROT`](#w-rot) [`RSHIFT`](#w-rshift) [`S"`](#w-sq) [`SAVE`](#w-save) [`SD-MOUNT`](#w-sd-mount) [`SEE`](#w-see) [`SOUND?`](#w-soundq) [`SPACE`](#w-space) [`SPACES`](#w-spaces) [`SPAWN`](#w-spawn) [`SPAWN-CON`](#w-spawn-con) [`STATE`](#w-state) [`STOP`](#w-stop) [`SWAP`](#w-swap) [`SYNC`](#w-sync) [`TASK-INPUT`](#w-task-input) [`TASK-KILL`](#w-task-kill) [`TASK-OUT`](#w-task-out) [`TASK-OUTPUT`](#w-task-output) [`TASK-SLICE`](#w-task-slice) [`TASK-STATE`](#w-task-state) [`TASKS`](#w-tasks) [`THEN`](#w-then) [`TICKS`](#w-ticks) [`TIMER@`](#w-timerfetch) [`TONE`](#w-tone) [`TOOL`](#w-tool) [`TRACE`](#w-trace) [`TRUE`](#w-true) [`TUCK`](#w-tuck) [`TUNE`](#w-tune) [`TYPE`](#w-type) [`U.`](#w-udot) [`U<`](#w-ult) [`U>`](#w-ugt) [`UI-ACTIVE`](#w-ui-active) [`UI-ALT`](#w-ui-alt) [`UI-ANIMATE`](#w-ui-animate) [`UI-ARROW`](#w-ui-arrow) [`UI-BAR`](#w-ui-bar) [`UI-BEGIN`](#w-ui-begin) [`UI-BITMAP`](#w-ui-bitmap) [`UI-BITS`](#w-ui-bits) [`UI-BOX`](#w-ui-box) [`UI-BUTTON`](#w-ui-button) [`UI-CANVAS`](#w-ui-canvas) [`UI-CANVAS-AT`](#w-ui-canvas-at) [`UI-CANVAS-FLAGS`](#w-ui-canvas-flags) [`UI-CARET`](#w-ui-caret) [`UI-CH`](#w-ui-ch) [`UI-CH-BUF`](#w-ui-ch-buf) [`UI-CHECK`](#w-ui-check) [`UI-CHECKED`](#w-ui-checked) [`UI-CLIENT`](#w-ui-client) [`UI-CLOSE`](#w-ui-close) [`UI-COLUMN`](#w-ui-column) [`UI-COLUMNS`](#w-ui-columns) [`UI-COMMAND`](#w-ui-command) [`UI-COMMIT`](#w-ui-commit) [`UI-CTRL`](#w-ui-ctrl) [`UI-CURSOR`](#w-ui-cursor) [`UI-CV-CLEAR`](#w-ui-cv-clear) [`UI-CV-VISIBLE`](#w-ui-cv-visible) [`UI-DECOR`](#w-ui-decor) [`UI-DISABLED`](#w-ui-disabled) [`UI-DISC`](#w-ui-disc) [`UI-DOT`](#w-ui-dot) [`UI-ENABLED`](#w-ui-enabled) [`UI-ERASE`](#w-ui-erase) [`UI-EV-ACTIVATE`](#w-ui-ev-activate) [`UI-EV-ANIMDONE`](#w-ui-ev-animdone) [`UI-EV-CANVAS`](#w-ui-ev-canvas) [`UI-EV-CHANGE`](#w-ui-ev-change) [`UI-EV-COMMAND`](#w-ui-ev-command) [`UI-EV-ERROR`](#w-ui-ev-error) [`UI-EV-EXPAND`](#w-ui-ev-expand) [`UI-EV-FOCUS`](#w-ui-ev-focus) [`UI-EV-OVERFLOW`](#w-ui-ev-overflow) [`UI-EV-PAGE`](#w-ui-ev-page) [`UI-EV-POINTER`](#w-ui-ev-pointer) [`UI-EV-SELECT`](#w-ui-ev-select) [`UI-EV-TEXT`](#w-ui-ev-text) [`UI-EV-WIN`](#w-ui-ev-win) [`UI-EVENT`](#w-ui-event) [`UI-FILL`](#w-ui-fill) [`UI-FLAGS`](#w-ui-flags) [`UI-FOCUS`](#w-ui-focus) [`UI-FREE-X`](#w-ui-free-x) [`UI-HIDDEN`](#w-ui-hidden) [`UI-ICON`](#w-ui-icon) [`UI-ICON-DISK`](#w-ui-icon-disk) [`UI-ICON-DOCUMENT`](#w-ui-icon-document) [`UI-ICON-ERROR`](#w-ui-icon-error) [`UI-ICON-FOLDER`](#w-ui-icon-folder) [`UI-ICON-INFO`](#w-ui-icon-info) [`UI-ICON-MODULE`](#w-ui-icon-module) [`UI-ICON-WARNING`](#w-ui-icon-warning) [`UI-ICON-WORD`](#w-ui-icon-word) [`UI-IN-OUT`](#w-ui-in-out) [`UI-INK`](#w-ui-ink) [`UI-INPUT`](#w-ui-input) [`UI-INSERT`](#w-ui-insert) [`UI-ITEM`](#w-ui-item) [`UI-ITEMS`](#w-ui-items) [`UI-KEYS`](#w-ui-keys) [`UI-LABEL`](#w-ui-label) [`UI-LAYOUT`](#w-ui-layout) [`UI-LINE`](#w-ui-line) [`UI-LINEAR`](#w-ui-linear) [`UI-LIST`](#w-ui-list) [`UI-MENU`](#w-ui-menu) [`UI-MODAL`](#w-ui-modal) [`UI-NEXT`](#w-ui-next) [`UI-NONE`](#w-ui-none) [`UI-NUDGE`](#w-ui-nudge) [`UI-OUT`](#w-ui-out) [`UI-OVAL`](#w-ui-oval) [`UI-PAGER`](#w-ui-pager) [`UI-PEN`](#w-ui-pen) [`UI-PIXELS`](#w-ui-pixels) [`UI-PLACE`](#w-ui-place) [`UI-POINTER`](#w-ui-pointer) [`UI-POPUP`](#w-ui-popup) [`UI-PRINT`](#w-ui-print) [`UI-PROGRESS`](#w-ui-progress) [`UI-RADIO`](#w-ui-radio) [`UI-RAISE`](#w-ui-raise) [`UI-RAW`](#w-ui-raw) [`UI-READONLY`](#w-ui-readonly) [`UI-RECT`](#w-ui-rect) [`UI-RESET`](#w-ui-reset) [`UI-ROW`](#w-ui-row) [`UI-ROW+`](#w-ui-rowplus) [`UI-SCROLL`](#w-ui-scroll) [`UI-SCROLL-COL`](#w-ui-scroll-col) [`UI-SCROLL-ROW`](#w-ui-scroll-row) [`UI-SELECT`](#w-ui-select) [`UI-SEPARATOR`](#w-ui-separator) [`UI-SHADOW`](#w-ui-shadow) [`UI-SHAPE`](#w-ui-shape) [`UI-SHIFT`](#w-ui-shift) [`UI-SNAP`](#w-ui-snap) [`UI-SNAPSHOT`](#w-ui-snapshot) [`UI-SPRING`](#w-ui-spring) [`UI-SPRITE`](#w-ui-sprite) [`UI-SPRITE-AT`](#w-ui-sprite-at) [`UI-SPRITE-SHOW`](#w-ui-sprite-show) [`UI-STATE`](#w-ui-state) [`UI-STATUS`](#w-ui-status) [`UI-STIPPLE`](#w-ui-stipple) [`UI-STOP`](#w-ui-stop) [`UI-STYLE`](#w-ui-style) [`UI-SUBMENU`](#w-ui-submenu) [`UI-SURFACE`](#w-ui-surface) [`UI-SYNC`](#w-ui-sync) [`UI-TABS`](#w-ui-tabs) [`UI-TEXT`](#w-ui-text) [`UI-TEXT+`](#w-ui-textplus) [`UI-TEXT@`](#w-ui-textfetch) [`UI-TEXTVIEW`](#w-ui-textview) [`UI-TITLE`](#w-ui-title) [`UI-TREE`](#w-ui-tree) [`UI-TWEEN-CANVAS`](#w-ui-tween-canvas) [`UI-TWEEN-SPRITE`](#w-ui-tween-sprite) [`UI-TWEEN-WINDOW`](#w-ui-tween-window) [`UI-TYPE`](#w-ui-type) [`UI-VIEW`](#w-ui-view) [`UI-VISIBLE`](#w-ui-visible) [`UI-WDELETE`](#w-ui-wdelete) [`UI-WF-FILL`](#w-ui-wf-fill) [`UI-WFOCUS`](#w-ui-wfocus) [`UI-WGET`](#w-ui-wget) [`UI-WIDGET`](#w-ui-widget) [`UI-WINDOW`](#w-ui-window) [`UI-WIPE`](#w-ui-wipe) [`UI-WNAME`](#w-ui-wname) [`UI-WSIZE`](#w-ui-wsize) [`UI-WSTYLE`](#w-ui-wstyle) [`UI-WTEXT`](#w-ui-wtext) [`UI-WVALUE`](#w-ui-wvalue) [`UI-X`](#w-ui-x) [`UI-Y`](#w-ui-y) [`UNLOOP`](#w-unloop) [`UNTIL`](#w-until) [`VARIABLE`](#w-variable) [`VDP-INFO`](#w-vdp-info) [`VDU`](#w-vdu) [`VOLUME`](#w-volume) [`VTYPE`](#w-vtype) [`WB-ACTIVATE`](#w-wb-activate) [`WB-BROWSE`](#w-wb-browse) [`WB-CLOSE`](#w-wb-close) [`WB-COMPOSE`](#w-wb-compose) [`WB-CONSOLE`](#w-wb-console) [`WB-CONSOLE-CLEAR`](#w-wb-console-clear) [`WB-CONSOLE?`](#w-wb-consoleq) [`WB-EDIT`](#w-wb-edit) [`WB-FLUSH`](#w-wb-flush) [`WB-FLUSH-FENCED`](#w-wb-flush-fenced) [`WB-KEY`](#w-wb-key) [`WB-META`](#w-wb-meta) [`WB-NEW`](#w-wb-new) [`WB-OPEN`](#w-wb-open) [`WB-PAINT`](#w-wb-paint) [`WB-PAINT-DEFAULT`](#w-wb-paint-default) [`WB-PATCH`](#w-wb-patch) [`WB-REDRAW`](#w-wb-redraw) [`WB-RENDER-STATS`](#w-wb-render-stats) [`WB-REPAINT`](#w-wb-repaint) [`WB-SAVE`](#w-wb-save) [`WB-SAVE-DEFAULT`](#w-wb-save-default) [`WB-SELECT`](#w-wb-select) [`WB-SOURCE`](#w-wb-source) [`WB-STAGE`](#w-wb-stage) [`WB-STATUS`](#w-wb-status) [`WB-UNDO`](#w-wb-undo) [`WB-VIEW`](#w-wb-view) [`WB-ZOOM`](#w-wb-zoom) [`WB-ZOOM?`](#w-wb-zoomq) [`WHILE`](#w-while) [`WITHIN`](#w-within) [`WORDS`](#w-words) [`WRITE`](#w-write) [`WRITE-ALL`](#w-write-all) [`XOR`](#w-xor) [`[`](#w-lb) [`[']`](#w-lbtickrb) [`[CHAR]`](#w-lbcharrb) [`\`](#w-bs) [`]`](#w-rb)
 
 <!-- END WORD REFERENCE -->
 
@@ -6614,6 +6741,7 @@ relative to the repository root; `firmware/` means
 | Cell size | 24 bits (3 bytes), little-endian | `include/forth/vm.h` (`FVM_MASK`) |
 | Signed / unsigned cell range | -8388608..8388607 / 0..16777215 | `include/forth/vm.h` |
 | Dictionary entries | 512 | `include/vios/config.h` (`VIOS_FORTH_WORDS_MAX`) |
+| Name pool | 5120 bytes | `forth/system.c` (`VIOS_FORTH_NAME_BYTES`) |
 | Dictionary hash buckets | 128 | `include/vios/config.h` |
 | Word name length | 1..31 characters | `forth/system.c` (`NAME_MAX`) |
 | Token code arena | 16384 bytes | `forth/system.c` (`TOKEN_BYTES`) |
@@ -6621,7 +6749,7 @@ relative to the repository root; `firmware/` means
 | Data space (variables, `CREATE`, strings) | 8192 bytes | `forth/system.c` (`DATA_BYTES`) |
 | Source arena (text kept for `SEE`) | 8192 bytes | `forth/system.c` (`SOURCE_BYTES`) |
 | Source-map entries (`TRACE`/`LAST-ERROR` tokens) | 1792 | `forth/system.c` (`SOURCE_MAP_MAX`) |
-| Native services | 120 | `forth/system.c` (`NATIVES_MAX`) |
+| Native services | 150 | `forth/system.c` (`NATIVES_MAX`) |
 | Data stack | 256 cells | `include/forth/vm.h` (`FVM_DS`) |
 | Return stack | 256 cells | `include/forth/vm.h` (`FVM_RS`) |
 | Loop stack | 32 frames | `include/forth/vm.h` (`FVM_LOOPS`) |
