@@ -28,7 +28,7 @@ class TextScreenVdsTests(unittest.TestCase):
             font.write_bytes(agon_font())
             subprocess.run([*FLAGS, *COMMON, 'drivers/agon-vdp/text_screen.c', '-o', str(text)], cwd=ROOT, check=True)
             subprocess.run([*FLAGS, '-DVIOS_GUI', '-I' + str(VDS), *COMMON, 'drivers/agon-vdp/text_screen_vds.c',
-                            str(VDS / 'vds.c'), str(VDS / 'vds_proto.c'), '-o', str(gui)], cwd=ROOT, check=True)
+                            str(VDS / 'vds.c'), str(VDS / 'vds_proto.c'), str(VDS / 'vds_canvas.c'), '-o', str(gui)], cwd=ROOT, check=True)
             expected = subprocess.run([str(text)], capture_output=True, text=True, timeout=120)
             actual = subprocess.run([str(gui), str(font)], capture_output=True, text=True, timeout=120)
             self.assertEqual(expected.returncode, 0, expected.stderr)

@@ -1,12 +1,13 @@
 /* Host test of the VDS wire protocol (lib/vios-vds/src/vds_proto.c): E4
  * batches build the same screen as direct API calls; malformed batches are
  * rejected without side effects; replies, events, hold/commit, raw mode,
- * reset and sprite upload; random batches never crash. Usage: vds_proto FONT.bin */
+ * reset, sprite upload and G5 canvases; the inspection ops (94-98) /dev/win reads
+ * with; random batches never crash. Usage: vds_proto FONT.bin */
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "vds_proto.h"
+#include "vds_ui.h"
 
 #define W 640
 #define H 480
@@ -21,6 +22,14 @@ static vds_cell *cells(void *ctx, uint8_t id, uint16_t count) {
     return id < VDS_MAX_SURFACES && count <= 80 * 60 ? cells_a[id] : 0;
 }
 
+static uint8_t canvas_a[VDS_MAX_CANVASES][VDS_CANVAS_ITEMS * sizeof(vds_item) + W / 2 * H], canvas_b[VDS_CANVAS_ITEMS * sizeof(vds_item) + 160 * 80];
+static unsigned canvas_mem_calls;
+static void *canvas_mem(void *ctx, uint8_t id, uint32_t bytes) {
+    (void)ctx;
+    ++canvas_mem_calls;
+    return id < VDS_MAX_CANVASES && bytes <= sizeof canvas_a[0] ? canvas_a[id] : 0;
+}
+
 static uint8_t last_code, last[32], last_n;
 static unsigned events, replies, error_events;
 static void send(void *ctx, uint8_t code, const uint8_t *data, uint8_t n) {
@@ -31,7 +40,10 @@ static void send(void *ctx, uint8_t code, const uint8_t *data, uint8_t n) {
     else ++replies;
 }
 
-static void finish(vds *v) { for (int i = 0; i < 1000; ++i) if (vds_frame(v, UINT32_MAX)) return; assert(0); }
+static void finish(vds *v) {
+    for (int i = 0; i < 1000; ++i) { vds_canvas_prepare(v, UINT32_MAX); if (vds_frame(v, UINT32_MAX) && !vds_canvas_pending(v)) return; }
+    assert(0);
+}
 static void same_screen(void) {
     finish(&va); finish(&vb);
     for (int y = 0; y < H; ++y)
@@ -193,9 +205,89 @@ int main(int argc, char **argv) {
     while (last[1] || last[2]) { begin(); b8(0x36); b8(255); assert(send_batch()); }
     p.push_events = 1;
 
+    /* G5 canvases: the same picture through C0-C9 as through the API. */
+    p.canvas_mem = canvas_mem;
+    assert(vds_init(&vb, rows_b, W, H, font));          /* the batch below starts with a reset */
+    vds_canvas_icons(&vb);
+    unsigned errors_before = error_events;
+    begin();
+    b8(0x34);                                                          /* reset: a clean epoch */
+    b8(0x01); b8(2); b8(40); b8(12); b8(0x30);
+    b8(0x50); b8(1); b8(2); b16(80); b16(60); b8(40); b8(12); b8(VDS_W_VISIBLE | VDS_W_DECOR);
+    b8(0xC0); b8(3); b8(2); b16(16); b16(8); b16(160); b16(80); b8(3); b8(VDS_CV_VISIBLE);
+    b8(0xC4); b8(3); b8(0); b8(VDS_DRAW_LINE); b8(0); b16(0); b16(0); b16(159); b16(79);
+    b8(0xC4); b8(3); b8(1); b8(VDS_DRAW_DISC); b8(1); b16(10); b16(10); b16(40); b16(30);
+    b8(0xC4); b8(3); b8(2); b8(VDS_DRAW_TEXT); b8(0); b16(60); b16(4); b8(5); bytes("chart", 5);
+    b8(0xC4); b8(3); b8(3); b8(VDS_DRAW_ICON); b8(15); b16(100); b16(40); b8(VDS_ICON_FOLDER);
+    b8(0xC4); b8(3); b8(4); b8(VDS_DRAW_STIPPLE); b8(2); b16(120); b16(50); b16(30); b16(20); b8(0);
+    b8(0xC4); b8(3); b8(5); b8(VDS_DRAW_DOT); b8(1); b16(-3); b16(2);
+    b8(0xC6); b8(3); b8(1); b16(5); b16(-2);
+    b8(0xC7); b8(3); b8(0); b8(1);
+    b8(0xC8); b8(0); b8(3); b8(2); b8(15);
+    b8(0xC9); b8(0); b16(0); b8(4); b8(0x12); b8(0x3F); b8(0x45); b8(0x6F);
+    b8(0xC4); b8(3); b8(6); b8(VDS_DRAW_ICON); b8(0); b16(2); b16(70); b8(0);
+    assert(send_batch());
+    assert(error_events == errors_before);
+    static uint8_t bitmap[4] = {0x12, 0x3F, 0x45, 0x6F};
+    vds_surface_init(&vb, 2, 40, 12, cells_b[2], 0x30);
+    vds_window_open(&vb, 1, 2, 80, 60, 40, 12, VDS_W_VISIBLE | VDS_W_DECOR, "");
+    assert(vds_canvas_create(&vb, 3, 2, 16, 8, 160, 80, 3, VDS_CV_VISIBLE, canvas_b));
+    vds_item it[7] = {{VDS_DRAW_LINE, 1, 0, 0, 0, 0, 159, 79, ""}, {VDS_DRAW_DISC, 1, 0, 0, 15, 8, 40, 30, ""},
+                      {VDS_DRAW_TEXT, 0, 0, 5, 60, 4, 0, 0, "chart"}, {VDS_DRAW_ICON, 15, VDS_ICON_FOLDER, 0, 100, 40, 0, 0, ""},
+                      {VDS_DRAW_STIPPLE, 2, 0, 0, 120, 50, 30, 20, ""}, {VDS_DRAW_DOT, 1, 0, 0, -3, 2, 0, 0, ""},
+                      {VDS_DRAW_ICON, 0, 0, 0, 2, 70, 0, 0, ""}};
+    for (uint8_t i = 0; i < 7; ++i) assert(vds_canvas_set(&vb, 3, i, &it[i]));
+    assert(vds_bitmap_define(&vb, 0, 3, 2, 15, bitmap));
+    same_screen();
+    /* Replies: canvas info, an item read back as its C4 bytes, a hit test. */
+    begin(); b8(0xCB); b8(3); assert(send_batch());
+    assert(last_code == VDS_PACKET_REPLY && last_n == 18 && last[0] == 0xCB && last[2] == 1 && last[3] == VDS_CV_VISIBLE && last[4] == 2);
+    assert(last[9] == 160 && last[11] == 80 && last[13] == 7);
+    begin(); b8(0xCC); b8(3); b8(2); assert(send_batch());
+    assert(last_n == 15 && last[3] == VDS_DRAW_TEXT && last[5] == 60 && last[9] == 5 && !memcmp(last + 10, "chart", 5));
+    begin(); b8(0xCC); b8(3); b8(1); assert(send_batch());
+    assert(last_n == 13 && last[3] == VDS_DRAW_DISC && last[5] == 15 && last[7] == 8 && last[9] == 40);
+    begin(); b8(0xCC); b8(3); b8(9); assert(send_batch());
+    assert(last_n == 4 && last[3] == 0);
+    begin(); b8(0xCA); b8(3); b16(20); b16(20); assert(send_batch());
+    assert(last_n == 7 && last[2] == 1);
+    begin(); b8(0xCA); b8(3); b16(159); b16(0); assert(send_batch());
+    assert(last[2] == 0);                                              /* boxes: the line's covers it all */
+    begin(); b8(0xCA); b8(3); b16(200); b16(0); assert(send_batch());
+    assert(last[2] == 255);
+    begin(); b8(0xCB); b8(5); assert(send_batch());
+    assert(last_n == 18 && last[2] == 0);
+    /* An unknown item kind is malformed: the whole batch is dropped. */
+    uint16_t generation = p.generation;
+    begin(); b8(0xC5); b8(3); b8(0); b8(0xC4); b8(3); b8(9); b8(VDS_DRAW_KINDS); b8(0); b16(0); b16(0);
+    assert(!send_batch() && p.generation == generation && vds_canvas_item(&va, 3, 0));
+    /* Bad arguments are skipped with an error: x not a multiple of 8, long text, CPU-reserved surface. */
+    unsigned errors = error_events;
+    begin(); b8(0xC1); b8(3); b16(17); b16(0); assert(send_batch());
+    begin(); b8(0xC4); b8(3); b8(9); b8(VDS_DRAW_TEXT); b8(0); b16(0); b16(0); b8(21); for (int i = 0; i < 21; ++i) b8('x'); assert(send_batch());
+    begin(); b8(0xC0); b8(4); b8(VDS_PROTO_SURFACES); b16(0); b16(0); b16(8); b16(8); b8(0); b8(1); assert(send_batch());
+    begin(); b8(0xC8); b8(VDS_ICON_FIRST); b8(4); b8(4); b8(15); assert(send_batch());          /* built-ins are read-only */
+    assert(error_events == errors + 4);
+    /* A replacing create is checked in full before the adapter is asked for
+     * memory (an adapter may move the memory canvas 3 still uses). */
+    unsigned calls = canvas_mem_calls;
+    begin(); b8(0xC0); b8(3); b8(2); b16(12); b16(8); b16(320); b16(200); b8(3); b8(VDS_CV_VISIBLE); assert(send_batch());   /* x */
+    begin(); b8(0xC0); b8(3); b8(2); b16(16); b16(8); b16(320); b16(200); b8(16); b8(VDS_CV_VISIBLE); assert(send_batch());  /* bg */
+    begin(); b8(0xC0); b8(3); b8(2); b16(16); b16(8); b16(320); b16(200); b8(3); b8(8); assert(send_batch());               /* flags */
+    begin(); b8(0xC0); b8(3); b8(2); b16(16); b16(8); b16(641); b16(200); b8(3); b8(VDS_CV_VISIBLE); assert(send_batch());   /* size */
+    assert(canvas_mem_calls == calls && error_events == errors + 8 && va.canvases[3].w == 160);
+    /* Reset drops canvases and uploaded bitmaps, keeps the built-in icons. */
+    begin(); b8(0x34); assert(send_batch());
+    assert(!va.canvases[3].used && !va.bitmaps[0].used && va.bitmaps[VDS_ICON_DISK].used && p.bitmap_used == 0);
+    vds_canvas_delete(&vb, 3);
+    vds_bitmap_undefine(&vb, 0);
+    vds_window_close(&vb, 1);
+    same_screen();
+
     /* Random batches: valid opcodes with random arguments, plus junk. */
     static const uint8_t ops[] = {0x01, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x30, 0x31, 0x32, 0x33, 0x35, 0x50, 0x51,
-                                  0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x74, 0x76, 0x77, 0x78, 0x79, 0x7A, 0x34};
+                                  0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x74, 0x76, 0x77, 0x78, 0x79, 0x7A,
+                                  0xC0, 0xC1, 0xC2, 0xC3, 0xC4, 0xC4, 0xC4, 0xC5, 0xC6, 0xC7, 0xC8, 0xC9, 0xCA, 0xCB, 0xCC, 0x34};
     p.yield = count_yield;
     unsigned applied = 0;
     for (int i = 0; i < 20000; ++i) {
@@ -211,9 +303,86 @@ int main(int argc, char **argv) {
         assert(ok ? yields > before : yields == before);
         applied += (unsigned)ok;
         vds_proto_frame(&p, rnd(40), rnd(3) ? 1 + rnd(50000) : UINT32_MAX);
-        assert(va.ndamage <= VDS_MAX_DAMAGE && va.count <= VDS_MAX_WINDOWS && p.pool_used <= VDS_PROTO_POOL);
+        assert(va.ndamage <= VDS_MAX_DAMAGE && va.count <= VDS_MAX_WINDOWS && p.pool_used <= VDS_PROTO_POOL && p.bitmap_used <= VDS_PROTO_BITMAP_POOL);
     }
     assert(applied > 100);
+
+    /* Inspection (ops 94-98): what exists, read back from the server's own
+     * widget state (the CPU keeps no table), without starting a hold. */
+    static vds_ui u;
+    p.yield = 0; p.push_events = 0;
+    vds_ui_init(&u, &p);
+    begin(); b8(0x34); b8(0x01); b8(3); b8(30); b8(10); b8(48);
+    b8(0x50); b8(4); b8(3); b16(16); b16(24); b8(30); b8(10); b8(VDS_W_VISIBLE | VDS_W_DECOR);
+    b8(0x54); b8(4); b8(7); bytes("Greeter", 7);
+    b8(0x80); b8(7); b8(4); b8(VDS_WK_BUTTON); b8(255); b8(2); b8(1); b8(12); b8(1); b8(0);
+    b8(0x81); b8(7); b8(5); bytes("Hello", 5); b8(0x94); b8(7); b8(14); bytes("hello-button12", 14);
+    b8(0x80); b8(9); b8(4); b8(VDS_WK_LIST); b8(255); b8(2); b8(3); b8(20); b8(4); b8(0);
+    b8(0x92); b8(9); b8(2); b8(3); bytes("one", 3); b8(26); bytes("abcdefghijklmnopqrstuvwxyz", 26);
+    b8(0x30); assert(send_batch() && !p.errors);
+    begin(); b8(0x95); assert(send_batch() && !p.hold && last_code == VDS_PACKET_REPLY && last_n == 15);
+    assert(last[0] == 0x95 && last[1] == 0x80 && last[2] == 0x02 && !last[3] && last[9] == 0x10 && last[13] == 0x08 && !last[14]);
+    begin(); b8(0x96); b8(7); assert(send_batch() && !p.hold);
+    assert(last[1] == 7 && last[2] == VDS_WK_BUTTON && last[3] == 4 && last[4] == 255 && last[5] == 2 && last[6] == 1 && last[7] == 12 && last[8] == 1);
+    assert(last[19] == VDS_WIDGET_NAME && last_n == 20 + VDS_WIDGET_NAME && !memcmp(last + 20, "hello-butt", 10));   /* name cut to 10 */
+    begin(); b8(0x9F); b8(9); b8(VDS_WSTYLE_FAULT); b8(0x96); b8(9); assert(send_batch());
+    assert(last[2] == VDS_WK_LIST && last[12] == 2 && last[13] == 0 && last[18] == VDS_WSTYLE_FAULT && last[19] == 0);
+    begin(); b8(0x9F); b8(9); b8(3); b8(0x30); assert(send_batch() && p.errors == 1);    /* no style 3 */
+    p.errors = 0;
+    begin(); b8(0x97); b8(4); assert(send_batch() && !p.hold && last_n == 14);
+    assert(last[1] == 4 && (last[2] & 3) == 3 && last[3] == 16 && last[5] == 24 && last[7] == 30 && last[8] == 10);
+    assert(last[9] == 3 && last[10] == 30 && last[11] == 10 && last[13] == 7);
+    begin(); b8(0x98); b8(2); b8(4); b16(0); b8(0); assert(send_batch() && last[6] == 7 && !memcmp(last + 7, "Greeter", 7));
+    begin(); b8(0x98); b8(0); b8(7); b16(0); b8(1); assert(send_batch() && last[5] == 1 && last[6] == 4 && !memcmp(last + 7, "ello", 4));
+    begin(); b8(0x98); b8(1); b8(9); b16(1); b8(0); assert(send_batch() && !p.hold);
+    assert(last[3] == 1 && last[6] == 23 && last_n == 30 && !memcmp(last + 7, "abcdefghijklmnopqrstuvw", 23));
+    begin(); b8(0x98); b8(1); b8(9); b16(1); b8(23); assert(send_batch() && last[6] == 3 && !memcmp(last + 7, "xyz", 3));
+    begin(); b8(0x98); b8(1); b8(9); b16(1); b8(26); assert(send_batch() && last[6] == 0 && last_n == 7);   /* past the end */
+    unsigned before_errors = p.errors;
+    begin(); b8(0x98); b8(1); b8(9); b16(2); b8(0); b8(0x96); b8(8); b8(0x97); b8(5); b8(0x98); b8(1); b8(7); b16(0); b8(0); b8(0x94); b8(8); b8(1); b8(65);
+    assert(send_batch() && p.errors == before_errors + 5);   /* no row 2, widget 8, window 5; a button has no rows; no name for 8 */
+    begin(); b8(0x94); b8(7); b8(9); bytes("abc", 3); assert(!send_batch());   /* truncated: the batch is refused */
+    before_errors = p.errors;
+    begin(); b8(0x80); b8(11); b8(4); b8(VDS_WK_BOX); b8(255); b8(0); b8(5); b8(30); b8(3); b8(0);
+    b8(0x80); b8(3); b8(4); b8(VDS_WK_LABEL); b8(11); b8(0); b8(0); b8(5); b8(1); b8(0); b8(0x30); assert(send_batch() && p.errors == before_errors);
+    begin(); b8(0x9B); b8(0); assert(send_batch() && !p.hold && last[2] == 4 && !memcmp(last + 3, "\x07\x09\x0b\x03", 4));
+    begin(); b8(0x9B); b8(3); assert(send_batch() && last[1] == 3 && last[2] == 1 && last[3] == 3);   /* parents first */
+    begin(); b8(0x99); b8(7); b8(4); b8(2); b8(9); b8(1); b8(0x9A); b8(7); b8(VDS_WF_HIDDEN); b8(0x96); b8(7); assert(send_batch());
+    assert(last[5] == 4 && last[6] == 2 && last[7] == 9 && last[9] == VDS_WF_HIDDEN && !strcmp(u.widgets[7].text, "Hello"));
+    begin(); b8(0x9A); b8(7); b8(0); b8(0x30); assert(send_batch() && p.errors == before_errors);
+    begin(); b8(0x87); b8(11); b8(0x9B); b8(0); assert(send_batch() && last[2] == 2);   /* the box took its label along */
+    begin(); b8(0x87); b8(7); b8(0x95); assert(send_batch() && last[1] == 0 && last[2] == 0x02);
+    begin(); b8(0x34); b8(0x95); assert(send_batch() && !last[2] && !last[9] && !last[13]);
+
+    /* Files (ops 9C-9E): /dev/win text rendered and parsed by the server. */
+    static const char make_text[] = "window - Files\nbutton w0 ok";
+    begin(); b8(0x9D); b8(VDS_FILE_NEW); b8(255); b8(0); b8(sizeof make_text - 1); bytes(make_text, sizeof make_text - 1); b8(0x30);
+    assert(send_batch() && last[0] == 0x9D && last[1] == 1 && last[2] == 0 && va.windows[0].used && u.widgets[0].used);
+    begin(); b8(0x9C); b8(VDS_FILE_LIST); b8(255); b16(0); b16(0); b8(0); assert(send_batch() && !p.hold);
+    assert(last[1] == 0 && last[6] == 23 && !memcmp(last + 7, "w0 window - Files 64 64", 23));          /* more of this line */
+    begin(); b8(0x9C); b8(VDS_FILE_LIST); b8(255); b16(0); b16(0); b8(23); assert(send_batch());
+    assert(last[1] == 1 && last[6] == 7 && !memcmp(last + 7, " 32 12\n", 7) && last[2] == 0 && last[4] == 1);   /* next: (0, 1) */
+    begin(); b8(0x9C); b8(VDS_FILE_LIST); b8(255); b16(0); b16(1); b8(0); assert(send_batch());
+    assert(last[1] == 1 && last[6] == 23 && !memcmp(last + 7, "0 button w0 ok 0 0 8 1\n", 23) && last[2] == 27 && last[4] == 1);
+    begin(); b8(0x9C); b8(VDS_FILE_LIST); b8(255); b16(27); b16(1); b8(0); assert(send_batch() && last[1] == 2 && last[6] == 0);
+    begin(); b8(0x9C); b8(VDS_FILE_CTL); b8(5); b16(0); b16(0); b8(0); assert(send_batch());
+    assert(last[1] == 3 && last[6] == 14 && !memcmp(last + 7, "no such widget", 14));                   /* an error says why */
+    static const char bad[] = "rect 1 2\n";
+    begin(); b8(0x9D); b8(VDS_FILE_CTL); b8(0); b8(0); b8(sizeof bad - 1); bytes(bad, sizeof bad - 1); assert(send_batch());
+    assert(last[1] == 0 && last[3] > 0 && !memcmp(last + 4, "rect:", 5));
+    begin(); b8(0x9D); b8(VDS_FILE_TEXT); b8(0); b8(0); b8(5); bytes("Hello", 5); b8(0x30); assert(send_batch() && last[1] == 1);
+    begin(); b8(0x9D); b8(VDS_FILE_TEXT); b8(0); b8(1); b8(3); bytes(" yo", 3); b8(0x30); assert(send_batch() && !strcmp(u.widgets[0].text, "Hello yo"));
+    uint8_t in_window = 0;
+    begin(); b8(0x9E); b8(0); b8(1); assert(send_batch());
+    vds_proto_event(&p, VDS_EVENT_ACTIVATE, 0, &in_window, 1);                                          /* routed: a STREAM line */
+    const uint8_t *queued = p.events[(p.event_head + p.event_count - 1) % VDS_EVENT_QUEUE];
+    assert(queued[1] == VDS_EVENT_STREAM && queued[2] == 0 && !memcmp(queued + 3, "activate\n", 9));
+    begin(); b8(0x9E); b8(0); b8(0); assert(send_batch());
+    vds_proto_event(&p, VDS_EVENT_ACTIVATE, 0, &in_window, 1);
+    queued = p.events[(p.event_head + p.event_count - 1) % VDS_EVENT_QUEUE];
+    assert(queued[1] == VDS_EVENT_ACTIVATE && queued[2] == 0);
+    before_errors = p.errors;
+    begin(); b8(0x9E); b8(VDS_NODE_WINDOW | 27); b8(1); assert(send_batch() && p.errors == before_errors + 1);   /* no such window id */
     printf("vds protocol checks passed: %u replies, %u events, %u random batches applied\n", replies, events, applied);
     return 0;
 }

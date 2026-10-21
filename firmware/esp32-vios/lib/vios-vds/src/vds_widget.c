@@ -210,6 +210,8 @@ static void render(vds_ui *u, uint8_t id) {
     int focused = u->widget_focus[w->window] == id && u->focus == w->window, off = (w->flags & VDS_WF_DISABLED) != 0;
     uint8_t base = attr(st->title_fg, st->body), sel = attr(st->menu_sel_fg, st->menu_sel_bg);
     uint8_t button = off ? attr(st->menu_disabled, st->menu_bg) : focused ? sel : attr(st->menu_fg, st->menu_bg);
+    if (w->style == VDS_WSTYLE_STRONG) base = attr(st->menu_key, st->body);
+    if (w->style == VDS_WSTYLE_FAULT) { base = attr(1, st->body); if (!focused) button = attr(3, 1); }   /* pinned red, white */
     char text[VDS_WIDGET_TEXT + 8], line[VDS_WIDGET_TEXT + 8];
     int m;
     size_t n = plain(w->text, text, VDS_WIDGET_TEXT, &m);
@@ -430,6 +432,37 @@ int vds_ui_widget_size(vds_ui *u, uint8_t id, uint8_t fixed, uint8_t weight) {
     if (!w) return 0;
     w->fixed = fixed;
     w->weight = weight;
+    redraw_window_of(u, id);
+    return 1;
+}
+
+/* Move or re-flag a widget in place (ops 99, 9A): what it covered is cleared
+ * (a box's area covers its children), then the window is laid out again. */
+static void uncover(vds_ui *u, const vds_widget *w) {
+    uint8_t s = surface_of(u, w->window);
+    if (s != VDS_NONE && w->w && w->h)
+        vds_fill(core(u), s, w->col, w->row, w->w, w->h, ' ', attr(core(u)->style.title_fg, core(u)->style.body));
+}
+int vds_ui_widget_place(vds_ui *u, uint8_t id, uint8_t col, uint8_t row, uint8_t w, uint8_t h) {
+    vds_widget *x = widget(u, id);
+    if (!x) return 0;
+    uncover(u, x);
+    x->col = col; x->row = row; x->w = w; x->h = h;
+    redraw_window_of(u, id);
+    return 1;
+}
+int vds_ui_widget_style(vds_ui *u, uint8_t id, uint8_t style) {
+    vds_widget *x = widget(u, id);
+    if (!x || style > VDS_WSTYLE_FAULT) return 0;
+    x->style = style;
+    render(u, id);
+    return 1;
+}
+int vds_ui_widget_flags(vds_ui *u, uint8_t id, uint8_t flags) {
+    vds_widget *x = widget(u, id);
+    if (!x) return 0;
+    uncover(u, x);
+    x->flags = flags;
     redraw_window_of(u, id);
     return 1;
 }

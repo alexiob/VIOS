@@ -4,16 +4,22 @@
 #include "vios/runtime.h"
 #include "platform/storage.h"
 #include "platform/vdp.h"
+#include "vios/ui.h"
+#include "vios/win.h"
 #define HANDLES 8
 #define PIPES 4
 #define PIPE_BYTES 128
 #define SNAPSHOT 512
-enum {H_FREE,H_FILE,H_PIPE,H_NULL,H_CONS,H_SNAPSHOT,H_HOST};
+enum {H_FREE,H_FILE,H_PIPE,H_NULL,H_CONS,H_SNAPSHOT,H_HOST,H_WIN};
 enum {E_AGAIN=1,E_BROKEN=2,E_BAD=3,E_FULL=4,E_PATH=5,E_IO=6,E_MODE=7};
-static struct {unsigned char kind,mode,owner,slot;uint32_t moved;char path[24];} handles[HANDLES];
-static struct {unsigned char data[PIPE_BYTES];unsigned short head,count;unsigned char readers,writers,used;} pipes[PIPES];
+static struct {unsigned char kind,mode,owner,slot;uint32_t moved;char path[24];struct vios_win_cursor win;} handles[HANDLES];
+static struct {unsigned char data[PIPE_BYTES];unsigned short head,count;unsigned char readers,writers,used,dropping;} pipes[PIPES];
 static char snapshot[SNAPSHOT];static unsigned short snapshot_length,snapshot_offset;static int snapshot_owner=-1;
 static char last_error[48];
+/* /dev/win files (kernel/vios_win.c); an event file reads a pipe its node's
+ * STREAM events are copied into, so a waiting reader costs no requests. */
+static int win_events(int i){return handles[i].kind==H_WIN&&handles[i].win.file==VIOS_WIN_EVENT;}
+static int node_watched(int except,unsigned node){for(int k=0;k<HANDLES;++k)if(k!=except&&win_events(k)&&handles[k].win.node==node)return 1;return 0;}
 /* User-space devices: /dev/NAME served by a Forth word (Plan 9 style). */
 #define DEVICES 4
 static struct {char name[12];fcell xt;} devices[DEVICES];
@@ -74,6 +80,7 @@ static void release(int i){
  else if(handles[i].kind==H_PIPE){if(handles[i].mode==1)--pipes[handles[i].slot].readers;else --pipes[handles[i].slot].writers;
   if(!pipes[handles[i].slot].readers&&!pipes[handles[i].slot].writers)pipes[handles[i].slot].used=0;}
  else if(handles[i].kind==H_SNAPSHOT)snapshot_owner=-1;
+ else if(win_events(i)){pipes[handles[i].slot].used=0;if(!node_watched(i,handles[i].win.node))vios_win_route(handles[i].win.node,0);}
  handles[i].kind=H_FREE;
 }
 static int slot(void){for(int i=0;i<HANDLES;++i)if(handles[i].kind==H_FREE)return i;return -1;}
@@ -93,6 +100,20 @@ static int open_native(void){
   if(same(d,"tasks")){
    if(mode!=1)return push(code(E_MODE,"/dev/tasks is read only"));if(snapshot_owner>=0)return push(code(E_FULL,"snapshot device busy"));
    render_tasks();snapshot_owner=i;claim(i,H_SNAPSHOT,1,0,path);return push((fcell)(i+1));
+  }
+  unsigned char file,node;
+  if(vios_win_path(d,&file,&node)){
+   if((file==VIOS_WIN_LIST||file==VIOS_WIN_TREE||file==VIOS_WIN_EVENT)&&mode!=1)return push(code(E_MODE,"read only"));
+   handles[i].win.file=file;handles[i].win.node=node;
+   if(!vios_win_open(&handles[i].win))return push(code(E_PATH,vios_win_error()));
+   unsigned p=0;
+   if(file==VIOS_WIN_EVENT){ /* a pipe the event router writes lines into; never EOF while open */
+    p=PIPES;for(unsigned q=0;q<PIPES;++q)if(!pipes[q].used){p=q;break;}
+    if(p==PIPES)return push(code(E_FULL,"no free pipe for events"));
+    pipes[p].used=1;pipes[p].head=pipes[p].count=pipes[p].dropping=0;pipes[p].readers=pipes[p].writers=1;
+    if(!node_watched(-1,node))vios_win_route(node,1);
+   }
+   claim(i,H_WIN,(unsigned char)mode,(unsigned char)p,path);return push((fcell)(i+1));
   }
   for(unsigned k=0;k<DEVICES;++k)if(devices[k].xt&&same(d,devices[k].name)){
    /* Pipe between caller and a fresh server task; each end is owned by its user. */
@@ -131,12 +152,27 @@ static int close_native(void){
 static int transfer(int writing){
  fcell h=fvm_pop(),length=fvm_pop(),address=fvm_pop();if(fvm_error)return forth_error("data stack underflow");
  int i=handle(h);if(i<0)return push(code(E_BAD,"bad handle"));
- if((writing&&handles[i].mode!=2)||(!writing&&handles[i].mode!=1))return push(code(E_MODE,"wrong handle direction"));
+ int both=handles[i].kind==H_WIN&&handles[i].win.file==VIOS_WIN_NEW; /* write makes a node, read gives its id */
+ if(!both&&((writing&&handles[i].mode!=2)||(!writing&&handles[i].mode!=1)))return push(code(E_MODE,"wrong handle direction"));
  unsigned char kind=handles[i].kind;fcell done=0;
  if(kind==H_NULL)done=writing?length:0;
  else if(kind==H_CONS){for(;done<length;++done){unsigned char c=fvm_read8(address+done);if(fvm_error){fvm_error=0;return push(code(E_IO,"invalid memory"));}forth_emit(c);}}
  else if(kind==H_SNAPSHOT){for(;done<length&&snapshot_offset<snapshot_length;++done)fvm_write8(address+done,(unsigned char)snapshot[snapshot_offset++]);}
- else if(kind==H_PIPE){
+ else if(kind==H_WIN&&!win_events(i)){
+  if(writing){
+   if(!vios_win_write(&handles[i].win,address,length)){fvm_error=0;return push(code(E_IO,vios_win_error()));}
+   done=length;handles[i].win.step=handles[i].win.sub=0;handles[i].win.col=0;
+  }else{
+   unsigned char bounce[64];
+   while(done<length){
+    unsigned want=length-done>sizeof bounce?(unsigned)sizeof bounce:(unsigned)(length-done);int got=vios_win_read(&handles[i].win,bounce,want);
+    if(got<0)return push(done?done:code(E_IO,vios_win_error()));
+    for(int k=0;k<got;++k)fvm_write8(address+done+(fcell)k,bounce[k]);
+    done+=(fcell)got;if((unsigned)got<want)break;
+   }
+  }
+ }
+ else if(kind==H_PIPE||kind==H_WIN){
   unsigned p=handles[i].slot;
   if(writing){
    if(!pipes[p].readers)return push(code(E_BROKEN,"broken pipe"));
@@ -194,7 +230,8 @@ static int io_write(unsigned h,unsigned char c){
 }
 static int io_read(unsigned h,unsigned char *c){
  int i=handle(h);if(i<0||handles[i].mode!=1)return -1;
- if(handles[i].kind==H_PIPE){unsigned p=handles[i].slot;if(!pipes[p].count)return pipes[p].writers?0:-1;
+ if(handles[i].kind==H_WIN&&!win_events(i)){if(vios_win_read(&handles[i].win,c,1)!=1)return -1;++handles[i].moved;return 1;}
+ if(handles[i].kind==H_PIPE||win_events(i)){unsigned p=handles[i].slot;if(!pipes[p].count)return pipes[p].writers?0:-1;
   *c=pipes[p].data[pipes[p].head];pipes[p].head=(unsigned short)((pipes[p].head+1)%PIPE_BYTES);--pipes[p].count;++handles[i].moved;return 1;}
  if(handles[i].kind==H_SNAPSHOT){if(snapshot_offset>=snapshot_length)return -1;*c=(unsigned char)snapshot[snapshot_offset++];++handles[i].moved;return 1;}
  if(handles[i].kind==H_FILE){size_t got=0;if(!storage_stream_read(handles[i].slot,c,1,&got))return -1;if(!got)return -1;++handles[i].moved;return 1;}
@@ -210,6 +247,21 @@ static int device_native(void){
  for(unsigned k=0;k<DEVICES;++k){if(devices[k].xt&&same(devices[k].name,name)){devices[k].xt=xt;if(!xt)devices[k].name[0]=0;return 1;}if(!devices[k].xt&&free_slot<0)free_slot=(int)k;}
  if(!xt)return 1;if(free_slot<0)return forth_error("device table full");
  unsigned n=0;while(name[n]){devices[free_slot].name[n]=name[n];++n;}devices[free_slot].name[n]=0;devices[free_slot].xt=xt;return 1;
+}
+/* A STREAM event (seq kind node text...) is a piece of a text line (at most
+ * 23 bytes; a line takes one or two). It goes to every event file of its
+ * node. A piece that does not end its line is taken only with room left for
+ * the next, so a full pipe loses whole lines, never halves. */
+static int route_event(const unsigned char *e,unsigned len){
+ int ends=e[len-1]=='\n';
+ for(int i=0;i<HANDLES;++i){
+  if(!win_events(i)||handles[i].win.node!=e[2])continue;
+  unsigned p=handles[i].slot,room=PIPE_BYTES-pipes[p].count;
+  if(pipes[p].dropping){pipes[p].dropping=!ends;continue;}
+  if(room<len-3+(ends?0:23)){pipes[p].dropping=!ends;continue;}
+  for(unsigned k=3;k<len;++k){pipes[p].data[(pipes[p].head+pipes[p].count)%PIPE_BYTES]=e[k];++pipes[p].count;}
+ }
+ return 1;
 }
 static void task_exit(unsigned id){for(int i=0;i<HANDLES;++i)if(handles[i].kind!=H_FREE&&handles[i].owner==id)release(i);}
 /* Whole-file read from the Mac for LOAD/INCLUDE /host/...; 1 ok, 0 failed. */
@@ -254,18 +306,18 @@ int vios_handles_command(const char *word,const char **rest){
  return 0;
 }
 void vios_handles_report(void){
- static const char *const kinds[]={"free","file","pipe","null","cons","snapshot","host"};
+ static const char *const kinds[]={"free","file","pipe","null","cons","snapshot","host","win"};
  for(int i=0;i<HANDLES;++i){if(handles[i].kind==H_FREE)continue;
   vios_out("handle ");vios_uint((uint32_t)i+1);vios_out(" kind ");vios_out(kinds[handles[i].kind]);vios_out(handles[i].mode==1?" read":" write");
   vios_out(" owner ");vios_uint(handles[i].owner);vios_out(" bytes ");vios_uint(handles[i].moved);
-  if(handles[i].kind==H_PIPE){vios_out(" buffered ");vios_uint(pipes[handles[i].slot].count);}
+  if(handles[i].kind==H_PIPE||win_events(i)){vios_out(" buffered ");vios_uint(pipes[handles[i].slot].count);}
   vios_out(" path ");vios_out(handles[i].path);vios_out("\r\n");}
  for(unsigned k=0;k<DEVICES;++k)if(devices[k].xt){vios_out("device /dev/");vios_out(devices[k].name);vios_out(" xt ");vios_uint((uint32_t)devices[k].xt);vios_out("\r\n");}
  vios_out("io-error ");vios_out(last_error[0]?last_error:"-");vios_out("\r\n");
 }
 int vios_handles_init(void){
  for(int i=0;i<HANDLES;++i){if(handles[i].kind==H_FILE)storage_stream_close(handles[i].slot);handles[i].kind=H_FREE;}
- for(unsigned p=0;p<PIPES;++p)pipes[p].used=0;snapshot_owner=-1;last_error[0]=0;
+ for(unsigned p=0;p<PIPES;++p)pipes[p].used=0;snapshot_owner=-1;last_error[0]=0;vios_ui_route(route_event);
  for(unsigned k=0;k<DEVICES;++k){devices[k].xt=0;devices[k].name[0]=0;}
  forth_register_task_exit(task_exit);forth_register_task_io(io_write,io_read,io_give);
  static const struct {const char *name;int (*fn)(void);} natives[]={{"OPEN",open_native},{"CLOSE",close_native},{"READ",read_native},{"WRITE",write_native},{"PIPE",pipe_native},{"DEVICE",device_native}};
@@ -279,5 +331,8 @@ int vios_handles_init(void){
   "VARIABLE PL-R VARIABLE PL-W "
   /* CRITICAL: no tick may run a task between its SPAWN and its wiring (with
    * preemption the producer could finish before TASK-OUTPUT: soak 2026-10-20). */
-  ": PIPELINE CRITICAL( PIPE PL-W ! PL-R ! SPAWN-CON DUP PL-R @ TASK-INPUT SWAP SPAWN DUP PL-W @ TASK-OUTPUT SWAP )CRITICAL ;");
+  ": PIPELINE CRITICAL( PIPE PL-W ! PL-R ! SPAWN-CON DUP PL-R @ TASK-INPUT SWAP SPAWN DUP PL-W @ TASK-OUTPUT SWAP )CRITICAL ; "
+  /* Print Forth source that rebuilds the display server's windows and widgets. */
+  "CREATE UI-SNAP 32 ALLOT : UI-SNAPSHOT S\" /dev/ui/tree\" 1 OPEN DUP 0 < IF DROP EXIT THEN >R "
+  "BEGIN UI-SNAP 32 R@ READ DUP 0 SWAP < WHILE UI-SNAP SWAP TYPE REPEAT DROP R> CLOSE DROP ;");
 }

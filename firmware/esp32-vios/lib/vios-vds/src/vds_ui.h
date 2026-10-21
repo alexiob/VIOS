@@ -54,8 +54,9 @@ enum {
     VDS_VK_F1 = 159, VDS_VK_F3 = 161, VDS_VK_F5 = 163, VDS_VK_F6 = 164, VDS_VK_F10 = 168, VDS_VK_F12 = 170
 };
 enum { VDS_MOD_CTRL = 1, VDS_MOD_SHIFT = 2, VDS_MOD_LALT = 4, VDS_MOD_RALT = 8 };
-enum { VDS_EVENT_POINTER = 0x07, VDS_EVENT_FOCUS = 0x06, VDS_EVENT_WIN = 0x10, VDS_EVENT_COMMAND = 0x11, VDS_EVENT_ANIMDONE = 0x12 };
-enum { VDS_TWEEN_WINDOW = 0, VDS_TWEEN_SPRITE = 1 };
+enum { VDS_EVENT_POINTER = 0x07, VDS_EVENT_FOCUS = 0x06, VDS_EVENT_WIN = 0x10, VDS_EVENT_COMMAND = 0x11, VDS_EVENT_ANIMDONE = 0x12,
+       VDS_EVENT_CANVAS = 0x13 };   /* canvas id; x y (s16, canvas pixels), item under them */
+enum { VDS_TWEEN_WINDOW = 0, VDS_TWEEN_SPRITE = 1, VDS_TWEEN_CANVAS = 2 };   /* canvas: x (snapped to 8), y */
 enum { VDS_PROP_X = 0, VDS_PROP_Y = 1, VDS_PROP_SCROLL_ROW = 2, VDS_PROP_SCROLL_COL = 3 };
 enum { VDS_EASE_LINEAR = 0, VDS_EASE_IN_OUT = 1, VDS_EASE_OUT = 2, VDS_EASE_SPRING = 3 };
 #define VDS_MAX_TWEENS 16
@@ -82,9 +83,13 @@ enum { VDS_WK_BOX = 1, VDS_WK_LABEL, VDS_WK_BUTTON, VDS_WK_CHECK, VDS_WK_RADIO, 
 enum { VDS_WF_HIDDEN = 1, VDS_WF_DISABLED = 2, VDS_WF_FILL = 4,   /* FILL: a root box covering the client area */
        VDS_WF_READONLY = 8, VDS_WF_TREE = 16, VDS_WF_PAGER = 32 };
 enum { VDS_LAYOUT_NONE = 0, VDS_LAYOUT_COLUMN = 1, VDS_LAYOUT_ROW = 2 };
+/* Widget styles: strong text in the style's key colour; fault (a failed
+ * handler) in pinned red, buttons white on red. TextViews keep their look. */
+enum { VDS_WSTYLE_NORMAL = 0, VDS_WSTYLE_STRONG = 1, VDS_WSTYLE_FAULT = 2 };
 enum { VDS_KEYS_FORWARD = 0, VDS_KEYS_DROP = 1 };   /* key policy of a window (op 5A) */
 #define VDS_MAX_WIDGETS 64
 #define VDS_WIDGET_TEXT 48
+#define VDS_WIDGET_NAME 10
 #define VDS_LIST_POOL 1024              /* list rows held on the ESP, shared by all lists */
 #define VDS_ITEM_TEXT 32
 #define VDS_TABLE_COLS 8
@@ -102,6 +107,8 @@ typedef struct {
     uint8_t pending;                    /* drawn at the next flush (wire ops defer drawing) */
     uint8_t ncols, cols[VDS_TABLE_COLS];   /* table column widths */
     char text[VDS_WIDGET_TEXT];
+    char name[VDS_WIDGET_NAME + 1];     /* set by op 94; only for inspection (/dev/win) */
+    uint8_t style;                      /* VDS_WSTYLE_*: op 9F */
 } vds_widget;
 typedef struct {                        /* a TextView buffer */
     uint8_t used, widget, dirty;
@@ -123,6 +130,17 @@ enum { VDS_FROM_MENU = 1, VDS_FROM_ACCELERATOR = 2, VDS_FROM_PALETTE = 3 };
 #define VDS_ITEM_SUBMENU 0xFE00u
 #define VDS_UI_FIRST_WINDOW VDS_PROTO_WINDOWS     /* popups 27..29, status line 30, menu bar 31 */
 #define VDS_UI_FIRST_SURFACE VDS_PROTO_SURFACES   /* popups 11..13, status line 14, menu bar 15 */
+
+/* /dev/win files served as text (vds_files.c; ops 9C-9E). Nodes: a widget id,
+ * or VDS_NODE_WINDOW | window id. A routed node's events become STREAM
+ * events: id the node, arguments its text line ("select 3\n"). */
+enum { VDS_FILE_LIST = 1, VDS_FILE_NEW, VDS_FILE_CTL, VDS_FILE_TEXT, VDS_FILE_EVENT, VDS_FILE_TREE };
+enum { VDS_EVENT_STREAM = 0x14 };   /* 0x13 is VDS_EVENT_CANVAS */
+#define VDS_NODE_WINDOW 0x80
+#define VDS_FILE_LINE 96                        /* longest line, newline included */
+/* Text bytes per STREAM event: seq kind id + piece and its length byte fit
+ * one poll reply next to the reply's 3-byte header. */
+#define VDS_STREAM_PIECE (VDS_REPLY_MAX - 3 - 1 - 3)
 
 enum { VDS_CMD_USED = 1, VDS_CMD_ENABLED = 2, VDS_CMD_CHECKED = 4, VDS_CMD_STATUS = 8 };
 
@@ -169,6 +187,8 @@ typedef struct vds_ui {
     uint8_t widget_cols[VDS_MAX_WINDOWS], widget_rows[VDS_MAX_WINDOWS];   /* size at the last layout */
     uint8_t pointer_mode, buttons;
     int16_t px, py;
+    uint64_t routed_widgets, routed_windows;    /* nodes whose events are streamed (op 9E) */
+    uint16_t file_surfaces;                     /* surfaces /dev/win/new made: freed with their window */
 } vds_ui;
 
 void vds_ui_init(vds_ui *u, vds_proto *p);
@@ -219,6 +239,10 @@ const vds_text *vds_ui_text(vds_ui *u, uint8_t id);
  * or widget uses from the CPU (F1 still goes through). */
 int vds_ui_key_policy(vds_ui *u, uint8_t window, uint8_t policy);
 int vds_ui_widget_delete(vds_ui *u, uint8_t id);
+/* Move/resize (client cells) or change the flags of a widget in place. */
+int vds_ui_widget_place(vds_ui *u, uint8_t id, uint8_t col, uint8_t row, uint8_t w, uint8_t h);
+int vds_ui_widget_flags(vds_ui *u, uint8_t id, uint8_t flags);
+int vds_ui_widget_style(vds_ui *u, uint8_t id, uint8_t style);
 int vds_ui_widget_focus(vds_ui *u, uint8_t id);
 /* Lay out and redraw every widget of a window (after resize or style change). */
 void vds_ui_widgets_refresh(vds_ui *u, uint8_t window);
@@ -231,6 +255,16 @@ int vds_ui_text_key(vds_ui *u, uint8_t id, uint8_t ascii, uint8_t modifiers, uin
 void vds_ui_text_render(vds_ui *u, uint8_t id);
 void vds_ui_text_release(vds_ui *u, uint8_t id);
 void vds_ui_widgets_forget(vds_ui *u, uint8_t window);
+/* /dev/win files: the line at cursor (*step, *sub) into out (VDS_FILE_LINE
+ * bytes) and the cursor of the next line; returns its length, 0 at the end,
+ * -1 with the reason in out. A write applies text (one command or node a
+ * line for ctl and new); 0 with the reason in msg (at least 32 bytes). */
+int vds_files_line(vds_ui *u, uint8_t file, uint8_t node, uint16_t *step, uint16_t *sub, char *out);
+int vds_files_write(vds_ui *u, uint8_t file, uint8_t *node, int append, const char *text, size_t n, char *msg);
+int vds_files_route(vds_ui *u, uint8_t node, uint8_t on);
+/* Stream a routed node's event as text (the protocol's event hook): 1 if it did. */
+int vds_files_event(vds_ui *u, uint8_t kind, uint8_t id, const uint8_t *args, uint8_t n);
+size_t vds_files_event_line(uint8_t kind, const uint8_t *args, uint8_t n, char *out);
 /* Re-render the menu bar, status line and open menus (after style changes). */
 void vds_ui_refresh(vds_ui *u);
 /* Text shown for a command's accelerator, e.g. "Ctrl+S"; out holds VDS_ACCEL_MAX bytes. */
