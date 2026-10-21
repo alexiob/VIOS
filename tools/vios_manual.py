@@ -327,8 +327,17 @@ def media(only=None):
             else:
                 lines.append(line)
         with tempfile.TemporaryDirectory() as out:
-            result = subprocess.run([str(BUILD / 'vios_shots'), str(BUILD / 'font.bin'), out],
-                                    input='\n'.join(lines) + '\n', text=True, capture_output=True, cwd=ROOT)
+            if any(l.strip() == 'runtime full' for l in lines):
+                # The whole resident runtime (handles, files, /dev/win) on the
+                # real display server: eval lines are blocks, shots dump the screen.
+                blocks = [f'#BLOCK @shot {out}/{l[5:].strip()}.ppm' if l.startswith('shot ') else f'#BLOCK {k}\n{l[5:]}'
+                          for k, l in enumerate(lines) if l.startswith(('eval ', 'shot '))]
+                result = doc_host('--check', stdin='\n'.join(blocks) + '\n')
+                if 'FAIL' in result.stdout:
+                    sys.exit(f'{scene.name}: {result.stdout[result.stdout.index("FAIL") - 60:][:300]}')
+            else:
+                result = subprocess.run([str(BUILD / 'vios_shots'), str(BUILD / 'font.bin'), out],
+                                        input='\n'.join(lines) + '\n', text=True, capture_output=True, cwd=ROOT)
             if result.returncode:
                 sys.exit(f'{scene.name}: {result.stderr.strip()}')
             for ppm in sorted(Path(out).glob('*.ppm')):

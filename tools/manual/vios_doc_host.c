@@ -127,9 +127,16 @@ static uint8_t esp_reply[32],esp_reply_n,esp_reply_valid;static int esp_nudged;
 static vds_cell *esp_cells(void *ctx,uint8_t id,uint16_t n){(void)ctx;return id<VDS_MAX_SURFACES&&n<=80*60?cell_store[id]:0;}
 static void esp_send(void *ctx,uint8_t code,const uint8_t *d,uint8_t n){(void)ctx;if(code==VDS_PACKET_EVENT){esp_nudged=1;return;}if(n>sizeof esp_reply)n=sizeof esp_reply;memcpy(esp_reply,d,n);esp_reply_n=n;esp_reply_valid=1;}
 static void esp_frames(void){for(int i=0;i<4;++i)vds_proto_frame(&esp_p,20,UINT32_MAX);}
-static int esp_batches(const unsigned char *b,size_t n){            /* whole 23,0,E4,len,payload packets */
- if(n<4||b[0]!=23||b[1]!=0||b[2]!=0xE4)return 0;
- for(size_t i=0;i+4<=n&&b[i]==23&&b[i+1]==0&&b[i+2]==0xE4;i+=4u+b[i+3])if(i+4u+b[i+3]<=n)vds_proto_batch(&esp_p,b+i+4,b[i+3]);
+/* GUI batches arrive as 23,0,E4,len then the payload, in one call or two;
+ * other VDU traffic goes to the stub. Returns 0 when the bytes are not GUI. */
+static uint8_t esp_vdu[4+255];static unsigned esp_vdu_n;
+static int esp_batches(const unsigned char *b,size_t n){
+ if(!esp_vdu_n&&(n<3||b[0]!=23||b[1]!=0||b[2]!=0xE4))return 0;
+ for(size_t i=0;i<n;++i){
+  esp_vdu[esp_vdu_n++]=b[i];
+  if(esp_vdu_n>=4&&esp_vdu_n==4u+esp_vdu[3]){vds_proto_batch(&esp_p,esp_vdu+4,esp_vdu[3]);esp_vdu_n=0;
+   if(i+1<n&&(n-i-1<3||b[i+1]!=23||b[i+2]!=0||b[i+3]!=0xE4)){stub_vdp_send(b+i+1,n-i-1);return 1;}}
+ }
  return 1;
 }
 void platform_vdp_send(const void *data,size_t size){if(!esp_batches(data,size))stub_vdp_send(data,size);}
@@ -145,6 +152,18 @@ static void esp_init(const char *font_path){
  for(int y=0;y<480;++y)fb_rows[y]=fb[y];
  if(!vds_init(&esp_v,fb_rows,640,480,font)){fprintf(stderr,"vds_init\n");exit(2);}
  vds_proto_init(&esp_p,&esp_v,esp_cells,esp_send,0);vds_ui_init(&esp_u,&esp_p);
+ /* The board's Console window (include/vios_gui.h): surface 16, window 32. */
+ vds_surface_init(&esp_v,VDS_CONSOLE_SURFACE,74,28,cell_store[VDS_CONSOLE_SURFACE],0x30);
+ vds_window_open(&esp_v,VDS_CONSOLE_WINDOW,VDS_CONSOLE_SURFACE,16,228,74,28,VDS_W_VISIBLE|VDS_W_DECOR|VDS_W_SHADOW,"Console");
+}
+/* "#BLOCK @shot PATH" saves the screen as a PPM instead of evaluating. */
+static int esp_shot(const char *path){
+ for(int i=0;i<1000&&!vds_frame(&esp_v,UINT32_MAX);++i);
+ FILE *f=fopen(path,"wb");if(!f)return 0;
+ fprintf(f,"P6\n640 480\n255\n");
+ for(int y=0;y<480;++y)for(int x=0;x<640;++x){uint8_t i=(x&1)?fb[y][x>>1]&15:fb[y][x>>1]>>4,c=esp_v.style.palette[i];
+  uint8_t rgb[3]={(uint8_t)((c>>4&3)*85),(uint8_t)((c>>2&3)*85),(uint8_t)((c&3)*85)};fwrite(rgb,1,3,f);}
+ return !fclose(f);
 }
 static void reset(void){forth_init();if(!vios_runtime_init()){fprintf(stderr,"runtime init: %s\n",forth_last_error());exit(2);}}
 /* Unused test hooks kept so the copied stubs compile unchanged. */
@@ -166,6 +185,7 @@ int main(int argc,char **argv){
  while((p=strstr(p,"#BLOCK "))){
   char *name=p+7,*eol=strchr(name,'\n');if(!eol)break;*eol=0;
   char *body=eol+1,*next=strstr(body,"\n#BLOCK ");if(next)*next=0;
+  if(!strncmp(name,"@shot ",6)){printf("\n#RESULT %s %s\n",name,esp_shot(name+6)?"ok":"FAIL cannot write");if(!next)break;p=next+1;continue;}
   printf("\n#RUN %s\n",name);fflush(stdout);
   int ok=forth_eval(body);if(ok&&forth_compiling()){ok=0;}esp_frames();
   printf("\n#RESULT %s %s %s\n",name,ok?"ok":"FAIL",ok?"":forth_last_error());fflush(stdout);
