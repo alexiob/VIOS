@@ -4,6 +4,10 @@ All notable changes to VIOS are listed here. Versions follow semantic versioning
 
 ## [Unreleased]
 
+### Documentation
+
+- The manual site is served at https://vios.iob.dev by the `vios-docs` Cloudflare Worker, deployed from GitHub Actions on each release tag (or by hand). The hosting instructions moved out of the site into `docs/manual/HOSTING.md`.
+
 ### Fixed
 
 - The Down arrow no longer submits the line in the console's line editor; it moves through the history (the VDP sends Down as ASCII 10, which was taken for Enter).

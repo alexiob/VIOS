@@ -42,8 +42,7 @@ pixels.*
 18. [Troubleshooting](#troubleshooting)
 19. [Example Programs](#example-programs)
 20. [Word Reference](#word-reference)
-21. [Appendix A: Hosting this Manual](#appendix-a-hosting-this-manual)
-22. [Appendix B: Limits and Numbers](#appendix-b-limits-and-numbers)
+21. [Appendix: Limits and Numbers](#appendix-limits-and-numbers)
 
 ## Introduction
 
@@ -95,7 +94,7 @@ protection (the eZ80 has none), no general garbage collector or module
 unload, no networking on the board, and the running heap is not saved: what
 persists is *source* (modules and `USER.FTH`). The compiler and the outer
 interpreter are written in C. These limits are spelled out where they matter
-and collected in [Appendix B](#appendix-b-limits-and-numbers).
+and collected in [the appendix](#appendix-limits-and-numbers).
 
 ### How to read this manual
 
@@ -190,7 +189,7 @@ There is no MMU and no memory protection. All code shares one address space. Err
 | `0x0B8000..0x0BFFFF` | 32 KB | MOS reserved area and MOS heap/stack. Not used by VIOS. |
 | `0xB7E000..0xB7FFFF` | 8 KB | On-chip SRAM, where MOS maps it. |
 
-The linker refuses an image whose BSS would run into the stack. Exact BSS figures change with every build; see `build/vios-resident.map`. Fixed capacities such as dictionary entries, stack depths and module limits are listed in [Appendix B: Limits and Numbers](#appendix-b-limits-and-numbers).
+The linker refuses an image whose BSS would run into the stack. Exact BSS figures change with every build; see `build/vios-resident.map`. Fixed capacities such as dictionary entries, stack depths and module limits are listed in [Appendix: Limits and Numbers](#appendix-limits-and-numbers).
 
 ### The ESP32: the VIOS VDP firmware
 
@@ -2001,7 +2000,7 @@ CREATE PAIR 2 CELLS ALLOT
 ### Limits
 
 The capacities that matter while programming (all from the code; the full
-list is in [Appendix B: Limits and Numbers](#appendix-b-limits-and-numbers)):
+list is in [Appendix: Limits and Numbers](#appendix-limits-and-numbers)):
 
 | Resource | Limit | Source |
 | --- | --- | --- |
@@ -6668,130 +6667,7 @@ All words in ASCII order:
 
 <!-- END WORD REFERENCE -->
 
-## Appendix A: Hosting this Manual
-
-This manual is one Markdown file, `docs/manual/VIOS-MANUAL.md`, with its
-images in `docs/manual/media/`. It reads fine on GitHub as it is. A static
-HTML site with the look of the VIOS GUI is generated from it.
-
-### Building the site
-
-```sh
-make manual          # word reference, example check, screenshots (needs cc, ImageMagick, gifsicle)
-make manual-site     # HTML into build/site (creates build/site-venv from tools/manual/requirements.txt)
-make manual-preview  # serves build/site on http://127.0.0.1:8000
-```
-
-`make manual` is for when the sources or the scenes change: it regenerates
-the [Word Reference](#word-reference) from the code, runs every Forth example
-on the host, and re-renders `docs/manual/media/`. Commit the results.
-`make manual-site` only turns Markdown into HTML (Python, `Markdown` and
-`fonttools`), so it also runs in CI. The output in `build/site` is plain
-files: one page per chapter, the media, the Agon 8×8 font converted to a web
-font, the Markdown itself, a `404.html` and a `.nojekyll` marker. Any static
-web host serves it unchanged.
-
-### Where to host it
-
-The repository `github.com/alexiob/VIOS` is **private**. That decides most of
-the choice:
-
-| Option | Cost | Source stays private | Notes |
-| --- | --- | --- | --- |
-| GitHub Pages from this repository | Needs a paid plan (GitHub Pro for a personal account, Team or Enterprise for an organization) | Yes (the *site* is public) | Simplest: the official Pages workflow, no secrets. On GitHub Free, Pages works only for public repositories. Pages sites visible only to signed-in members need GitHub Enterprise Cloud. |
-| GitHub Pages from a separate **public** repository | Free | Yes: only the built HTML is published | The workflow in this repository pushes the built site to, for example, `alexiob/vios-manual`; that repository's Pages serve it at `https://alexiob.github.io/vios-manual/`. Needs a deploy key. |
-| Cloudflare Pages | Free plan (500 builds a month, static requests unmetered) | Yes, with *direct upload* from GitHub Actions; connecting the Git integration instead gives Cloudflare read access to the private repository | Fast global CDN, custom domains, preview URLs. Needs a Cloudflare account and an API token as a repository secret. |
-| Netlify | Free plan with a monthly credit allowance (deploys and bandwidth draw on it; sites pause when it runs out) | Same as Cloudflare (CLI deploy, or Git integration with repository access) | Easy UI and previews; the credit model needs watching. |
-| Vercel | Free *Hobby* plan, non-commercial use only | Same as above | Optimized for web apps; works for static files. |
-| GitLab Pages | Free | Only if the source is mirrored to GitLab | Pages from private GitLab projects are possible; it means maintaining a second remote. |
-
-Prices and limits change: check each provider's pricing page before you
-decide. (Checked in October 2026.)
-
-**Recommendation: publish from a separate public repository with GitHub
-Pages.** It is free, keeps the source private, stays on GitHub (no new
-account), and the site is just static files that move anywhere later. If you
-already pay for GitHub Pro, use Pages from this repository instead: same
-workflow, no deploy key.
-
-### The workflow
-
-`.github/workflows/manual.yml` builds the site on every push or pull request
-that touches `docs/manual/` or `tools/manual/`, and keeps it as a downloadable
-artifact. It publishes only when the repository variable `MANUAL_DEPLOY` is
-set, so adding the file changes nothing until you opt in:
-
-| `MANUAL_DEPLOY` | What the workflow does | You also need |
-| --- | --- | --- |
-| *(unset)* | Builds and uploads the artifact only | — |
-| `pages` | Deploys to this repository's GitHub Pages | A plan that allows Pages on a private repository; Settings → Pages → Source: **GitHub Actions** |
-| `public-repo` | Force-pushes the site to the `gh-pages` branch of `MANUAL_PUBLIC_REPO` | The variable `MANUAL_PUBLIC_REPO` and the secret `MANUAL_DEPLOY_KEY` |
-
-### Steps: separate public repository (recommended)
-
-1. Create an empty **public** repository, for example `alexiob/vios-manual`.
-2. Make a key pair on your Mac, without a passphrase:
-
-   ```sh
-   ssh-keygen -t ed25519 -N "" -C "vios-manual deploy" -f vios-manual-deploy
-   ```
-
-3. In `alexiob/vios-manual`: Settings → Deploy keys → **Add deploy key**,
-   paste `vios-manual-deploy.pub`, tick **Allow write access**.
-4. In `alexiob/VIOS`: Settings → Secrets and variables → Actions:
-    - Secrets → **New repository secret** `MANUAL_DEPLOY_KEY` = the contents of
-      `vios-manual-deploy` (the private key). Then delete both key files.
-    - Variables → `MANUAL_DEPLOY` = `public-repo` and `MANUAL_PUBLIC_REPO` =
-      `alexiob/vios-manual`.
-5. Push the branch with the manual to `main` (or run the workflow by hand:
-   Actions → Manual → **Run workflow**). The first run creates the `gh-pages`
-   branch in the public repository.
-6. In `alexiob/vios-manual`: Settings → Pages → Source **Deploy from a
-   branch**, branch `gh-pages`, folder `/ (root)`. After a minute the site is at
-   `https://alexiob.github.io/vios-manual/`.
-7. Optional: a custom domain (Settings → Pages → Custom domain) with a `CNAME`
-   DNS record pointing to `alexiob.github.io`.
-
-### Steps: GitHub Pages from this repository
-
-1. Check that your plan allows Pages for private repositories (GitHub Pro,
-   Team or Enterprise): github.com → Settings → Billing and plans.
-2. In `alexiob/VIOS`: Settings → Pages → Build and deployment → Source:
-   **GitHub Actions**.
-3. Settings → Secrets and variables → Actions → Variables: `MANUAL_DEPLOY` =
-   `pages`.
-4. Push to `main`. The site appears at `https://alexiob.github.io/VIOS/`.
-
-### Steps: Cloudflare Pages (alternative)
-
-1. Create a Pages project with *direct upload* in the Cloudflare dashboard
-   (Workers & Pages → Create → Pages → Upload assets), named for example
-   `vios-manual`.
-2. Create an API token with the **Cloudflare Pages: Edit** permission and note
-   your account ID.
-3. Add them to `alexiob/VIOS` as secrets `CLOUDFLARE_API_TOKEN` and
-   `CLOUDFLARE_ACCOUNT_ID`, and add a job to the workflow after `build`:
-
-   ```yaml
-   deploy-cloudflare:
-     needs: build
-     if: github.ref == 'refs/heads/main'
-     runs-on: ubuntu-latest
-     steps:
-       - uses: actions/download-artifact@v4
-         with: { name: github-pages }
-       - run: mkdir site && tar -xf artifact.tar -C site
-       - uses: cloudflare/wrangler-action@v3
-         with:
-           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-           command: pages deploy site --project-name=vios-manual
-   ```
-
-The site is then at `https://vios-manual.pages.dev/`. Cloudflare only ever
-receives the built HTML.
-
-## Appendix B: Limits and Numbers
+## Appendix: Limits and Numbers
 
 VIOS uses fixed-size tables and arenas everywhere: nothing is allocated
 dynamically, so every capacity below is a compile-time constant. When a

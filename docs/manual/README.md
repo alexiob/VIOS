@@ -45,8 +45,9 @@ make manual-preview  # http://127.0.0.1:8000
 `tests/test_vios_manual.py` (part of `make test`) runs `check`, verifies the
 word reference is current and runs the examples.
 
-Hosting the site is described in the manual's appendix A; the workflow is
-`.github/workflows/manual.yml`.
+The site is served at https://vios.iob.dev; building, deploying and the
+Cloudflare setup are in [HOSTING.md](HOSTING.md) (kept out of the site). The
+workflow is `.github/workflows/manual.yml`.
 
 The site uses the Agon 8x8 font (Damien Guard and Lennart Benschop, from the
 vendored Agon VDP), converted to an outline web font; the font file says so.

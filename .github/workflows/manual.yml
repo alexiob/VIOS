@@ -1,15 +1,11 @@
-# Build the VIOS manual site (docs/manual) and, when enabled, publish it.
+# Build the VIOS manual site (docs/manual) and deploy it to https://vios.iob.dev.
 #
 # Every push or pull request that touches the manual builds the site and keeps
-# it as a workflow artifact. Publishing is off until the repository variable
-# MANUAL_DEPLOY says where (Settings > Secrets and variables > Actions >
-# Variables); see docs/manual/VIOS-MANUAL.md, "Appendix A: Hosting this manual":
-#   pages        GitHub Pages of this repository (a private repository needs a
-#                paid plan); set Settings > Pages > Source to "GitHub Actions".
-#   public-repo  push the built site to the repository named in the variable
-#                MANUAL_PUBLIC_REPO (e.g. alexiob/vios-manual), whose own Pages
-#                serve it from its gh-pages branch; needs the secret
-#                MANUAL_DEPLOY_KEY (a deploy key with write access there).
+# it as a workflow artifact. A release tag (vX.Y.Z) or a manual run ("Run
+# workflow") also deploys it: the vios-docs Cloudflare Worker, configured in
+# tools/manual/wrangler.jsonc, with the repository secrets CLOUDFLARE_API_TOKEN
+# and CLOUDFLARE_ACCOUNT_ID. Without them the deploy job prints a notice and
+# stops. See docs/manual/HOSTING.md.
 # The screenshots and the word reference are generated on a developer machine
 # (make manual) and committed; this job only renders Markdown to HTML.
 name: Manual
@@ -17,6 +13,7 @@ name: Manual
 on:
   push:
     branches: [main]
+    tags: ['v*.*.*']
     paths: ['docs/manual/**', 'tools/manual/**', '.github/workflows/manual.yml']
   pull_request:
     paths: ['docs/manual/**', 'tools/manual/**', '.github/workflows/manual.yml']
@@ -27,7 +24,7 @@ permissions:
 
 concurrency:
   group: manual-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref_type != 'tag' }}
 
 jobs:
   build:
@@ -46,46 +43,42 @@ jobs:
           cache-dependency-path: tools/manual/requirements.txt
       - run: pip install -r tools/manual/requirements.txt
       - run: python tools/manual/build_site.py --out build/site
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
+          name: manual-site
           path: build/site
+          include-hidden-files: true
 
-  deploy-pages:
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.MANUAL_DEPLOY == 'pages'
+  deploy:
+    if: github.ref_type == 'tag' || github.event_name == 'workflow_dispatch'
     needs: build
     runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      id-token: write
     environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      name: vios-docs
+      url: https://vios.iob.dev
     steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
-
-  deploy-public-repo:
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.MANUAL_DEPLOY == 'public-repo'
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: tools/manual
       - uses: actions/download-artifact@v4
         with:
-          name: github-pages
-      - run: mkdir site && tar -xf artifact.tar -C site
-      - name: Push the site to the public repository's gh-pages branch
+          name: manual-site
+          path: build/site
+      - name: Check the Cloudflare secrets
+        id: secrets
         env:
-          DEPLOY_KEY: ${{ secrets.MANUAL_DEPLOY_KEY }}
-          TARGET: ${{ vars.MANUAL_PUBLIC_REPO }}
+          TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
-          test -n "$DEPLOY_KEY" && test -n "$TARGET"
-          mkdir -p ~/.ssh && printf '%s\n' "$DEPLOY_KEY" > ~/.ssh/deploy && chmod 600 ~/.ssh/deploy
-          ssh-keyscan github.com >> ~/.ssh/known_hosts
-          export GIT_SSH_COMMAND="ssh -i ~/.ssh/deploy -o IdentitiesOnly=yes"
-          cd site
-          git init -q -b gh-pages
-          git config user.name "VIOS manual bot"
-          git config user.email "actions@users.noreply.github.com"
-          git add -A
-          git commit -q -m "Manual from ${GITHUB_REPOSITORY}@${GITHUB_SHA::7}"
-          git push -f "git@github.com:${TARGET}.git" gh-pages
+          if [ -n "$TOKEN" ] && [ -n "$ACCOUNT" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::CLOUDFLARE_API_TOKEN or CLOUDFLARE_ACCOUNT_ID is not set: the site was built but not deployed (docs/manual/HOSTING.md)"
+          fi
+      - name: Deploy the vios-docs Worker
+        if: steps.secrets.outputs.ready == 'true'
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy --config tools/manual/wrangler.jsonc

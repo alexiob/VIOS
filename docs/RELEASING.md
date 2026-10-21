@@ -85,6 +85,9 @@ Documentation, Known limits).
    When it finishes, the release appears under **Releases** with three files:
    `vios-0.9.0.zip`, `vios-0.9.0-SHA256SUMS` and `vios-0.9.0-manual.zip`.
 
+   The same tag also runs the **Manual** workflow, which deploys the manual
+   to https://vios.iob.dev ([docs/manual/HOSTING.md](manual/HOSTING.md)).
+
 If the build fails, fix the problem on `main`, then move the tag to the fixed
 commit before anyone downloads it:
 
