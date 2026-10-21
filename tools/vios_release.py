@@ -10,6 +10,7 @@ dist/vios-<version>/ and dist/vios-<version>.zip:
                               /vios/vios.man, /autoexec.txt (copy onto the card)
   tools/                      vios_firmware_ab.py and vios_sd_install.py
   CHANGELOG.md                this version's section
+  LICENSE                     the MIT License
   SHA256SUMS                  every file above
 
   vios_release.py version              print VERSION
@@ -99,6 +100,7 @@ def package(out_dir):
     for tool in ('vios_firmware_ab.py', 'vios_sd_install.py'):
         shutil.copy(ROOT / 'tools' / tool, dest / 'tools')
     (dest / 'CHANGELOG.md').write_text(f'# VIOS {v}\n\n' + notes(v))
+    shutil.copy(ROOT / 'LICENSE', dest / 'LICENSE')
     files = sorted(p for p in dest.rglob('*') if p.is_file())
     sums = ''.join(f'{hashlib.sha256(p.read_bytes()).hexdigest()}  {p.relative_to(dest).as_posix()}\n' for p in files)
     (dest / 'SHA256SUMS').write_text(sums)

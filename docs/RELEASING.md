@@ -146,6 +146,7 @@ make test vios-resident viosboot
 | `sd/` | the SD card tree: `mos/viosboot.bin`, `vios/vios.bin`, `vios/vios.man`, `autoexec.txt` |
 | `tools/` | `vios_firmware_ab.py` and `vios_sd_install.py` |
 | `CHANGELOG.md` | this version's notes |
+| `LICENSE` | the MIT License |
 | `SHA256SUMS` | a checksum for every file above |
 
 ## Installing a release

@@ -6,6 +6,7 @@ All notable changes to VIOS are listed here. Versions follow semantic versioning
 
 ### Documentation
 
+- VIOS is released under the MIT License (`LICENSE`, also in each release package).
 - The manual site is served at https://vios.iob.dev by the `vios-docs` Cloudflare Worker, deployed from GitHub Actions on each release tag (or by hand). The hosting instructions moved out of the site into `docs/manual/HOSTING.md`.
 
 ### Fixed

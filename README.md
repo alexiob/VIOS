@@ -11,6 +11,16 @@
 </p>
 
 <p align="center">
+  <a href="https://vios.iob.dev"><img src="https://img.shields.io/badge/website-vios.iob.dev-1f6feb" alt="Website: vios.iob.dev"></a>
+  <a href="https://github.com/alexiob/VIOS/releases/latest"><img src="https://img.shields.io/github/v/release/alexiob/VIOS?label=release" alt="Latest release"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="License: MIT"></a>
+</p>
+
+<p align="center">
+  <b>Website and manual: <a href="https://vios.iob.dev">vios.iob.dev</a></b>
+</p>
+
+<p align="center">
   <a href="https://github.com/alexiob/VIOS/releases/latest">Download</a> ·
   <a href="docs/manual/VIOS-MANUAL.md">Manual</a> ·
   <a href="https://vios.iob.dev">Manual online</a> ·
@@ -35,7 +45,7 @@
 - [Repository layout](#repository-layout)
 - [Documentation](#documentation)
 - [Status and limits](#status-and-limits)
-- [Credits and licenses](#credits-and-licenses)
+- [Credits and license](#credits-and-license)
 
 ## What VIOS is
 
@@ -322,9 +332,9 @@ Known limits are listed in the
 For example: fixed-size dictionary and code arenas, no `CATCH`/`THROW`, and a
 PS/2 keyboard only.
 
-## Credits and licenses
+## Credits and license
 
-VIOS is © 2026 Alessandro Iob.
+VIOS is © 2026 Alessandro Iob and released under the [MIT License](LICENSE).
 
 It builds on the [Agon VDP](https://github.com/breakintoprogram/agon-vdp) firmware
 and [vdp-gl](https://github.com/avalonbits/vdp-gl), vendored under `firmware/esp32-vios/vendor/` with their own
