@@ -1,5 +1,5 @@
 // The vios-docs Worker: serves the manual site (build/site) at vios.iob.dev.
-// Assets only, no Worker code. See docs/manual/HOSTING.md.
+// Assets only, no Worker code. See docs/WEBSITE-DEPLOYMENT.md.
 {
   "name": "vios-docs",
   "compatibility_date": "2026-10-01",

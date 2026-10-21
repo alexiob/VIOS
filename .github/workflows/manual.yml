@@ -5,7 +5,7 @@
 # workflow") also deploys it: the vios-docs Cloudflare Worker, configured in
 # tools/manual/wrangler.jsonc, with the repository secrets CLOUDFLARE_API_TOKEN
 # and CLOUDFLARE_ACCOUNT_ID. Without them the deploy job prints a notice and
-# stops. See docs/manual/HOSTING.md.
+# stops. See docs/WEBSITE-DEPLOYMENT.md.
 # The screenshots and the word reference are generated on a developer machine
 # (make manual) and committed; this job only renders Markdown to HTML.
 name: Manual
@@ -73,7 +73,7 @@ jobs:
           if [ -n "$TOKEN" ] && [ -n "$ACCOUNT" ]; then
             echo "ready=true" >> "$GITHUB_OUTPUT"
           else
-            echo "::notice::CLOUDFLARE_API_TOKEN or CLOUDFLARE_ACCOUNT_ID is not set: the site was built but not deployed (docs/manual/HOSTING.md)"
+            echo "::notice::CLOUDFLARE_API_TOKEN or CLOUDFLARE_ACCOUNT_ID is not set: the site was built but not deployed (docs/WEBSITE-DEPLOYMENT.md)"
           fi
       - name: Deploy the vios-docs Worker
         if: steps.secrets.outputs.ready == 'true'

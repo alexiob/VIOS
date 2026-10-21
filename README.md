@@ -312,6 +312,7 @@ and the [developer handoff](CLAUDE_HANDOFF.md).
 | [User guide](docs/USER-GUIDE.md) | A short quick start |
 | [Changelog](CHANGELOG.md) | What changed in each version |
 | [Releasing](docs/RELEASING.md) | Versions, the changelog, cutting and installing a release |
+| [Website deployment](docs/WEBSITE-DEPLOYMENT.md) | How vios.iob.dev is built, deployed and maintained |
 | [Developer handoff](CLAUDE_HANDOFF.md) | Current implementation, hardware and recovery workflow, roadmap |
 | [Specs](docs/superpowers/specs) | Design documents for each subsystem |
 | [Bring-up evidence](docs/bring-up) | Board runs, acceptance reports, runbooks |

@@ -46,7 +46,7 @@ make manual-preview  # http://127.0.0.1:8000
 word reference is current and runs the examples.
 
 The site is served at https://vios.iob.dev; building, deploying and the
-Cloudflare setup are in [HOSTING.md](HOSTING.md) (kept out of the site). The
+Cloudflare setup are in [WEBSITE-DEPLOYMENT.md](../WEBSITE-DEPLOYMENT.md) (kept out of the site). The
 workflow is `.github/workflows/manual.yml`.
 
 The site uses the Agon 8x8 font (Damien Guard and Lennart Benschop, from the
