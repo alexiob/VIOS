@@ -83,7 +83,7 @@
  *  95                                    reply 95 widgets[8] windows[4] surfaces[2]: bit i set
  *                                        when id i is in use (CPU window and surface ids only)
  *  96  id                                reply 96 id kind window parent col row w h flags
- *                                        value(s16) count(u16) layout gap fixed weight n name*n
+ *                                        value(s16) count(u16) layout gap fixed weight style n name*n
  *  97  id                                reply 97 id flags x(s16) y(s16) cols rows surface
  *                                        surface_cols surface_rows focus(widget) n
  *                                        (title length; read the title with 98)
@@ -102,7 +102,9 @@
  *  9D  file node flags n ch*n            reply 9D ok node n ch*n: write to that file (flags 1:
  *                                        append); node: the one made (new); text: why it failed
  *  9E  node on                           route a node's events to it as STREAM events (13) whose
- *                                        arguments are its text line (on 0: back to plain events)
+ *                                        arguments are its text line, in pieces of at most 23
+ *                                        bytes (on 0: back to plain events)
+ *  9F  id style                          widget style: 0 normal, 1 strong, 2 fault (red)
  */
 #ifndef VIOS_VDS_PROTO_H
 #define VIOS_VDS_PROTO_H

@@ -82,6 +82,9 @@ enum { VDS_WK_BOX = 1, VDS_WK_LABEL, VDS_WK_BUTTON, VDS_WK_CHECK, VDS_WK_RADIO, 
 enum { VDS_WF_HIDDEN = 1, VDS_WF_DISABLED = 2, VDS_WF_FILL = 4,   /* FILL: a root box covering the client area */
        VDS_WF_READONLY = 8, VDS_WF_TREE = 16, VDS_WF_PAGER = 32 };
 enum { VDS_LAYOUT_NONE = 0, VDS_LAYOUT_COLUMN = 1, VDS_LAYOUT_ROW = 2 };
+/* Widget styles: strong text in the style's key colour; fault (a failed
+ * handler) in pinned red, buttons white on red. TextViews keep their look. */
+enum { VDS_WSTYLE_NORMAL = 0, VDS_WSTYLE_STRONG = 1, VDS_WSTYLE_FAULT = 2 };
 enum { VDS_KEYS_FORWARD = 0, VDS_KEYS_DROP = 1 };   /* key policy of a window (op 5A) */
 #define VDS_MAX_WIDGETS 64
 #define VDS_WIDGET_TEXT 48
@@ -104,6 +107,7 @@ typedef struct {
     uint8_t ncols, cols[VDS_TABLE_COLS];   /* table column widths */
     char text[VDS_WIDGET_TEXT];
     char name[VDS_WIDGET_NAME + 1];     /* set by op 94; only for inspection (/dev/win) */
+    uint8_t style;                      /* VDS_WSTYLE_*: op 9F */
 } vds_widget;
 typedef struct {                        /* a TextView buffer */
     uint8_t used, widget, dirty;
@@ -133,6 +137,9 @@ enum { VDS_FILE_LIST = 1, VDS_FILE_NEW, VDS_FILE_CTL, VDS_FILE_TEXT, VDS_FILE_EV
 enum { VDS_EVENT_STREAM = 0x13 };
 #define VDS_NODE_WINDOW 0x80
 #define VDS_FILE_LINE 96                        /* longest line, newline included */
+/* Text bytes per STREAM event: seq kind id + piece and its length byte fit
+ * one poll reply next to the reply's 3-byte header. */
+#define VDS_STREAM_PIECE (VDS_REPLY_MAX - 3 - 1 - 3)
 
 enum { VDS_CMD_USED = 1, VDS_CMD_ENABLED = 2, VDS_CMD_CHECKED = 4, VDS_CMD_STATUS = 8 };
 
@@ -234,6 +241,7 @@ int vds_ui_widget_delete(vds_ui *u, uint8_t id);
 /* Move/resize (client cells) or change the flags of a widget in place. */
 int vds_ui_widget_place(vds_ui *u, uint8_t id, uint8_t col, uint8_t row, uint8_t w, uint8_t h);
 int vds_ui_widget_flags(vds_ui *u, uint8_t id, uint8_t flags);
+int vds_ui_widget_style(vds_ui *u, uint8_t id, uint8_t style);
 int vds_ui_widget_focus(vds_ui *u, uint8_t id);
 /* Lay out and redraw every widget of a window (after resize or style change). */
 void vds_ui_widgets_refresh(vds_ui *u, uint8_t window);

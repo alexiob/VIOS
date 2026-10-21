@@ -14,15 +14,17 @@
  *          ctl closes the window). Reads give the id.
  *   CTL    read: properties, one per line; write: commands, one a line:
  *          rect a b c d, text T, name T, show 0|1, flags F, focus, raise (a
- *          window), value V, layout L G, size F W (widgets), style S (server
- *          wide: 0 Smalltalk, 1 Turbo Vision), close (a window), delete.
+ *          window), value V, layout L G, size F W, style S (widgets: 0
+ *          normal, 1 strong, 2 fault), theme T (the whole server: 0
+ *          Smalltalk, 1 Turbo Vision), close (a window), delete.
  *   TEXT   the content: a label's text, a list's rows one per line, a
  *          TextView's text, a window's title. A write replaces it, or appends
  *          with the append flag (a handle's later writes).
- *   TREE   Forth source that rebuilds the windows and widgets (UI-SNAPSHOT);
- *          TextView text is noted, not included.
+ *   TREE   Forth source that rebuilds the windows and widgets (UI-SNAPSHOT).
+ *          TextView text comes as UI-TEXT+ runs, with UI-CH ( char id -- )
+ *          for the newlines and quotes S" cannot hold.
  * Events of a routed node (op 9E) become STREAM events whose arguments are a
- * text line (vds_files_event_line), at most VDS_EVENT_MAX - 3 bytes. */
+ * text line (vds_files_event_line), in pieces of VDS_STREAM_PIECE bytes. */
 #include "vds_ui.h"
 #include <string.h>
 
@@ -115,7 +117,28 @@ static int list_line(vds_ui *u, unsigned node, unsigned sub, out *o) {
     return 1;
 }
 
-static int tree_line(vds_ui *u, unsigned node, unsigned sub, out *o) {
+/* A TextView's text from offset at: a UI-TEXT+ run, or UI-CH for a character
+ * S" cannot hold; *next is the offset after it. */
+static void text_run(const vds_text *t, unsigned node, unsigned at, out *o, unsigned *next) {
+    unsigned char c = (unsigned char)t->buf[at];
+    if (c < ' ' || c == '"') {
+        int32_t a[2] = {c, (int32_t)node};
+        numbers(o, a, 2);
+        text(o, " UI-CH");
+        *next = at + 1;
+        return;
+    }
+    unsigned n = 0;
+    while (at + n < t->len && n < 60 && (unsigned char)t->buf[at + n] >= ' ' && t->buf[at + n] != '"') ++n;
+    quoted(o, t->buf + at, n);
+    number(o, (int32_t)node);
+    text(o, " UI-TEXT+");
+    *next = at + n;
+}
+
+/* Lines of a node: *next is the sub after this line (sub + 1 unless a
+ * TextView run covers several bytes). */
+static int tree_line(vds_ui *u, unsigned node, unsigned sub, out *o, unsigned *next) {
     if (node & VDS_NODE_WINDOW) {
         unsigned id = node & 0x7F;
         const vds_window *w = window(u, id);
@@ -134,7 +157,8 @@ static int tree_line(vds_ui *u, unsigned node, unsigned sub, out *o) {
         return 1;
     }
     const vds_widget *w = widget(u, node);
-    unsigned rows = w->kind == LIST ? w->count : 0;
+    const vds_text *t = w->kind == TEXTVIEW ? vds_ui_text(u, (uint8_t)node) : 0;
+    unsigned rows = w->kind == LIST ? w->count : t ? t->len : 0;     /* a sub per row, or per text byte */
     if (sub == 0) {
         int32_t a[9] = {(int32_t)node, w->window, w->kind, w->parent, w->col, w->row, w->w, w->h, w->flags};
         numbers(o, a, 9);
@@ -145,6 +169,15 @@ static int tree_line(vds_ui *u, unsigned node, unsigned sub, out *o) {
         quoted(o, t, sub == 1 ? sizeof w->text : sizeof w->name);
         number(o, (int32_t)node);
         text(o, sub == 1 ? " UI-WTEXT" : " UI-WNAME");
+    } else if (sub == 3 && t) {                             /* text: emptied, then in runs */
+        if (!rows) return 0;
+        quoted(o, "", 0);
+        number(o, (int32_t)node);
+        text(o, " UI-TEXT");
+    } else if (sub < 4 + rows && t) {
+        unsigned after;
+        text_run(t, node, sub - 4, o, &after);
+        *next = 4 + after;
     } else if (sub == 3) {                                  /* rows: UI-ITEMS, then UI-ITEM each */
         if (!rows) return 0;
         int32_t a[2] = {(int32_t)node, (int32_t)rows};
@@ -165,13 +198,7 @@ static int tree_line(vds_ui *u, unsigned node, unsigned sub, out *o) {
         }
         if (w->layout) { int32_t a[3] = {(int32_t)node, w->layout, w->gap}; numbers(o, a, 3); text(o, " UI-LAYOUT"); }
         if (w->fixed || w->weight != 1) { int32_t a[3] = {(int32_t)node, w->fixed, w->weight}; numbers(o, a, 3); text(o, " UI-WSIZE"); }
-        if (k == TEXTVIEW && w->slot < VDS_TEXT_SLOTS) {
-            text(o, " \\ TextView: ");
-            number(o, u->texts[w->slot].len);
-            text(o, " bytes in /dev/win/");
-            number(o, (int32_t)node);
-            text(o, "/text");
-        }
+        if (w->style) { int32_t a[2] = {(int32_t)node, w->style}; numbers(o, a, 2); text(o, " UI-WSTYLE"); }
         if (!o->n) return 0;
     } else return DONE;
     return 1;
@@ -180,7 +207,7 @@ static int tree_line(vds_ui *u, unsigned node, unsigned sub, out *o) {
 static int ctl_line(vds_ui *u, unsigned node, unsigned step, out *o) {
     static const char *const WINDOW_KEYS[] = {"kind window", "name ", "rect", "show ", "flags ", "surface", "focus "};
     static const char *const WIDGET_KEYS[] = {"kind ", "parent ", "name ", "rect", "show ", "flags ", "value ", "count ",
-                                              "layout", "size", "focus ", "text "};
+                                              "layout", "size", "focus ", "style ", "text "};
     if (node & VDS_NODE_WINDOW) {
         const vds_window *w = window(u, node & 0x7F);
         uint8_t focus = u->widget_focus[node & 0x7F];
@@ -202,7 +229,7 @@ static int ctl_line(vds_ui *u, unsigned node, unsigned step, out *o) {
         return 1;
     }
     const vds_widget *w = widget(u, node);
-    if (step >= 12) return 0;
+    if (step >= 13) return 0;
     text(o, WIDGET_KEYS[step]);
     switch (step) {
     case 0: text(o, KINDS[w->kind]); break;
@@ -216,7 +243,8 @@ static int ctl_line(vds_ui *u, unsigned node, unsigned step, out *o) {
     case 8: { int32_t a[2] = {w->layout, w->gap}; numbers(o, a, 2); break; }
     case 9: { int32_t a[2] = {w->fixed, w->weight}; numbers(o, a, 2); break; }
     case 10: number(o, u->widget_focus[w->window] == node); break;
-    case 11: textn(o, w->text, sizeof w->text); break;
+    case 11: number(o, w->style); break;
+    case 12: textn(o, w->text, sizeof w->text); break;
     }
     return 1;
 }
@@ -256,11 +284,12 @@ int vds_files_line(vds_ui *u, uint8_t file, uint8_t node, uint16_t *step, uint16
             unsigned n = node_at(u, &at);
             if (n == VDS_NONE) return 0;
             o.n = 0;
-            int got = file == VDS_FILE_LIST ? list_line(u, n, part, &o) : tree_line(u, n, part, &o);
+            unsigned next = part + 1;
+            int got = file == VDS_FILE_LIST ? list_line(u, n, part, &o) : tree_line(u, n, part, &o, &next);
             if (got == DONE) { ++at; part = 0; continue; }
             if (!got) { ++part; continue; }
             *step = (uint16_t)at;
-            *sub = (uint16_t)(part + 1);
+            *sub = (uint16_t)next;
             break;
         }
     } else if (file == VDS_FILE_NEW) {
@@ -419,8 +448,8 @@ static int command(vds_ui *u, unsigned node, const char *p, const char *end, out
         if (win ? vds_ui_focus(u, (uint8_t)id) : vds_ui_widget_focus(u, (uint8_t)id)) return 1;
         return message(o, win ? "focus refused (a modal window?)" : "focus: not a focusable widget");
     }
-    if (is(cmd, "style")) {
-        if (!integers(&p, end, v, 1, 0, 1)) return message(o, "style 0 Smalltalk or 1 Turbo Vision");
+    if (is(cmd, "theme")) {
+        if (!integers(&p, end, v, 1, 0, 1)) return message(o, "theme 0 Smalltalk or 1 Turbo Vision");
         return vds_set_style(c, (uint8_t)v[0]);
     }
     if (is(cmd, "close") || is(cmd, "delete")) {
@@ -438,7 +467,7 @@ static int command(vds_ui *u, unsigned node, const char *p, const char *end, out
     }
     if (win) {
         if (is(cmd, "raise")) return vds_window_raise(c, (uint8_t)id);
-        return message(o, "window ctl: rect text name show flags focus raise close style");
+        return message(o, "window ctl: rect text name show flags focus raise close theme");
     }
     if (is(cmd, "name")) {
         skip(&p, end);
@@ -446,6 +475,10 @@ static int command(vds_ui *u, unsigned node, const char *p, const char *end, out
         memcpy(w->name, p, n);
         w->name[n] = 0;
         return 1;
+    }
+    if (is(cmd, "style")) {
+        if (!integers(&p, end, v, 1, 0, VDS_WSTYLE_FAULT)) return message(o, "style 0 normal, 1 strong, 2 fault");
+        return vds_ui_widget_style(u, (uint8_t)id, (uint8_t)v[0]);
     }
     if (is(cmd, "value")) {
         if (!integers(&p, end, v, 1, -32768, 32767)) return message(o, "value -32768..32767");
@@ -458,7 +491,7 @@ static int command(vds_ui *u, unsigned node, const char *p, const char *end, out
         return layout ? vds_ui_widget_layout(u, (uint8_t)id, (uint8_t)v[0], (uint8_t)v[1])
                       : vds_ui_widget_size(u, (uint8_t)id, (uint8_t)v[0], (uint8_t)v[1]);
     }
-    return message(o, "widget ctl: rect text name show flags focus value layout size delete style");
+    return message(o, "widget ctl: rect text name show flags focus value layout size style delete theme");
 }
 
 static int write_text(vds_ui *u, unsigned node, int append, const char *t, size_t n, out *o) {
@@ -550,7 +583,6 @@ size_t vds_files_event_line(uint8_t kind, const uint8_t *args, uint8_t n, char *
     case VDS_EVENT_COMMAND: { int32_t v[2] = {a[0] | a[1] << 8, a[2]}; text(&o, "command"); numbers(&o, v, 2); break; }
     default: text(&o, "event "); number(&o, kind); break;
     }
-    if (o.n > VDS_EVENT_MAX - 4) o.n = VDS_EVENT_MAX - 4;   /* the STREAM event carries the line */
     s[o.n++] = '\n';
     return o.n;
 }
@@ -569,6 +601,9 @@ int vds_files_event(vds_ui *u, uint8_t kind, uint8_t id, const uint8_t *args, ui
     uint64_t bits = node & VDS_NODE_WINDOW ? u->routed_windows : u->routed_widgets;
     if (!(bits >> (node & 0x3F) & 1)) return 0;
     size_t len = vds_files_event_line(kind, args, n, line);
-    vds_proto_event(u->p, VDS_EVENT_STREAM, (uint8_t)node, (const uint8_t *)line, (uint8_t)len);
+    for (size_t at = 0; at < len; at += VDS_STREAM_PIECE) {      /* pieces; the CPU joins them in its pipe */
+        size_t k = len - at < VDS_STREAM_PIECE ? len - at : VDS_STREAM_PIECE;
+        vds_proto_event(u->p, VDS_EVENT_STREAM, (uint8_t)node, (const uint8_t *)line + at, (uint8_t)k);
+    }
     return 1;
 }

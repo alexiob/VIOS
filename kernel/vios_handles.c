@@ -13,7 +13,7 @@
 enum {H_FREE,H_FILE,H_PIPE,H_NULL,H_CONS,H_SNAPSHOT,H_HOST,H_WIN};
 enum {E_AGAIN=1,E_BROKEN=2,E_BAD=3,E_FULL=4,E_PATH=5,E_IO=6,E_MODE=7};
 static struct {unsigned char kind,mode,owner,slot;uint32_t moved;char path[24];struct vios_win_cursor win;} handles[HANDLES];
-static struct {unsigned char data[PIPE_BYTES];unsigned short head,count;unsigned char readers,writers,used;} pipes[PIPES];
+static struct {unsigned char data[PIPE_BYTES];unsigned short head,count;unsigned char readers,writers,used,dropping;} pipes[PIPES];
 static char snapshot[SNAPSHOT];static unsigned short snapshot_length,snapshot_offset;static int snapshot_owner=-1;
 static char last_error[48];
 /* /dev/win files (kernel/vios_win.c); an event file reads a pipe its node's
@@ -110,7 +110,7 @@ static int open_native(void){
    if(file==VIOS_WIN_EVENT){ /* a pipe the event router writes lines into; never EOF while open */
     p=PIPES;for(unsigned q=0;q<PIPES;++q)if(!pipes[q].used){p=q;break;}
     if(p==PIPES)return push(code(E_FULL,"no free pipe for events"));
-    pipes[p].used=1;pipes[p].head=pipes[p].count=0;pipes[p].readers=pipes[p].writers=1;
+    pipes[p].used=1;pipes[p].head=pipes[p].count=pipes[p].dropping=0;pipes[p].readers=pipes[p].writers=1;
     if(!node_watched(-1,node))vios_win_route(node,1);
    }
    claim(i,H_WIN,(unsigned char)mode,(unsigned char)p,path);return push((fcell)(i+1));
@@ -248,12 +248,17 @@ static int device_native(void){
  if(!xt)return 1;if(free_slot<0)return forth_error("device table full");
  unsigned n=0;while(name[n]){devices[free_slot].name[n]=name[n];++n;}devices[free_slot].name[n]=0;devices[free_slot].xt=xt;return 1;
 }
-/* A STREAM event (seq kind node text...) goes to every event file of its
- * node, whole lines only: a full pipe loses the line. */
+/* A STREAM event (seq kind node text...) is a piece of a text line (at most
+ * 23 bytes; a line takes one or two). It goes to every event file of its
+ * node. A piece that does not end its line is taken only with room left for
+ * the next, so a full pipe loses whole lines, never halves. */
 static int route_event(const unsigned char *e,unsigned len){
+ int ends=e[len-1]=='\n';
  for(int i=0;i<HANDLES;++i){
   if(!win_events(i)||handles[i].win.node!=e[2])continue;
-  unsigned p=handles[i].slot;if(PIPE_BYTES-pipes[p].count<len-3)continue;
+  unsigned p=handles[i].slot,room=PIPE_BYTES-pipes[p].count;
+  if(pipes[p].dropping){pipes[p].dropping=!ends;continue;}
+  if(room<len-3+(ends?0:23)){pipes[p].dropping=!ends;continue;}
   for(unsigned k=3;k<len;++k){pipes[p].data[(pipes[p].head+pipes[p].count)%PIPE_BYTES]=e[k];++pipes[p].count;}
  }
  return 1;

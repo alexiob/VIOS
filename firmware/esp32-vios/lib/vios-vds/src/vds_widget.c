@@ -210,6 +210,8 @@ static void render(vds_ui *u, uint8_t id) {
     int focused = u->widget_focus[w->window] == id && u->focus == w->window, off = (w->flags & VDS_WF_DISABLED) != 0;
     uint8_t base = attr(st->title_fg, st->body), sel = attr(st->menu_sel_fg, st->menu_sel_bg);
     uint8_t button = off ? attr(st->menu_disabled, st->menu_bg) : focused ? sel : attr(st->menu_fg, st->menu_bg);
+    if (w->style == VDS_WSTYLE_STRONG) base = attr(st->menu_key, st->body);
+    if (w->style == VDS_WSTYLE_FAULT) { base = attr(1, st->body); if (!focused) button = attr(3, 1); }   /* pinned red, white */
     char text[VDS_WIDGET_TEXT + 8], line[VDS_WIDGET_TEXT + 8];
     int m;
     size_t n = plain(w->text, text, VDS_WIDGET_TEXT, &m);
@@ -447,6 +449,13 @@ int vds_ui_widget_place(vds_ui *u, uint8_t id, uint8_t col, uint8_t row, uint8_t
     uncover(u, x);
     x->col = col; x->row = row; x->w = w; x->h = h;
     redraw_window_of(u, id);
+    return 1;
+}
+int vds_ui_widget_style(vds_ui *u, uint8_t id, uint8_t style) {
+    vds_widget *x = widget(u, id);
+    if (!x || style > VDS_WSTYLE_FAULT) return 0;
+    x->style = style;
+    render(u, id);
     return 1;
 }
 int vds_ui_widget_flags(vds_ui *u, uint8_t id, uint8_t flags) {

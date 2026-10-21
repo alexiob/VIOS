@@ -860,11 +860,11 @@ static int widget_info(vds_ui *u, uint8_t id) {
     const vds_widget *w = &u->widgets[id];
     uint8_t r[VDS_REPLY_MAX] = {0x96, id, w->kind, w->window, w->parent, w->col, w->row, w->w, w->h, w->flags,
                                 (uint8_t)w->value, (uint8_t)((uint16_t)w->value >> 8), (uint8_t)w->count, (uint8_t)(w->count >> 8),
-                                w->layout, w->gap, w->fixed, w->weight};
+                                w->layout, w->gap, w->fixed, w->weight, w->style};
     size_t n = strlen(w->name);
-    r[18] = (uint8_t)n;
-    memcpy(r + 19, w->name, n);
-    vds_proto_reply(u->p, r, (uint8_t)(19 + n));
+    r[19] = (uint8_t)n;
+    memcpy(r + 20, w->name, n);
+    vds_proto_reply(u->p, r, (uint8_t)(20 + n));
     return 1;
 }
 static int window_info(vds_ui *u, uint8_t id) {
@@ -1050,6 +1050,7 @@ static int op_hook(void *ui, const uint8_t *b) {
         return 1;
     }
     case 0x9E: return vds_files_route(u, b[1], b[2]);
+    case 0x9F: return vds_ui_widget_style(u, b[1], b[2]);
     }
     return 0;
 }

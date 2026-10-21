@@ -456,6 +456,13 @@ static int ui_wname(void) {                             /* ( addr len id -- ) a 
     op(o, 3 + (unsigned)a[1]);
     return 1;
 }
+static int ui_wstyle(void) {                            /* ( id style -- ) 0 normal, 1 strong, 2 fault */
+    fcell a[2];
+    if (!pop(a, 2) || !widget_id(a[0]) || !range(a[1], 2, "UI-WSTYLE: 0 normal, 1 strong, 2 fault")) return 0;
+    unsigned char o[] = {0x9F, b(a[0]), b(a[1])};
+    op(o, sizeof o);
+    return 1;
+}
 static int widget_op(unsigned char code) { fcell id = fvm_pop(); if (fvm_error || !widget_id(id)) return 0; unsigned char o[] = {code, b(id)}; op(o, 2); return 1; }
 static int ui_wdelete(void) { return widget_op(0x87); }
 static int ui_wfocus(void) { return widget_op(0x88); }
@@ -557,7 +564,7 @@ int vios_ui_init(void) {
         {"UI-SPRITE", ui_sprite}, {"UI-PIXELS", ui_pixels}, {"UI-SPRITE-AT", ui_sprite_at}, {"UI-SPRITE-SHOW", ui_sprite_show},
         {"UI-ARROW", ui_arrow}, {"UI-ANIMATE", ui_animate}, {"UI-STOP", ui_stop}, {"UI-POINTER", ui_pointer},
         {"UI-WIDGET", ui_widget}, {"UI-WTEXT", ui_wtext}, {"UI-WVALUE", ui_wvalue}, {"UI-LAYOUT", ui_layout}, {"UI-WSIZE", ui_wsize},
-        {"UI-ITEM", ui_item}, {"UI-ITEMS", ui_items}, {"UI-WDELETE", ui_wdelete}, {"UI-WFOCUS", ui_wfocus}, {"UI-WGET", ui_wget}, {"UI-WNAME", ui_wname},
+        {"UI-ITEM", ui_item}, {"UI-ITEMS", ui_items}, {"UI-WDELETE", ui_wdelete}, {"UI-WFOCUS", ui_wfocus}, {"UI-WGET", ui_wget}, {"UI-WNAME", ui_wname}, {"UI-WSTYLE", ui_wstyle},
         {"UI-BEGIN", ui_begin}, {"UI-COMMIT", ui_commit},
         {"UI-ROW+", ui_row},   /* append a list row; UI-ROW is the layout constant */ {"UI-COLUMNS", ui_columns}, {"UI-KEYS", ui_keys}, {"UI-TEXT", ui_text}, {"UI-TEXT+", ui_text_more},
         {"UI-INSERT", ui_insert}, {"UI-SELECT", ui_select}, {"UI-TEXT@", ui_text_get},
@@ -585,5 +592,7 @@ int vios_ui_init(void) {
         "4 CONSTANT UI-WF-FILL 1 CONSTANT UI-COLUMN 2 CONSTANT UI-ROW 255 CONSTANT UI-NONE "
         "2 CONSTANT UI-EV-ACTIVATE 3 CONSTANT UI-EV-SELECT 4 CONSTANT UI-EV-CHANGE "
         "9 CONSTANT UI-TEXTVIEW 10 CONSTANT UI-TABS 8 CONSTANT UI-READONLY 16 CONSTANT UI-TREE 32 CONSTANT UI-PAGER "
-        "5 CONSTANT UI-EV-TEXT 8 CONSTANT UI-EV-EXPAND 9 CONSTANT UI-EV-PAGE");
+        "5 CONSTANT UI-EV-TEXT 8 CONSTANT UI-EV-EXPAND 9 CONSTANT UI-EV-PAGE "
+        /* ( char id -- ) one character onto a TextView: /dev/ui/tree's newlines and quotes */
+        "CREATE UI-CH-BUF 1 ALLOT : UI-CH >R UI-CH-BUF C! UI-CH-BUF 1 R> UI-TEXT+ ;");
 }

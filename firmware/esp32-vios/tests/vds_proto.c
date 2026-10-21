@@ -233,8 +233,11 @@ int main(int argc, char **argv) {
     assert(last[0] == 0x95 && last[1] == 0x80 && last[2] == 0x02 && !last[3] && last[9] == 0x10 && last[13] == 0x08 && !last[14]);
     begin(); b8(0x96); b8(7); assert(send_batch() && !p.hold);
     assert(last[1] == 7 && last[2] == VDS_WK_BUTTON && last[3] == 4 && last[4] == 255 && last[5] == 2 && last[6] == 1 && last[7] == 12 && last[8] == 1);
-    assert(last[18] == VDS_WIDGET_NAME && last_n == 19 + VDS_WIDGET_NAME && !memcmp(last + 19, "hello-butt", 10));   /* name cut to 10 */
-    begin(); b8(0x96); b8(9); assert(send_batch() && last[2] == VDS_WK_LIST && last[12] == 2 && last[13] == 0 && last[18] == 0);
+    assert(last[19] == VDS_WIDGET_NAME && last_n == 20 + VDS_WIDGET_NAME && !memcmp(last + 20, "hello-butt", 10));   /* name cut to 10 */
+    begin(); b8(0x9F); b8(9); b8(VDS_WSTYLE_FAULT); b8(0x96); b8(9); assert(send_batch());
+    assert(last[2] == VDS_WK_LIST && last[12] == 2 && last[13] == 0 && last[18] == VDS_WSTYLE_FAULT && last[19] == 0);
+    begin(); b8(0x9F); b8(9); b8(3); b8(0x30); assert(send_batch() && p.errors == 1);    /* no style 3 */
+    p.errors = 0;
     begin(); b8(0x97); b8(4); assert(send_batch() && !p.hold && last_n == 14);
     assert(last[1] == 4 && (last[2] & 3) == 3 && last[3] == 16 && last[5] == 24 && last[7] == 30 && last[8] == 10);
     assert(last[9] == 3 && last[10] == 30 && last[11] == 10 && last[13] == 7);

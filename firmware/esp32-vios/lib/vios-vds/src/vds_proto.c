@@ -69,7 +69,7 @@ static size_t op_size(const uint8_t *b, size_t n) {
     case 0x9B: s = 2; break;
     case 0x9C: s = 8; break;
     case 0x9D: s = n < 5 ? 0 : 5u + b[4]; break;
-    case 0x9E: s = 3; break;
+    case 0x9E: case 0x9F: s = 3; break;
     default: s = 0; break;
     }
     return s && s <= n ? s : 0;
@@ -198,7 +198,7 @@ static int apply(vds_proto *p, const uint8_t *b) {
     uint8_t op = b[0];
     if (op != 0x10 && op != 0x11) p->more_ok = 0;
     if (reserved(b)) return 0;
-    if ((op >= 0x59 && op <= 0x62) || op == 0x70 || op == 0x71 || op == 0x7B || (op >= 0x80 && op <= 0x9E))
+    if ((op >= 0x59 && op <= 0x62) || op == 0x70 || op == 0x71 || op == 0x7B || (op >= 0x80 && op <= 0x9F))
         return p->ui_op ? p->ui_op(p->ui, b) : 0;
     switch (op) {
     case 0x01: {

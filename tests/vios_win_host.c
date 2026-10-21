@@ -86,13 +86,13 @@ static void eval(const char *s) {
 }
 static fcell value(const char *s) { eval(s); return fvm_pop(); }
 static int32_t signed_value(const char *s) { fcell x = value(s) & FVM_MASK; return x & 0x800000 ? (int32_t)x - 0x1000000 : (int32_t)x; }
-static char got[2048];
+static char got[8192];
 /* A whole file through OPEN/READ/CLOSE, as text. */
 static const char *slurp(const char *path) {
     char cmd[160];
     snprintf(cmd, sizeof cmd, "S\" %s\" SLURP", path);
     fcell n = value(cmd);
-    assert(n < sizeof got);
+    assert(n < sizeof got && n < 4096);
     for (fcell i = 0; i < n; ++i) got[i] = (char)fvm_read8(value("BUF") + i);
     got[n] = 0;
     return got;
@@ -123,6 +123,9 @@ static void state(char *out, size_t capacity) {
         n += (size_t)snprintf(out + n, capacity - n, "%u %u %u %u %u %u %u %u %u %d %u %u %u %u [%s] [%s]", i, x->window, x->kind, x->parent, x->col, x->row,
                               x->w, x->h, x->flags, x->value, x->layout, x->gap, x->fixed, x->weight, x->text, x->name);
         for (unsigned r = 0; r < x->count; ++r) n += (size_t)snprintf(out + n, capacity - n, " <%s>", u.items[x->first + r]);
+        const vds_text *t = x->kind == VDS_WK_TEXT ? vds_ui_text(&u, (uint8_t)i) : 0;
+        if (t) n += (size_t)snprintf(out + n, capacity - n, " style %u text %u {%.*s}", x->style, t->len, (int)t->len, t->buf);
+        else n += (size_t)snprintf(out + n, capacity - n, " style %u", x->style);
         n += (size_t)snprintf(out + n, capacity - n, "\n");
     }
     assert(n < capacity);
@@ -139,8 +142,8 @@ int main(int argc, char **argv) {
     vds_ui_init(&u, &p);
     forth_init();
     assert(vios_ui_init() && vios_handles_init());
-    eval("CREATE BUF 1024 ALLOT  VARIABLE HV");
-    eval(": SLURP ( addr u -- n ) 1 OPEN DUP 0 < IF EXIT THEN >R BUF 1024 R@ READ R> CLOSE DROP ;");
+    eval("CREATE BUF 4096 ALLOT  VARIABLE HV");
+    eval(": SLURP ( addr u -- n ) 1 OPEN DUP 0 < IF EXIT THEN >R BUF 4096 R@ READ R> CLOSE DROP ;");
     eval(": SPIT ( addr u paddr pu -- r ) 2 OPEN DUP 0 < IF >R 2DROP R> EXIT THEN >R R@ WRITE R> CLOSE DROP ;");
 
     /* Nothing yet: an empty list; no such nodes; nothing made. */
@@ -177,17 +180,18 @@ int main(int argc, char **argv) {
     assert(spit("/dev/win/w0/ctl", "rect 80 48 40 16\nname VIOS greeter 2") > 0);
     assert(v.windows[0].x == 80 && v.windows[0].cols == 40 && v.surfaces[0].cols >= 40 && v.surfaces[0].rows >= 16);
     same(slurp("/dev/win/0/ctl"),
-         "kind button\nparent w0\nname hello\nrect 2 1 10 1\nshow 1\nflags 0\nvalue 0\ncount 0\nlayout 0 0\nsize 0 1\nfocus 1\ntext Say &hello\n");
+         "kind button\nparent w0\nname hello\nrect 2 1 10 1\nshow 1\nflags 0\nvalue 0\ncount 0\nlayout 0 0\nsize 0 1\nfocus 1\nstyle 0\ntext Say &hello\n");
     same(slurp("/dev/win/w0/ctl"), "kind window\nname VIOS greeter 2\nrect 80 48 40 16\nshow 1\nflags 7\nsurface 0 40 16\nfocus 0\n");
     same(slurp("/dev/win/3/ctl"),
-         "kind box\nparent w0\nname Pane box\nrect 0 9 30 3\nshow 1\nflags 0\nvalue 0\ncount 0\nlayout 2 1\nsize 3 2\nfocus 0\ntext \n");
+         "kind box\nparent w0\nname Pane box\nrect 0 9 30 3\nshow 1\nflags 0\nvalue 0\ncount 0\nlayout 2 1\nsize 3 2\nfocus 0\nstyle 0\ntext \n");
     assert(spit("/dev/win/1/ctl", "show 0") > 0 && (u.widgets[1].flags & VDS_WF_HIDDEN));
     assert(spit("/dev/win/1/ctl", "show 1") > 0 && !(u.widgets[1].flags & VDS_WF_HIDDEN) && spit("/dev/win/1/ctl", "focus") < 0);
     assert(spit("/dev/win/4/ctl", "focus") > 0 && u.widget_focus[0] == 4);
     assert(spit("/dev/win/0/ctl", "bogus 1") < 0 && spit("/dev/win/0/ctl", "rect 1 2") < 0 && spit("/dev/win/0/ctl", "raise") < 0);
-    assert(spit("/dev/win/w0/ctl", "value 3") < 0 && spit("/dev/win/0/ctl", "style 2") < 0 && spit("/dev/win/1/ctl", "layout 1 0") < 0);
+    assert(spit("/dev/win/w0/ctl", "value 3") < 0 && spit("/dev/win/0/ctl", "style 3") < 0 && spit("/dev/win/w0/ctl", "style 2") < 0 && spit("/dev/win/1/ctl", "layout 1 0") < 0);
     assert(spit("/dev/win/w0/ctl", "show 0") > 0 && !(v.windows[0].flags & 1) && spit("/dev/win/w0/ctl", "show 1\nraise\nfocus") > 0);
-    assert(spit("/dev/win/w0/ctl", "style 1") > 0 && v.style.kind == VDS_STYLE_TURBO && spit("/dev/win/w0/ctl", "style 0") > 0);
+    assert(spit("/dev/win/w0/ctl", "theme 1") > 0 && v.style.kind == VDS_STYLE_TURBO && spit("/dev/win/0/ctl", "theme 0") > 0);
+    assert(spit("/dev/win/1/ctl", "style 2") > 0 && u.widgets[1].style == VDS_WSTYLE_FAULT && strstr(slurp("/dev/win/1/ctl"), "style 2\n"));
     assert(!p.errors);
 
     /* text: the content; a handle's first write replaces, later ones append. */
@@ -231,11 +235,13 @@ int main(int argc, char **argv) {
     event(VDS_EVENT_WIN, 0, moved, 7);
     event(VDS_EVENT_WIN, 0, close_, 7);
     event(VDS_EVENT_COMMAND, 0, cmd, 3);
+    uint8_t far_[8] = {0xD0, 0x8A, 0xD0, 0x8A, 255, 255, 255, 7};            /* a 38-byte line comes in two pieces */
+    event(VDS_EVENT_POINTER, 0, far_, 8);
     char line[200];
     snprintf(line, sizeof line, "BUF 64 %u READ", (unsigned)list_events); eval(line);
     { fcell n = fvm_pop(); char s[65] = {0}; for (fcell i = 0; i < n; ++i) s[i] = (char)fvm_read8(value("BUF") + i); same(s, "select 7\npage -1\n"); }
     snprintf(line, sizeof line, "BUF 200 %u READ", (unsigned)window_events); eval(line);
-    { fcell n = fvm_pop(); char s[201] = {0}; for (fcell i = 0; i < n; ++i) s[i] = (char)fvm_read8(value("BUF") + i); same(s, "moved 80 48 40 16\nclose\ncommand 12 1\n"); }
+    { fcell n = fvm_pop(); char s[201] = {0}; for (fcell i = 0; i < n; ++i) s[i] = (char)fvm_read8(value("BUF") + i); same(s, "moved 80 48 40 16\nclose\ncommand 12 1\npointer -30000 -30000 255 255 255 7\n"); }
     snprintf(line, sizeof line, "%u CLOSE DROP %u CLOSE DROP HV @ CLOSE DROP", (unsigned)list_events, (unsigned)window_events); eval(line);
     event(VDS_EVENT_ACTIVATE, 0, &w0, 1);                                  /* closed: back to UI-NEXT */
     eval("UI-NEXT"); assert(fvm_pop() == FVM_MASK && fvm_pop() == 0 && fvm_pop() == 0 && fvm_pop() == VDS_EVENT_ACTIVATE);
@@ -252,12 +258,13 @@ int main(int argc, char **argv) {
 
     /* /dev/ui/tree (and UI-SNAPSHOT) is source that rebuilds the same state. */
     assert(spit("/dev/win/4/ctl", "value 1") > 0 && spit("/dev/win/new", "progress w0 bar") > 0 && spit("/dev/win/7/ctl", "value 40") > 0);
-    char before[4096], after[4096], tree[2048];
+    static char before[8192], after[8192], tree[8192];
     state(before, sizeof before);
     strcpy(tree, slurp("/dev/ui/tree"));
     assert(strstr(tree, "0 32 12 48 UI-SURFACE") || strstr(tree, "0 40 16 48 UI-SURFACE"));
     assert(strstr(tree, "UI-WINDOW S\" Greeter\" 0 UI-TITLE\n") && strstr(tree, "S\" one\"") == 0 && strstr(tree, " 2 2 UI-ITEMS\nS\" a\" 2 0 UI-ITEM\nS\" b\" 2 1 UI-ITEM\n"));
-    assert(strstr(tree, "3 2 1 UI-LAYOUT 3 3 2 UI-WSIZE\n") && strstr(tree, "\\ TextView: "));
+    assert(strstr(tree, "3 2 1 UI-LAYOUT 3 3 2 UI-WSIZE\n") && strstr(tree, " 1 2 UI-WSTYLE\n"));
+    assert(strstr(tree, "S\" \" 5 UI-TEXT\nS\" abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvw\" 5 UI-TEXT+\n 10 5 UI-CH\n"));
     console_n = 0;
     eval("UI-SNAPSHOT");
     same(console, tree);
