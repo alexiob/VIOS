@@ -32,6 +32,15 @@ Standard words are available, including `DUP SWAP OVER ROT NIP TUCK`,
 `CHAR [CHAR] FILL MOVE ERASE`, `DEFER IS`, `' EXECUTE`. `WORDS` lists all,
 `SEE name` shows a definition.
 
+The compiler is extensible, as in standard Forth: `IMMEDIATE`, `POSTPONE`,
+`[ ]`, `LITERAL`, `STATE`, `COMPILE,`, `FIND`, `EVALUATE`, defining words with
+`CREATE … DOES>` and `>BODY`, and `MARKER`. For example
+`: CONST CREATE , DOES> @ ;  42 CONST ANSWER` and
+`: UNLESS POSTPONE 0= POSTPONE IF ; IMMEDIATE`. Data-space words (`CREATE`
+`ALLOT` `,` `HERE` `VARIABLE` …) also work inside definitions. Words that change
+the dictionary are refused in background tasks. `MARKER name` makes a word that
+removes itself and everything after it, but not module words.
+
 ## Tasks and pipes
 
 ```forth

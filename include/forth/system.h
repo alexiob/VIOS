@@ -5,6 +5,9 @@ enum forth_engine { FORTH_REFERENCE,FORTH_TOKEN,FORTH_DIRECT };
 #define FORTH_NATIVE_PURE 1u
 /* TASK callbacks may run inside a background task slice (no VM re-entry). */
 #define FORTH_NATIVE_TASK 2u
+/* DICT callbacks change the dictionary (CREATE, COMPILE, ...): foreground and
+ * module transactions only; refused in tasks, observers and module tests. */
+#define FORTH_NATIVE_DICT 4u
 #define FORTH_TASKS_MAX 4
 #define FORTH_TASK_DS 64
 #define FORTH_TASK_RS 64
