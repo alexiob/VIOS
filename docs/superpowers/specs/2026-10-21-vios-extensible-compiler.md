@@ -2,8 +2,8 @@
 
 Status: **design only, 2026-10-21**, from main at `46d94ce`. Nothing here is
 implemented. Numbers marked *measured* come from eZ80 builds of this commit run
-under the cycle model (`tools/verification/forth_compile_cycles.py`, §10) or
-from symbol tables. *Estimate* means not measured. Related:
+under the cycle model (`tools/verification/forth_compile_cycles.py`) or
+from symbol tables (§11). *Estimate* means not measured. Related:
 [Forth milestone](2026-10-16-vios-forth.md), [tasks](2026-10-18-vios-tasks.md),
 [preemption](2026-10-19-vios-tasks.md), [boot speed, Phase 3 cache](2026-10-19-vios-boot-speed.md).
 
@@ -48,7 +48,10 @@ base everything else sits on.
 The real constraint is RAM, not speed. A clean HEAD build leaves 17.4 KB
 between `__bss_end` and the stack (*measured*). The /dev/win branch reports
 ~12.5 KB after its work, and the spec gate is ≥ 12 KB. Phases 1–3 need about
-4.5 KB (*estimate*, §6), so they must come with a matching reclaim (§8).
+4.5 KB (*estimate*, §6), so they must come with a matching reclaim (§8). The
+best reclaim is not moving the compiler to the ESP but a compact name pool
+(~10 KB, eZ80 only). If more is needed, the ~50 KB of rarely-read source and
+map data can move to ESP PSRAM (§10).
 
 ## 2. How the compiler works today
 
@@ -641,8 +644,9 @@ All phases come to ~10–11 days.
 
 - **RAM headroom (highest).** 17.4 KB at HEAD, ~12.5 KB after /dev/win
   (its own note), gate ≥ 12 KB. Phases 1–3 need ~4.5 KB, so pick a reclaim
-  first. Candidates (sizes *measured* from `system.o`; feasibility not
-  analysed here):
+  first. §10 analyses the two best candidates: a compact name pool and moving
+  the rarely-read data to the ESP. Other candidates (sizes *measured* from
+  `system.o`; feasibility not analysed here):
   - the 5,120 B source-map pool (the handoff already lists it);
   - the 4.6 KiB console shadow (handoff);
   - the transaction machinery: `transaction_before` and `activation_before`,
@@ -685,7 +689,129 @@ All phases come to ~10–11 days.
 5. **Defer Phase 4 (MARKER)**, and **do not build FORGET**. Modules are the
    managed way to replace code. MARKER is a convenience for scratch sessions.
 
-## 10. Measurement method
+## 10. Alternative: offload to the ESP, and a compact name pool
+
+The owner asked (2026-10-21) whether the compiler could move to the ESP32 and
+use its RAM. The ESP has ~4 MB of free PSRAM. Its internal RAM is scarce: ~39 KB
+free against the 24 KB floor fabgl needs (audio note).
+
+### 10.1 Moving the compiler: no
+
+A full move would free ~55–60 KB of eZ80 RAM (*measured* symbol sizes):
+`words` 28,160 B, `source_space` 8,192 B, `source_map` 5,120 B, and ~20 KB
+of compiler text (`forth_eval` alone is 10,878 B). But:
+
+- **It conflicts with extensibility.** `IMMEDIATE`, `[ ]`, `DOES>` and
+  `EVALUATE` run user Forth at compile time against the eZ80's data space
+  and stacks. An ESP compiler needs either a fourth VM plus a coherent
+  mirror of eZ80 memory, or a link round trip per compile-time execution.
+  A *fixed* compiler is portable to the ESP; an extensible one mostly is not.
+- **Atomicity would span two processors.** Module transactions and the boot
+  cache rely on one commit point. Splitting them needs a commit protocol
+  across the link.
+- **There is little speed to gain.** After Phase 0 a 10-token line compiles
+  in ~2 ms (*estimate*). That is about one round trip on the 1,152,000-baud
+  internal UART, and boots with a cache hit don't compile at all.
+- **The runtime still needs headers.** `EXECUTE`, `DEFER`, task names,
+  `LAST-ERROR`/`TRACE` and natives look words up. At minimum the eZ80 keeps an
+  xt→code table (~3 KB) and names for diagnostics, or makes a round trip each
+  time.
+- **Coupling and recovery get worse.** The eZ80 could not compile without a
+  working ESP, every eZ80 change needs a paired ESP build, and the 6502-port
+  boundary (handoff §2) gets an ESP dependency.
+
+### 10.2 What to move instead: data the eZ80 rarely reads (~50 KB)
+
+| data | eZ80 bytes (*measured*, `system.o` / `modules.o` BSS) | readers |
+|---|---|---|
+| module source pool | 32,768 | `MODULE-SOURCE`, inspectors, manager tool |
+| staged (pending) module record and source | 4,368 | stage → activate |
+| `source_space`: definition text | 8,192 | `SEE`, inspector, print-source of the source map |
+| `source_map` | 5,120 | `TRACE`, `LAST-ERROR` |
+| **total** | **50,448** | none on the execution path |
+
+**Design: the ESP holds the bytes, the eZ80 holds the offsets.**
+
+- The eZ80 keeps `source_used` and `map_used` and every header's
+  `source`/`length` exactly as today. The ESP store is a dumb blob addressed by
+  offset (one region per kind).
+- **Writes.** The compiler keeps writing into a small eZ80 staging buffer
+  (for example 512 B, enough for one definition plus its map entries). At
+  `publish()` it sends one append request per definition. A typical definition
+  is a few hundred bytes, ~3 ms at 115 KB/s (*estimate*). That request needs
+  the link's CRC and an acknowledgement: a lost append would make SEE wrong.
+- **Rollback is free.** Failed definitions, transaction rollback and MARKER
+  only rewind the eZ80 counters. Stale ESP bytes beyond them are ignored, so
+  atomicity and the single commit point stay on the eZ80.
+- **Reads.** SEE, LAST-ERROR and module-source fetch over the link. TRACE
+  fetches one word's map entries once per trace, not per step. The GUI
+  inspector and manager already render on the ESP, so they could read the
+  store directly, without an eZ80 round trip.
+- **Module sources.** Activation compiles from the 4 KiB pending buffer,
+  which stays on the eZ80. After commit, the source goes to the ESP pool
+  instead of `source_pool`. Sources installed from the SD bundle could also be
+  referenced by bundle offset instead of copied.
+
+**Costs and conflicts:**
+
+- **ESP resets lose PSRAM.** A VDP restart empties the store. SEE then reports
+  "source unavailable" until it is reloaded, and execution is unaffected. Reload
+  sources: the module sources from the SD bundle, the definition text and map
+  from the boot-cache file.
+- **The boot cache changes.** Today the snapshot carries the source, map
+  and module-pool regions. On a cache hit they would have to be pushed to the
+  ESP (~50 KB ≈ 0.45 s at 115 KB/s, *estimate*) or loaded lazily from the cache
+  file on the first SEE. Lazy loading keeps the 857 ms boot.
+- **Inspection APIs change.** `forth_inspect_word` returns a pointer into
+  `source_space` and `forth_module_source` a pointer into the pool. Both become
+  copy-out calls, and host tools and tests must follow.
+- **The link.** Appends share the eZ80↔ESP channel with display traffic.
+  Coordinate with the /dev/win protocol work rather than adding another framing.
+- **Effort** *(estimate)*: 3–4 days (eZ80 store client, ESP blob service,
+  boot-cache and inspect API changes, ESP-reset recovery, board tests).
+
+### 10.3 A compact name pool, eZ80 only (~10 KB)
+
+The 32-byte `name` field is 16,384 B of the 28,160 B header table. The 185
+names a resident registers (core, prelude and kernel natives) average **5.8
+characters** (median 6, p90 9, max 16; *measured* from the sources).
+
+**Design.** Store names NUL-terminated in a bump-allocated pool and replace
+`name[32]` with a 16-bit offset, so a header becomes 55 − 32 + 2 = **25 B**.
+
+- The pool is rolled back with the other counters (one more field in the
+  checkpoint and the snapshot base).
+- `find()` compares against the pool, at the same cost.
+- An optional length byte would let mismatches be rejected before any string
+  compare.
+
+**Size**, 512 words:
+
+- headers 12,800 B, plus a pool sized for an average of 10 bytes per name
+  (5,120 B), gives 17,920 B;
+- against 28,160 B today, that is **~10 KB saved** (*estimate*; module word
+  names may run longer than the resident average, so size the pool from the
+  board's `WORDS` at the next acceptance).
+
+**Costs.**
+
+- `sizeof(struct word)` changes, so each owner pays one cache-miss boot.
+- Every `words[i].name` use (inspect, WORDS, SEE, task and crash reports)
+  goes through an accessor.
+- A smaller header also makes the per-index `__imulu` (§3.1) cheaper.
+- **Effort** *(estimate)*: 1–1.5 days.
+
+### 10.4 Recommendation
+
+1. **Do the name pool (§10.3) first.** It is eZ80-only and low-risk, and the
+   ~10 KB it recovers covers the extensible compiler's ~4.5 KB with room for
+   /dev/win and G5.
+2. **Then, if more is needed, offload the rarely-read data to ESP PSRAM
+   (§10.2)**, starting with the module source pool (32 KB, the largest and
+   least used).
+3. **Keep the compiler on the eZ80.**
+
+## 11. Measurement method
 
 `tools/verification/forth_compile_cycles.py ELF…` runs the linked resident
 image under the semantic eZ80 interpreter from `tests/test_vios_native_c.py`,
