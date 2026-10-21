@@ -1,0 +1,146 @@
+{
+  "status": "passed",
+  "checks": {
+    "idle": {
+      "ok": true,
+      "detail": {
+        "busy": "0",
+        "master": "127",
+        "notes": "52",
+        "err": "255@0",
+        "v0": "196Hz/w0/a101/s255@36/left0",
+        "v1": "196Hz/w1/a84/s255@44/left0",
+        "v2": "659Hz/w0/a101/s255@19/left0",
+        "slots": "20,0,0,21,36,44,0,0",
+        "internal_free": "27816",
+        "internal_min": "27696",
+        "psram_free": "3851555"
+      }
+    },
+    "tone": {
+      "ok": true,
+      "detail": [
+        "1",
+        {
+          "busy": "1",
+          "master": "127",
+          "notes": "53",
+          "err": "255@0",
+          "v0": "440Hz/w0/a101/s255@36/left6169",
+          "v1": "196Hz/w1/a84/s255@44/left0",
+          "v2": "659Hz/w0/a101/s255@19/left0",
+          "slots": "20,0,0,21,36,44,0,0",
+          "internal_free": "27816",
+          "internal_min": "27696",
+          "psram_free": "3851555"
+        }
+      ]
+    },
+    "tone-ends": {
+      "ok": true,
+      "detail": "0"
+    },
+    "tune": {
+      "ok": true,
+      "detail": [
+        "262Hz/w0/a101/s0@12/left2892",
+        "330Hz/w0/a101/s0@14/left740"
+      ]
+    },
+    "tune-ends": {
+      "ok": true,
+      "detail": {
+        "busy": "0",
+        "master": "127",
+        "notes": "61",
+        "err": "255@0",
+        "v0": "440Hz/w0/a101/s255@36/left0",
+        "v1": "523Hz/w0/a101/s255@20/left0",
+        "v2": "659Hz/w0/a101/s255@19/left0",
+        "slots": "20,0,0,21,36,44,0,0",
+        "internal_free": "27816",
+        "internal_min": "27696",
+        "psram_free": "3851555"
+      }
+    },
+    "error": {
+      "ok": true,
+      "detail": {
+        "busy": "0",
+        "master": "127",
+        "notes": "61",
+        "err": "2@2",
+        "v0": "440Hz/w0/a101/s255@36/left0",
+        "v1": "523Hz/w0/a101/s255@20/left0",
+        "v2": "659Hz/w0/a101/s255@19/left0",
+        "slots": "20,0,0,21,36,44,0,0",
+        "internal_free": "27816",
+        "internal_min": "27696",
+        "psram_free": "3851555"
+      }
+    },
+    "loop": {
+      "ok": true,
+      "detail": {
+        "busy": "4",
+        "master": "127",
+        "notes": "89",
+        "err": "255@0",
+        "v0": "440Hz/w0/a101/s255@36/left0",
+        "v1": "523Hz/w0/a101/s255@20/left0",
+        "v2": "659Hz/w0/a101/s3@19/left592",
+        "slots": "20,0,0,21,36,44,0,0",
+        "internal_free": "27816",
+        "internal_min": "27696",
+        "psram_free": "3851555"
+      }
+    },
+    "stop": {
+      "ok": true,
+      "detail": {
+        "busy": "0",
+        "master": "127",
+        "notes": "89",
+        "err": "255@0",
+        "v0": "440Hz/w0/a101/s255@36/left0",
+        "v1": "523Hz/w0/a101/s255@20/left0",
+        "v2": "659Hz/w0/a101/s255@19/left0",
+        "slots": "20,0,0,21,36,44,0,0",
+        "internal_free": "27816",
+        "internal_min": "27696",
+        "psram_free": "3851555"
+      }
+    },
+    "beep": {
+      "ok": true,
+      "detail": null
+    },
+    "volume": {
+      "ok": true,
+      "detail": null
+    }
+  },
+  "samples": [
+    "AUDIO busy=0 master=127 notes=52 err=255@0 v0=196Hz/w0/a101/s255@36/left0 v1=196Hz/w1/a84/s255@44/left0 v2=659Hz/w0/a101/s255@19/left0 slots=20,0,0,21,36,44,0,0 internal_free=27816 internal_min=27696 psram_free=3851555",
+    "AUDIO busy=1 master=127 notes=53 err=255@0 v0=440Hz/w0/a101/s255@36/left6169 v1=196Hz/w1/a84/s255@44/left0 v2=659Hz/w0/a101/s255@19/left0 slots=20,0,0,21,36,44,0,0 internal_free=27816 internal_min=27696 psram_free=3851555",
+    "AUDIO busy=0 master=127 notes=53 err=255@0 v0=440Hz/w0/a101/s255@36/left0 v1=196Hz/w1/a84/s255@44/left0 v2=659Hz/w0/a101/s255@19/left0 slots=20,0,0,21,36,44,0,0 internal_free=27816 internal_min=27696 psram_free=3851555",
+    "AUDIO busy=2 master=127 notes=54 err=255@0 v0=440Hz/w0/a101/s255@36/left0 v1=262Hz/w0/a101/s0@12/left2892 v2=659Hz/w0/a101/s255@19/left0 slots=20,0,0,21,36,44,0,0 internal_free=27816 internal_min=27696 psram_free=3851555",
+    "AUDIO busy=2 master=127 notes=56 err=255@0 v0=440Hz/w0/a101/s255@36/left0 v1=330Hz/w0/a101/s0@14/left740 v2=659Hz/w0/a101/s255@19/left0 slots=20,0,0,21,36,44,0,0 internal_free=27816 internal_min=27696 psram_free=3851555",
+    "AUDIO busy=0 master=127 notes=61 err=255@0 v0=440Hz/w0/a101/s255@36/left0 v1=523Hz/w0/a101/s255@20/left0 v2=659Hz/w0/a101/s255@19/left0 slots=20,0,0,21,36,44,0,0 internal_free=27816 internal_min=27696 psram_free=3851555",
+    "AUDIO busy=0 master=127 notes=61 err=2@2 v0=440Hz/w0/a101/s255@36/left0 v1=523Hz/w0/a101/s255@20/left0 v2=659Hz/w0/a101/s255@19/left0 slots=20,0,0,21,36,44,0,0 internal_free=27816 internal_min=27696 psram_free=3851555",
+    "AUDIO busy=4 master=127 notes=89 err=255@0 v0=440Hz/w0/a101/s255@36/left0 v1=523Hz/w0/a101/s255@20/left0 v2=659Hz/w0/a101/s3@19/left592 slots=20,0,0,21,36,44,0,0 internal_free=27816 internal_min=27696 psram_free=3851555",
+    "AUDIO busy=0 master=127 notes=89 err=255@0 v0=440Hz/w0/a101/s255@36/left0 v1=523Hz/w0/a101/s255@20/left0 v2=659Hz/w0/a101/s255@19/left0 slots=20,0,0,21,36,44,0,0 internal_free=27816 internal_min=27696 psram_free=3851555",
+    "AUDIO busy=0 master=64 notes=90 err=255@0 v0=440Hz/w0/a64/s255@36/left0 v1=523Hz/w0/a101/s255@20/left0 v2=659Hz/w0/a101/s255@19/left0 slots=20,0,0,21,36,44,0,0 internal_free=27816 internal_min=27696 psram_free=3851555",
+    "AUDIO busy=0 master=127 notes=90 err=255@0 v0=440Hz/w0/a64/s255@36/left0 v1=523Hz/w0/a101/s255@20/left0 v2=659Hz/w0/a101/s255@19/left0 slots=20,0,0,21,36,44,0,0 internal_free=27816 internal_min=27696 psram_free=3851555"
+  ],
+  "memory_idle": {
+    "internal_free": "27816",
+    "internal_min": "27696",
+    "psram_free": "3851555"
+  },
+  "memory_end": {
+    "internal_free": "27816",
+    "internal_min": "27696",
+    "psram_free": "3851555"
+  }
+}

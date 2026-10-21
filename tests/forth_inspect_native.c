@@ -35,6 +35,7 @@ static void metadata(void){
  assert(resources.words==forth_word_count()&&resources.words<resources.words_max);
  assert(resources.token_bytes>0&&resources.token_bytes<resources.token_capacity&&resources.direct_bytes<resources.direct_capacity);
  assert(resources.data_bytes>=9&&resources.data_bytes<resources.data_capacity&&resources.source_bytes>0&&resources.source_bytes<resources.source_capacity);
+ assert(resources.map_entries>0&&resources.map_entries<resources.map_capacity);
  assert(!forth_inspect_word(forth_word_count(),&out)&&!forth_inspect_word(0,NULL));forth_inspect_resources(NULL);
 }
 static void readonly(void){

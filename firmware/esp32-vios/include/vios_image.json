@@ -1,8 +1,8 @@
 {
   "path": "build/vios-resident.bin",
-  "size": 194710,
-  "sha256": "9134f165a053b600876bb900b0c06031f5b37c3134e3602903a1181018e867a4",
-  "crc32": "0193a272",
+  "size": 195250,
+  "sha256": "7758261fa42d41c6e5699174350d73aac70f854aa81db245341d0a8e3638b1f2",
+  "crc32": "77bfb0da",
   "internal_baud": 1152000,
   "gui": 1
 }

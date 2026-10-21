@@ -1,0 +1,184 @@
+{
+  "status": "passed",
+  "checks": {
+    "gui_on": {
+      "ok": true,
+      "detail": "GUI on windows 1 frames 47 rows 1132 carried 25 errors 0 style 0 batch_max_us 843 batch_op 01 frame_max_us 9729 presents 1 deferred 0 forced 0 abandoned 0 present_us_max 9726 sync_frames_max 6 slow_us 9729 slow_px 0 slow_rows 0 slow_nd 0 slow_phase 2>0 ops_us 843 after_us 0 style_us 4 hold_us 865 wait_us 26 frame_wait 45739 by loopTask at 400dad08"
+    },
+    "points_on_desktop": {
+      "ok": true,
+      "detail": [
+        5,
+        5
+      ]
+    },
+    "window_draws": {
+      "ok": true,
+      "detail": [
+        [
+          5,
+          5
+        ],
+        [
+          3,
+          5
+        ]
+      ]
+    },
+    "move_restores_desktop": {
+      "ok": true,
+      "detail": [
+        [
+          5,
+          5
+        ],
+        [
+          5,
+          3
+        ]
+      ]
+    },
+    "accelerator_command_event": {
+      "ok": true,
+      "detail": [
+        true,
+        [
+          [
+            -1,
+            3,
+            3,
+            17
+          ]
+        ]
+      ]
+    },
+    "input_text": {
+      "ok": true,
+      "detail": "2 2 ok"
+    },
+    "button_activates": {
+      "ok": true,
+      "detail": [
+        [
+          -1,
+          1,
+          1,
+          4
+        ],
+        [
+          -1,
+          2,
+          1,
+          4
+        ],
+        [
+          -1,
+          3,
+          2,
+          2
+        ]
+      ]
+    },
+    "close_restores_desktop": {
+      "ok": true,
+      "detail": [
+        [
+          5,
+          5
+        ],
+        [
+          5,
+          5
+        ]
+      ]
+    },
+    "no_protocol_errors": {
+      "ok": true,
+      "detail": [
+        "0",
+        "56",
+        "21"
+      ]
+    },
+    "frame_budget": {
+      "ok": true,
+      "detail": {
+        "frames": 238,
+        "vblank_start_max": 23,
+        "frame_work_max": 3769,
+        "present_frames": 1,
+        "present_work_max": 6818
+      }
+    },
+    "present_budget": {
+      "ok": true,
+      "detail": {
+        "frames": 238,
+        "vblank_start_max": 23,
+        "frame_work_max": 3769,
+        "present_frames": 1,
+        "present_work_max": 6818
+      }
+    }
+  },
+  "pixels": {
+    "before": [
+      5,
+      5
+    ],
+    "opened": [
+      3,
+      5
+    ],
+    "moved": [
+      5,
+      3
+    ],
+    "closed": [
+      5,
+      5
+    ]
+  },
+  "command_events": [
+    [
+      -1,
+      3,
+      3,
+      17
+    ]
+  ],
+  "input_readback": "2 2 ok",
+  "widget_events": [
+    [
+      -1,
+      1,
+      1,
+      4
+    ],
+    [
+      -1,
+      2,
+      1,
+      4
+    ],
+    [
+      -1,
+      3,
+      2,
+      2
+    ]
+  ],
+  "sync": [
+    "0",
+    "56",
+    "21"
+  ],
+  "frames": {
+    "frames": 238,
+    "vblank_start_max": 23,
+    "frame_work_max": 3769,
+    "present_frames": 1,
+    "present_work_max": 6818
+  },
+  "gui": "GUI on windows 1 frames 139 rows 3064 carried 53 errors 0 style 0 batch_max_us 127 batch_op 31 frame_max_us 2128 presents 2 deferred 0 forced 0 abandoned 0 present_us_max 9726 sync_frames_max 6 slow_us 6762 slow_px 0 slow_rows 0 slow_nd 0 slow_phase 2>0 ops_us 127 after_us 0 style_us 0 hold_us 129 wait_us 3 frame_wait 93 by loopTask at 400d8f72"
+}
