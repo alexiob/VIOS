@@ -712,7 +712,7 @@ integration is in progress in the session that owns the hardware.
 | G5 tweens (window x/y/scroll, sprite x/y; linear, in-out, out, spring) | `vds_ui.c`, ops 70/71 | done |
 | G6 keyboard pointer (Ctrl+F12) and pointer injection, hit testing | `vds_ui.c`, op 7B | done; physical mouse deferred |
 | G4 TextView, table, tree/pager lists, tabs (and the GUI tools built on them) | `vds_text.c`, `vds_widget.c`, `kernel/vios_tools.c`; see the [GUI tools design](2026-10-20-vios-gui-tools-design.md) | done, host-tested |
-| G5 Canvas display lists and icons (retained lists, 4 bpp raster cache, eight built-in icons, ops C0–CC, 12 `UI-` words) | `vds_canvas.{h,c}`, `vds_proto.c`, `kernel/vios_ui.c`; see the [G5 addendum](2026-10-21-vios-gui-g5-canvas.md) | host-tested; board acceptance: `tools/vios_gui_canvas_accept.py` |
+| G5 Canvas display lists and icons (retained lists, 4 bpp raster cache, eight built-in icons, ops C0–CC, 12 `UI-` words) | `vds_canvas.{h,c}`, `vds_proto.c`, `kernel/vios_ui.c`; see the [G5 addendum](2026-10-21-vios-gui-g5-canvas.md) | done; board acceptance passed 2026-10-21 (`tools/vios_gui_canvas_accept.py`, suite 9/9) |
 
 **Deviations from the §12 draft** (the authoritative table is the header of
 `vds_proto.h`):

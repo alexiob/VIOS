@@ -149,6 +149,7 @@ def main():
                 st = c.tool('esp_stats', {'reset': True})
                 sections[name] = {k: st.get(k) for k in ('frames', 'vblank_start_max', 'frame_work_max', 'frame_gui_max',
                                                          'present_frames', 'present_work_max', 'late_us', 'loop_gap_max')}
+                sections[name]['protocol_errors'] = errors()      # running total: a step that adds one is named
                 return sections[name]
 
             status = c.tool('esp_gui')['status']
@@ -183,7 +184,10 @@ def main():
             ]
             ev(f'0 3 3 15 UI-BITMAP  {" ".join(f"{b} GC-BM {i} + C!" for i, b in enumerate(BITMAP))}  GC-BM 6 0 0 UI-BITS')
             host.script.append('B 3 3 15 ' + ' '.join(f'{b:x}' for b in BITMAP))
-            ev('UI-BEGIN ' + ' '.join(e[9] for e in extra) + ' UI-COMMIT')
+            ev('UI-BEGIN')                  # source lines are at most 235 bytes: one item per line
+            for e in extra:
+                ev(e[9])
+            ev('UI-COMMIT')
             host.script += [f'I {i} {k} {col} {x} {a_} {b_} {c_} {d_} {txt}' for i, k, col, x, a_, b_, c_, d_, txt, _ in extra]
             r['draw_s'] = round(time.perf_counter() - t, 3)
             rng = random.Random(5)

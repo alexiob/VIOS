@@ -287,9 +287,8 @@ Built on branch `claude/competent-faraday-91e89a`.
 - **Safety:** a replacing `C0` is checked in full (`vds_canvas_valid`) before the adapter is asked for memory.
   - The adapter frees the old block when it grows one.
 - **CPU cost**, measured on the eZ80 build (`-Oz`):
-  - 2.8 KB of code plus about 1 KB of strings.
-  - BSS ends at `0xABA15` (main: `0xAAB15`), leaving 13.8 KB below the stack.
-  - The §5 estimate was 1.2 KB.
+  - 2.8 KB of code plus about 1 KB of strings, against the §5 estimate of 1.2 KB.
+  - On main `46d94ce`, BSS ends at `0xABB15`, leaving about 13.5 KB below the stack.
 - **ESP:**
   - Flash: 827 KB of 1,310 KB.
   - Internal RAM: the canvas and bitmap descriptors.
@@ -298,3 +297,33 @@ Built on branch `claude/competent-faraday-91e89a`.
   - `firmware/esp32-vios/tests/vds_canvas.c`: per-kind goldens, line properties, compositor checks, budgets, and a 6000-step oracle.
   - The protocol and UI tests cover ops `C0`–`CC`, the tween and the event.
   - `tests/vios_ui_host.c` checks the Forth words end to end.
+
+## 12. Board acceptance (2026-10-21)
+
+Branch rebased on main `46d94ce`. The ESP firmware was installed to app0 through
+`vios_firmware_ab.py`, with backups in `backups/ab-2026-10-21-g5/`. The trial
+cleared and app0 boots. The SD resident was refreshed and verified
+([report](../../bring-up/vios-gui-g5-sd-refresh-2026-10-21.json)).
+
+`tools/vios_gui_canvas_accept.py`
+([report](../../bring-up/vios-gui-g5-canvas-2026-10-21.json)) passed in three
+runs. The figures below come from the run after the board suite.
+
+| Check | Result |
+|---|---|
+| 320×200 canvas: 211 items, 200 drawn from one Forth loop | Drawn in 0.93 s, including the Forth round trips |
+| Framebuffer against a host replay of the same list | 64 of 64 pixels match, before and after the edits |
+| 100 single-item edits (`UI-NUDGE`) | 11 bytes each on the wire, 0.95 ms per edit |
+| Transparent canvas of built-in icons over cells | Drawn; the key colour shows the cells |
+| Window slid over the canvas, against over text (B10 variant) | Frame work at most 3.9 ms against 3.6 ms; vblank start at most 25 µs in both |
+| Worst over all sections | Frame work 4.0 ms, vblank start 69 µs, present 9.7 ms |
+| Pointer press on the canvas | `CANVAS` event: canvas 0, x 130, the item under the pointer |
+| Protocol errors | 0 |
+
+The board suite (`tools/vios_board_suite.py`) passed 9/9 on the same build,
+`gui` and `gui_tools` included ([reports](../../bring-up/vios-gui-g5-suite-2026-10-21/)).
+
+The VDP loop gap reached 14.6 ms in the canvas run and 14.8 ms in `gui_tools`.
+That is not a G5 regression: main-53's own `gui_tools` run recorded 16.6 ms
+(`docs/bring-up/vios-board-suite-main53-2026-10-21/`). The G1 limit of 4 ms is
+not met on main either.
