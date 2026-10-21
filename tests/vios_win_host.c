@@ -274,7 +274,11 @@ int main(int argc, char **argv) {
     eval("S\" /dev/win/w0/ctl\" 1 OPEN HV !");
     console_n = 0; vios_handles_report(); assert(strstr(console, "kind win read") && strstr(console, "path /dev/win/w0/ctl"));
     eval("HV @ CLOSE DROP");
-    assert(spit("/dev/win/w0/ctl", "close") > 0 && !v.windows[0].used);
+    assert(spit("/dev/win/w0/ctl", "close") > 0 && !v.windows[0].used && v.surfaces[0].cells);    /* UI-SURFACE made that one */
+    for (int i = 0; i < 12; ++i) {                          /* a surface /dev/win/new made is freed with its window */
+        assert(spit("/dev/win/new", "window - again") > 0 && v.windows[0].used && v.windows[0].surface == 1);
+        assert(spit("/dev/win/w0/ctl", "close") > 0 && !v.surfaces[1].cells);
+    }
     same(slurp("/dev/win"), "");
     assert(!p.errors && !fvm_depth);
     printf("vios win checks passed: %u requests\n", requests);

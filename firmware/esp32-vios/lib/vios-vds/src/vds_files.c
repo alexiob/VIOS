@@ -10,7 +10,8 @@
  *          spaces as '_', '-' when empty; a window's name is its title.
  *   NEW    write "kind parent name" (window - Title, button w3 ok; a widget's
  *          parent is wN or a box): makes a node with the lowest free id (a
- *          window also gets the lowest free surface, 32x12). Reads give the id.
+ *          window also gets the lowest free surface, 32x12, freed again when
+ *          ctl closes the window). Reads give the id.
  *   CTL    read: properties, one per line; write: commands, one a line:
  *          rect a b c d, text T, name T, show 0|1, flags F, focus, raise (a
  *          window), value V, layout L G, size F W (widgets), style S (server
@@ -346,6 +347,7 @@ static int make(vds_ui *u, const char *p, const char *end, uint8_t *made, out *o
             !vds_surface_init(core(u), (uint8_t)s, 32, 12, cells, SURFACE_ATTR) ||
             !vds_window_open(core(u), (uint8_t)w, (uint8_t)s, 64, 64, 32, 12, VDS_W_VISIBLE | VDS_W_DECOR | VDS_W_SHADOW, ""))
             return message(o, "new: the display server refused it");
+        u->file_surfaces |= (uint16_t)(1u << s);
         node = VDS_NODE_WINDOW | w;
     } else {
         unsigned pn, win, box = VDS_NONE, id = 0;
@@ -423,8 +425,15 @@ static int command(vds_ui *u, unsigned node, const char *p, const char *end, out
     }
     if (is(cmd, "close") || is(cmd, "delete")) {
         if (!win) return vds_ui_widget_delete(u, (uint8_t)id);
+        uint8_t s = c->windows[id].surface;
         if (!vds_window_close(c, (uint8_t)id)) return message(o, "close refused");
         vds_ui_forget(u, (uint8_t)id);
+        unsigned shown = 0;
+        for (unsigned k = 0; k < WINDOWS; ++k) shown |= window(u, k) && c->windows[k].surface == s;
+        if (s < VDS_PROTO_SURFACES && u->file_surfaces >> s & 1 && !shown) {   /* ours and unused: free the id */
+            memset(&c->surfaces[s], 0, sizeof c->surfaces[s]);
+            u->file_surfaces &= (uint16_t)~(1u << s);
+        }
         return 1;
     }
     if (win) {

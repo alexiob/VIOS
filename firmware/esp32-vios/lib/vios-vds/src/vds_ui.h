@@ -180,6 +180,7 @@ typedef struct vds_ui {
     uint8_t pointer_mode, buttons;
     int16_t px, py;
     uint64_t routed_widgets, routed_windows;    /* nodes whose events are streamed (op 9E) */
+    uint16_t file_surfaces;                     /* surfaces /dev/win/new made: freed with their window */
 } vds_ui;
 
 void vds_ui_init(vds_ui *u, vds_proto *p);
