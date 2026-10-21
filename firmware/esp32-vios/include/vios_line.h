@@ -42,14 +42,16 @@ public:
     /* One key-down. Returns true when the editor consumed it. */
     bool key(uint8_t c, uint8_t vk) {
         if (pending) { if (is_edit(c, vk)) { ++dropped; return true; } return false; }
-        if (vk == K_RETURN || vk == K_KP_ENTER || c == '\r' || c == '\n') { remember(); history_pos = 0; pending = true; try_submit(); return true; }
-        else if (vk == K_LEFT || vk == K_KP_LEFT) { if (cursor) --cursor; }
+        /* Keys first, ASCII after: the VDP gives Down ASCII 10 and Left ASCII 8,
+         * so a bare '\n' or 8 is only Enter or Backspace when no key says otherwise. */
+        if (vk == K_LEFT || vk == K_KP_LEFT) { if (cursor) --cursor; }
         else if (vk == K_RIGHT || vk == K_KP_RIGHT) { if (cursor < used) ++cursor; }
         else if (vk == K_HOME || vk == K_KP_HOME) cursor = 0;
         else if (vk == K_END || vk == K_KP_END) cursor = used;
         else if (vk == K_UP || vk == K_KP_UP) recall(true);
         else if (vk == K_DOWN || vk == K_KP_DOWN) recall(false);
         else if (vk == K_DELETE) { if (cursor < used) erase_at(cursor); }
+        else if (vk == K_RETURN || vk == K_KP_ENTER || c == '\r' || c == '\n') { remember(); history_pos = 0; pending = true; try_submit(); return true; }
         else if (vk == K_BACKSPACE || c == 8 || c == 127) { if (cursor) { --cursor; erase_at(cursor); } }
         else if (vk == K_ESCAPE || c == 3 || c == 27) { used = cursor = 0; history_pos = 0; }
         else if (c >= 32 && c < 127) {

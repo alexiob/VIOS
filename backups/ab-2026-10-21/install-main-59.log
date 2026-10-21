@@ -1,0 +1,49 @@
+read 0xb0000 failed; retrying read
+event: BOOT VIOS v0.8 (c) 2026 Alessandro Iob
+event: BOOT VIOS VDP 1.04 mux-v1 zdi-edge 1us
+event: BOOT retained failures 0
+event: FIRMWARE app0 valid trial
+event: BOOT user mode: no ZDI; MOS and its stub load the resident
+event: BOOT link: MOS answered at the internal rate
+event: MOS: Agon Platform MOS Version 3.0.2 Arthur
+event: BOOT link: stub switched to 1152000
+event: BOOT stub loading the resident over the UART
+event: BOOT image sent: 1042 blocks in 2291 ms (build 91 ms, send 1871 ms, slowest send 2590 us)
+event: BOOT stub runs this firmware's image
+event: HEALTH flag 0
+event: HEALTH flag 1
+event: FIRMWARE confirmed
+{
+  "running_before": "app1",
+  "target": "app0",
+  "image": "backups/app0-2026-10-18/firmware-main-59.bin",
+  "image_sha256": "72e8697337a6f2919eab0613bec15a73228ad8cf5475851f2986a32954e8630a",
+  "backup_dir": "backups/ab-2026-10-21",
+  "stamp": "20261021-121617",
+  "otadata_sector": 0,
+  "otadata_entry": {
+    "sector": 0,
+    "seq": 143,
+    "state": "valid",
+    "crc_ok": true,
+    "valid": true,
+    "trial": true
+  },
+  "verdict": "FIRMWARE confirmed",
+  "events": [
+    "BOOT VIOS v0.8 (c) 2026 Alessandro Iob",
+    "BOOT VIOS VDP 1.04 mux-v1 zdi-edge 1us",
+    "BOOT retained failures 0",
+    "FIRMWARE app0 valid trial",
+    "BOOT user mode: no ZDI; MOS and its stub load the resident",
+    "BOOT link: MOS answered at the internal rate",
+    "MOS: Agon Platform MOS Version 3.0.2 Arthur",
+    "BOOT link: stub switched to 1152000",
+    "BOOT stub loading the resident over the UART",
+    "BOOT image sent: 1042 blocks in 2291 ms (build 91 ms, send 1871 ms, slowest send 2590 us)",
+    "BOOT stub runs this firmware's image",
+    "HEALTH flag 0",
+    "HEALTH flag 1",
+    "FIRMWARE confirmed"
+  ]
+}

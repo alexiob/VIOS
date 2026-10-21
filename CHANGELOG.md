@@ -4,6 +4,10 @@ All notable changes to VIOS are listed here. Versions follow semantic versioning
 
 ## [Unreleased]
 
+### Fixed
+
+- The Down arrow no longer submits the line in the console's line editor; it moves through the history (the VDP sends Down as ASCII 10, which was taken for Enter).
+
 ## [0.8.0] - 2026-10-21
 
 First tagged release. VIOS turns the Agon Light 2 into a self-contained Forth workstation: a resident Forth system on the eZ80 that runs without MOS once booted, and a display server on the ESP32 with a windowed, Smalltalk-style GUI.

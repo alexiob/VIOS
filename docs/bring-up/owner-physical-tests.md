@@ -20,7 +20,7 @@ console (Ctrl+Alt+F1 switches between them):
 | Esc while editing | the line clears |
 | Up / Down after a few lines | the last 4 lines come back, newest first; Down past the newest gives an empty line |
 | `: SLOW 3000 0 DO I DROP LOOP ;` then type while `SLOW` runs | the keys are not lost; they become the next line |
-| Ctrl-C while a long loop runs (`BEGIN AGAIN`) | the loop stops with an error and the prompt returns |
+| `: SPIN BEGIN AGAIN ;` then `SPIN`, then Ctrl-C (`BEGIN` … `AGAIN` only works inside a definition) | the loop stops with an error and the prompt returns |
 | Typing speed | feels as immediate as before |
 
 Report anything that feels different from before, with the exact keys.

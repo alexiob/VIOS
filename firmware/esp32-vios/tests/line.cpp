@@ -49,6 +49,13 @@ int main(){
     assert(f.key(0,PLATFORM_KEY_UP)&&t.row()=="second");assert(f.key(0,PLATFORM_KEY_UP)&&t.row()=="aX");
     assert(f.key(0,PLATFORM_KEY_UP)&&t.row()=="aX"); // oldest stays
     assert(f.key(0,PLATFORM_KEY_DOWN)&&t.row()=="second");assert(f.key(0,PLATFORM_KEY_DOWN)&&t.row()=="");
+    // The VDP's ASCII for the arrows (Up 11, Down 10, Left 8, Right 21): Down is
+    // not Enter and Left is not Backspace; the key code decides.
+    {size_t n=t.lines.size();assert(f.key(11,PLATFORM_KEY_UP)&&t.row()=="second");
+     assert(f.key(10,PLATFORM_KEY_DOWN)&&t.row()==""&&t.lines.size()==n&&!f.busy());
+     assert(f.key(10,PLATFORM_KEY_DOWN)&&t.row()==""&&t.lines.size()==n);   // past the newest: nothing
+     type(f,"ab");assert(f.key(8,PLATFORM_KEY_LEFT)&&t.row()=="ab"&&t.col==1);
+     assert(f.key(21,PLATFORM_KEY_RIGHT)&&t.col==2);f.key(27,PLATFORM_KEY_ESCAPE);}
     // Esc clears the line.
     type(f,"junk");assert(f.key(27,PLATFORM_KEY_ESCAPE)&&t.row()==""&&f.length()==0);
     // Non-editing keys pass through to the CPU (F1 view toggle, function keys).
