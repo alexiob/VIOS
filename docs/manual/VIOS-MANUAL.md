@@ -4226,17 +4226,13 @@ same).
 
 ![The Inspector after *inspect it* in the Workspace: the data stack, top first](media/inspector.png)
 
-> **Known problem (main-51).** The Memory tab and the Manager's Boot tab fill
-> their rows correctly, but the rows are drawn blank: the tool engine switches
-> these lists back to plain lists by sending three column widths of 0 instead of
-> no columns, so every cell is clipped to nothing. The selection bar still
-> moves, and Enter and the pane menu still work on the selected row.
+![The Memory tab: 16 rows of 8 bytes from the address on the stack; Up, Down, PgUp and PgDn page through memory](media/inspector-memory.png)
 
 ![The Tasks tab: two background tasks, with the TASKS report below](media/inspector-tasks.png)
 
 ![The System tab: engine, dictionary and code use, display-server status (on the host build the engine is C; the board shows DIRECT)](media/inspector-system.png)
 
-![Ctrl+Tab walks the Inspector tabs: Stack, Tasks, Handles, System](media/anim-inspector.gif)
+![Ctrl+Tab walks the Inspector tabs: Stack, Memory, Tasks, Handles, System](media/anim-inspector.gif)
 
 ### The Manager
 
@@ -4260,6 +4256,8 @@ moves to Yes, then Enter or Space confirms. Esc also cancels.
 **Pane menu (Shift+F10):** Refresh, Save to SD, Rollback.
 
 ![A Manager action waiting for confirmation](media/manager-confirm.png)
+
+![The Manager's Boot tab: the boot-slot actions, with the BOOT-STATUS and BOOT-MANIFEST reports below](media/manager-boot.png)
 
 ![The Manager's Modules tab: active modules, their versions and state](media/manager.png)
 
