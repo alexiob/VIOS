@@ -112,7 +112,7 @@ static void markers(void){
  assert(forth_find_xt("A2"));ok("FRESH");
  assert(!forth_find_xt("A1")&&!forth_find_xt("A2")&&!forth_find_xt("FRESH")&&forth_find_xt("KEEP"));
  struct forth_resources after;forth_inspect_resources(&after);
- assert(after.words==before.words&&after.token_bytes==before.token_bytes&&after.direct_bytes==before.direct_bytes&&after.data_bytes==before.data_bytes&&after.source_bytes==before.source_bytes);
+ assert(after.words==before.words&&after.token_bytes==before.token_bytes&&after.direct_bytes==before.direct_bytes&&after.data_bytes==before.data_bytes&&after.source_bytes==before.source_bytes&&after.map_entries==before.map_entries);
  assert(top("KEEP")==1&&top(": REDO 3 ; REDO")==3);
  ok("DEFER D MARKER M2 : T 5 ; ' T IS D");refused("M2","deferred word bound to a removed word");
  ok("' KEEP IS D M2");assert(!forth_find_xt("T"));

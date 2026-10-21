@@ -1,0 +1,17 @@
+# The same software in the Turbo Vision style (1 UI-STYLE).
+include setup
+con 1 UI-STYLE
+con 7 CUBE .
+prompt
+ctrlshift b
+key DOWN
+key DOWN
+shot turbo-browser
+ctrlshift w
+key END c
+type \n7 CUBE
+ctrl p
+key END
+type \n100 SQUARE 42
+ctrl i
+shot turbo-inspector

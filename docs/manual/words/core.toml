@@ -1,0 +1,1097 @@
+# VIOS word reference: core Forth language, console and low-level display words.
+# Sources: forth/system.c, forth/vm_reference.c, kernel/vios_prelude.c,
+# kernel/vios_services.c, kernel/vios_irq.c, bench/forth_bench.c.
+
+# ---------------------------------------------------------------- stack
+
+[[word]]
+name = "DUP"
+section = "stack"
+effect = "( x -- x x )"
+desc = "Duplicate the top cell. Primitive (one VM opcode)."
+example = '5 DUP * .  \ 25'
+
+[[word]]
+name = "DROP"
+section = "stack"
+effect = "( x -- )"
+desc = "Discard the top cell. Primitive."
+example = '1 2 DROP .  \ 1'
+
+[[word]]
+name = "SWAP"
+section = "stack"
+effect = "( x1 x2 -- x2 x1 )"
+desc = "Exchange the top two cells. Primitive."
+example = '1 2 SWAP . .  \ 1 2'
+
+[[word]]
+name = "OVER"
+section = "stack"
+effect = "( x1 x2 -- x1 x2 x1 )"
+desc = "Copy the second cell to the top. Primitive."
+example = '1 2 OVER . . .  \ 1 2 1'
+
+[[word]]
+name = ">R"
+section = "stack"
+effect = "( x -- ) ( R: -- x )"
+desc = "Move the top cell to the return stack. Use only inside a colon definition and move it back before the definition ends: `;` returns through whatever is on top of the return stack, so an unbalanced `>R` fails with \"invalid memory\" (on the board it jumps to that address). The return stack is separate from the DO loop stack, so `I` still works after `>R`."
+example = ': SUM3 >R + R> + ;  1 2 3 SUM3 .  \ 6'
+
+[[word]]
+name = "R>"
+section = "stack"
+effect = "( -- x ) ( R: x -- )"
+desc = "Move the top of the return stack to the data stack. Inside definitions only, paired with `>R`; fails with \"return stack underflow\" if the return stack is empty."
+example = ': SUM3 >R + R> + ;  1 2 3 SUM3 .  \ 6'
+
+[[word]]
+name = "R@"
+section = "stack"
+effect = "( -- x ) ( R: x -- x )"
+desc = "Copy the top of the return stack to the data stack. Inside definitions only."
+example = ': TWICE >R R@ R> + ;  21 TWICE .  \ 42'
+
+[[word]]
+name = "DEPTH"
+section = "stack"
+effect = "( -- u )"
+desc = "Number of cells on the data stack before DEPTH ran. The foreground data stack holds 256 cells; a background task saves at most 64."
+example = '1 2 3 DEPTH .  \ 3'
+
+[[word]]
+name = "2DUP"
+section = "stack"
+effect = "( x1 x2 -- x1 x2 x1 x2 )"
+desc = "Duplicate the top pair. Defined in Forth as `OVER OVER`."
+example = '1 2 2DUP .S  \ <4> 1 2 1 2'
+
+[[word]]
+name = "2DROP"
+section = "stack"
+effect = "( x1 x2 -- )"
+desc = "Discard the top pair. Defined as `DROP DROP`."
+example = '1 2 3 2DROP .  \ 1'
+
+[[word]]
+name = "ROT"
+section = "stack"
+effect = "( x1 x2 x3 -- x2 x3 x1 )"
+desc = "Rotate the third cell to the top. Library word from the kernel prelude."
+example = '1 2 3 ROT .S  \ <3> 2 3 1'
+
+[[word]]
+name = "-ROT"
+section = "stack"
+effect = "( x1 x2 x3 -- x3 x1 x2 )"
+desc = "Rotate the top cell down to third place (`ROT ROT`). Not ANS standard but common."
+example = '1 2 3 -ROT .S  \ <3> 3 1 2'
+
+[[word]]
+name = "NIP"
+section = "stack"
+effect = "( x1 x2 -- x2 )"
+desc = "Discard the second cell."
+example = '1 2 NIP .  \ 2'
+
+[[word]]
+name = "TUCK"
+section = "stack"
+effect = "( x1 x2 -- x2 x1 x2 )"
+desc = "Copy the top cell below the second."
+example = '1 2 TUCK .S  \ <3> 2 1 2'
+
+[[word]]
+name = "?DUP"
+section = "stack"
+effect = "( x -- 0 | x x )"
+desc = "Duplicate the top cell only if it is non-zero."
+example = '7 ?DUP .S  \ <2> 7 7'
+
+[[word]]
+name = "2SWAP"
+section = "stack"
+effect = "( x1 x2 x3 x4 -- x3 x4 x1 x2 )"
+desc = "Exchange the top two pairs."
+example = '1 2 3 4 2SWAP .S  \ <4> 3 4 1 2'
+
+[[word]]
+name = "2OVER"
+section = "stack"
+effect = "( x1 x2 x3 x4 -- x1 x2 x3 x4 x1 x2 )"
+desc = "Copy the second pair to the top."
+example = '1 2 3 4 2OVER .S  \ <6> 1 2 3 4 1 2'
+
+# ---------------------------------------------------------------- arithmetic
+
+[[word]]
+name = "+"
+section = "arith"
+effect = "( n1 n2 -- n3 )"
+desc = "Add. Results wrap modulo 2^24 (cells are 24 bits)."
+example = '8388607 1 + .  \ -8388608'
+
+[[word]]
+name = "-"
+section = "arith"
+effect = "( n1 n2 -- n3 )"
+desc = "Subtract n2 from n1, modulo 2^24."
+example = '10 3 - .  \ 7'
+
+[[word]]
+name = "*"
+section = "arith"
+effect = "( n1 n2 -- n3 )"
+desc = "Multiply, keeping the low 24 bits of the product."
+example = '6 7 * .  \ 42'
+
+[[word]]
+name = "/"
+section = "arith"
+effect = "( n1 n2 -- n3 )"
+desc = "Signed division that truncates toward zero (C semantics, not floored): `-7 2 /` is -3. Division by zero, or -8388608 by -1, fails with \"arithmetic error\"."
+example = '-7 2 / .  \ -3'
+
+[[word]]
+name = "MOD"
+section = "arith"
+effect = "( n1 n2 -- n3 )"
+desc = "Signed remainder with the sign of n1 (C semantics). Fails with \"arithmetic error\" on division by zero."
+example = '7 -2 MOD .  \ 1'
+
+[[word]]
+name = "1+"
+section = "arith"
+effect = "( n -- n+1 )"
+desc = "Add one. Defined in Forth as `1 +`."
+example = '41 1+ .  \ 42'
+
+[[word]]
+name = "1-"
+section = "arith"
+effect = "( n -- n-1 )"
+desc = "Subtract one."
+example = '43 1- .  \ 42'
+
+[[word]]
+name = "NEGATE"
+section = "arith"
+effect = "( n -- -n )"
+desc = "Two's complement negation (`0 SWAP -`)."
+example = '5 NEGATE .  \ -5'
+
+[[word]]
+name = "ABS"
+section = "arith"
+effect = "( n -- u )"
+desc = "Absolute value. -8388608 stays -8388608 (it has no positive 24-bit counterpart)."
+example = '-3 ABS .  \ 3'
+
+[[word]]
+name = "MAX"
+section = "arith"
+effect = "( n1 n2 -- n3 )"
+desc = "The larger of two signed numbers."
+example = '2 7 MAX .  \ 7'
+
+[[word]]
+name = "MIN"
+section = "arith"
+effect = "( n1 n2 -- n3 )"
+desc = "The smaller of two signed numbers."
+example = '2 7 MIN .  \ 2'
+
+[[word]]
+name = "2*"
+section = "arith"
+effect = "( x -- x*2 )"
+desc = "Shift left by one bit (`1 LSHIFT`)."
+example = '21 2* .  \ 42'
+
+[[word]]
+name = "/MOD"
+section = "arith"
+effect = "( n1 n2 -- rem quot )"
+desc = "Remainder and quotient of a truncating division (`2DUP MOD -ROT /`)."
+example = '17 5 /MOD . .  \ 3 2'
+
+[[word]]
+name = "*/"
+section = "arith"
+effect = "( n1 n2 n3 -- n4 )"
+desc = "n1*n2/n3. Unlike ANS Forth there is no double-cell intermediate: the product is truncated to 24 bits before the division, so keep n1*n2 within -8388608..8388607."
+example = '100 3 4 */ .  \ 75'
+
+# ---------------------------------------------------------------- logic
+
+[[word]]
+name = "AND"
+section = "logic"
+effect = "( x1 x2 -- x3 )"
+desc = "Bitwise AND."
+example = '12 10 AND .  \ 8'
+
+[[word]]
+name = "OR"
+section = "logic"
+effect = "( x1 x2 -- x3 )"
+desc = "Bitwise OR."
+example = '12 10 OR .  \ 14'
+
+[[word]]
+name = "XOR"
+section = "logic"
+effect = "( x1 x2 -- x3 )"
+desc = "Bitwise exclusive OR."
+example = '12 10 XOR .  \ 6'
+
+[[word]]
+name = "INVERT"
+section = "logic"
+effect = "( x -- x' )"
+desc = "Flip all 24 bits."
+example = '0 INVERT .  \ -1'
+
+[[word]]
+name = "LSHIFT"
+section = "logic"
+effect = "( x u -- x' )"
+desc = "Logical shift left by u bits; u of 24 or more gives 0."
+example = '1 4 LSHIFT .  \ 16'
+
+[[word]]
+name = "RSHIFT"
+section = "logic"
+effect = "( x u -- x' )"
+desc = "Logical (unsigned) shift right by u bits; u of 24 or more gives 0."
+example = '-1 1 RSHIFT .  \ 8388607'
+
+[[word]]
+name = "TRUE"
+section = "logic"
+effect = "( -- -1 )"
+desc = "The canonical true flag: all 24 bits set (hex FFFFFF)."
+example = 'TRUE .  \ -1'
+
+[[word]]
+name = "FALSE"
+section = "logic"
+effect = "( -- 0 )"
+desc = "The false flag."
+example = 'FALSE .  \ 0'
+
+# ---------------------------------------------------------------- comparison
+
+[[word]]
+name = "="
+section = "compare"
+effect = "( x1 x2 -- flag )"
+desc = "True (-1) if the cells are equal."
+example = '3 3 = .  \ -1'
+
+[[word]]
+name = "<"
+section = "compare"
+effect = "( n1 n2 -- flag )"
+desc = "Signed less-than on 24-bit values."
+example = '-1 1 < .  \ -1'
+
+[[word]]
+name = "U<"
+section = "compare"
+effect = "( u1 u2 -- flag )"
+desc = "Unsigned less-than (-1 counts as 16777215)."
+example = '-1 1 U< .  \ 0'
+
+[[word]]
+name = "0="
+section = "compare"
+effect = "( x -- flag )"
+desc = "True if x is zero; also the usual logical NOT of a flag."
+example = '0 0= .  \ -1'
+
+[[word]]
+name = ">"
+section = "compare"
+effect = "( n1 n2 -- flag )"
+desc = "Signed greater-than (`SWAP <`)."
+example = '2 1 > .  \ -1'
+
+[[word]]
+name = "0<"
+section = "compare"
+effect = "( n -- flag )"
+desc = "True if n is negative (bit 23 set)."
+example = '-5 0< .  \ -1'
+
+[[word]]
+name = "0>"
+section = "compare"
+effect = "( n -- flag )"
+desc = "True if n is greater than zero."
+example = '5 0> .  \ -1'
+
+[[word]]
+name = "<>"
+section = "compare"
+effect = "( x1 x2 -- flag )"
+desc = "True if the cells differ (`= 0=`)."
+example = '1 2 <> .  \ -1'
+
+[[word]]
+name = "U>"
+section = "compare"
+effect = "( u1 u2 -- flag )"
+desc = "Unsigned greater-than."
+example = '-1 1 U> .  \ -1'
+
+[[word]]
+name = "WITHIN"
+section = "compare"
+effect = "( n lo hi -- flag )"
+desc = "True if lo <= n < hi (computed unsigned, so it also works across the sign boundary when lo <= hi)."
+example = '3 1 5 WITHIN .  \ -1'
+
+# ---------------------------------------------------------------- memory
+
+[[word]]
+name = "@"
+section = "memory"
+effect = "( addr -- x )"
+desc = "Fetch a 3-byte little-endian cell. On the board any address is accepted (native eZ80 addressing, no protection); on the host only the dictionary regions exist and other addresses fail with \"invalid memory\"."
+example = 'VARIABLE V1  42 V1 !  V1 @ .  \ 42'
+
+[[word]]
+name = "!"
+section = "memory"
+effect = "( x addr -- )"
+desc = "Store a 3-byte cell at addr. No alignment is needed. On the board a bad address silently overwrites memory."
+example = 'VARIABLE V2  7 V2 !  V2 @ .  \ 7'
+
+[[word]]
+name = "C@"
+section = "memory"
+effect = "( addr -- c )"
+desc = "Fetch one byte."
+example = 'S" A" DROP C@ .  \ 65'
+
+[[word]]
+name = "C!"
+section = "memory"
+effect = "( c addr -- )"
+desc = "Store the low 8 bits of c at addr."
+example = 'CREATE B1 2 ALLOT  66 B1 C!  B1 C@ .  \ 66'
+
+[[word]]
+name = "FILL"
+section = "memory"
+effect = "( addr u c -- )"
+desc = "Set u bytes from addr to c. Works in chunks of 256 bytes so a timer tick can preempt a long fill; the result is the same."
+example = 'CREATE F1 8 ALLOT  F1 8 42 FILL  F1 8 TYPE  \ ********'
+
+[[word]]
+name = "MOVE"
+section = "memory"
+effect = "( src dst u -- )"
+desc = "Copy u bytes from src to dst; overlapping regions are handled. Chunked like FILL."
+example = 'CREATE M1 3 ALLOT  S" abc" DROP M1 3 MOVE  M1 3 TYPE  \ abc'
+
+[[word]]
+name = "CELLS"
+section = "memory"
+effect = "( n -- n*3 )"
+desc = "Size in bytes of n cells. A cell is 3 bytes in VIOS, on the board and on the host."
+example = '2 CELLS .  \ 6'
+
+[[word]]
+name = "CELL+"
+section = "memory"
+effect = "( addr -- addr+3 )"
+desc = "Advance an address by one cell."
+example = '100 CELL+ .  \ 103'
+
+[[word]]
+name = "+!"
+section = "memory"
+effect = "( n addr -- )"
+desc = "Add n to the cell at addr."
+example = 'VARIABLE C1  5 C1 !  3 C1 +!  C1 @ .  \ 8'
+
+[[word]]
+name = "?"
+section = "memory"
+effect = "( addr -- )"
+desc = "Print the cell at addr (`@ .`)."
+example = 'VARIABLE Q1  99 Q1 !  Q1 ?  \ 99'
+
+[[word]]
+name = "ERASE"
+section = "memory"
+effect = "( addr u -- )"
+desc = "Set u bytes to zero (`0 FILL`)."
+example = 'CREATE E1 4 ALLOT  E1 4 ERASE  E1 C@ .  \ 0'
+
+[[word]]
+name = "BOUNDS"
+section = "memory"
+effect = "( addr u -- addr+u addr )"
+desc = "Turn an address and length into DO loop limits."
+example = ': SHOW BOUNDS ?DO I C@ EMIT LOOP ;  S" hi" SHOW  \ hi'
+
+[[word]]
+name = ","
+section = "memory"
+effect = "( x -- )"
+desc = "Parser keyword: append a cell to data space. Interpretation only (\"data-space word inside definition\"); fails with \"data space full\" past 8192 bytes."
+example = 'CREATE T1 10 , 20 ,  T1 CELL+ @ .  \ 20'
+
+[[word]]
+name = "C,"
+section = "memory"
+effect = "( c -- )"
+desc = "Parser keyword: append one byte to data space. Interpretation only."
+example = 'CREATE CS1 3 C, 65 C, 66 C, 67 C,  CS1 COUNT TYPE  \ ABC'
+
+[[word]]
+name = "ALLOT"
+section = "memory"
+effect = "( u -- )"
+desc = "Parser keyword: reserve u zeroed bytes of data space. Interpretation only; a negative u fails (\"negative ALLOT\"). If the first ALLOT after CREATE does not fit, the CREATEd word is removed again."
+example = 'CREATE BUF1 16 ALLOT  BUF1 16 ERASE'
+
+[[word]]
+name = "HERE"
+section = "memory"
+effect = "( -- addr )"
+desc = "Parser keyword: the next free data-space address. Interpretation only; to use it later, save it with CONSTANT."
+example = 'HERE 3 ALLOT HERE SWAP - .  \ 3'
+
+# ---------------------------------------------------------------- numbers
+
+[[word]]
+name = "BASE"
+section = "numbers"
+effect = "( -- addr )"
+desc = "Variable holding the number radix (2..36) used for parsing and printing. Starts at 10; each background task has its own BASE, inherited from its spawner. Module source is always compiled in decimal."
+example = '2 BASE ! 101 . DECIMAL  \ 101 (read and printed in binary)'
+
+[[word]]
+name = "HEX"
+section = "numbers"
+effect = "( -- )"
+desc = "Set BASE to 16."
+example = 'HEX FF . DECIMAL  \ FF'
+
+[[word]]
+name = "DECIMAL"
+section = "numbers"
+effect = "( -- )"
+desc = "Set BASE to 10."
+example = 'HEX 10 DECIMAL .  \ 16'
+
+[[word]]
+name = ".HEX2"
+section = "numbers"
+effect = "( u -- )"
+desc = "Print u with a leading 0 when it is below 16, then a space. Meant for use while BASE is 16 (as DUMP does), where it prints bytes as two hex digits."
+example = 'HEX 10 .HEX2 A .HEX2 DECIMAL  \ 10 0A'
+
+# ---------------------------------------------------------------- control
+
+[[word]]
+name = "IF"
+section = "control"
+effect = "( flag -- )"
+desc = "Parser keyword: `flag IF ... [ELSE ...] THEN`. Runs the first branch when flag is non-zero. Compile-only (\"compile-only word\" outside a definition)."
+example = ': SIGN 0< IF ." neg" ELSE ." pos" THEN ;  -3 SIGN  \ neg'
+
+[[word]]
+name = "ELSE"
+section = "control"
+effect = "( -- )"
+desc = "Parser keyword: starts the false branch of IF. Fails with \"ELSE needs IF\" when misplaced."
+example = ': ODD? 1 AND IF ." odd" ELSE ." even" THEN ;  4 ODD?  \ even'
+
+[[word]]
+name = "THEN"
+section = "control"
+effect = "( -- )"
+desc = "Parser keyword: ends an IF or IF ... ELSE structure."
+example = ': ?NL DUP 0= IF CR THEN DROP ;  0 ?NL'
+
+[[word]]
+name = "BEGIN"
+section = "control"
+effect = "( -- )"
+desc = "Parser keyword: marks the start of `BEGIN ... UNTIL`, `BEGIN ... AGAIN` or `BEGIN ... WHILE ... REPEAT`. Compile-only."
+example = ': COUNTDOWN BEGIN DUP . 1- DUP 0= UNTIL DROP ;  3 COUNTDOWN  \ 3 2 1'
+
+[[word]]
+name = "UNTIL"
+section = "control"
+effect = "( flag -- )"
+desc = "Parser keyword: loop back to BEGIN while flag is zero."
+example = ': UPTO5 0 BEGIN 1+ DUP 5 = UNTIL . ;  UPTO5  \ 5'
+
+[[word]]
+name = "AGAIN"
+section = "control"
+effect = "( -- )"
+desc = "Parser keyword: loop back to BEGIN unconditionally. A foreground command stops after 1,000,000 VM instructions (\"execution budget exhausted\"), so endless loops belong in background tasks or must EXIT."
+example = ': FIRST-OVER-100 1 BEGIN 2* DUP 100 > IF EXIT THEN AGAIN ;  FIRST-OVER-100 .  \ 128'
+
+[[word]]
+name = "WHILE"
+section = "control"
+effect = "( flag -- )"
+desc = "Parser keyword: in `BEGIN ... WHILE ... REPEAT`, leave the loop when flag is zero. Fails with \"WHILE needs BEGIN\" when misplaced."
+example = ': LT3 0 BEGIN DUP 3 < WHILE 1+ REPEAT . ;  LT3  \ 3'
+
+[[word]]
+name = "REPEAT"
+section = "control"
+effect = "( -- )"
+desc = "Parser keyword: ends `BEGIN ... WHILE ... REPEAT`, jumping back to BEGIN."
+example = ': HALVES BEGIN DUP WHILE DUP . 2 / REPEAT DROP ;  20 HALVES  \ 20 10 5 2 1'
+
+[[word]]
+name = "DO"
+section = "control"
+effect = "( limit start -- )"
+desc = "Parser keyword: start a counted loop ending in LOOP or +LOOP. The body runs at least once; with start = limit it runs 2^24 times, so use ?DO when the count may be zero. Loop frames live on a separate loop stack of 32 frames (16 in a background task)."
+example = ': TENS 5 0 DO I 10 * . LOOP ;  TENS  \ 0 10 20 30 40'
+
+[[word]]
+name = "?DO"
+section = "control"
+effect = "( limit start -- )"
+desc = "Parser keyword: like DO but skips the loop entirely when start equals limit."
+example = ': STARS 0 ?DO 42 EMIT LOOP ;  0 STARS 3 STARS  \ ***'
+
+[[word]]
+name = "LOOP"
+section = "control"
+effect = "( -- )"
+desc = "Parser keyword: add one to the index; repeat until the index reaches the limit. Fails with \"LOOP needs DO\" when misplaced."
+example = ': ABC 3 0 DO 65 I + EMIT LOOP ;  ABC  \ ABC'
+
+[[word]]
+name = "+LOOP"
+section = "control"
+effect = "( n -- )"
+desc = "Parser keyword: add n to the index and repeat unless the index crossed the boundary between limit-1 and limit (either direction). Compiles a call to the internal `(+LOOP)`."
+example = ': DOWN 0 10 DO I . -3 +LOOP ;  DOWN  \ 10 7 4 1'
+
+[[word]]
+name = "(+LOOP)"
+section = "control"
+effect = "( n -- flag )"
+desc = "Internal native compiled by +LOOP: steps the innermost loop index by n and returns true (dropping the loop frame) when the loop is finished. You cannot call it by name: any token that starts with `(` is read as a comment."
+
+[[word]]
+name = "I"
+section = "control"
+effect = "( -- n )"
+desc = "Index of the innermost DO loop. Fails with \"loop stack underflow\" outside a loop. Unaffected by `>R`, because loop frames are not on the return stack."
+example = ': SQUARES 4 1 DO I I * . LOOP ;  SQUARES  \ 1 4 9'
+
+[[word]]
+name = "J"
+section = "control"
+effect = "( -- n )"
+desc = "Index of the next outer DO loop. There is no K."
+example = ': GRID 2 0 DO 2 0 DO J . I . LOOP LOOP ;  GRID  \ 0 0 0 1 1 0 1 1'
+
+[[word]]
+name = "LEAVE"
+section = "control"
+effect = "( -- )"
+desc = "Parser keyword: drop the innermost loop frame and continue after its LOOP/+LOOP. At most 16 LEAVE/?DO exits can be pending in one definition."
+example = ': UNTIL5 10 0 DO I 5 = IF LEAVE THEN I . LOOP ;  UNTIL5  \ 0 1 2 3 4'
+
+[[word]]
+name = "UNLOOP"
+section = "control"
+effect = "( -- )"
+desc = "Drop the innermost loop frame. Use it before EXIT inside a DO loop: EXIT returns through the return stack but leaves the loop frame on the separate loop stack."
+example = ': FIND7 10 0 DO I 7 = IF I UNLOOP EXIT THEN LOOP -1 ;  FIND7 .  \ 7'
+
+[[word]]
+name = "EXIT"
+section = "control"
+effect = "( -- )"
+desc = "Parser keyword: return from the current definition at once. Compile-only; outside a definition EXIT is an unknown word."
+example = ': POS? DUP 0> IF DROP ." yes" EXIT THEN DROP ." no" ;  5 POS?  \ yes'
+
+[[word]]
+name = "RECURSE"
+section = "control"
+effect = "( -- )"
+desc = "Parser keyword: compile a call to the definition being compiled (its own name is not visible until `;`)."
+example = ': FACT DUP 1 > IF DUP 1- RECURSE * ELSE DROP 1 THEN ;  10 FACT .  \ 3628800'
+
+[[word]]
+name = "EXECUTE"
+section = "control"
+effect = "( i*x xt -- j*x )"
+desc = "Run the word whose execution token is xt. Fails with \"invalid execution token\" for 0 or an xt beyond the dictionary."
+example = "' DUP 3 SWAP EXECUTE .S  \\ <2> 3 3"
+
+[[word]]
+name = "'"
+section = "control"
+effect = "( \"name\" -- xt )"
+desc = "Parser keyword: push the execution token (dictionary index, 1-based) of name. Interpretation only; inside a definition use ['] (\"use ['] in definitions\"). Parser keywords such as IF or VARIABLE have no xt."
+example = "' DUP .  \\ 1"
+
+[[word]]
+name = "[']"
+section = "control"
+effect = "( \"name\" -- ) compile; runtime ( -- xt )"
+desc = "Parser keyword: compile name's execution token as a literal. Use inside definitions."
+example = ": XT-OF-DUP ['] DUP ;  XT-OF-DUP .  \\ 1"
+
+# ---------------------------------------------------------------- defining
+
+[[word]]
+name = ":"
+section = "defining"
+effect = "( \"name\" -- )"
+desc = "Parser keyword: start a colon definition. Names are 1..31 characters, case-insensitive (stored upper case); definitions cannot nest. The word becomes visible only at `;`, and a definition that fails is discarded. Redefining a name does not change words already compiled against the old one."
+example = ': SQ DUP * ;  7 SQ .  \ 49'
+
+[[word]]
+name = ";"
+section = "defining"
+effect = "( -- )"
+desc = "Parser keyword: end the current definition and publish it. Fails with \"unbalanced control flow\" if an IF/BEGIN/DO is still open, or \"unexpected semicolon\" outside a definition."
+example = ': HELLO ." hello" ;  HELLO  \ hello'
+
+[[word]]
+name = "VARIABLE"
+section = "defining"
+effect = "( \"name\" -- )  name: ( -- addr )"
+desc = "Parser keyword: create a word that pushes the address of a fresh 3-byte cell in data space, initialised to 0. Interpretation only."
+example = 'VARIABLE SCORE  10 SCORE !  SCORE ?  \ 10'
+
+[[word]]
+name = "CONSTANT"
+section = "defining"
+effect = "( x \"name\" -- )  name: ( -- x )"
+desc = "Parser keyword: create a word that pushes x. Callers compile the value as a literal, so redefining the constant later does not change them."
+example = '7 CONSTANT DAYS  DAYS .  \ 7'
+
+[[word]]
+name = "CREATE"
+section = "defining"
+effect = "( \"name\" -- )  name: ( -- addr )"
+desc = "Parser keyword: create a word that pushes the current data-space address; reserve its body with ALLOT, `,` or `C,`. Interpretation only; there is no DOES>."
+example = 'CREATE PRIMES 2 , 3 , 5 ,  PRIMES 2 CELLS + @ .  \ 5'
+
+[[word]]
+name = "DEFER"
+section = "defining"
+effect = "( \"name\" -- )  name: ( i*x -- j*x )"
+desc = "Parser keyword: create a replaceable binding. Calling it runs the word stored with IS; compiled callers follow every rebinding. Executing an unbound DEFER fails with \"invalid execution token\"."
+example = "DEFER GREET  : HI .\" hi\" ;  ' HI IS GREET  GREET  \\ hi"
+
+[[word]]
+name = "IS"
+section = "defining"
+effect = "( xt \"name\" -- )"
+desc = "Parser keyword: bind the DEFER name to xt. Works interactively (checks xt) and inside definitions (stores at run time). Fails with \"IS requires deferred word\" for any other kind of word."
+example = "DEFER SHOUT  : LOUD .\" HEY\" ;  : ARM ['] LOUD IS SHOUT ;  ARM SHOUT  \\ HEY"
+
+# ---------------------------------------------------------------- strings
+
+[[word]]
+name = 'S"'
+section = "strings"
+effect = "( \"text<quote>\" -- addr u )"
+desc = "Parser keyword: copy text (up to the next `\"` on the same line, one leading space skipped, case preserved) into data space with a trailing NUL and push its address and length. Interactively and in definitions alike, each S\" takes data space permanently; fails with \"unterminated string\" when the quote is missing."
+example = 'S" hello" TYPE  \ hello'
+
+[[word]]
+name = '."'
+section = "strings"
+effect = "( \"text<quote>\" -- )"
+desc = "Parser keyword: print text; equivalent to `S\" text\" TYPE`, so the text also lives in data space. Works both interactively and in definitions."
+example = '." VIOS" CR'
+
+[[word]]
+name = "CHAR"
+section = "strings"
+effect = "( \"c\" -- c )"
+desc = "Parser keyword: push the code of the first character of the next token (case preserved). Interpretation only; use [CHAR] in definitions."
+example = 'CHAR a .  \ 97'
+
+[[word]]
+name = "[CHAR]"
+section = "strings"
+effect = "( \"c\" -- ) compile; runtime ( -- c )"
+desc = "Parser keyword: compile the code of the next token's first character as a literal."
+example = ': STAR [CHAR] * EMIT ;  STAR  \ *'
+
+[[word]]
+name = "COUNT"
+section = "strings"
+effect = "( addr -- addr+1 u )"
+desc = "Unpack a counted string (length byte first)."
+example = 'CREATE CNT1 2 C, 79 C, 75 C,  CNT1 COUNT TYPE  \ OK'
+
+# ---------------------------------------------------------------- output
+
+[[word]]
+name = "EMIT"
+section = "output"
+effect = "( c -- )"
+desc = "Write one byte to the console (in a background task: to the task's output ring or redirected handle)."
+example = '65 EMIT  \ A'
+
+[[word]]
+name = "."
+section = "output"
+effect = "( n -- )"
+desc = "Print n as a signed 24-bit number in the current BASE, followed by a space."
+example = '-1 .  \ -1'
+
+[[word]]
+name = "U."
+section = "output"
+effect = "( u -- )"
+desc = "Print u unsigned (0..16777215) in the current BASE, followed by a space."
+example = '-1 U.  \ 16777215'
+
+[[word]]
+name = "CR"
+section = "output"
+effect = "( -- )"
+desc = "Write a CR LF pair."
+example = '." line" CR'
+
+[[word]]
+name = "TYPE"
+section = "output"
+effect = "( addr u -- )"
+desc = "Write u bytes from addr to the console in one native call. A redirected background task may stop part-way and resume the rest in its next slice."
+example = 'S" text" TYPE  \ text'
+
+[[word]]
+name = "BL"
+section = "output"
+effect = "( -- 32 )"
+desc = "The space character code."
+example = 'BL .  \ 32'
+
+[[word]]
+name = "SPACE"
+section = "output"
+effect = "( -- )"
+desc = "Write one space."
+example = '65 EMIT SPACE 66 EMIT  \ A B'
+
+[[word]]
+name = "SPACES"
+section = "output"
+effect = "( n -- )"
+desc = "Write n spaces; nothing when n is zero or negative."
+example = '3 SPACES 42 EMIT  \    *'
+
+[[word]]
+name = "CONSOLE-WRITE"
+section = "output"
+effect = "( addr u -- )"
+desc = "Kernel service: write u bytes to the console through the task-aware emitter, byte by byte (like TYPE, without TYPE's resume-on-full behaviour)."
+example = 'S" via service" CONSOLE-WRITE CR'
+
+[[word]]
+name = "CONSOLE-EMIT"
+section = "output"
+effect = "( c -- )"
+desc = "Deferred service binding, initially EMIT. Rebind it with IS to redirect output of code that calls CONSOLE-EMIT; the system's own EMIT, TYPE and . do not go through it."
+example = '72 CONSOLE-EMIT 73 CONSOLE-EMIT  \ HI'
+
+# ---------------------------------------------------------------- input
+
+[[word]]
+name = "KEY"
+section = "input"
+effect = "( -- c )"
+desc = "Wait for the next input byte. In the foreground it reads console input (physical keys typed while the command runs, or host bytes) and runs background tasks while it waits; arrow and function keys produce no byte. In a background task it reads the task's input handle (-1 at end of file) or fails with \"KEY unavailable in background task\"."
+example = ': ECHO1 KEY EMIT ;'
+board = true
+
+[[word]]
+name = "CONSOLE-KEY"
+section = "input"
+effect = "( -- c )"
+desc = "Deferred service binding, initially KEY. Code that reads through CONSOLE-KEY can be pointed at another input source with IS."
+example = ': ASK CONSOLE-KEY EMIT ;'
+board = true
+
+# ---------------------------------------------------------------- inspection
+
+[[word]]
+name = ".S"
+section = "inspect"
+effect = "( -- )"
+desc = "Parser keyword: print `<depth>` and the data stack bottom to top as signed numbers, without changing it. Interpretation only."
+example = '1 2 3 .S  \ <3> 1 2 3'
+
+[[word]]
+name = "DUMP"
+section = "inspect"
+effect = "( addr u -- )"
+desc = "Hex dump of u bytes. Each byte is two hex digits; a new line with the address starts at every 16-byte boundary (so an unaligned start has no address on its first line). BASE is restored afterwards."
+example = 'S" ABC" DUMP'
+
+[[word]]
+name = "WORDS"
+section = "inspect"
+effect = "( -- )"
+desc = "Parser keyword: list every dictionary entry, oldest first, including shadowed older definitions. Parser keywords (IF, VARIABLE, SEE ...) and outer commands are not dictionary entries and are not listed."
+example = 'WORDS'
+
+[[word]]
+name = "SEE"
+section = "inspect"
+effect = "( \"name\" -- )"
+desc = "Parser keyword: show a colon word's stored source (upper case, comments removed) or `primitive NAME` / `data word NAME`, then a metadata line: xt, kind (0 primitive, 1 colon, 2 constant, 3 variable, 4 defer, 5 native), code addresses and sizes for both code formats, and the module it came from."
+example = ': CUBE DUP DUP * * ;  SEE CUBE'
+
+[[word]]
+name = "RESOURCES"
+section = "inspect"
+effect = "( -- )"
+desc = "Parser keyword: one line with the engine, words used/512, token, direct, data and source bytes used, and the peak data and return stack depths."
+example = 'RESOURCES'
+
+[[word]]
+name = "LAST-ERROR"
+section = "inspect"
+effect = "( -- )"
+desc = "Parser keyword: report the last foreground runtime failure as captured before the stacks were cleared: serial, engine, whether the dictionary changed since (stale), BASE, message, failing word, code offset and source token, stack depths, the top 8 data cells, then one `frame` line per caller (up to 16). The message and word names are printed as hex bytes; the host CLI's `:why` decodes them."
+example = 'LAST-ERROR'
+
+[[word]]
+name = "TRACE"
+section = "inspect"
+effect = "( i*x \"name\" \"n\" -- j*x )"
+desc = "Parser keyword: run name one VM instruction at a time for at most n (1..100000) steps, printing step number, word+offset, source token, stack depths and top of stack before each, then `trace returned` or `trace failed`. Uses the current engine. Interpretation only."
+example = ': SQ2 DUP * ;  4 TRACE SQ2 10 .'
+
+# ---------------------------------------------------------------- engine
+
+[[word]]
+name = "ENGINE"
+section = "engine"
+effect = "( \"C|TOKEN|DIRECT\" -- )"
+desc = "Parser keyword: select the execution engine for compiled code: C (the portable reference interpreter of token code), TOKEN (eZ80 assembly, one-byte opcodes) or DIRECT (eZ80 direct-threaded, the board default). TOKEN and DIRECT exist only on the board; refused while background tasks are live. The name is C, not REFERENCE."
+example = 'ENGINE C'
+
+[[word]]
+name = "BENCH"
+section = "engine"
+effect = "( -- )"
+desc = "Parser keyword, board only: time arithmetic, call, branch, loop and memory micro-benchmarks on all three engines with the 288 kHz timer (9 samples each) and print SAMPLE/CODE lines ending in `BENCH DONE`. Restores engine, BASE and stack."
+board = true
+
+# ---------------------------------------------------------------- system
+
+[[word]]
+name = "("
+section = "system"
+effect = "( \"text)\" -- )"
+desc = "Comment up to the next `)`. Handled by the tokenizer: any token that begins with `(` starts a comment, and no space is needed after it. Comments are not stored, so SEE does not show them."
+example = '1 ( a comment ) 2 + .  \ 3'
+
+[[word]]
+name = '\'
+section = "system"
+effect = "( \"rest of line\" -- )"
+desc = "Comment to the end of the line, handled by the tokenizer (any token beginning with a backslash). Inside S\" and .\" text it is an ordinary character."
+example = '5 . \ prints 5'
+
+[[word]]
+name = "ABORT"
+section = "system"
+effect = "( i*x -- )"
+desc = "Parser keyword: clear the data, return and loop stacks, discard an unfinished definition and ignore the rest of the input line. It acts immediately when read, even inside a definition, so it cannot be compiled as a run-time abort."
+example = '1 2 3 ABORT'
+
+[[word]]
+name = "SYNC"
+section = "system"
+effect = "( \"name\" -- )"
+desc = "Parser keyword for host framing: print `@NAME` (upper-cased) on its own line, touching no stacks. The harness uses it to find a known point in the output. It does not flush storage."
+example = 'SYNC MARK  \ @MARK'
+
+[[word]]
+name = "REBOOT"
+section = "system"
+effect = "( -- )"
+desc = "Flush console output and restart. After a MOS boot this is a watchdog CPU reset, so MOS loads VIOS again; everything not saved is lost. Foreground only."
+board = true
+
+[[word]]
+name = "IRQ-PROBE"
+section = "system"
+effect = "( -- )"
+desc = "Board only, read-only: report the boot path (mos or zdi), the I register, the interrupt jump table and its default handler, vectors with other handlers, and the timer, clock-gating, UART and GPIO interrupt ports. Valid only when MOS booted this run."
+example = 'IRQ-PROBE'
+board = true
+
+[[word]]
+name = "IRQ-STATS"
+section = "system"
+effect = "( -- )"
+desc = "Board only: print whether the 1 kHz tick runs, its millisecond count, the stray-interrupt count (should stay 0) and UART bytes dropped by the receive ring."
+example = 'IRQ-STATS'
+board = true
+
+# ---------------------------------------------------------------- timing
+
+[[word]]
+name = "TIMER@"
+section = "timing"
+effect = "( -- u )"
+desc = "Raw value of the eZ80's 16-bit down-counting timer at 288 kHz; it wraps about every 227 ms. Subtract two readings (earlier minus later, low 16 bits) for short intervals."
+example = 'TIMER@ TIMER@ - 65535 AND .'
+
+[[word]]
+name = "MILLIS"
+section = "timing"
+effect = "( -- u )"
+desc = "The VDP (ESP32) millisecond clock, masked to 24 bits (wraps after about 4.6 hours). Costs a request/reply round trip; fails with \"VDP clock timeout\" after about 1 s without a reply."
+example = 'MILLIS .'
+
+[[word]]
+name = "MILLIS2"
+section = "timing"
+effect = "( -- lo hi )"
+desc = "The full 32-bit VDP millisecond clock as its low 24 bits and high 8 bits."
+example = 'MILLIS2 . .'
+
+[[word]]
+name = "CLOCK-MS"
+section = "timing"
+effect = "( -- u )"
+desc = "Deferred service binding for a millisecond clock, initially MILLIS. MS, FRAME-WAIT and the task scheduler do not use it; they read the board tick (or the 288 kHz timer)."
+example = 'CLOCK-MS .'
+
+[[word]]
+name = "TICKS"
+section = "timing"
+effect = "( -- u )"
+desc = "Board only: milliseconds counted by the 1 kHz PRT1 tick interrupt, masked to 24 bits; 0 when the tick is off (after a ZDI load). No VDP round trip, unlike MILLIS."
+example = 'TICKS .'
+board = true
+
+# ---------------------------------------------------------------- display
+
+[[word]]
+name = "VDU"
+section = "display"
+effect = "( c -- )"
+desc = "Send one byte to the VDP, as BBC BASIC's VDU. Multi-byte commands are built from several VDU calls or with VTYPE."
+example = '7 VDU'
+board = true
+
+[[word]]
+name = "VTYPE"
+section = "display"
+effect = "( addr u -- )"
+desc = "Send u raw bytes to the VDP (in 64-byte pieces). Unlike TYPE the bytes do not go to the console stream, so they are not echoed to USB."
+example = 'S" Hi" VTYPE'
+board = true
+
+[[word]]
+name = "VDP-INFO"
+section = "display"
+effect = "( -- )"
+desc = "Ask the VDP for its mode and print `vdp width W height H colours C mode M console-dropped N` (N counts console input bytes lost on the CPU side). Fails with \"VDP mode timeout\"."
+example = 'VDP-INFO'
+board = true
+
+[[word]]
+name = "MODE"
+section = "display"
+effect = "( n -- )"
+desc = "Change screen mode (VDU 22,n) and verify it; fails with \"VDP mode rejected\" if the VDP reports another mode. Mode 0 (640x480, 16 colours) is the VIOS display mode; any other mode suspends the GUI compositor until `0 MODE`."
+example = '0 MODE'
+board = true
+
+[[word]]
+name = "CLS"
+section = "display"
+effect = "( -- )"
+desc = "Clear the VDP text area (VDU 12)."
+example = 'CLS'
+board = true
+
+[[word]]
+name = "COLOUR"
+section = "display"
+effect = "( n -- )"
+desc = "Set the VDP text colour (VDU 17,n): n below 128 is the foreground palette index, 128+n the background."
+example = '10 COLOUR'
+board = true
+
+[[word]]
+name = "PLOT"
+section = "display"
+effect = "( mode x y -- )"
+desc = "VDU 25 graphics command with 16-bit coordinates. By default coordinates are BBC logical units (1280x1024, origin bottom left). Common modes: 4 move, 5 line, 69 point, 85 filled triangle, 101 filled rectangle, 157 filled circle."
+example = '4 100 100 PLOT 5 600 400 PLOT'
+board = true
+
+[[word]]
+name = "CHAR@"
+section = "display"
+effect = "( x y -- c )"
+desc = "Read back the character at text column x, row y (VDU 23,0,&83); the VDP matches glyphs against the current text colours. Fails with \"VDP character timeout\"."
+example = '0 0 CHAR@ .'
+board = true
+
+[[word]]
+name = "PIXEL@"
+section = "display"
+effect = "( x y -- rgb index )"
+desc = "Read back a pixel at graphics coordinates x y (VDU 23,0,&84): rgb packs red, green, blue as r + g*256 + b*65536; index is its palette entry. Fails with \"VDP pixel timeout\"."
+example = '0 0 PIXEL@ . .'
+board = true
+
+[[word]]
+name = "DISPLAY-WRITE"
+section = "display"
+effect = "( addr u -- )"
+desc = "Deferred service binding for raw display output, initially VTYPE. Rebind it to send display bytes elsewhere; the console never depends on it."
+example = 'S" " DISPLAY-WRITE'
+board = true
+
+# ---------------------------------------------------------------- audio
+
+[[word]]
+name = "BEEP"
+section = "audio"
+effect = "( freq ms -- status )"
+desc = "Play a note on VDP audio channel 0 at volume 64 for ms milliseconds and return the VDP's status byte (non-zero when accepted). Both arguments must fit in 16 bits (\"BEEP argument exceeds 16 bits\"); fails with \"VDP audio timeout\"."
+example = '440 200 BEEP DROP'
+board = true
+
+# ---------------------------------------------------------------- files
+
+[[word]]
+name = "FS-READ"
+section = "files"
+effect = "( addr u dest cap -- n ior )"
+desc = "Deferred service binding, initially FILE-READ: read the whole file named by addr u (1..127 printable characters) into dest, at most cap bytes (capped at 4096); push the byte count and 0 on success, 1 on failure."
+example = 'CREATE FB 64 ALLOT  S" /VIOS/NONE.TXT" FB 64 FS-READ . .'
+
+[[word]]
+name = "FS-WRITE"
+section = "files"
+effect = "( addr u src n -- ior )"
+desc = "Deferred service binding, initially FILE-WRITE: write n bytes from src as the file named by addr u, replacing it. Pushes 0 on success, 1 on failure, 2 when n exceeds 4096."
+example = 'S" /VIOS/FSW.TXT" S" hi" FS-WRITE .  \ 0'

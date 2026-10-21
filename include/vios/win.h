@@ -8,7 +8,7 @@
 enum { VIOS_WIN_LIST = 1, VIOS_WIN_NEW, VIOS_WIN_CTL, VIOS_WIN_TEXT, VIOS_WIN_EVENT, VIOS_WIN_TREE };
 #define VIOS_WIN_WINDOW 0x80
 #define VIOS_WIN_NONE 0xFF
-#define VIOS_WIN_STREAM 0x13            /* event kind: a routed node's text line */
+#define VIOS_WIN_STREAM 0x14            /* event kind: a routed node's text line */
 struct vios_win_cursor { unsigned char file, node, written, col; unsigned short step, sub; };
 /* The part of a path after "/dev/": 1 and the file and node if it is ours. */
 int vios_win_path(const char *device, unsigned char *file, unsigned char *node);

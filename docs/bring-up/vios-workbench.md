@@ -1,15 +1,18 @@
 # VIOS text workbench
 
 The first workbench provides a module/word browser, live inspector and exact
-source editor on the Agon Light 2. It uses VDP mode 1: 640×480, four colours,
-80×60 cells. The USB Forth CLI remains the evaluation workspace. Headless clients
+source editor on the Agon Light 2. It uses an 80×60-cell screen. It was built
+in VDP mode 1 (four colours); it now runs in the VIOS display mode 0 (640×480,
+16 colours) and, under the GUI, opens as a full-screen window that owns the
+keyboard. **F1** switches between it and the console. The USB Forth CLI remains the evaluation workspace. Headless clients
 operate the same model through the existing host harness; no JSON or MCP parser
 runs on the eZ80.
 
 ## Start and control
 
 Use the shared resident harness described in [the harness runbook](vios-harness.md).
-Only one process owns `/dev/cu.usbserial-22430`. A CLI client and multiple MCP
+Only one process owns the board's serial port (`ls /dev/cu.usbserial-*`; pass
+`--port`, the suffix can change). A CLI client and multiple MCP
 clients share its serialized board session.
 
 ```sh
@@ -118,8 +121,9 @@ boundary, including live variables, deferred targets, DS, BASE and resources;
 unchanged rows skip formatting. Reset/full-frame clear advances a renderer
 generation so retained caches cannot reuse an invalid display.
 
-These caches add 13,203 BSS bytes. The current total is 254,031 BSS bytes, with
-94,919 bytes remaining before the reserved 4 KiB stack. Source viewport changes
+These caches add 13,203 BSS bytes. On October 16 the total was 254,031 BSS bytes,
+with 94,919 bytes remaining before the reserved 4 KiB stack; see
+`build/vios-resident.map` for the current build. Source viewport changes
 still compose its visible rows; opening/explicit redraw uses a full fallback.
 Raw VDU or trusted direct screen writes require `WB-REDRAW`.
 
@@ -166,13 +170,17 @@ not a camera photograph. Font source attribution and notices remain in
 The preceding workbench application was read back before the source-row update:
 `backups/esp32/pre-vios-source-rows-app0-2026-10-16.bin`, 663,472 bytes, SHA256
 `b8d884a1733505de995ee94f5585abaa6ed9ee9986468529cb32dc9fc3fefb2f`.
-With the serial-owning harness stopped, restore it using:
+Raw `esptool write-flash 0x10000` is no longer the procedure. With the
+serial-owning harness stopped, install it like any other build with the A/B
+installer, which backs up the slot it replaces (see the manual's
+[Installing](../manual/VIOS-MANUAL.md#installing) chapter):
 
 ```sh
-.venv/bin/esptool --chip esp32 --port /dev/cu.usbserial-22430 --baud 115200 \
-  --after hard-reset write-flash 0x10000 \
-  backups/esp32/pre-vios-source-rows-app0-2026-10-16.bin
+.venv/bin/python tools/vios_firmware_ab.py --port /dev/cu.usbserial-210 \
+  install backups/esp32/pre-vios-source-rows-app0-2026-10-16.bin --backup-dir backups/ab-restore
 ```
 
-This restores the previous CPU image embedded in app0. It does not erase source
+This old image predates untethered boot (it needs the ZDI wire) and the trial
+marker, so it does not confirm itself; return with `vios_firmware_ab.py ... rollback`.
+It restores the previous CPU image embedded in that firmware. It does not erase source
 packages or A/B source boot files on SD. The eZ80 flash is never programmed.

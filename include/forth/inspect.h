@@ -17,6 +17,7 @@ struct forth_resources {
  unsigned words,words_max;
  size_t token_bytes,token_capacity,direct_bytes,direct_capacity;
  size_t data_bytes,data_capacity,source_bytes,source_capacity;
+ unsigned map_entries,map_capacity;   /* source-map entries: one per compiled token */
  enum forth_engine engine;
 };
 /* Word indices/xt and borrowed pointers are valid within this boot/revision.

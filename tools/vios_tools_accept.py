@@ -8,6 +8,7 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
+import re
 import time
 try:
     from .vios_cli import RPCClient
@@ -40,6 +41,9 @@ def main():
                 return out['output']
             # Source maps on every engine.
             ev(': TSQ DUP * ; : TT 3 TSQ 1+ ;')
+            used, size = re.search(r'map-entries (\d+)/(\d+)', ev('RESOURCES')).groups()
+            r['map_entries'] = f'{used}/{size}'      # a full map leaves new words untraced: name that, not the tokens
+            check('source_map_room', int(used) < int(size), f'source map full ({used}/{size}): run from a fresh boot')
             for engine in ('DIRECT', 'TOKEN', 'C'):
                 ev('ENGINE ' + engine)
                 steps = c.tool('trace', {'name': 'TT', 'steps': 50})['steps']

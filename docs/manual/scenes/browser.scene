@@ -1,0 +1,14 @@
+# The Browser: modules, their words, module facts and the source pane.
+include setup
+prompt
+ctrlshift b
+key DOWN
+key DOWN
+shot browser
+key TAB
+key DOWN
+shot browser-word
+key TAB
+key TAB
+key F10 s
+shot browser-menu

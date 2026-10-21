@@ -1,0 +1,39 @@
+
+hello: VIOS application started (TASKS / TASK-KILL)
+
+hello: heartbeat 1 
+
+hello: heartbeat 2 
+
+hello: heartbeat 3 
+
+hello: heartbeat 4 
+
+hello: heartbeat 5 
+
+hello: heartbeat 6 
+
+hello: heartbeat 7 
+
+hello: heartbeat 8 
+
+hello: heartbeat 9 
+
+hello: heartbeat 10 
+
+hello: heartbeat 11 
+
+hello: heartbeat 12 
+
+hello: heartbeat 13 
+
+hello: heartbeat 14 
+
+hello: heartbeat 15 
+
+hello: heartbeat 16 
+RESOURCES
+engine DIRECT words 395/512 token-bytes 3879 direct-bytes 8138 data-bytes 5614 source-bytes 4853 data-peak 18 return-peak 4
+
+ok
+vios> 

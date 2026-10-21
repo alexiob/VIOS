@@ -135,7 +135,7 @@ enum { VDS_FROM_MENU = 1, VDS_FROM_ACCELERATOR = 2, VDS_FROM_PALETTE = 3 };
  * or VDS_NODE_WINDOW | window id. A routed node's events become STREAM
  * events: id the node, arguments its text line ("select 3\n"). */
 enum { VDS_FILE_LIST = 1, VDS_FILE_NEW, VDS_FILE_CTL, VDS_FILE_TEXT, VDS_FILE_EVENT, VDS_FILE_TREE };
-enum { VDS_EVENT_STREAM = 0x13 };
+enum { VDS_EVENT_STREAM = 0x14 };   /* 0x13 is VDS_EVENT_CANVAS */
 #define VDS_NODE_WINDOW 0x80
 #define VDS_FILE_LINE 96                        /* longest line, newline included */
 /* Text bytes per STREAM event: seq kind id + piece and its length byte fit

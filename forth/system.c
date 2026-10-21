@@ -27,7 +27,7 @@ enum { WK_PRIMITIVE,WK_COLON,WK_CONSTANT,WK_VARIABLE,WK_DEFER,WK_NATIVE,WK_DOES,
 enum { CS_IF,CS_ELSE,CS_BEGIN,CS_WHILE,CS_DO };
 struct word {
  fcell token,direct,aux;
- unsigned short name,link,source,length,token_length,direct_length,origin; unsigned char kind,opcode;
+ unsigned short name,link,source,length,token_length,direct_length,origin,map; unsigned char kind,opcode;
 };
 struct control { unsigned char kind; size_t token,direct; };
 static struct word words[WORDS_MAX];
@@ -43,11 +43,15 @@ static unsigned leave_used;
 static size_t token_used,direct_used,data_used,source_used,control_used,names_used;
 static size_t mark_token,mark_direct,mark_data,mark_source,mark_names;
 /* Source maps: before each token of a colon definition the compiler records
- * (word, token offset, direct offset, source offset). The code from one
+ * (token offset, direct offset, source offset). The code from one
  * entry's offset up to the next entry's belongs to that source token.
- * When the pool is full, later code is simply unmapped. */
-#define SOURCE_MAP_MAX 640
-static struct {unsigned short word,token,direct,source;} source_map[SOURCE_MAP_MAX];
+ * When the pool is full, later code is simply unmapped. A word's entries are
+ * contiguous, from its words[].map up to the next word's (only the word being
+ * defined adds entries), so an entry needs no word field. At about 6.5
+ * entries per session word, 1792 entries last as long as the 512 words and
+ * the 8 KB of source; the kernel prelude takes about 340. */
+#define SOURCE_MAP_MAX 1792
+static struct {unsigned short token,direct,source;} source_map[SOURCE_MAP_MAX];
 static unsigned map_used,mark_map;
 static unsigned count;
 static int current;
@@ -264,7 +268,7 @@ static int begin_word(const char *name,unsigned kind) {
  current=(int)count;words[count].kind=(unsigned char)kind;words[count].name=(unsigned short)names_used;
  copy(names+names_used,name);names_used+=length(name)+1;
  words[count].origin=(unsigned short)origin_id;
- words[count].aux=0;words[count].source=(unsigned short)source_used;words[count].length=0;
+ words[count].aux=0;words[count].source=(unsigned short)source_used;words[count].length=0;words[count].map=(unsigned short)map_used;
  words[count].token=address(token_code+token_used);words[count].direct=address(direct_code+direct_used);
  if(!room(0,4))return 0;
  direct_code[direct_used++]=0xcd;put_cell(direct_code+direct_used,docol_address());direct_used+=3;return 1;
@@ -657,7 +661,8 @@ static void hex_text(const char *p){static const char d[]="0123456789ABCDEF";if(
 static void print_source_token(fcell xt,fcell offset,enum forth_engine engine){
  if(!xt||xt>count){print("?");return;}
  unsigned w=(unsigned)(xt-1);int best=-1;
- for(unsigned i=0;i<map_used;++i)if(source_map[i].word==w){unsigned at=engine==FORTH_DIRECT?source_map[i].direct:source_map[i].token;if(at<=offset)best=(int)i;}
+ unsigned last=w+1<count?words[w+1].map:map_used;
+ for(unsigned i=words[w].map;i<last;++i){unsigned at=engine==FORTH_DIRECT?source_map[i].direct:source_map[i].token;if(at<=offset)best=(int)i;}
  if(best<0){print("-");return;}
  const char *p=source_space+words[w].source+source_map[best].source,*end=source_space+words[w].source+words[w].length;
  while(p<end&&*p!=' ')platform_console_putc((unsigned char)*p++);
@@ -1102,7 +1107,7 @@ static int eval_tokens(const char *source) {
   if(k==KW_SYNC||k==KW_COLON){if(!keyword_run((unsigned)k))return 0;continue;}
   if(recording()){
    if(map_used<SOURCE_MAP_MAX){
-    source_map[map_used].word=(unsigned short)current;source_map[map_used].token=(unsigned short)(token_used-mark_token);
+    source_map[map_used].token=(unsigned short)(token_used-mark_token);
     source_map[map_used].direct=(unsigned short)(direct_used-mark_direct);source_map[map_used].source=(unsigned short)(source_used-words[current].source);++map_used;
    }
    if(!source_add(s))return 0;
@@ -1250,7 +1255,7 @@ static int native_marker_run(void){
  struct word *w=&words[m];
  data_used=(size_t)(w->aux-address(data_space));token_used=(size_t)(w->token-address(token_code));
  direct_used=(size_t)(w->direct-address(direct_code));source_used=w->source;names_used=w->name;
- while(map_used&&source_map[map_used-1].word>=m)--map_used;
+ map_used=w->map;
  for(unsigned i=0;i<HASH_BUCKETS;++i)while(buckets[i]>m)buckets[i]=words[buckets[i]-1].link;
  count=m;latest=-1;created_unfilled=-1;
  if(!transaction_active)catalog_changed();return 1;
@@ -1343,7 +1348,8 @@ void forth_report(void) {
  print("engine ");print(selected==FORTH_DIRECT?"DIRECT":selected==FORTH_TOKEN?"TOKEN":"C");
  print(" words ");decimal_number(count);print("/");decimal_number(WORDS_MAX);print(" token-bytes ");decimal_number((fcell)token_used);
  print(" direct-bytes ");decimal_number((fcell)direct_used);print(" data-bytes ");decimal_number((fcell)data_used);
- print(" source-bytes ");decimal_number((fcell)source_used);print(" data-peak ");decimal_number(fvm_ds_peak);
+ print(" source-bytes ");decimal_number((fcell)source_used);print(" map-entries ");decimal_number((fcell)map_used);print("/");decimal_number(SOURCE_MAP_MAX);
+ print(" data-peak ");decimal_number(fvm_ds_peak);
  print(" return-peak ");decimal_number(fvm_rs_peak);print("\r\n");
 }
 fcell forth_get_base(void) {return fvm_read_cell(base_address);}
@@ -1383,6 +1389,7 @@ void forth_inspect_resources(struct forth_resources *out) {
  out->direct_bytes=direct_used;out->direct_capacity=DIRECT_BYTES;
  out->data_bytes=data_used;out->data_capacity=DATA_BYTES;
  out->source_bytes=source_used;out->source_capacity=SOURCE_BYTES;out->engine=selected;
+ out->map_entries=map_used;out->map_capacity=SOURCE_MAP_MAX;
 }
 static void observer_error(char *out,size_t capacity,const char *message) {
  if(!out||!capacity)return;

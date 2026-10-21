@@ -1,0 +1,36 @@
+# Windows and widgets as files (/dev/win): kernel/vios_win.c, kernel/vios_handles.c
+
+[[word]]
+name = "UI-WNAME"
+section = "ui-widget"
+effect = "( addr len id -- )"
+desc = "Give widget id a name, as /dev/win lists it (spaces show as _)."
+board = true
+
+[[word]]
+name = "UI-SNAPSHOT"
+section = "ui-setup"
+effect = "( -- )"
+desc = "Print Forth source that rebuilds the display server's current windows and widgets, text views' text included (the contents of /dev/ui/tree). Save it to a file and LOAD it to restore the layout."
+board = true
+
+
+[[word]]
+name = "UI-WSTYLE"
+section = "ui-widget"
+effect = "( id style -- )"
+desc = "Set a widget's look: 0 normal, 1 strong, 2 fault (drawn in red). The same as writing style N to /dev/win/N/ctl."
+board = true
+
+[[word]]
+name = "UI-CH"
+section = "ui-text"
+effect = "( char id -- )"
+desc = "Append one character to text view id (through UI-TEXT+). /dev/ui/tree uses it for newlines and quote characters that S\" cannot hold."
+board = true
+
+[[word]]
+name = "UI-CH-BUF"
+section = "ui-text"
+effect = "( -- addr )"
+desc = "The one-byte buffer UI-CH sends from. Internal."

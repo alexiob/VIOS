@@ -1,0 +1,27 @@
+# Tasks, the Manager and all four tools together.
+include setup
+eval : WORKER BEGIN PAUSE AGAIN ;
+eval ' WORKER SPAWN DROP ' WORKER SPAWN DROP
+prompt
+eval S" Hello, VIOS!" DROP
+ctrlshift i
+key TAB
+key TAB c
+key F10 s
+key g
+shot inspector-memory
+key TAB c
+shot inspector-tasks
+key TAB c
+key TAB c
+shot inspector-system
+ctrlshift m
+key TAB
+shot manager-boot
+key TAB c
+shot manager
+key TAB c
+key TAB
+key RETURN
+shot manager-confirm
+key ESCAPE

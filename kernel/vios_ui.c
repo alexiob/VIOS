@@ -633,7 +633,7 @@ static int poll_events(void) {
         for (unsigned at = 3, k = 0; k < r[2] && at < n; ++k) {
             unsigned len = r[at++];
             if (at + len > n || len > VIOS_UI_EVENT_MAX) break;
-            if (route && len >= 3 && r[at + 1] == 0x13) { route(r + at, len); at += len; continue; }   /* /dev/win/N/event text */
+            if (route && len >= 3 && r[at + 1] == 0x14) { route(r + at, len); at += len; continue; }   /* /dev/win/N/event text */
             if (claim && claim(r + at, len)) { at += len; continue; }   /* a tool's own event */
             unsigned slot = (event_head + event_count++) % EVENT_RING;
             for (unsigned i = 0; i < len; ++i) events[slot][i] = r[at + i];

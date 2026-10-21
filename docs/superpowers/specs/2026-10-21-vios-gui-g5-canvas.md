@@ -140,7 +140,7 @@ is s16 little-endian; ids and colours are u8.
 | `C8` | bitmap w h transparent | define a bitmap (pixels from the pool) |
 | `C9` | bitmap offset(u16) n byte·n | bitmap pixel data, as `77` for sprites |
 | `CA` | id x y | reply `CA` id item x y: topmost item whose box holds the point (255 none) |
-| `CB` | id | reply `CB` id flags surface x y w h items backing-bytes |
+| `CB` | id | reply `CB` id used flags surface x y w h items bytes(u32) |
 | `CC` | id item | reply `CC` id item kind colour fields… (inspection, tests) |
 
 Tweens: op `70` gains **target 2, canvas** (prop 0 x, 1 y): the canvas slides
@@ -280,6 +280,8 @@ Built on branch `claude/competent-faraday-91e89a`.
 - **Budget:** `vds_proto_frame_within` rasterises first with half the frame's pixels and half its time.
   - The device limits frames by time only, so rasterising stops by clock.
   - It checks the clock after bands of at most 640 × 24 pixels.
+- **Event 0x13** is `CANVAS`. The windows design §12 draft named 0x13 `DRAG`, which was never built; a later drag event needs another code. /dev/win's `STREAM` event (a routed node's text line), which first also took 0x13, is 0x14 since main bd1fdfa.
+- **Not measured on the board:** the canvas tween (host-tested only) and the original G5 gate B13 (16 tweens plus 20 sprites).
 - **Lines** are a pure function of the major-axis step.
   - Only the steps inside the band being drawn are visited.
   - A far-away item therefore costs what it draws, and banded rasters always equal a whole replay.

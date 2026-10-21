@@ -154,6 +154,7 @@ def main():
 
             status = c.tool('esp_gui')['status']
             check('gui_on', status.startswith('GUI on'), status)
+            c.tool('esp_stats', {'reset': True})   # 'start' measures this run, not the boot before it
             if not c.tool('evaluate', {'source': "' GC-NEXT DROP", 'timeout': 20})['ok']:   # a second run reuses them
                 ev(': GC-NEXT UI-NEXT IF -1 . . . . ELSE 0 . THEN ;')
                 ev(': GC-BARS 200 0 DO  0 I 12 MOD 4 + UI-PEN  I  I 16 MOD 20 *  I 16 / 15 *  18 13 UI-BAR  LOOP ;')

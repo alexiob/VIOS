@@ -162,7 +162,7 @@ int main(int argc, char **argv) {
     assert(vds_ui_text(&u, B_CODE)->dirty);
     assert(ctrl('s'));
     assert(forth_find_xt("QUAD") && strstr(forth_module_source("DEMO", 0), ": QUAD SQUARE SQUARE ;"));
-    assert(strstr(u.widgets[B_STATUS].text, "DEMO active; words ") && !vds_ui_text(&u, B_CODE)->dirty);
+    assert(strstr(u.widgets[B_STATUS].text, "DEMO active; words ") && strstr(u.widgets[B_STATUS].text, "% map ") && !vds_ui_text(&u, B_CODE)->dirty);
     assert(has_item(B_WORDS, "QUAD") && "the words pane shows the accepted version at once");
     eval("3 QUAD");
     assert(fvm_pop() == 81);

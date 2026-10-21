@@ -9,11 +9,15 @@ unchanged.
 ## Build
 
 From the repository root, first build the intended integrated CPU image, then
-build this firmware:
+build this firmware. `make vios-resident` also builds `build/agon-stage0.bin`,
+`build/agon-crc.bin` and `build/agon-flash.bin`, which `scripts/embed_vios.py`
+embeds and requires; `make viosboot` builds the SD boot stub
+`build/viosboot.bin` (installed on the card, not embedded):
 
 ```sh
 make vios-resident
-/Users/alex/.platformio/penv/bin/pio run -d firmware/esp32-vios -e esp32-vios
+make viosboot
+~/.platformio/penv/bin/pio run -d firmware/esp32-vios -e esp32-vios
 ```
 
 Resident and ESP builds default to an internal rate of 1,152,000. To select
@@ -21,7 +25,7 @@ Resident and ESP builds default to an internal rate of 1,152,000. To select
 
 ```sh
 make vios-resident VIOS_INTERNAL_BAUD=384000
-VIOS_INTERNAL_BAUD=384000 /Users/alex/.platformio/penv/bin/pio run -d firmware/esp32-vios -e esp32-vios
+VIOS_INTERNAL_BAUD=384000 ~/.platformio/penv/bin/pio run -d firmware/esp32-vios -e esp32-vios
 ```
 
 Use `1152000` in both commands for the default rate, or `115200` for the
@@ -51,13 +55,17 @@ to explicitly embed another validated RAM image. The raw reference
 `build-manifest.json` with firmware/CPU image hashes, dependencies and build
 source hashes. Rebuilding is necessary after any CPU image change.
 
-Output: `.pio/build/esp32-vios/firmware.bin`. Its maximum is the preserved
-**0x140000-byte app0 slot at 0x10000**. The build also creates bootloader and
-partition binaries as normal PlatformIO intermediates; they are not part of
-the application-only update. Only the hardware-owning agent deploys reviewed
-firmware. Existing bootloader, partition table, OTA selection, app1, and the
-complete eZ80 flash remain outside this update. ESP application A/B rollback
-is not implemented or claimed here.
+Output: `.pio/build/esp32-vios/firmware.bin`. Its maximum is one
+**0x140000-byte application slot** (`app0` or `app1`). The build also creates
+bootloader and partition binaries as normal PlatformIO intermediates; they are
+never installed. Only the hardware-owning agent deploys reviewed firmware.
+Install it A/B with `tools/vios_firmware_ab.py` (Update 2026-10-21): it backs up
+`otadata` and the target slot, writes the inactive slot on trial, and the
+firmware confirms itself once the eZ80 reports healthy or falls back to the
+previous slot (see the manual's
+[Installing](../../docs/manual/VIOS-MANUAL.md#installing) chapter). The
+bootloader and partition table are never written, and normal installs never
+write the eZ80 flash (it holds MOS 3.0.2, written once on 2026-10-19).
 
 ## Frozen wire protocol
 
@@ -112,7 +120,9 @@ reply are 600 bytes; fragments from another sequence are rejected while one
 command is incomplete. Partial commands expire after two seconds. Replies use
 CRLF, fragmented into <=240-byte frames with the same sequence.
 
-Supported control commands preserve the existing host adapter's vocabulary:
+Supported control commands preserve the existing host adapter's vocabulary
+(this list covers the original commands; later ones such as `FR`, firmware
+rollback, are in `include/vios_bridge.h`):
 
 - `B`: read-only `BOOT STARTING`, `BOOT READY`, or `BOOT HALTED` status.
 - `I`: ID/revision/status; `2`: acknowledges the fixed conservative ZDI timing.
@@ -135,7 +145,7 @@ font and audio payload bytes cannot accidentally become console/control data:
 
 | Direction | Bytes and meaning |
 | --- | --- |
-| CPU → ESP | `23,0,E0,len,payload` emits up to 240 console bytes as USB channel 1. No automatic VGA copy. |
+| CPU → ESP | `23,0,E0,len,payload` emits up to 240 console bytes as USB channel 1 and into the ESP's own console view. |
 | ESP → CPU | `FE,len,payload` delivers USB console bytes, alongside standard VDP return packets. |
 | CPU → ESP | `23,0,E1` requests monotonic ESP32 `millis()` as return packet `FD,4,<LE32>`. |
 | CPU → ESP | `23,0,E2,0` arms a 30-second CPU boot deadline; flag 1 disarms and reports ready. |
@@ -160,6 +170,13 @@ and keyboard transmission stop while debug-paused, preserving any incomplete
 VDU packet until `Y` resumes. VGA rendering and audio remain active.
 
 ## Cold boot and recovery
+
+Update (2026-10-21): this section describes the dev boot with the ZDI wire
+fitted. Without the wire the ESP reports `BOOT user mode`, lets the eZ80 run
+MOS, and MOS's boot file runs the SD stub `viosboot`, which loads the
+embedded resident over the UART (or the SD copy). The ESP boots into the GUI
+desktop (mode 0, 640×480, 16 colours). See the manual's
+[Untethered boot](../../docs/manual/VIOS-MANUAL.md#untethered-boot) section.
 
 After initializing VDP graphics/audio/keyboard, setup skips the old indefinite
 MOS handshake. GPIO26/27 use the tested ZDI transport (1 us edges since 2026-10-19, `VIOS_ZDI_EDGE_US`; 10 us before) and

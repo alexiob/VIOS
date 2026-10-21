@@ -1,0 +1,7 @@
+# /dev/win: a window built only by writing text files, and its listing.
+runtime full
+eval CREATE BUF 512 ALLOT\n: SPIT ( addr u path pu -- ) 2 OPEN >R R@ WRITE DROP R> CLOSE DROP ;
+eval S" window - Greeter" S" /dev/win/new" SPIT\nS" label w0 msg" S" /dev/win/new" SPIT\nS" button w0 hello" S" /dev/win/new" SPIT\nS" list w0 words" S" /dev/win/new" SPIT\nS" label w0 warn" S" /dev/win/new" SPIT\nS" progress w0 bar" S" /dev/win/new" SPIT
+eval S" rect 96 40 34 13" S" /dev/win/w0/ctl" SPIT\nS" rect 2 1 30 1" S" /dev/win/0/ctl" SPIT\nS" Hello from a file!" S" /dev/win/0/text" SPIT\nS" rect 2 3 14 4" S" /dev/win/2/ctl" SPIT\n: ROWS S" /dev/win/2/text" 2 OPEN >R  S" DUP" R@ WRITE DROP  S" SWAP" R@ WRITE DROP  S" OVER" R@ WRITE DROP  S" ROT" R@ WRITE DROP  R> CLOSE DROP ; ROWS\nS" rect 18 3 14 1" S" /dev/win/1/ctl" SPIT\nS" text &Again" S" /dev/win/1/ctl" SPIT
+eval S" rect 2 8 30 1" S" /dev/win/3/ctl" SPIT\nS" style 2" S" /dev/win/3/ctl" SPIT\nS" Disk not ready (style 2)" S" /dev/win/3/text" SPIT\nS" rect 2 10 30 1" S" /dev/win/4/ctl" SPIT\nS" value 70" S" /dev/win/4/ctl" SPIT\nS" focus" S" /dev/win/1/ctl" SPIT\nS" focus" S" /dev/win/w0/ctl" SPIT
+shot devwin

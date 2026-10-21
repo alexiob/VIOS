@@ -1,0 +1,34 @@
+{
+  "status": "failed",
+  "checks": {
+    "trace_tokens_DIRECT": {
+      "ok": false,
+      "detail": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        "1",
+        "+",
+        ";",
+        null
+      ]
+    }
+  },
+  "autorun_paused": true,
+  "trace_DIRECT": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    "1",
+    "+",
+    ";",
+    null
+  ],
+  "error": "AssertionError: trace_tokens_DIRECT: [None, None, None, None, None, None, '1', '+', ';', None]"
+}

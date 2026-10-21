@@ -1,0 +1,27 @@
+# anim-workspace: animation (frame MS shows the screen for MS ms).
+module DEMO : SQUARE DUP * ;\n: CUBE DUP SQUARE * ;\n: AREA ( w h -- a ) * ;\n
+ctrlshift w
+key END c
+type \n
+type 1
+frame 150
+type 2
+frame 150
+key SPACE
+frame 150
+type S
+frame 150
+type Q
+frame 150
+type U
+frame 150
+type A
+frame 150
+type R
+frame 150
+type E
+frame 150
+ctrl p
+frame 150
+idle 4
+frame 1500

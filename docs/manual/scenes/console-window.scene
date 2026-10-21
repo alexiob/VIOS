@@ -1,0 +1,10 @@
+# The Console window during a short session (chapter: The Console and REPL).
+include setup
+con 2 3 + .
+con : SQUARE ( n -- n*n ) DUP * ;
+con 12 SQUARE .
+con VARIABLE COUNT-ME  5 COUNT-ME !  COUNT-ME @ .
+con NOPE
+con 1 2 3 .S
+prompt
+shot console-window

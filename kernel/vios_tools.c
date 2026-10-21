@@ -288,8 +288,12 @@ static void browser_accept(void) {
     struct forth_resources r;
     forth_inspect_resources(&r);
     unsigned code = (unsigned)(r.direct_bytes * 100 / r.direct_capacity), words = r.words * 100 / r.words_max;
-    put_s(code_module); put_s(" active; words "); put_u(words); put_s("% code "); put_u(code); put_c('%');
-    if (code > 80 || words > 80) put_s(": save, restart");
+    unsigned map = r.map_entries * 100 / r.map_capacity;   /* past 100%, new words trace without source */
+    put_s(code_module); put_s(" active; ");
+    if (code > 80 || words > 80 || map > 80) {              /* the fullest pool and the advice fit the line */
+        const char *name = code >= words && code >= map ? "code " : words >= map ? "words " : "map ";
+        put_s(name); put_u(*name == 'c' ? code : *name == 'w' ? words : map); put_s("%: save, restart");
+    } else { put_s("words "); put_u(words); put_s("% code "); put_u(code); put_s("% map "); put_u(map); put_c('%'); }
     wtext(B_STATUS, put_end());
 }
 static int save_module(const char *name) {

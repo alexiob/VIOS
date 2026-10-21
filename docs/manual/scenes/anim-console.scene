@@ -1,0 +1,13 @@
+# Typing at the console: define a word and use it.
+include setup
+prompt
+frame 600
+ctype : SQUARE DUP * ;
+conrun : SQUARE DUP * ;
+frame 700
+ctype 12 SQUARE .
+conrun 12 SQUARE .
+frame 700
+ctype 5 0 DO I SQUARE . LOOP
+conrun : T 5 0 DO I SQUARE . LOOP ; T
+frame 2500

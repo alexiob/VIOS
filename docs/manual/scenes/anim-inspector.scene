@@ -1,0 +1,19 @@
+# The Inspector: Ctrl+Tab walks its tabs (stack, memory, tasks, handles, system).
+include setup
+eval : WORKER BEGIN PAUSE AGAIN ;
+eval ' WORKER SPAWN DROP
+eval 1 2 3 HEX 2A DECIMAL
+prompt
+ctrlshift i
+key TAB
+frame 1200
+key TAB c
+frame 1200
+key TAB c
+frame 1200
+key TAB c
+frame 1200
+key TAB c
+frame 1200
+key TAB c
+frame 1400

@@ -17,7 +17,7 @@ class ForthSystemTests(unittest.TestCase):
   self.assertNotIn('ERR',out);self.assertIn('20 ',out)
  def test_resource_report_tracks_transient_stack_peaks(self):
   out=self.run_forth(': DEEP 1 DUP DUP DUP 2DROP 2DROP ; DEEP RESOURCES\n')
-  self.assertIn('data-peak 4',out);self.assertIn('return-peak 1',out)
+  self.assertIn('data-peak 4',out);self.assertIn('return-peak 1',out);self.assertRegex(out,r'map-entries [1-9][0-9]*/[0-9]+')
  def test_sync_is_state_neutral_even_during_compilation(self):
   out=self.run_forth('HEX 2A\nSYNC A1B2C3D4\n: LIVE\nSYNC ABCD1234\n1 + ;\nLIVE . CR\n')
   self.assertNotIn('ERR',out);self.assertIn('@A1B2C3D4',out);self.assertIn('@ABCD1234',out);self.assertIn('2B ',out)
@@ -113,6 +113,13 @@ class ErrorCaptureTests(unittest.TestCase):
   self.assertIn('ERR: unknown word: NOSUCH',out)
   srcs=[l.split(' src ')[1].split()[0] for l in out.splitlines() if l.startswith('step ')]
   self.assertEqual(srcs,['4','5','+',';'])
+ def test_source_map_outlasts_a_long_session(self):
+  binary=ROOT/'build/tests/forth-system'
+  # 1200 entries past the prelude: more than the whole map held before (640, then 1024).
+  defs=''.join(f': M{n} {n} 1 + 2 + 3 + DROP {n} DROP ;\n' for n in range(120))
+  out=subprocess.run([str(binary)],input=defs+'TRACE M0 20\nTRACE M119 20\n',text=True,capture_output=True,check=True,timeout=20).stdout.replace('\r','')
+  srcs=[l.split(' src ')[1].split()[0] for l in out.splitlines() if l.startswith('step ')]
+  self.assertEqual(srcs,['0','1','+','2','+','3','+','DROP','0','DROP',';','119','1','+','2','+','3','+','DROP','119','DROP',';'])
  def test_extended_loops_j_leave_plus_loop_and_qdo(self):
   binary=ROOT/'build/tests/forth-system'
   src=(': A 3 0 DO 2 0 DO J 10 * I + . LOOP LOOP ;\nA CR\n: B 10 0 DO I . 2 +LOOP ;\nB CR\n: C 0 10 DO I . -3 +LOOP ;\nC CR\n'
