@@ -44,3 +44,6 @@ word reference is current and runs the examples.
 
 Hosting the site is described in the manual's appendix A; the workflow is
 `.github/workflows/manual.yml`.
+
+The site uses the Agon 8x8 font (Damien Guard and Lennart Benschop, from the
+vendored Agon VDP), converted to an outline web font; the font file says so.

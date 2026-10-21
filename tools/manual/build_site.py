@@ -240,8 +240,6 @@ def page(pid, title, body, chapters, prev, nxt):
     {pager}
   </main>
 </div>
-<footer class="statusbar">VIOS manual · generated from docs/manual/VIOS-MANUAL.md by tools/manual/build_site.py ·
-Agon 8x8 font by Damien Guard and Lennart Benschop (converted) · <a href="#top">Top</a></footer>
 <script src="vios.js?v={VERSION}"></script>
 </body>
 </html>

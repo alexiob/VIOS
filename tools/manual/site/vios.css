@@ -384,14 +384,6 @@ figure.shot.anim figcaption::before { content: "\25B6  "; font-family: var(--pix
 .filter input:focus { outline: var(--px) solid var(--sel); outline-offset: 2px; }
 .filter .count { color: var(--muted); font-size: 14px; }
 
-.statusbar {
-  background: var(--sel);
-  color: var(--sel-ink);
-  font: 13px/1.5 var(--pixel);
-  padding: 6px 16px;
-  text-align: center;
-}
-.statusbar a { color: inherit; }
 
 :focus-visible { outline: var(--px) solid var(--link); outline-offset: 2px; }
 
@@ -427,7 +419,7 @@ figure.shot.anim figcaption::before { content: "\25B6  "; font-family: var(--pix
 
 @media print {
   html { background: #fff; }
-  .menubar, .contents-window, .pager, .statusbar, .filter { display: none; }
+  .menubar, .contents-window, .pager, .filter { display: none; }
   .desktop { display: block; padding: 0; }
   .window { border: 0; box-shadow: none; }
   .title { position: static; }
