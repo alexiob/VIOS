@@ -72,8 +72,9 @@ First tagged release. VIOS turns the Agon Light 2 into a self-contained Forth wo
 - `develop` stages, activates and optionally saves a module in one call; `snapshot` records what is live, dirty, staged and persisted.
 - USB link layer: the ESP numbers every frame, keeps the last 24 and resends lost frames on request; `esp_stats` shows `link_requests`, `link_resent` and `link_gone`.
 - ESP-side probes that work while the eZ80 is busy: `esp_stats`, `esp_console`, `esp_gui` (key presses and framebuffer pixels), `esp_inject`, `esp_audio`.
-- `tools/vios_board_suite.py` runs the on-board acceptance checks (GUI, GUI tools, console, audio, core words, tasks, pipeline, handles, tools) with an optional soak.
+- `tools/vios_board_suite.py` runs the on-board acceptance checks (GUI, GUI tools, console, audio, core words, tasks, pipeline, handles, tools, extensible compiler) with an optional soak.
 - `tools/vios_release.py` packages a release: ESP firmware, SD card tree, install tools, this changelog's section and SHA-256 sums.
+- `tools/vios_sd_install.py` installs the boot files onto a mounted SD card, and `tools/vios_sd_refresh.py` refreshes them through the running board; both read the GUI flag and baud from a release's `vios.man` when there are no build sidecars.
 
 ### Audio
 

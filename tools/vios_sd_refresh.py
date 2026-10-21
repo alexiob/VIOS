@@ -31,7 +31,7 @@ import time
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from vios_resident_board import ResidentBoard  # noqa: E402
-from vios_sd_install import check_image, check_stub, manifest, parse_manifest, sidecar  # noqa: E402
+from vios_sd_install import check_image, check_stub, manifest, pairing, parse_manifest  # noqa: E402
 
 PORT = '/dev/cu.usbserial-224130'
 CHUNK = 100
@@ -72,7 +72,7 @@ def main():
     args = parser.parse_args()
     image = args.resident.read_bytes()
     check_image(image)
-    man = manifest(image, sidecar(args.resident, '.gui', 0), sidecar(args.resident, '.baud', 1152000))
+    man = manifest(image, *pairing(args.resident, image))   # build sidecars, or a release's vios.man
     stub = args.stub.read_bytes() if args.stub else None
     if stub is not None:
         check_stub(stub)

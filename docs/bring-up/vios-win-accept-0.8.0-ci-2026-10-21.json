@@ -1,0 +1,138 @@
+{
+  "status": "passed",
+  "checks": {
+    "make_window": {
+      "ok": true,
+      "detail": null
+    },
+    "new_reads_id": {
+      "ok": true,
+      "detail": "w0"
+    },
+    "make_button": {
+      "ok": true,
+      "detail": "button w0 ok"
+    },
+    "make_list": {
+      "ok": true,
+      "detail": "list w0 rows"
+    },
+    "make_label": {
+      "ok": true,
+      "detail": "label w0 msg"
+    },
+    "refused_kind": {
+      "ok": true,
+      "detail": null
+    },
+    "list_window": {
+      "ok": true,
+      "detail": "w0 window - Win_accept 64 64 32 12\n0 button w0 ok 0 0 8 1\n1 list w0 rows 0 0 20 4\n2 label w0 msg 0 0 8 1\n"
+    },
+    "list_widgets": {
+      "ok": true,
+      "detail": "w0 window - Win_accept 64 64 32 12\n0 button w0 ok 0 0 8 1\n1 list w0 rows 0 0 20 4\n2 label w0 msg 0 0 8 1\n"
+    },
+    "list_from_task": {
+      "ok": true,
+      "detail": [
+        105,
+        "w0 window - Win_accept 64 64 32 12\n0 button w0 ok 0 0 8 1\n1 list w0 rows 0 0 20 4\n2 label w0 msg 0 0 8 1\n"
+      ]
+    },
+    "ctl_write": {
+      "ok": true,
+      "detail": null
+    },
+    "ctl_widget": {
+      "ok": true,
+      "detail": null
+    },
+    "ctl_read": {
+      "ok": true,
+      "detail": "kind button\nparent w0\nname ok\nrect 1 1 10 1\nshow 1\nflags 0\nvalue 0\ncount 0\nlayout 0 0\nsize 0 1\nfocus 1\nstyle 0\ntext Say &hello\n"
+    },
+    "ctl_window": {
+      "ok": true,
+      "detail": "kind window\nname Win accept 2\nrect 96 80 36 14\nshow 1\nflags 7\nsurface 0 36 14\nfocus 0\n"
+    },
+    "ctl_hide_show": {
+      "ok": true,
+      "detail": null
+    },
+    "ctl_refuses": {
+      "ok": true,
+      "detail": null
+    },
+    "text_rows": {
+      "ok": true,
+      "detail": null
+    },
+    "text_rows_back": {
+      "ok": true,
+      "detail": "alpha\nbeta\ngamma\n"
+    },
+    "text_label": {
+      "ok": true,
+      "detail": null
+    },
+    "focus": {
+      "ok": true,
+      "detail": null
+    },
+    "event_activate": {
+      "ok": true,
+      "detail": [
+        true,
+        "activate\n"
+      ]
+    },
+    "focus_list": {
+      "ok": true,
+      "detail": null
+    },
+    "event_select": {
+      "ok": true,
+      "detail": "select 1\n"
+    },
+    "tree": {
+      "ok": true,
+      "detail": " 0 36 14 48 UI-SURFACE  0 0 96 80 36 14 7 UI-WINDOW S\" Win accept 2\" 0 UI-TITLE\n 0 0 3 255 1 1 10 1 0 UI-WIDGET\nS\" Say &hello\" 0 UI-WTEXT\nS\" ok\" 0 UI-WNAME\n 1 0 7 255 1 3 20 5 0 UI-WIDGET\nS\" rows\" 1 UI-WNAME\n 1 3 UI-ITEMS\nS\" alpha\" 1 0 UI-ITEM\nS\" beta\" 1 1 UI-ITEM\nS\" gamma\" 1 2 UI-ITEM\n 1 1 UI-WVALUE\n 2 0 2 255 1 9 30 1 0 UI-WIDGET\nS\" Hello from /dev/win\" 2 UI-WTEXT\nS\" msg\" 2 UI-WNAME\n"
+    },
+    "close": {
+      "ok": true,
+      "detail": null
+    },
+    "no_leaked_handles": {
+      "ok": true,
+      "detail": []
+    },
+    "no_protocol_errors": {
+      "ok": true,
+      "detail": [
+        0,
+        0
+      ]
+    },
+    "no_console_drops": {
+      "ok": true,
+      "detail": [
+        0,
+        0
+      ]
+    }
+  },
+  "ms": {
+    "make_window": 88,
+    "list": 77,
+    "enter_to_task": 139
+  },
+  "dropped_before": 0,
+  "errors_before": 0,
+  "button": 0,
+  "list": 1,
+  "label": 2,
+  "listing": "w0 window - Win_accept 64 64 32 12\n0 button w0 ok 0 0 8 1\n1 list w0 rows 0 0 20 4\n2 label w0 msg 0 0 8 1\n",
+  "errors_after": 0,
+  "dropped_after": 0
+}
