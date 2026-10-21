@@ -38,6 +38,7 @@ def main():
     p.add_argument('--output', type=Path, required=True)
     a = p.parse_args()
     r = {'status': 'running', 'checks': {}, 'ms': {}}
+    win_open = None
 
     def check(name, ok, detail=None):
         r['checks'][name] = {'ok': bool(ok), 'detail': detail}
@@ -76,7 +77,7 @@ def main():
 
             def slurp(path):
                 # WB holds the file; ~ marks the end, as the console may add ok and line ends.
-                text = result(f'S" {path}" WSLURP DUP 0 < IF . ELSE WB SWAP TYPE THEN 126 EMIT')
+                text = result(f'S" {path}" WSHOW')
                 return text[:text.rindex('~')].replace('\r\n', '\n')
 
             def spit(path, text):
@@ -94,10 +95,11 @@ def main():
 
             drops = lambda: int(re.search(r'console-dropped (\d+)', ev('VDP-INFO'))[1])
             r['dropped_before'] = drops()
-            r['errors_before'] = val('UI-SYNC >R 2DROP R>')
+            r['errors_before'] = val('UI-SYNC SWAP DROP SWAP DROP')
             ev('CREATE WB 1024 ALLOT  VARIABLE WT  VARIABLE WN  VARIABLE WL')
             ev(': WSLURP ( pa pu -- n ) 1 OPEN DUP 0 < IF EXIT THEN >R WB 1024 R@ READ R> CLOSE DROP ;')
             ev(': WSPIT ( a u pa pu -- r ) 2 OPEN DUP 0 < IF >R 2DROP R> EXIT THEN >R R@ WRITE R> CLOSE DROP ;')
+            ev(': WSHOW ( pa pu -- ) WSLURP DUP 0 < IF . ELSE WB SWAP TYPE THEN 126 EMIT ;')
 
             # make
             t = time.perf_counter()
@@ -105,6 +107,7 @@ def main():
             r['ms']['make_window'] = round((time.perf_counter() - t) * 1000)
             win = slurp('/dev/win/new').strip()
             check('new_reads_id', re.fullmatch(r'w\d+', win), win)
+            win_open = win
             for line in ('button %s ok' % win, 'list %s rows' % win, 'label %s msg' % win):
                 check('make_' + line.split()[0], spit('/dev/win/new', line) > 0, line)
                 r[line.split()[0]] = int(slurp('/dev/win/new').strip())
@@ -178,16 +181,24 @@ def main():
             check('tree', f'UI-WINDOW S" Win accept 2" {win[1:]} UI-TITLE' in tree and f'S" alpha" {lst} 0 UI-ITEM' in tree, tree[-600:])
 
             # health
+            win_open = None
             check('close', spit(f'/dev/win/{win}/ctl', 'close') > 0 and f'{win} window' not in slurp('/dev/win'))
             listed = c.tool('handles')
             check('no_leaked_handles', listed['handles'] == [], listed['handles'])
-            r['errors_after'] = val('UI-SYNC >R 2DROP R>')
+            r['errors_after'] = val('UI-SYNC SWAP DROP SWAP DROP')
             check('no_protocol_errors', r['errors_after'] == r['errors_before'], (r['errors_before'], r['errors_after']))
             r['dropped_after'] = drops()
             check('no_console_drops', r['dropped_after'] == r['dropped_before'], (r['dropped_before'], r['dropped_after']))
         r['status'] = 'passed'
     except BaseException as error:
         r.update(status='failed', error=f'{type(error).__name__}: {error}')
+        try:                                    # leave no test window behind
+            if win_open:
+                with RPCClient(timeout=60) as c:
+                    c.initialize()
+                    c.tool('evaluate', {'source': f'S" close" WB SWAP MOVE  WB 5 S" /dev/win/{win_open}/ctl" WSPIT DROP', 'timeout': 20})
+        except Exception:
+            pass
         raise
     finally:
         a.output.write_text(json.dumps(r, indent=2) + '\n')
