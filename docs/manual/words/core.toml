@@ -864,7 +864,7 @@ example = ': CUBE DUP DUP * * ;  SEE CUBE'
 name = "RESOURCES"
 section = "inspect"
 effect = "( -- )"
-desc = "Parser keyword: one line with the engine, words used/512, token, direct, data and source bytes used, and the peak data and return stack depths."
+desc = "Parser keyword: one line with the engine, words used/512, token, direct, data and source bytes used, source-map entries used/1792 (the map TRACE and LAST-ERROR read), and the peak data and return stack depths."
 example = 'RESOURCES'
 
 [[word]]

@@ -1647,12 +1647,13 @@ and prints each sample, so you can compare them on your own hardware.
 board the engine is `DIRECT` and the numbers differ):
 
 ```text
-engine C words 251/512 token-bytes 1469 direct-bytes 3710 data-bytes 30 source-bytes 1305 data-peak 1 return-peak 0
+engine C words 289/512 token-bytes 1789 direct-bytes 4387 data-bytes 76 source-bytes 1711 map-entries 339/1792 data-peak 1 return-peak 0
 ```
 
 `words` is used/maximum dictionary entries; the byte counts are used space
 in the token arena (16384 bytes), direct arena (32768), data space (8192)
-and source arena (8192); the peaks are the deepest data and return stacks
+and source arena (8192); `map-entries` is the source map that `TRACE` and
+`LAST-ERROR` use (used/maximum); the peaks are the deepest data and return stacks
 since the last reset. The exact numbers depend on the build and on what
 your boot modules define.
 
@@ -1789,7 +1790,7 @@ stack. The offsets depend on the engine (token code offsets in the `C` and
 trace ends with `trace failed`; if it runs out of steps, with
 `trace step limit reached`.
 
-The source tokens come from a source map of 640 entries shared by every word
+The source tokens come from a source map of 1792 entries shared by every word
 defined since boot. After many definitions in one session, words defined later
 trace with `src -` instead of their tokens; `LAST-ERROR` shows `-` the same way.
 A reboot (or a fresh boot that loads your modules) clears the map.
@@ -1849,7 +1850,7 @@ list is in [Appendix B: Limits and Numbers](#appendix-b-limits-and-numbers)):
 | Task data / return / loop stack | 64 / 64 / 16 | `include/forth/system.h` |
 | Open control structures while compiling | 64 | `forth/system.c` |
 | Pending `LEAVE`/`?DO` exits | 16 per definition | `forth/system.c` |
-| Source-map entries (for `TRACE`/`LAST-ERROR` source tokens) | 640 | `forth/system.c` |
+| Source-map entries (for `TRACE`/`LAST-ERROR` source tokens) | 1792 | `forth/system.c` |
 | Native services | 120 | `forth/system.c` |
 | Instructions per interactive command | 1,000,000 | `forth/system.c` |
 | `TRACE` steps | 1..100000 | `forth/system.c` |
@@ -2278,7 +2279,7 @@ A few things to know about generations:
   compiled code and source stay allocated (unnamed) until the next restart,
   so each accept uses some dictionary and source pool space. When a pool is
   full, staging refuses cleanly ("module source pool full"); save your work
-  and restart to reclaim the space. The GUI Browser shows word and code use
+  and restart to reclaim the space. The GUI Browser shows word, code and source-map use
   after each accept and asks you to save and restart above 80 %.
 - [`MODULE-DISCARD`](#w-module-discard) drops a pending module (and any
   half-built one in the builder) without touching live code.
@@ -4362,9 +4363,11 @@ status line at the bottom.
   streamed into the workbench draft, compiled and tested in isolation (stage),
   then activated, the same revision-checked steps as F5 and F6 in the
   [text workbench](#the-text-workbench). On success the status line says
-  `DEMO active; words 52% code 31%`, showing how full the dictionary and code
-  space are. Every accept keeps the replaced version's code until the next
-  restart, so when either figure passes 80 % the line adds `: save, restart`.
+  `DEMO active; words 52% code 31% map 20%`, showing how full the dictionary,
+  the code space and the source map are. Every accept keeps the replaced
+  version's code until the next restart, so when any of them passes 80 % the
+  line names the fullest one instead, for example `DEMO active; code 84%: save,
+  restart`.
   On failure it says `not accepted:` and the reason, and the live module is not
   touched. After an accept the words and info panes show the new version at
   once; the code pane keeps your text.
@@ -5978,7 +5981,7 @@ Looking inside the running system.
 | <a id="w-dump"></a>`DUMP` | `( addr u -- )` | Hex dump of u bytes. Each byte is two hex digits; a new line with the address starts at every 16-byte boundary (so an unaligned start has no address on its first line). BASE is restored afterwards. Example: `S" ABC" DUMP` | prelude |
 | <a id="w-words"></a>`WORDS` | `( -- )` | Parser keyword: list every dictionary entry, oldest first, including shadowed older definitions. Parser keywords (IF, VARIABLE, SEE ...) and outer commands are not dictionary entries and are not listed. Example: `WORDS` | compiler |
 | <a id="w-see"></a>`SEE` | `( "name" -- )` | Parser keyword: show a colon word's stored source (upper case, comments removed) or `primitive NAME` / `data word NAME`, then a metadata line: xt, kind (0 primitive, 1 colon, 2 constant, 3 variable, 4 defer, 5 native), code addresses and sizes for both code formats, and the module it came from. Example: `: CUBE DUP DUP * * ;  SEE CUBE` | compiler |
-| <a id="w-resources"></a>`RESOURCES` | `( -- )` | Parser keyword: one line with the engine, words used/512, token, direct, data and source bytes used, and the peak data and return stack depths. Example: `RESOURCES` | compiler |
+| <a id="w-resources"></a>`RESOURCES` | `( -- )` | Parser keyword: one line with the engine, words used/512, token, direct, data and source bytes used, source-map entries used/1792 (the map TRACE and LAST-ERROR read), and the peak data and return stack depths. Example: `RESOURCES` | compiler |
 | <a id="w-last-error"></a>`LAST-ERROR` | `( -- )` | Parser keyword: report the last foreground runtime failure as captured before the stacks were cleared: serial, engine, whether the dictionary changed since (stale), BASE, message, failing word, code offset and source token, stack depths, the top 8 data cells, then one `frame` line per caller (up to 16). The message and word names are printed as hex bytes; the host CLI's `:why` decodes them. Example: `LAST-ERROR` | compiler |
 | <a id="w-trace"></a>`TRACE` | `( i*x "name" "n" -- j*x )` | Parser keyword: run name one VM instruction at a time for at most n (1..100000) steps, printing step number, word+offset, source token, stack depths and top of stack before each, then `trace returned` or `trace failed`. Uses the current engine. Interpretation only. Example: `: SQ2 DUP * ;  4 TRACE SQ2 10 .` | compiler |
 
@@ -6617,7 +6620,7 @@ relative to the repository root; `firmware/` means
 | Direct-threaded code arena | 32768 bytes | `forth/system.c` (`DIRECT_BYTES`) |
 | Data space (variables, `CREATE`, strings) | 8192 bytes | `forth/system.c` (`DATA_BYTES`) |
 | Source arena (text kept for `SEE`) | 8192 bytes | `forth/system.c` (`SOURCE_BYTES`) |
-| Source-map entries (`TRACE`/`LAST-ERROR` tokens) | 640 | `forth/system.c` (`SOURCE_MAP_MAX`) |
+| Source-map entries (`TRACE`/`LAST-ERROR` tokens) | 1792 | `forth/system.c` (`SOURCE_MAP_MAX`) |
 | Native services | 120 | `forth/system.c` (`NATIVES_MAX`) |
 | Data stack | 256 cells | `include/forth/vm.h` (`FVM_DS`) |
 | Return stack | 256 cells | `include/forth/vm.h` (`FVM_RS`) |
