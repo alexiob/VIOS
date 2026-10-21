@@ -1,0 +1,30 @@
+{
+  "status": "passed",
+  "engines": {
+    "DIRECT": {
+      "cases": 14,
+      "seconds": 0.52
+    },
+    "TOKEN": {
+      "cases": 14,
+      "seconds": 0.5
+    },
+    "C": {
+      "cases": 14,
+      "seconds": 0.52
+    }
+  },
+  "autorun_paused": true,
+  "define_seconds": 0.66,
+  "evaluate_depth_limit": "refused at 5",
+  "task_refusal": "passed",
+  "marker": {
+    "restored": {
+      "words": 363,
+      "token": 2819,
+      "direct": 6333,
+      "data": 3317,
+      "source": 3162
+    }
+  }
+}

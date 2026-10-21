@@ -1,0 +1,218 @@
+{
+  "status": "passed",
+  "checks": {
+    "no_live_tasks_before": {
+      "ok": true,
+      "detail": [
+        {
+          "id": 1,
+          "state": "killed",
+          "xt": 320,
+          "name": "AUTORUN",
+          "slices": 1,
+          "steps": 12,
+          "depth": 0,
+          "rdepth": 1,
+          "ds_peak": 3,
+          "rs_peak": 1,
+          "output_bytes": 53,
+          "output_dropped": 0,
+          "error": "killed",
+          "base": 10
+        },
+        {
+          "id": 2,
+          "state": "free",
+          "xt": 0,
+          "name": "",
+          "slices": 0,
+          "steps": 0,
+          "depth": 0,
+          "rdepth": 0,
+          "ds_peak": 0,
+          "rs_peak": 0,
+          "output_bytes": 0,
+          "output_dropped": 0,
+          "error": "",
+          "base": 0
+        },
+        {
+          "id": 3,
+          "state": "free",
+          "xt": 0,
+          "name": "",
+          "slices": 0,
+          "steps": 0,
+          "depth": 0,
+          "rdepth": 0,
+          "ds_peak": 0,
+          "rs_peak": 0,
+          "output_bytes": 0,
+          "output_dropped": 0,
+          "error": "",
+          "base": 0
+        },
+        {
+          "id": 4,
+          "state": "free",
+          "xt": 0,
+          "name": "",
+          "slices": 0,
+          "steps": 0,
+          "depth": 0,
+          "rdepth": 0,
+          "ds_peak": 0,
+          "rs_peak": 0,
+          "output_bytes": 0,
+          "output_dropped": 0,
+          "error": "",
+          "base": 0
+        }
+      ]
+    },
+    "busy_task_progresses": {
+      "ok": true,
+      "detail": {
+        "seconds": 5.22,
+        "busy_task_increments_per_s": 9452,
+        "sleeping_task_wakes_per_s": 63.4
+      }
+    },
+    "sleeping_task_progresses": {
+      "ok": true,
+      "detail": {
+        "seconds": 5.22,
+        "busy_task_increments_per_s": 9452,
+        "sleeping_task_wakes_per_s": 63.4
+      }
+    },
+    "engine_refused_while_live": {
+      "ok": true,
+      "detail": null
+    },
+    "printer_done": {
+      "ok": true,
+      "detail": {
+        "id": 1,
+        "state": "done",
+        "xt": 339,
+        "name": "TPR",
+        "slices": 1,
+        "steps": 6,
+        "depth": 0,
+        "rdepth": 0,
+        "ds_peak": 1,
+        "rs_peak": 0,
+        "output_bytes": 4,
+        "output_dropped": 0,
+        "error": "",
+        "base": 10
+      }
+    },
+    "printer_output_isolated": {
+      "ok": true,
+      "detail": null
+    },
+    "key_task_fails_alone": {
+      "ok": true,
+      "detail": {
+        "id": 1,
+        "state": "failed",
+        "xt": 340,
+        "name": "TKK",
+        "slices": 1,
+        "steps": 1,
+        "depth": 0,
+        "rdepth": 0,
+        "ds_peak": 0,
+        "rs_peak": 0,
+        "output_bytes": 0,
+        "output_dropped": 0,
+        "error": "KEY unavailable in background task",
+        "base": 10
+      }
+    },
+    "all_stopped": {
+      "ok": true,
+      "detail": null
+    },
+    "foreground_stack_preserved": {
+      "ok": true,
+      "detail": {
+        "depth_text": "1",
+        "values_text": [
+          "1234"
+        ]
+      }
+    },
+    "engine_switch_allowed_after": {
+      "ok": true,
+      "detail": null
+    },
+    "no_console_drops": {
+      "ok": true,
+      "detail": [
+        0,
+        0
+      ]
+    }
+  },
+  "connect": {
+    "connected": true,
+    "identity": "untethered (no ZDI wire)"
+  },
+  "autorun_paused": true,
+  "dropped_before": 0,
+  "latency_no_tasks": {
+    "median_ms": 33.18,
+    "max_ms": 35.61
+  },
+  "throughput": {
+    "seconds": 5.22,
+    "busy_task_increments_per_s": 9452,
+    "sleeping_task_wakes_per_s": 63.4
+  },
+  "latency_two_tasks": {
+    "median_ms": 99.7,
+    "max_ms": 107.51
+  },
+  "tasks_running": [
+    {
+      "id": 1,
+      "state": "killed",
+      "xt": 320,
+      "name": "AUTORUN",
+      "slices": 1,
+      "steps": 12,
+      "depth": 0,
+      "rdepth": 1,
+      "ds_peak": 3,
+      "rs_peak": 1,
+      "output_bytes": 0,
+      "output_dropped": 0,
+      "error": "killed",
+      "base": 10
+    },
+    {
+      "id": 2,
+      "state": "ready",
+      "xt": 337,
+      "name": "TCA",
+      "slices": 1779,
+      "steps": 704657,
+      "depth": 1,
+      "rdepth": 0,
+      "ds_peak": 2,
+      "rs_peak": 1,
+      "output_bytes": 0,
+      "output_dropped": 0,
+      "error": "",
+      "base": 10
+    }
+  ],
+  "latency_after": {
+    "median_ms": 33.33,
+    "max_ms": 34.58
+  },
+  "dropped_after": 0
+}

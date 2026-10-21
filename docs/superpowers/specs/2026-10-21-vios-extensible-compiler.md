@@ -930,10 +930,26 @@ a shift in `find`.
 - **Cycle-model fix.** `cp` now sets P/V to signed overflow, as the eZ80 does.
   Before, clang's signed-compare idiom (`cp a,0`, `call pe,__setflag`, `jp m`)
   read 0 as negative.
-- **Not yet on the board:**
-  - the native-stack high-water with 4-level EVALUATE;
-  - the one-time boot-cache miss (header and snapshot layout changed);
-  - a full board suite run.
+- **Native stack** (*measured*, cycle model on the linked image): each EVALUATE
+  level costs 139 B. Four levels peak at 717 B against 188–248 B for an
+  ordinary command, and the fifth level is refused. That is well inside the
+  4 KiB stack.
+- **Board** (2026-10-21, after merging main `980a898`, which brings the
+  6-byte source map from 182d88b):
+  - **install:** ESP firmware with the merged resident went into the inactive
+    app slot (`vios_firmware_ab.py`). Its first boot took the one boot-cache
+    miss and reported health; the next boot hit the rebuilt cache (1,214 ms).
+  - **suite:** board suite 9/9 (`docs/bring-up/vios-board-suite-extensible-2026-10-21`).
+  - **extensible check passed** (`docs/bring-up/vios-extensible-accept-2026-10-21.json`):
+    14 cases on DIRECT, TOKEN and C, a fifth EVALUATE level refused, a defining
+    word refused in a background task, and MARKER restoring every pool exactly.
+  - **added to the suite:** the check is now part of `vios_board_suite.py`'s
+    default set.
+- **RAM gap of the merged build:** 6,123 B (`__bss_end` 0xAD815), against
+  1,515 B for main `980a898` alone. The owner accepted 6.1 KB for 0.8.0 and
+  keeps the 12 KB gate for when Stage 3 starts.
+- **Not measured:** the compile time of a boot-cache miss on the board. The
+  install's boot does not log it.
 
 ### 12.5 Source map (coordinator's request, 2026-10-21)
 
