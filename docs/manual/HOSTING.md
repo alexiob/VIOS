@@ -49,7 +49,12 @@ workflow by hand on `main`.
 
    Secrets stay private when the repository is public; workflows triggered
    from forks' pull requests never receive them, and this workflow deploys
-   only on tags and manual runs anyway.
+   only on tags and manual runs anyway. The deploy job runs in the GitHub
+   environment `vios-docs`: for a stricter setup, put the two secrets there
+   instead (Settings → Environments → vios-docs) and add yourself as a
+   required reviewer, so each deploy waits for your approval. The
+   `cloudflare/wrangler-action` step is pinned to a commit; update the pin by
+   hand when moving to a newer release.
 4. **First deploy.** Actions → Manual → Run workflow on `main`. The first run
    creates the `vios-docs` Worker and attaches `vios.iob.dev`; the site is up
    within a minute or two.
