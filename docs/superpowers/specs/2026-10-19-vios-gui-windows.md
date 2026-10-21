@@ -717,6 +717,9 @@ integration is in progress in the session that owns the hardware.
 **Deviations from the §12 draft** (the authoritative table is the header of
 `vds_proto.h`):
 
+- **Event kinds:** `13` is `CANVAS` (G5), not `DRAG`, which was never built;
+  `14` is `STREAM`, a routed /dev/win node's text line.
+
 - **Window ops:**
   - `50 WIN id surface x y cols rows flags`: client size in cells; the title
     is sent separately with `54`.

@@ -280,7 +280,7 @@ Built on branch `claude/competent-faraday-91e89a`.
 - **Budget:** `vds_proto_frame_within` rasterises first with half the frame's pixels and half its time.
   - The device limits frames by time only, so rasterising stops by clock.
   - It checks the clock after bands of at most 640 × 24 pixels.
-- **Event 0x13** is `CANVAS`. The windows design §12 draft named 0x13 `DRAG`, which was never built; a later drag event needs another code.
+- **Event 0x13** is `CANVAS`. The windows design §12 draft named 0x13 `DRAG`, which was never built; a later drag event needs another code. /dev/win's `STREAM` event (a routed node's text line), which first also took 0x13, is 0x14 since main bd1fdfa.
 - **Not measured on the board:** the canvas tween (host-tested only) and the original G5 gate B13 (16 tweens plus 20 sprites).
 - **Lines** are a pure function of the major-axis step.
   - Only the steps inside the band being drawn are visited.
