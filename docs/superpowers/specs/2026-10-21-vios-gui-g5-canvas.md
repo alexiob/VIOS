@@ -26,7 +26,10 @@ rotating bitmaps, per-item clipping regions, CPU read-back of pixels.
   surface pixel position `(x, y)`. It has a background colour, or is
   *transparent* (its background shows the surface's cells underneath).
   Because it belongs to a surface, every window showing that surface shows it,
-  and it scrolls with the surface's text. A canvas that fills a whole window
+  and it moves with the window's scroll offset like the surface's text. Its
+  surface position is fixed: scrolling the *cells* (`vds_scroll`) does not
+  move it (owner question 2b). **x is a multiple of 8** (as window client x
+  is), so an opaque canvas row lands byte-aligned. A canvas that fills a whole window
   is just a canvas at `(0, 0)` the size of the surface.
 - **Item:** one entry of a canvas's display list, addressed by an **item id**
   0–254. Items draw in id order (higher ids on top). The CPU picks ids, so it
@@ -41,11 +44,14 @@ Limits (ESP, PSRAM):
 |---|---|---|
 | Canvases | 8 (ids 0–7) | descriptor 32 B each, internal RAM |
 | Canvas size | ≤ 640 × 480 | backing `w·h/2` B; **total backing cap 256 KB** (e.g. one full screen 150 KB + several small) |
-| Items | 255 per canvas | 32 B per item, allocated on first use in blocks of 32: ≤ 8 KB per canvas |
+| Items | 255 per canvas | 32 B per item, a fixed 8 KB array per canvas |
 | Bitmaps | 32 (ids 0–31; 24–31 built in) | shared pool 16 KB (a 64×64 bitmap is 2 KB, a 16×16 icon 128 B) |
 
-All PSRAM; the compositor's internal-RAM state grows only by the descriptors
-(≈ 0.3 KB).
+The library stays heap-free: as for cell memory, the adapter supplies a
+canvas's item array and backing raster through a callback (PSRAM on the
+device, allocated when a canvas is first created and kept for reuse), and the
+bitmap pool is a fixed array in `vds_proto` (PSRAM-capable). The compositor's
+internal-RAM state grows only by the descriptors (≈ 0.3 KB).
 
 Item kinds (coordinates are s16 in canvas pixels, clipped to the canvas):
 
@@ -76,16 +82,23 @@ display list. The list is the truth; the raster can always be rebuilt.
   composition, each canvas with a dirty rect is redrawn there: fill with the
   background, then replay every item whose box meets it, clipped to it. A
   batch of 50 edits therefore costs one replay. Work is cut into row bands
-  under a per-frame budget (initially 1 ms, measured on the board); a dirty
-  rect that does not finish carries over, like composition damage.
+  under the **same** per-frame budget as composition (the existing
+  `budget_us`, about 3–4 ms): rasterising runs first and what it uses is not
+  available to compose that frame. A dirty rect that does not finish carries
+  over, like composition damage.
 - **Damage:** only the rows rasterised this frame are damaged on screen, in
   every visible window showing the canvas's surface. The screen never shows a
   half-replayed band.
 - **Compose:** `client_row()` draws the cells of a scanline as today, then
-  copies the row of each visible canvas on that surface over it (skipping the
-  key colour if the canvas is transparent). That is a nibble copy, as cheap as
-  a glyph row, so window moves, exposes, shadows and occlusion over a canvas
-  cost the same as over text.
+  copies the row of each visible canvas on that surface over it.
+  - Opaque canvas in a snapped window: a byte copy into the line buffer,
+    about the cost of the glyph rows it covers (one load and store per 8
+    pixels, against a font load, table lookup and store).
+  - Transparent canvas: a per-pixel key compare, roughly the sprite path.
+  - Free-x window (odd client x): per-pixel nibble placement, the slower
+    path G0 measured at 2.2× for glyphs.
+  The acceptance check measures all three; only the first is expected in
+  ordinary windows.
 
 Why not replay the list on every composed scanline (no backing)? Moving a
 window over a 200-item canvas would replay 200 items per scanline for every
@@ -183,8 +196,9 @@ S" sales" 2 20 132 UI-PRINT                      \ item 2: caption
   The GUI tools can use them in lists without uploading anything.
 - **Uploaded:** ids 0–23 via `C8`/`C9` in ≤ 200-byte chunks inside normal
   batches, exactly like sprite pixels (§9 says why not `A0` buffers).
-- An *icon in a window* is a small canvas with one `ICON` item; an icon next
-  to a list row is a transparent canvas on the list's surface.
+- An *icon in a window* is a small canvas with one `ICON` item, opaque or
+  transparent over the surface's cells. Icons inside list and tree rows (which
+  scroll their cells) are a widget feature for later, not part of G5.
 
 ## 7. Tests and acceptance
 
@@ -232,6 +246,8 @@ Board (`tools/vios_gui_canvas_accept.py`, JSON under `docs/bring-up/`):
   inspection path.
 - **Item ids instead of an append-only list.** "Send once, then edit" needs
   addressable items; an append-only list would need offsets.
+- **Backing is mandatory, not optional.** Windows design §5.1 made the pixel
+  backing an option; here every canvas has one (§3 says why).
 - **Size:** "≤ 2 KB per canvas" becomes ≤ 8 KB of items plus the raster,
   since PSRAM is not the constraint; the CPU side stays at 2 bytes of state.
 
@@ -240,7 +256,13 @@ Board (`tools/vios_gui_canvas_accept.py`, JSON under `docs/bring-up/`):
 1. Backing raster per canvas (fast composition, ~150 KB PSRAM for a
    full-screen canvas) rather than per-scanline replay (no memory, slower
    moves). Recommended: raster.
-2. Canvases live on **surfaces** (scroll with text, show in every window of
-   that surface) rather than on windows. Recommended: surfaces.
+2. Canvases live on **surfaces** (show in every window of that surface, move
+   with the window's scroll offset) rather than on windows. Recommended:
+   surfaces.
+   - 2b. When the surface's *cells* scroll (`vds_scroll`, console style), a
+     canvas stays put (recommended: simple, exact; the scroll blit falls back
+     to recomposing under it), or a canvas wholly inside the scrolled region
+     moves with the text (keeps the blit exact, but a canvas can scroll off
+     the surface and needs a rule for that).
 3. Built-in icon set: the eight above, or none in G5.
 4. Bitmap upload through `E4` chunks instead of `A0` buffers.
