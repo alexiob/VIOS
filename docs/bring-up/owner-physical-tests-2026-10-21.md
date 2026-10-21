@@ -64,3 +64,29 @@ torn or refused. The scripted check after cut 5 hit a port blip while the
 cable was replugged (the device appeared and vanished); it was run by hand
 with the script's own `verify()` over every package in `/VIOS/335FDFDB/`.
 The PCUT packages stay on the card (48 small files).
+
+## 3b. Power cuts during BOOT-TRIAL: passed
+
+Approved by the owner. `tools/vios_power_cut.py --mode trial --rounds 5`
+([power-cut-trial.json](owner-physical-tests-2026-10-21/power-cut-trial.json)).
+Each round ran `BOOT-TRIAL` with the active modules (LIVE1I, LIVE1P, LIVE1D,
+WBM1P, HELLO 2) back to back until the owner pulled the cable; each trial
+writes the bundle and boot records, and the next boot confirms it.
+
+| Cut | Trials completed before it | Boot after it |
+|---|---|---|
+| 1 | 13 | `boot confirmed A candidate NONE state CLEAN current A generation 35` |
+| 2 | 1 | `boot confirmed B ... generation 39` |
+| 3 | 2 | `boot confirmed A ... generation 44` |
+| 4 | 3 | `boot confirmed B ... generation 51` |
+| 5 | 2 | `boot confirmed A ... generation 56` |
+
+After every cut the board booted, the confirmed slot's manifest read
+without error (5 modules, crc32 2862788777), and no trial was left
+pending. Both slots now hold the same module set (HELLO 2, no autorun); the
+board ends confirmed on slot A.
+
+## Summary
+
+All three owner tests passed on the v0.8.0 board, after one fix found by
+test 1 (the Down arrow, `0f7d762`, in Unreleased for 0.8.1).

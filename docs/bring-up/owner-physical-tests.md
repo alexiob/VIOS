@@ -1,5 +1,8 @@
 # Owner's physical tests
 
+All three passed on 2026-10-21 (v0.8.0 board): results in
+[owner-physical-tests-2026-10-21.md](owner-physical-tests-2026-10-21.md).
+
 Three checks only a person at the board can run. The board should be on the
 current firmware (main-53 or later, `tools/vios_firmware_ab.py --port … status`)
 with a matching SD copy. Stop any harness first (`pkill -f vios_harness.py`),

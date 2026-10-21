@@ -1,0 +1,94 @@
+{
+ "mode": "trial",
+ "rounds": [
+  {
+   "round": 0,
+   "port": "/dev/cu.usbserial-210",
+   "connect": "{'output': 'boot confirmed B\\r\\n\\r\\nVIOS v0.8 / Forth 24 / Agon Light 2\\r\\n(c) 2026 Alessandro Iob\\r\\nvios> \\r\\n\\r\\nok\\r",
+   "verify": {
+    "boot_status": "boot confirmed B candidate NONE state CLEAN current B generation 19",
+    "confirmed": [
+     "manifest B confirmed modules 5 crc32 2862788777"
+    ],
+    "packages": {},
+    "problems": []
+   },
+   "completed": 13,
+   "cut": "ToolError: [Errno 6] Device not configured"
+  },
+  {
+   "round": 1,
+   "port": "/dev/cu.usbserial-210",
+   "connect": "{'output': 'boot trial confirmed A\\r\\n\\r\\nVIOS v0.8 / Forth 24 / Agon Light 2\\r\\n(c) 2026 Alessandro Iob\\r\\nvios> \\r\\n\\r",
+   "verify": {
+    "boot_status": "boot confirmed A candidate NONE state CLEAN current A generation 35",
+    "confirmed": [
+     "manifest A confirmed modules 5 crc32 2862788777"
+    ],
+    "packages": {},
+    "problems": []
+   },
+   "completed": 1,
+   "cut": "ToolError: read failed: [Errno 6] Device not configured"
+  },
+  {
+   "round": 2,
+   "port": "/dev/cu.usbserial-210",
+   "connect": "{'output': 'boot trial confirmed B\\r\\n\\r\\nVIOS v0.8 / Forth 24 / Agon Light 2\\r\\n(c) 2026 Alessandro Iob\\r\\nvios> \\r\\n\\r",
+   "verify": {
+    "boot_status": "boot confirmed B candidate NONE state CLEAN current B generation 39",
+    "confirmed": [
+     "manifest B confirmed modules 5 crc32 2862788777"
+    ],
+    "packages": {},
+    "problems": []
+   },
+   "completed": 2,
+   "cut": "ToolError: read failed: [Errno 6] Device not configured"
+  },
+  {
+   "round": 3,
+   "port": "/dev/cu.usbserial-210",
+   "connect": "{'output': 'boot trial confirmed A\\r\\n\\r\\nVIOS v0.8 / Forth 24 / Agon Light 2\\r\\n(c) 2026 Alessandro Iob\\r\\nvios> \\r\\n\\r",
+   "verify": {
+    "boot_status": "boot confirmed A candidate NONE state CLEAN current A generation 44",
+    "confirmed": [
+     "manifest A confirmed modules 5 crc32 2862788777"
+    ],
+    "packages": {},
+    "problems": []
+   },
+   "completed": 3,
+   "cut": "ToolError: read failed: [Errno 6] Device not configured"
+  },
+  {
+   "round": 4,
+   "port": "/dev/cu.usbserial-210",
+   "connect": "{'output': 'boot trial confirmed B\\r\\n\\r\\nVIOS v0.8 / Forth 24 / Agon Light 2\\r\\n(c) 2026 Alessandro Iob\\r\\nvios> \\r\\n\\r",
+   "verify": {
+    "boot_status": "boot confirmed B candidate NONE state CLEAN current B generation 51",
+    "confirmed": [
+     "manifest B confirmed modules 5 crc32 2862788777"
+    ],
+    "packages": {},
+    "problems": []
+   },
+   "completed": 2,
+   "cut": "ToolError: read failed: [Errno 6] Device not configured"
+  },
+  {
+   "round": 5,
+   "port": "/dev/cu.usbserial-210",
+   "connect": "{'output': 'boot trial confirmed A\\r\\n\\r\\nVIOS v0.8 / Forth 24 / Agon Light 2\\r\\n(c) 2026 Alessandro Iob\\r\\nvios> \\r\\n\\r",
+   "verify": {
+    "boot_status": "boot confirmed A candidate NONE state CLEAN current A generation 56",
+    "confirmed": [
+     "manifest A confirmed modules 5 crc32 2862788777"
+    ],
+    "packages": {},
+    "problems": []
+   }
+  }
+ ],
+ "passed": true
+}
