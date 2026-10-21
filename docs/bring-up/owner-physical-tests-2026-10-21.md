@@ -21,3 +21,24 @@ release package), boot slot B with HELLO's autorun retired.
 
 The HELLO demo's heartbeat interfered with typing; its autorun was retired
 first ([vios-hello-autorun-retired-2026-10-21.md](vios-hello-autorun-retired-2026-10-21.md)).
+
+## 2. No boot SD card: passed
+
+With the card out, the screen showed MOS's own `could not find path` and
+`No SD card present *`, then:
+
+    VIOS: no boot SD card, or no viosboot on it.
+    Insert the VIOS SD card and reset the board
+
+The USB boot log of the same power-on (`owner-physical-tests-2026-10-21/no-sd/no-sd-02.json`,
+captured with `tools/vios_coldboot_capture.py`):
+
+    2.205 s  BOOT VIOS v0.8 (c) 2026 Alessandro Iob
+    2.205 s  BOOT VIOS VDP 1.04 mux-v1 zdi-edge 1us
+    2.264 s  BOOT user mode: no ZDI; MOS and its stub load the resident
+    2.423 s  MOS: Agon Platform MOS Version 3.0.2 Arthur
+    2.474 s  MOS: Could not find path
+    12.314 s BOOT no stub request: insert the boot SD
+
+(`no-sd-01` is a power blip during the replug with no data.) With the card
+back in, VIOS booted normally.

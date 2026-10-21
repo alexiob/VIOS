@@ -1,0 +1,16 @@
+{
+ "run": 1,
+ "label": "no-sd",
+ "mode": "vanish",
+ "wall_start": "2026-10-21T12:25:53",
+ "t0": "usb port reappeared",
+ "opened_at": 0.032,
+ "first_byte": null,
+ "raw_bytes": 0,
+ "frame_errors": 0,
+ "milestones": {},
+ "events": [],
+ "console": [],
+ "outcome": "port lost: SerialException",
+ "class": "interrupted"
+}

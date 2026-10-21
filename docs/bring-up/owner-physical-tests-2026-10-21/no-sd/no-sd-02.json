@@ -1,0 +1,59 @@
+{
+ "run": 2,
+ "label": "no-sd",
+ "mode": "vanish",
+ "wall_start": "2026-10-21T12:26:04",
+ "t0": "usb port reappeared",
+ "opened_at": 0.024,
+ "first_byte": 0.353,
+ "raw_bytes": 690,
+ "frame_errors": 1,
+ "milestones": {
+  "esp_banner": 2.205,
+  "firmware": 2.205,
+  "user_mode": 2.264,
+  "mos_answered": 2.264,
+  "mos_banner": 2.423
+ },
+ "events": [
+  [
+   2.205,
+   "BOOT VIOS v0.8 (c) 2026 Alessandro Iob"
+  ],
+  [
+   2.205,
+   "BOOT VIOS VDP 1.04 mux-v1 zdi-edge 1us"
+  ],
+  [
+   2.205,
+   "BOOT retained failures 0"
+  ],
+  [
+   2.205,
+   "FIRMWARE app0 valid"
+  ],
+  [
+   2.264,
+   "BOOT user mode: no ZDI; MOS and its stub load the resident"
+  ],
+  [
+   2.264,
+   "BOOT link: MOS answered at the internal rate"
+  ],
+  [
+   2.423,
+   "MOS: Agon Platform MOS Version 3.0.2 Arthur"
+  ],
+  [
+   2.474,
+   "MOS: Could not find path"
+  ],
+  [
+   12.314,
+   "BOOT no stub request: insert the boot SD"
+  ]
+ ],
+ "console": [],
+ "outcome": "timeout",
+ "class": "failed"
+}
