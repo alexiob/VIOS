@@ -9,6 +9,8 @@ on the SD card.
 
 ![The VIOS desktop right after boot: the Console window on the dithered Smalltalk desktop](media/desktop.png)
 
+**Source code, releases and issues:** [github.com/alexiob/VIOS](https://github.com/alexiob/VIOS)
+
 This manual covers building VIOS from source, installing it, setting it up and
 using it: the console, the Forth language as VIOS implements it, modules,
 tasks, files and devices, the GUI and its tools, sound, and the host tools. It

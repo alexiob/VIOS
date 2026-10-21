@@ -34,7 +34,8 @@ VERSION = hashlib.sha256(b''.join((ASSETS / f).read_bytes() for f in ('vios.css'
 # The VIOS release the manual describes (the VERSION file), for the status line.
 VIOS_VERSION = (ROOT / 'VERSION').read_text().strip() if (ROOT / 'VERSION').is_file() else ''
 AUTHOR, AUTHOR_SITE = 'Alessandro Iob', 'https://iob.dev'
-LICENSE_URL = 'https://github.com/alexiob/VIOS/blob/main/LICENSE'
+REPO_URL = 'https://github.com/alexiob/VIOS'
+LICENSE_URL = REPO_URL + '/blob/main/LICENSE'
 
 
 # ---------------------------------------------------------------- font
@@ -229,7 +230,8 @@ def page(pid, title, body, chapters, prev, nxt):
     <a href="VIOS-MANUAL.md"><span class="mn">M</span>arkdown</a>
     <button id="style" type="button" title="Switch between the Smalltalk and Turbo Vision styles"><span class="mn">S</span>tyle</button>
   </nav>
-  <a class="home" href="{AUTHOR_SITE}" title="{AUTHOR}'s website"><span class="mn">i</span>ob.dev</a>
+  <a class="home" href="{REPO_URL}" title="VIOS source code, releases and issues on GitHub"><span class="mn">G</span>itHub</a>
+  <a href="{AUTHOR_SITE}" title="{AUTHOR}'s website"><span class="mn">i</span>ob.dev</a>
 </header>
 <div class="desktop">
   <aside class="window contents-window">
