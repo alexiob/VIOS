@@ -42,7 +42,7 @@
  *  61  menu n title*n count item(u16)*count  define a menu (items: command, FFFF separator,
  *                                        FE00|menu submenu); menu 0 is the bar / world menu
  *  62  cmd(u16) flags                    command state (enabled 2, checked 4, status line 8)
- *  70  target id prop from(s16) to(s16) ms(u16) easing   tween (target 0 window, 1 sprite;
+ *  70  target id prop from(s16) to(s16) ms(u16) easing   tween (target 0 window, 1 sprite, 2 canvas;
  *                                        prop 0 x, 1 y, 2 scroll row, 3 scroll col;
  *                                        easing 0 linear, 1 in-out, 2 out, 3 spring)
  *  71  target id prop                    stop a tween where it is
@@ -79,16 +79,36 @@
  *  91  id count(u16)                     list length (u16)
  *  92  id k (n ch*n)*k                   append k rows to a list
  *  93  id n width*n                      table column widths (n <= 8, 0: plain list)
+ *  G5 canvases (vds_canvas.h; coordinates s16, canvas pixels unless noted):
+ *  C0  id surface x y w h bg flags       create/replace a canvas at surface pixel (x, y), x a
+ *                                        multiple of 8 (flags 1 visible, 2 clear: bg shows the cells)
+ *  C1  id x y                            move a canvas on its surface
+ *  C2  id flags                          canvas flags
+ *  C3  id                                delete a canvas
+ *  C4  id item kind colour fields        set an item: 1 dot x y; 2 line x0 y0 x1 y1; 3 rect,
+ *                                        4 bar, 5 oval, 6 disc x y w h; 7 text x y n ch*n (n <= 20);
+ *                                        8 icon x y bitmap(u8); 9 stipple x y w h colour2(u8)
+ *  C5  id item                           delete an item (255: all)
+ *  C6  id item dx dy                     move an item
+ *  C7  id item colour                    recolour an item
+ *  C8  bitmap w h transparent            define bitmap 0..23 (pixels from the bitmap pool)
+ *  C9  bitmap offset(u16) n byte*n       bitmap pixel data
+ *  CA  id x y                            reply CA id item x y: topmost item there (255 none)
+ *  CB  id                                reply CB id used flags surface x y w h items bytes(u32)
+ *  CC  id item                           reply CC id item kind colour fields (as C4; kind 0: none)
  */
 #ifndef VIOS_VDS_PROTO_H
 #define VIOS_VDS_PROTO_H
 #include "vds.h"
+#include "vds_canvas.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #define VDS_PROTO_POOL 4096             /* sprite pixel bytes */
+#define VDS_PROTO_BITMAP_POOL 16384     /* uploaded bitmap pixel bytes */
+#define VDS_PROTO_BITMAPS 24            /* CPU bitmap ids 0..23; 24..31 are the built-in icons */
 #define VDS_PROTO_WINDOWS 27            /* CPU window ids 0..26 */
 #define VDS_PROTO_SURFACES 11           /* CPU surface ids 0..10 */
 #define VDS_PROTO_HOLD_MS 33            /* uncommitted changes show after this */
@@ -109,6 +129,11 @@ typedef struct vds_proto {
     void *ctx;
     uint8_t pool[VDS_PROTO_POOL];
     uint16_t pool_used, sprite_off[VDS_MAX_SPRITES], sprite_len[VDS_MAX_SPRITES];
+    /* Canvas memory for canvas id (vds_canvas_bytes); NULL refuses canvases.
+     * Set after vds_proto_init (PSRAM on the device). */
+    void *(*canvas_mem)(void *ctx, uint8_t id, uint32_t bytes);
+    uint8_t bitmap_pool[VDS_PROTO_BITMAP_POOL];
+    uint16_t bitmap_used, bitmap_off[VDS_PROTO_BITMAPS], bitmap_len[VDS_PROTO_BITMAPS];
     uint8_t more_ok, more_id, more_col, more_row;
     uint8_t raw, hold, errors, desync, event_seq;
     uint16_t epoch, generation;
@@ -138,9 +163,9 @@ void vds_proto_init(vds_proto *p, vds *v, vds_cell *(*cells)(void *, uint8_t, ui
                     void (*send)(void *, uint8_t, const uint8_t *, uint8_t), void *ctx);
 /* Apply one E4 payload. Returns 1 if applied, 0 if rejected as malformed. */
 int vds_proto_batch(vds_proto *p, const uint8_t *payload, size_t len);
-/* Per vertical blank: advance time and compose within the budget unless
- * changes are held for a COMMIT or the screen is raw. Returns vds_frame's
- * result (1 when nothing is left). */
+/* Per vertical blank: advance time, rasterise dirty canvases and compose
+ * within the budget (canvases take up to half of it first) unless changes are
+ * held for a COMMIT or the screen is raw. Returns 1 when nothing is left. */
 int vds_proto_frame(vds_proto *p, uint32_t elapsed_ms, uint32_t budget);
 /* With a time budget too (vds_frame_within). */
 int vds_proto_frame_within(vds_proto *p, uint32_t elapsed_ms, uint32_t budget, uint32_t budget_us);

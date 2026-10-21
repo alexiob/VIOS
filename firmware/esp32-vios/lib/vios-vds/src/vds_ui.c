@@ -627,6 +627,7 @@ static int tween_target_ok(vds_ui *u, uint8_t target, uint8_t id) {
     vds *v = core(u);
     if (target == VDS_TWEEN_WINDOW) return id < VDS_UI_FIRST_WINDOW && v->windows[id].used;
     if (target == VDS_TWEEN_SPRITE) return id < VDS_MAX_SPRITES && v->sprites[id].used;
+    if (target == VDS_TWEEN_CANVAS) return id < VDS_MAX_CANVASES && v->canvases[id].used;
     return 0;
 }
 
@@ -637,6 +638,11 @@ static void tween_apply(vds_ui *u, const vds_tween *t, int32_t value) {
     if (t->target == VDS_TWEEN_SPRITE) {
         const vds_sprite *s = &v->sprites[t->id];
         vds_sprite_move(v, t->id, t->prop == VDS_PROP_X ? (int16_t)value : s->x, t->prop == VDS_PROP_Y ? (int16_t)value : s->y);
+        return;
+    }
+    if (t->target == VDS_TWEEN_CANVAS) {                    /* canvas x stays a multiple of 8 */
+        const vds_canvas *c = &v->canvases[t->id];
+        vds_canvas_move(v, t->id, t->prop == VDS_PROP_X ? (int16_t)(value & ~7) : c->x, t->prop == VDS_PROP_Y ? (int16_t)value : c->y);
         return;
     }
     const vds_window *w = &v->windows[t->id];
@@ -656,7 +662,7 @@ static void tween_done(vds_ui *u, vds_tween *t) {
 
 int vds_ui_animate(vds_ui *u, uint8_t target, uint8_t id, uint8_t prop, int16_t from, int16_t to, uint16_t ms, uint8_t easing) {
     if (!tween_target_ok(u, target, id) || prop > VDS_PROP_SCROLL_COL || easing > VDS_EASE_SPRING ||
-        (target == VDS_TWEEN_SPRITE && prop > VDS_PROP_Y)) return 0;
+        (target != VDS_TWEEN_WINDOW && prop > VDS_PROP_Y)) return 0;
     vds_tween *slot = 0;
     for (unsigned i = 0; i < VDS_MAX_TWEENS && !slot; ++i)
         if (u->tweens[i].used && u->tweens[i].target == target && u->tweens[i].id == id && u->tweens[i].prop == prop) slot = &u->tweens[i];
@@ -721,6 +727,20 @@ void vds_ui_pointer(vds_ui *u, int16_t x, int16_t y, uint8_t buttons) {
     memcpy(all, args, 7);
     all[7] = buttons;
     vds_proto_event(u->p, VDS_EVENT_POINTER, id, all, sizeof all);
+    if (press && id != VDS_NONE && part == VDS_PART_CLIENT) {   /* the topmost canvas under a press */
+        const vds_window *w = &v->windows[id];
+        for (int k = VDS_MAX_CANVASES - 1; k >= 0; --k) {
+            const vds_canvas *c = &v->canvases[k];
+            vds_rect r = vds_canvas_on_window(v, (uint8_t)k, id);
+            if (!c->used || (c->flags & (VDS_CV_VISIBLE | VDS_CV_READY)) != (VDS_CV_VISIBLE | VDS_CV_READY) ||
+                x < r.x || x >= r.x + r.w || y < r.y || y >= r.y + r.h) continue;
+            int cx = x - (w->x + c->x - w->scroll_col * 8), cy = y - (w->y + c->y - w->scroll_row * 8);
+            uint8_t ev[5] = {(uint8_t)cx, (uint8_t)((uint16_t)cx >> 8), (uint8_t)cy, (uint8_t)((uint16_t)cy >> 8),
+                             vds_canvas_hit(v, (uint8_t)k, cx, cy)};
+            vds_proto_event(u->p, VDS_EVENT_CANVAS, (uint8_t)k, ev, sizeof ev);
+            break;
+        }
+    }
 }
 
 static int pointer_key(vds_ui *u, uint8_t ascii, uint8_t modifiers, uint8_t vk) {

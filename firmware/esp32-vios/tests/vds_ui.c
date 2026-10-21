@@ -23,7 +23,7 @@ static void send(void *ctx, uint8_t code, const uint8_t *d, uint8_t n) {
     (void)ctx;
     if (code == VDS_PACKET_EVENT && ev_n < 64) { memset(ev[ev_n], 0, 32); memcpy(ev[ev_n++], d, n); }
 }
-static void finish(void) { for (int i = 0; i < 1000; ++i) if (vds_frame(&v, UINT32_MAX)) return; assert(0); }
+static void finish(void) { for (int i = 0; i < 1000; ++i) { vds_canvas_prepare(&v, UINT32_MAX); if (vds_frame(&v, UINT32_MAX) && !vds_canvas_pending(&v)) return; } assert(0); }
 static void matches_full_render(void) {
     finish();
     v.rows = rows_b; vds_damage_all(&v); finish(); v.rows = rows_a;
@@ -201,6 +201,29 @@ int main(int argc, char **argv) {
     e = last_event(VDS_EVENT_POINTER);
     assert(e[2] == VDS_NONE && e[9] == 0 && u.focus == 1);
     matches_full_render();
+    /* G5: a press on a canvas also reports the canvas, its pixel and the item there. */
+    static uint8_t canvas_mem[VDS_CANVAS_ITEMS * sizeof(vds_item) + 16 * 16];
+    assert(vds_canvas_create(&v, 0, 0, 16, 8, 32, 16, 3, VDS_CV_VISIBLE, canvas_mem));
+    vds_item bar = {VDS_ITEM_BAR, 1, 0, 0, 0, 8, 8, 8, ""};
+    assert(vds_canvas_set(&v, 0, 4, &bar));
+    finish();
+    ev_n = 0;
+    click[5] = 1;
+    assert(vds_proto_batch(&p, click, sizeof click));
+    e = last_event(VDS_EVENT_CANVAS);
+    assert(e && e[2] == 0 && s16(e + 3) == 4 && s16(e + 5) == 9 && e[7] == 4);
+    click[5] = 0;
+    assert(vds_proto_batch(&p, click, sizeof click));
+    /* Canvas tweens: x and y only, x snapped to 8. */
+    assert(vds_ui_animate(&u, VDS_TWEEN_CANVAS, 0, VDS_PROP_X, 16, 50, 0, VDS_EASE_LINEAR) && v.canvases[0].x == 48);
+    assert(vds_ui_animate(&u, VDS_TWEEN_CANVAS, 0, VDS_PROP_Y, 8, 40, 100, VDS_EASE_LINEAR));
+    for (int i = 0; i < 10; ++i) vds_proto_frame(&p, 20, UINT32_MAX);
+    assert(v.canvases[0].y == 40 && last_event(VDS_EVENT_ANIMDONE));
+    assert(!vds_ui_animate(&u, VDS_TWEEN_CANVAS, 0, VDS_PROP_SCROLL_ROW, 0, 1, 10, 0) && !vds_ui_animate(&u, VDS_TWEEN_CANVAS, 1, VDS_PROP_X, 0, 1, 10, 0));
+    matches_full_render();
+    assert(vds_canvas_delete(&v, 0));
+    matches_full_render();
+    assert(vds_proto_batch(&p, desk, sizeof desk) && u.px == 5 && u.py == 5);   /* pointer back where it was */
     assert(key(0, VDS_MOD_CTRL, VDS_VK_F12) && u.pointer_mode);
     assert(key(0, 0, VDS_VK_RIGHT) && u.px == 13 && key(0, VDS_MOD_SHIFT, VDS_VK_DOWN) && u.py == 6);
     for (int i = 0; i < 30; ++i) key(0, 0, VDS_VK_RIGHT);

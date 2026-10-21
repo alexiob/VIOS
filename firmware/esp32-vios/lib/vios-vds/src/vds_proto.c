@@ -62,6 +62,25 @@ static size_t op_size(const uint8_t *b, size_t n) {
         for (unsigned k = 0; k < b[2]; ++k) { if (s >= n) return 0; s += 1u + b[s]; }
         break;
     case 0x93: s = n < 3 ? 0 : 3u + b[2]; break;
+    case 0xC0: s = 13; break;
+    case 0xC1: case 0xCA: s = 6; break;
+    case 0xC2: case 0xC5: case 0xCC: s = 3; break;
+    case 0xC3: case 0xCB: s = 2; break;
+    case 0xC4:
+        if (n < 5) return 0;
+        switch (b[3]) {
+        case VDS_ITEM_DOT: s = 9; break;
+        case VDS_ITEM_LINE: case VDS_ITEM_RECT: case VDS_ITEM_BAR: case VDS_ITEM_OVAL: case VDS_ITEM_DISC: s = 13; break;
+        case VDS_ITEM_TEXT: s = n < 10 ? 0 : 10u + b[9]; break;
+        case VDS_ITEM_ICON: s = 10; break;
+        case VDS_ITEM_STIPPLE: s = 14; break;
+        default: s = 0; break;
+        }
+        break;
+    case 0xC6: s = 7; break;
+    case 0xC7: s = 4; break;
+    case 0xC8: s = 5; break;
+    case 0xC9: s = n < 5 ? 0 : 5u + b[4]; break;
     default: s = 0; break;
     }
     return s && s <= n ? s : 0;
@@ -135,6 +154,7 @@ void vds_proto_init(vds_proto *p, vds *v, vds_cell *(*cells)(void *, uint8_t, ui
     p->cells = cells;
     p->send = send;
     p->ctx = ctx;
+    vds_canvas_icons(v);
 }
 
 
@@ -150,6 +170,11 @@ static void reset(vds_proto *p) {
     p->pool_used = 0;
     memset(p->sprite_off, 0, sizeof p->sprite_off);
     memset(p->sprite_len, 0, sizeof p->sprite_len);
+    for (uint8_t i = 0; i < VDS_MAX_CANVASES; ++i) vds_canvas_delete(v, i);
+    for (uint8_t i = 0; i < VDS_PROTO_BITMAPS; ++i) vds_bitmap_undefine(v, i);
+    p->bitmap_used = 0;
+    memset(p->bitmap_off, 0, sizeof p->bitmap_off);
+    memset(p->bitmap_len, 0, sizeof p->bitmap_len);
     vds_set_snap(v, 8);
     vds_set_style(v, VDS_STYLE_SMALLTALK);
     if (p->ui_reset) p->ui_reset(p->ui);
@@ -171,6 +196,120 @@ static int define_sprite(vds_proto *p, const uint8_t *b) {
     return vds_sprite_define(p->v, id, w, h, b[4], b[5], tr, p->pool + p->sprite_off[id]);
 }
 
+/* ------------------------------------------------------------ canvases */
+
+/* Item fields as on the wire (after `kind colour`), shared by C4 and CC. */
+static size_t item_encode(const vds_item *it, uint8_t *b) {
+    put16(b, (uint16_t)it->a);
+    put16(b + 2, (uint16_t)it->b);
+    switch (it->kind) {
+    case VDS_ITEM_DOT: return 4;
+    case VDS_ITEM_TEXT: b[4] = it->n; memcpy(b + 5, it->text, it->n); return 5u + it->n;
+    case VDS_ITEM_ICON: b[4] = it->extra; return 5;
+    }
+    put16(b + 4, (uint16_t)it->c);
+    put16(b + 6, (uint16_t)it->d);
+    if (it->kind == VDS_ITEM_STIPPLE) { b[8] = it->extra; return 9; }
+    return 8;
+}
+
+static int set_item(vds_proto *p, const uint8_t *b) {
+    vds_item it;
+    memset(&it, 0, sizeof it);
+    it.kind = b[3];
+    it.colour = b[4];
+    it.a = s16(b + 5);
+    it.b = s16(b + 7);
+    switch (it.kind) {
+    case VDS_ITEM_TEXT:
+        if (b[9] > VDS_CANVAS_TEXT_MAX) return 0;
+        it.n = b[9];
+        memcpy(it.text, b + 10, it.n);
+        break;
+    case VDS_ITEM_ICON: it.extra = b[9]; break;
+    case VDS_ITEM_DOT: break;
+    default:
+        it.c = s16(b + 9);
+        it.d = s16(b + 11);
+        if (it.kind == VDS_ITEM_STIPPLE) it.extra = b[13];
+    }
+    return vds_canvas_set(p->v, b[1], b[2], &it);
+}
+
+static int create_canvas(vds_proto *p, const uint8_t *b) {
+    int16_t w = s16(b + 7), h = s16(b + 9);
+    uint32_t bytes = vds_canvas_bytes(w, h);
+    if (b[1] >= VDS_MAX_CANVASES || b[2] >= VDS_PROTO_SURFACES || !bytes || w > VDS_MAX_WIDTH || h > 480 || !p->canvas_mem)
+        return 0;
+    void *memory = p->canvas_mem(p->ctx, b[1], bytes);
+    return memory && vds_canvas_create(p->v, b[1], b[2], s16(b + 3), s16(b + 5), w, h, b[11], b[12], memory);
+}
+
+static int define_bitmap(vds_proto *p, const uint8_t *b) {
+    uint8_t id = b[1], w = b[2], h = b[3], tr = b[4];
+    if (id >= VDS_PROTO_BITMAPS || !w || !h || w > VDS_BITMAP_MAX || h > VDS_BITMAP_MAX || tr > 15) return 0;
+    uint16_t size = (uint16_t)((w + 1u) / 2 * h);
+    if (p->bitmap_len[id] < size) {                     /* grow: take fresh pool space */
+        if (p->bitmap_used + size > VDS_PROTO_BITMAP_POOL) return 0;
+        p->bitmap_off[id] = p->bitmap_used;
+        p->bitmap_used = (uint16_t)(p->bitmap_used + size);
+        p->bitmap_len[id] = size;
+    }
+    memset(p->bitmap_pool + p->bitmap_off[id], tr << 4 | tr, size);
+    return vds_bitmap_define(p->v, id, w, h, tr, p->bitmap_pool + p->bitmap_off[id]);
+}
+
+static int canvas_op(vds_proto *p, const uint8_t *b) {
+    vds *v = p->v;
+    switch (b[0]) {
+    case 0xC0: return create_canvas(p, b);
+    case 0xC1: return vds_canvas_move(v, b[1], s16(b + 2), s16(b + 4));
+    case 0xC2: return vds_canvas_flags(v, b[1], b[2]);
+    case 0xC3: return vds_canvas_delete(v, b[1]);
+    case 0xC4: return set_item(p, b);
+    case 0xC5: return vds_canvas_erase(v, b[1], b[2]);
+    case 0xC6: return vds_canvas_shift(v, b[1], b[2], s16(b + 3), s16(b + 5));
+    case 0xC7: return vds_canvas_ink(v, b[1], b[2], b[3]);
+    case 0xC8: return define_bitmap(p, b);
+    case 0xC9: {
+        uint8_t id = b[1];
+        uint16_t off = u16(b + 2);
+        if (id >= VDS_PROTO_BITMAPS || !v->bitmaps[id].used || (uint32_t)off + b[4] > p->bitmap_len[id]) return 0;
+        memcpy(p->bitmap_pool + p->bitmap_off[id] + off, b + 5, b[4]);
+        vds_bitmap_changed(v, id);
+        return 1;
+    }
+    case 0xCA: {
+        if (b[1] >= VDS_MAX_CANVASES || !v->canvases[b[1]].used) return 0;
+        uint8_t r[7] = {0xCA, b[1], vds_canvas_hit(v, b[1], s16(b + 2), s16(b + 4)), b[2], b[3], b[4], b[5]};
+        reply(p, r, sizeof r);
+        return 1;
+    }
+    case 0xCB: {
+        if (b[1] >= VDS_MAX_CANVASES) return 0;
+        const vds_canvas *c = &v->canvases[b[1]];
+        uint8_t r[18] = {0xCB, b[1], c->used, (uint8_t)(c->flags & ~VDS_CV_READY), c->surface};
+        unsigned items = 0;
+        for (unsigned i = 0; c->used && i < VDS_CANVAS_ITEMS; ++i) items += vds_canvas_item(v, b[1], (uint8_t)i) != 0;
+        put16(r + 5, (uint16_t)c->x); put16(r + 7, (uint16_t)c->y); put16(r + 9, (uint16_t)c->w); put16(r + 11, (uint16_t)c->h);
+        r[13] = (uint8_t)items;
+        put32(r + 14, c->used ? vds_canvas_bytes(c->w, c->h) : 0);
+        reply(p, r, sizeof r);
+        return 1;
+    }
+    case 0xCC: {
+        if (b[1] >= VDS_MAX_CANVASES || !v->canvases[b[1]].used || b[2] >= VDS_CANVAS_ITEMS) return 0;
+        const vds_item *it = vds_canvas_item(v, b[1], b[2]);
+        uint8_t r[VDS_REPLY_MAX] = {0xCC, b[1], b[2], 0};
+        size_t n = 4;
+        if (it) { r[3] = it->kind; r[4] = it->colour; n = 5 + item_encode(it, r + 5); }
+        reply(p, r, (uint8_t)n);
+        return 1;
+    }
+    }
+    return 0;
+}
+
 /* Ops whose window (b[1]) or surface argument the CPU may not name. */
 static int reserved(const uint8_t *b) {
     switch (b[0]) {
@@ -189,6 +328,7 @@ static int apply(vds_proto *p, const uint8_t *b) {
     uint8_t op = b[0];
     if (op != 0x10 && op != 0x11) p->more_ok = 0;
     if (reserved(b)) return 0;
+    if (op >= 0xC0 && op <= 0xCC) return canvas_op(p, b);
     if ((op >= 0x59 && op <= 0x62) || op == 0x70 || op == 0x71 || op == 0x7B || (op >= 0x80 && op <= 0x93))
         return p->ui_op ? p->ui_op(p->ui, b) : 0;
     switch (op) {
@@ -317,7 +457,8 @@ int vds_proto_batch(vds_proto *p, const uint8_t *b, size_t len) {
     for (size_t at = 0; at < len;) {
         size_t s = op_size(b + at, len - at);
         uint8_t op = b[at];
-        if (op != 0x30 && op != 0x31 && op != 0x32 && op != 0x33 && op != 0x36 && op != 0x89 && op != 0x8C && op != 0x8E && !p->hold) { p->hold = 1; p->held_ms = 0; }
+        if (op != 0x30 && op != 0x31 && op != 0x32 && op != 0x33 && op != 0x36 && op != 0x89 && op != 0x8C && op != 0x8E &&
+            op != 0xCA && op != 0xCB && op != 0xCC && !p->hold) { p->hold = 1; p->held_ms = 0; }
         if (!apply(p, b + at)) error(p, op, at);
         at += s;
         if (p->yield) p->yield(p->ctx);
@@ -338,5 +479,7 @@ int vds_proto_frame_within(vds_proto *p, uint32_t elapsed_ms, uint32_t budget, u
         if (p->held_ms < VDS_PROTO_HOLD_MS) return p->v->ndamage == 0;
         p->hold = 0;                                     /* a stalled client cannot hide output */
     }
-    return vds_frame_within(p->v, budget, budget_us);
+    uint32_t raster = vds_canvas_prepare(p->v, budget / 2);
+    int done = vds_frame_within(p->v, budget > raster ? budget - raster : 0, budget_us);
+    return done && !vds_canvas_pending(p->v);
 }
