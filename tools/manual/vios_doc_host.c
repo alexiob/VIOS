@@ -5,6 +5,8 @@
  *   vios_doc_host ROOT --inspect      one line per word: name TAB kind TAB source
  *   vios_doc_host ROOT --check < IN   evaluate blocks separated by lines
  *                                     "#BLOCK name"; report each result
+ * GUI batches (VDU 23,0,E4) go to the real ESP display server (lib/vios-vds)
+ * as in tests/vios_tools_host.c, so UI words that wait for replies work.
  * Built and run by tools/vios_manual.py. */
 #include <assert.h>
 #include <stdio.h>
@@ -47,9 +49,9 @@ static unsigned char vdp_setup[64];static size_t vdp_setup_length;
 /* Order of display mode changes ('M') and console view commands ('0'..'2'). */
 static char vdp_trace[512];static unsigned vdp_trace_length;
 static void trace_vdp(char c){if(vdp_trace_length+1<sizeof vdp_trace){vdp_trace[vdp_trace_length++]=c;vdp_trace[vdp_trace_length]=0;}}
-void platform_vdp_send(const void *data,size_t size){const unsigned char *bytes=data;if((size>=2&&bytes[0]==22)||(size==4&&bytes[0]==23&&bytes[1]==0&&bytes[2]==0xE6)){vdp_setup_length=0;++vdp_modes;trace_vdp('M');}
+static void stub_vdp_send(const void *data,size_t size){const unsigned char *bytes=data;if((size>=2&&bytes[0]==22)||(size==4&&bytes[0]==23&&bytes[1]==0&&bytes[2]==0xE6)){vdp_setup_length=0;++vdp_modes;trace_vdp('M');}
  if(size==4&&bytes[0]==23&&bytes[1]==0&&bytes[2]==0xE5)trace_vdp((char)('0'+bytes[3]));if(vdp_setup_length+size<=sizeof vdp_setup){memcpy(vdp_setup+vdp_setup_length,data,size);vdp_setup_length+=size;}++vdp_calls;if(size>vdp_max)vdp_max=(unsigned)size;}
-int platform_vdp_request(const void *command,size_t length,unsigned char reply,void *data,size_t capacity,unsigned *actual){
+static int stub_vdp_request(const void *command,size_t length,unsigned char reply,void *data,size_t capacity,unsigned *actual){
  (void)command;(void)length;unsigned char *p=data;
  if(reply==0x86&&capacity>=8){unsigned char mode[]={128,2,224,1,80,60,16,0};memcpy(p,mode,8);*actual=8;return 1;}
  if(reply==0x83&&capacity>=1){++vdp_fences;if(vdp_fence_fail)return 0;p[0]='V';*actual=1;return 1;}
@@ -86,7 +88,7 @@ static int host_serve(const unsigned char *r,size_t length,unsigned char *o,unsi
 unsigned platform_console_dropped(void){return 0;}
 void platform_boot_ready(void){++ready;}
 static unsigned esp_epoch_fake;unsigned platform_vdp_epoch(void){return esp_epoch_fake;}
-int platform_vdp_nudged(void){return 0;}
+
 void (*platform_console_divert(void (*sink)(unsigned char)))(unsigned char){(void)sink;return 0;}
 void platform_boot_trial(void){}
 int storage_init(void){return 1;}
@@ -116,14 +118,43 @@ int storage_stream_read(unsigned s,void *b,size_t n,size_t *got){*got=fread(b,1,
 int storage_stream_write(unsigned s,const void *b,size_t n,size_t *put){*put=fwrite(b,1,n,streams[s]);return *put==n;}
 int storage_stream_close(unsigned s){if(s>=STORAGE_STREAMS||!streams[s])return 0;int ok=!fclose(streams[s]);streams[s]=NULL;return ok;}
 static unsigned record_previous(void){unsigned char a[32],b[32];size_t an=0,bn=0;int av=storage_read_file("/VIOS/BOOT0.REC",a,32,&an)&&an==32,bv=storage_read_file("/VIOS/BOOT1.REC",b,32,&bn)&&bn==32;assert(av||bv);return !av?b[6]:!bv?a[6]:vios_get32(a+12)>vios_get32(b+12)?a[6]:b[6];}
+/* The ESP side: the real display server behind the stubbed VDP link. */
+#include "vds_ui.h"
+static uint8_t fb[480][320],*fb_rows[480],font[256*8];
+static vds_cell cell_store[VDS_MAX_SURFACES][80*60];
+static vds esp_v;static vds_proto esp_p;static vds_ui esp_u;
+static uint8_t esp_reply[32],esp_reply_n,esp_reply_valid;static int esp_nudged;
+static vds_cell *esp_cells(void *ctx,uint8_t id,uint16_t n){(void)ctx;return id<VDS_MAX_SURFACES&&n<=80*60?cell_store[id]:0;}
+static void esp_send(void *ctx,uint8_t code,const uint8_t *d,uint8_t n){(void)ctx;if(code==VDS_PACKET_EVENT){esp_nudged=1;return;}if(n>sizeof esp_reply)n=sizeof esp_reply;memcpy(esp_reply,d,n);esp_reply_n=n;esp_reply_valid=1;}
+static void esp_frames(void){for(int i=0;i<4;++i)vds_proto_frame(&esp_p,20,UINT32_MAX);}
+static int esp_batches(const unsigned char *b,size_t n){            /* whole 23,0,E4,len,payload packets */
+ if(n<4||b[0]!=23||b[1]!=0||b[2]!=0xE4)return 0;
+ for(size_t i=0;i+4<=n&&b[i]==23&&b[i+1]==0&&b[i+2]==0xE4;i+=4u+b[i+3])if(i+4u+b[i+3]<=n)vds_proto_batch(&esp_p,b+i+4,b[i+3]);
+ return 1;
+}
+void platform_vdp_send(const void *data,size_t size){if(!esp_batches(data,size))stub_vdp_send(data,size);}
+int platform_vdp_request(const void *command,size_t length,unsigned char reply,void *data,size_t capacity,unsigned *actual){
+ if(reply!=0xF1)return stub_vdp_request(command,length,reply,data,capacity,actual);
+ esp_reply_valid=0;esp_batches(command,length);
+ if(!esp_reply_valid||esp_reply_n>capacity){*actual=0;return 0;}
+ memcpy(data,esp_reply,esp_reply_n);*actual=esp_reply_n;return 1;
+}
+int platform_vdp_nudged(void){int n=esp_nudged;esp_nudged=0;return n;}
+static void esp_init(const char *font_path){
+ FILE *f=fopen(font_path,"rb");if(!f||fread(font,1,sizeof font,f)!=sizeof font){fprintf(stderr,"font %s\n",font_path);exit(2);}fclose(f);
+ for(int y=0;y<480;++y)fb_rows[y]=fb[y];
+ if(!vds_init(&esp_v,fb_rows,640,480,font)){fprintf(stderr,"vds_init\n");exit(2);}
+ vds_proto_init(&esp_p,&esp_v,esp_cells,esp_send,0);vds_ui_init(&esp_u,&esp_p);
+}
 static void reset(void){forth_init();if(!vios_runtime_init()){fprintf(stderr,"runtime init: %s\n",forth_last_error());exit(2);}}
 /* Unused test hooks kept so the copied stubs compile unchanged. */
 static void unused(void){(void)vdp_max;(void)vdp_fences;(void)vdp_fence_fail;(void)timer_depth;(void)ready;(void)host_bad_reply;(void)host_online;(void)input_paused;(void)keyboard_route;(void)console_used;(void)record_previous;(void)queued_key;}
 static char input[1<<20];
 int main(int argc,char **argv){
  (void)unused;
- if(argc!=3||strlen(argv[1])>=sizeof root){fprintf(stderr,"usage: vios_doc_host ROOT --words|--check\n");return 2;}
- strcpy(root,argv[1]);reset();
+ if(argc<3||argc>4||strlen(argv[1])>=sizeof root){fprintf(stderr,"usage: vios_doc_host ROOT --words|--inspect|--check [FONT.bin]\n");return 2;}
+ strcpy(root,argv[1]);
+ esp_init(argc==4?argv[3]:"build/manual/font.bin");reset();
  if(!strcmp(argv[2],"--words")){printf("#WORDS");fflush(stdout);forth_eval("WORDS");printf("\n");return 0;}
  if(!strcmp(argv[2],"--inspect")){
   for(unsigned i=0;i<forth_word_count();++i){struct forth_word_info w;if(!forth_inspect_word(i,&w))continue;
@@ -136,7 +167,7 @@ int main(int argc,char **argv){
   char *name=p+7,*eol=strchr(name,'\n');if(!eol)break;*eol=0;
   char *body=eol+1,*next=strstr(body,"\n#BLOCK ");if(next)*next=0;
   printf("\n#RUN %s\n",name);fflush(stdout);
-  int ok=forth_eval(body);if(ok&&forth_compiling()){ok=0;}
+  int ok=forth_eval(body);if(ok&&forth_compiling()){ok=0;}esp_frames();
   printf("\n#RESULT %s %s %s\n",name,ok?"ok":"FAIL",ok?"":forth_last_error());fflush(stdout);
   if(!ok){failed=1;forth_eval("ABORT");}
   if(!next)break;p=next+1;
