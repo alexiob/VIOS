@@ -18,7 +18,7 @@ class WireTests(unittest.TestCase):
         if not source.exists():return
         cls.tmp=tempfile.TemporaryDirectory()
         shared=pathlib.Path(cls.tmp.name)/'wire.so'
-        subprocess.run(['cc','-std=c99','-pedantic','-Wall','-Wextra','-Werror','-fsanitize=undefined','-fPIC','-shared','-I'+str(ROOT/'include'),str(source),'-o',str(shared)],check=True)
+        subprocess.run(['cc','-std=c99','-pedantic','-Wall','-Wextra','-Werror','-fsanitize=undefined','-fsanitize-trap=undefined','-fPIC','-shared','-I'+str(ROOT/'include'),str(source),'-o',str(shared)],check=True)
         cls.lib=ctypes.CDLL(str(shared))
         cls.lib.vios_wire_crc32.argtypes=[ctypes.c_void_p,ctypes.c_size_t];cls.lib.vios_wire_crc32.restype=ctypes.c_uint32
         cls.lib.vios_wire_encode.argtypes=[ctypes.POINTER(Message),ctypes.c_void_p,ctypes.c_size_t];cls.lib.vios_wire_encode.restype=ctypes.c_size_t

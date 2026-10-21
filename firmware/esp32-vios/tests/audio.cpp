@@ -3,7 +3,8 @@
 #include <stdio.h>
 #include "vios_audio.h"
 
-static uint8_t *text(const char *s) { size_t n = strlen(s); uint8_t *t = (uint8_t *)malloc(n ? n : 1); memcpy(t, s, n); return t; }
+/* Like the VDU handler: an empty tune is sent as no buffer, which the engine never takes. */
+static uint8_t *text(const char *s) { size_t n = strlen(s); if (!n) return nullptr; uint8_t *t = (uint8_t *)malloc(n); memcpy(t, s, n); return t; }
 static int store(vios_audio *a, unsigned slot, const char *s) {
     uint8_t *t = text(s), *old;
     int ok = vios_audio_store(a, slot, t, (unsigned)strlen(s), &old);

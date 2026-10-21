@@ -18,6 +18,7 @@ def entry(seq, state=ab.UNDEFINED, crc=None):
 
 
 class FirmwareABTest(unittest.TestCase):
+    @unittest.skipUnless(PARTITIONS.exists(), 'the vendor firmware backup in .tools/ is local only (not in CI)')
     def test_partition_table_slots(self):
         table = ab.parse_partitions(PARTITIONS.read_bytes())
         self.assertEqual(ab.app_slots(table), ['app0', 'app1'])
