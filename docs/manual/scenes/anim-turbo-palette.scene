@@ -1,0 +1,19 @@
+# The command palette (Ctrl+K) and window cycling (F6) in the Turbo Vision style.
+include setup
+con 1 UI-STYLE
+prompt
+frame 600
+key k c
+frame 500
+ktype ins
+frame 700
+key RETURN
+frame 900
+ctrlshift w
+frame 900
+key F6
+frame 900
+key F6
+frame 900
+key F6
+frame 1500
