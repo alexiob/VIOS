@@ -238,10 +238,11 @@ static int set_item(vds_proto *p, const uint8_t *b) {
 
 static int create_canvas(vds_proto *p, const uint8_t *b) {
     int16_t w = s16(b + 7), h = s16(b + 9);
-    uint32_t bytes = vds_canvas_bytes(w, h);
-    if (b[1] >= VDS_MAX_CANVASES || b[2] >= VDS_PROTO_SURFACES || !bytes || w > VDS_MAX_WIDTH || h > 480 || !p->canvas_mem)
+    /* Everything is checked before the adapter is asked for memory: it may
+     * move the memory the existing canvas b[1] still uses. */
+    if (b[2] >= VDS_PROTO_SURFACES || !p->canvas_mem || !vds_canvas_valid(p->v, b[1], b[2], s16(b + 3), w, h, b[11], b[12]))
         return 0;
-    void *memory = p->canvas_mem(p->ctx, b[1], bytes);
+    void *memory = p->canvas_mem(p->ctx, b[1], vds_canvas_bytes(w, h));
     return memory && vds_canvas_create(p->v, b[1], b[2], s16(b + 3), s16(b + 5), w, h, b[11], b[12], memory);
 }
 

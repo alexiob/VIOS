@@ -249,15 +249,19 @@ static void show_change(vds *v, uint8_t id) {           /* what the screen shows
     if ((c->flags & (VDS_CV_VISIBLE | VDS_CV_READY)) == (VDS_CV_VISIBLE | VDS_CV_READY)) vds_damage_canvas(v, id, whole(c));
 }
 
-int vds_canvas_create(vds *v, uint8_t id, uint8_t surface, int16_t x, int16_t y, int16_t w, int16_t h,
-                      uint8_t bg, uint8_t flags, void *memory) {
-    if (id >= VDS_MAX_CANVASES || surface >= VDS_MAX_SURFACES || !memory || (x & 7) || bg > 15 ||
+int vds_canvas_valid(const vds *v, uint8_t id, uint8_t surface, int16_t x, int16_t w, int16_t h, uint8_t bg, uint8_t flags) {
+    if (id >= VDS_MAX_CANVASES || surface >= VDS_MAX_SURFACES || (x & 7) || bg > 15 ||
         w <= 0 || h <= 0 || w > VDS_MAX_WIDTH || h > 480 || (flags & ~(VDS_CV_VISIBLE | VDS_CV_CLEAR)))
         return 0;
     uint32_t raster = stride(w) * (uint32_t)h;
     for (uint8_t k = 0; k < VDS_MAX_CANVASES; ++k)
         if (k != id && v->canvases[k].used) raster += stride(v->canvases[k].w) * (uint32_t)v->canvases[k].h;
-    if (raster > VDS_CANVAS_RASTER_MAX) return 0;
+    return raster <= VDS_CANVAS_RASTER_MAX;
+}
+
+int vds_canvas_create(vds *v, uint8_t id, uint8_t surface, int16_t x, int16_t y, int16_t w, int16_t h,
+                      uint8_t bg, uint8_t flags, void *memory) {
+    if (!memory || !vds_canvas_valid(v, id, surface, x, w, h, bg, flags)) return 0;
     vds_canvas *c = &v->canvases[id];
     if (c->used) show_change(v, id);
     memset(memory, 0, ITEMS_BYTES);

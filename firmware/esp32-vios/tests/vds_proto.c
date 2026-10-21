@@ -22,8 +22,10 @@ static vds_cell *cells(void *ctx, uint8_t id, uint16_t count) {
 }
 
 static uint8_t canvas_a[VDS_MAX_CANVASES][VDS_CANVAS_ITEMS * sizeof(vds_item) + W / 2 * H], canvas_b[VDS_CANVAS_ITEMS * sizeof(vds_item) + 160 * 80];
+static unsigned canvas_mem_calls;
 static void *canvas_mem(void *ctx, uint8_t id, uint32_t bytes) {
     (void)ctx;
+    ++canvas_mem_calls;
     return id < VDS_MAX_CANVASES && bytes <= sizeof canvas_a[0] ? canvas_a[id] : 0;
 }
 
@@ -265,6 +267,14 @@ int main(int argc, char **argv) {
     begin(); b8(0xC0); b8(4); b8(VDS_PROTO_SURFACES); b16(0); b16(0); b16(8); b16(8); b8(0); b8(1); assert(send_batch());
     begin(); b8(0xC8); b8(VDS_ICON_FIRST); b8(4); b8(4); b8(15); assert(send_batch());          /* built-ins are read-only */
     assert(error_events == errors + 4);
+    /* A replacing create is checked in full before the adapter is asked for
+     * memory (an adapter may move the memory canvas 3 still uses). */
+    unsigned calls = canvas_mem_calls;
+    begin(); b8(0xC0); b8(3); b8(2); b16(12); b16(8); b16(320); b16(200); b8(3); b8(VDS_CV_VISIBLE); assert(send_batch());   /* x */
+    begin(); b8(0xC0); b8(3); b8(2); b16(16); b16(8); b16(320); b16(200); b8(16); b8(VDS_CV_VISIBLE); assert(send_batch());  /* bg */
+    begin(); b8(0xC0); b8(3); b8(2); b16(16); b16(8); b16(320); b16(200); b8(3); b8(8); assert(send_batch());               /* flags */
+    begin(); b8(0xC0); b8(3); b8(2); b16(16); b16(8); b16(641); b16(200); b8(3); b8(VDS_CV_VISIBLE); assert(send_batch());   /* size */
+    assert(canvas_mem_calls == calls && error_events == errors + 8 && va.canvases[3].w == 160);
     /* Reset drops canvases and uploaded bitmaps, keeps the built-in icons. */
     begin(); b8(0x34); assert(send_batch());
     assert(!va.canvases[3].used && !va.bitmaps[0].used && va.bitmaps[VDS_ICON_DISK].used && p.bitmap_used == 0);

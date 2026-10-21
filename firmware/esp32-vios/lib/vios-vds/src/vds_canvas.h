@@ -42,6 +42,10 @@ uint32_t vds_canvas_bytes(int16_t w, int16_t h);
  * 1 <= h <= 480, all rasters within VDS_CANVAS_RASTER_MAX. Drops the items. */
 int vds_canvas_create(vds *v, uint8_t id, uint8_t surface, int16_t x, int16_t y, int16_t w, int16_t h,
                       uint8_t bg, uint8_t flags, void *memory);
+/* Would vds_canvas_create accept these (given memory)? Check before asking
+ * the adapter for memory: an adapter may move the memory of an existing
+ * canvas id, which must then be replaced. */
+int vds_canvas_valid(const vds *v, uint8_t id, uint8_t surface, int16_t x, int16_t w, int16_t h, uint8_t bg, uint8_t flags);
 int vds_canvas_move(vds *v, uint8_t id, int16_t x, int16_t y);
 int vds_canvas_flags(vds *v, uint8_t id, uint8_t flags);       /* VDS_CV_VISIBLE | VDS_CV_CLEAR */
 int vds_canvas_delete(vds *v, uint8_t id);
