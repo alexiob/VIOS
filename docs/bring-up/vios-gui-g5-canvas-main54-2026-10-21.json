@@ -1,0 +1,147 @@
+{
+  "status": "failed",
+  "checks": {
+    "gui_on": {
+      "ok": true,
+      "detail": "GUI on windows 1 frames 1732 rows 34183 carried 624 errors 0 style 0 batch_max_us 0 batch_op 13 frame_max_us 9760 presents 17 deferred 0 forced 3 abandoned 0 present_us_max 9756 sync_frames_max 7 slow_us 9760 slow_px 0 slow_rows 0 slow_nd 0 slow_phase 2>0 ops_us 0 after_us 0 style_us 0 hold_us 0 wait_us 0 frame_wait 173 by loopTask at 400d8f72"
+    },
+    "picture_matches_host_replay": {
+      "ok": true,
+      "detail": []
+    },
+    "picture_not_blank": {
+      "ok": true,
+      "detail": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14
+      ]
+    },
+    "icons_drawn": {
+      "ok": true,
+      "detail": [
+        0,
+        2,
+        3,
+        0,
+        0,
+        0,
+        3,
+        3
+      ]
+    },
+    "picture_after_edits": {
+      "ok": true,
+      "detail": []
+    },
+    "canvas_event": {
+      "ok": false,
+      "detail": [
+        [
+          -1,
+          290,
+          4,
+          7
+        ],
+        [
+          -1,
+          290,
+          4,
+          7
+        ]
+      ]
+    }
+  },
+  "draw_s": 0.949,
+  "picture": {
+    "points": 64,
+    "mismatches": []
+  },
+  "draw_frames": {
+    "frames": 151,
+    "vblank_start_max": 28,
+    "frame_work_max": 4233,
+    "frame_gui_max": 4203,
+    "present_frames": 1,
+    "present_work_max": 5903,
+    "late_us": 28,
+    "loop_gap_max": 15004,
+    "protocol_errors": 0
+  },
+  "icons": [
+    0,
+    2,
+    3,
+    0,
+    0,
+    0,
+    3,
+    3
+  ],
+  "edits": {
+    "count": 100,
+    "seconds": 0.099,
+    "ms_per_edit": 0.99,
+    "bytes_per_edit": 11
+  },
+  "edit_frames": {
+    "frames": 68,
+    "vblank_start_max": 23,
+    "frame_work_max": 3985,
+    "frame_gui_max": 2896,
+    "present_frames": 1,
+    "present_work_max": 5187,
+    "late_us": 23,
+    "loop_gap_max": 5289,
+    "protocol_errors": 0
+  },
+  "drag_over_canvas": {
+    "frames": 112,
+    "vblank_start_max": 23,
+    "frame_work_max": 3797,
+    "frame_gui_max": 3028,
+    "present_frames": 1,
+    "present_work_max": 387,
+    "late_us": 23,
+    "loop_gap_max": 3907,
+    "protocol_errors": 0
+  },
+  "drag_over_text": {
+    "frames": 112,
+    "vblank_start_max": 26,
+    "frame_work_max": 4232,
+    "frame_gui_max": 3068,
+    "present_frames": 1,
+    "present_work_max": 689,
+    "late_us": 26,
+    "loop_gap_max": 4723,
+    "protocol_errors": 0
+  },
+  "pointer_events": [
+    [
+      -1,
+      290,
+      4,
+      7
+    ],
+    [
+      -1,
+      290,
+      4,
+      7
+    ]
+  ],
+  "error": "AssertionError: canvas_event: [[-1, 290, 4, 7], [-1, 290, 4, 7]]"
+}

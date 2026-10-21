@@ -101,7 +101,7 @@
  *                                        the next line), 2 end of file, 3 error (text: why)
  *  9D  file node flags n ch*n            reply 9D ok node n ch*n: write to that file (flags 1:
  *                                        append); node: the one made (new); text: why it failed
- *  9E  node on                           route a node's events to it as STREAM events (13) whose
+ *  9E  node on                           route a node's events to it as STREAM events (14) whose
  *                                        arguments are its text line, in pieces of at most 23
  *                                        bytes (on 0: back to plain events)
  *  9F  id style                          widget style: 0 normal, 1 strong, 2 fault (red)

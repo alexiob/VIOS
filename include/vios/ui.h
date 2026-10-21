@@ -23,7 +23,7 @@ void vios_ui_commit(void);
  * event (seq kind id args...) from the UI-NEXT ring. */
 void vios_ui_claim(int (*hook)(const unsigned char *event, unsigned len));
 unsigned vios_ui_resets(void);   /* UI-RESETs so far: the tools reinstall after one */
-/* STREAM events (kind 0x13: a routed node's text line) go to hook instead
+/* STREAM events (kind 0x14: a routed node's text line) go to hook instead
  * (vios_handles.c: /dev/win/N/event). */
 void vios_ui_route(int (*hook)(const unsigned char *event, unsigned len));
 int vios_ui_poll(void);
