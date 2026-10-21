@@ -1,7 +1,9 @@
 # VIOS extensible compiler: IMMEDIATE, POSTPONE, [ ], LITERAL, STATE, EVALUATE, DOES>, >BODY, FIND, MARKER/FORGET (design)
 
-Status: **design only, 2026-10-21**, from main at `46d94ce`. Nothing here is
-implemented. Numbers marked *measured* come from eZ80 builds of this commit run
+Status: **implemented and host-tested, 2026-10-21**, all of Phases 0–4 plus
+the name pool (§10.3), on branch `claude/confident-bhaskara-9caa37`. Not yet
+accepted on the board. §12 lists what was built, what differs from this
+design, and the measurements. The design below is kept as written. Numbers marked *measured* come from eZ80 builds of this commit run
 under the cycle model (`tools/verification/forth_compile_cycles.py`) or
 from symbol tables (§11). *Estimate* means not measured. Related:
 [Forth milestone](2026-10-16-vios-forth.md), [tasks](2026-10-18-vios-tasks.md),
@@ -838,3 +840,112 @@ before the keyword chain:
 
 Built with `make build/vios-resident.bin`, it produced 185,982 B against
 186,039 B for the unchanged build, and the same `__bss_end` (0xAAC15).
+
+## 12. Implementation (2026-10-21)
+
+All five phases and the name pool are in `forth/system.c`, on main `76cca71`
+plus this branch.
+
+### 12.1 What was built
+
+- **Name pool (§10.3).** `struct word` drops from 55 to 25 bytes. Names live
+  NUL-terminated in a 5,120-byte pool (`VIOS_FORTH_NAME_BYTES`), rolled back
+  with the other counters in definitions, transactions, activation rollback
+  and snapshots. The snapshot core header grows from 7 to 8 u32 fields.
+- **Phase 0.** A const keyword table (43 keywords) is chained by the low 4
+  bits of the dictionary hash, so a token's hash is computed once. `switch`
+  dispatch is in `keyword_run`. Keywords still take precedence over dictionary
+  words. IMMEDIATE is bit 7 of `kind` (`KIND()` masks it).
+- **Phase 1.** `state` is separate from `current`. `STATE` is a data-space cell
+  that C keeps in step with it.
+  - `[`, `]`, `LITERAL`, `IMMEDIATE` (on `latest`, which is cleared at
+    transaction begin and end, checkpoint restore and snapshot read).
+  - `POSTPONE`: keywords flagged postponable go through `(KEYWORD)`; immediate
+    words are compiled; other words go through `COMPILE,`.
+  - `FIND`, a PURE native.
+- **Phase 2.** `CREATE , C, ALLOT HERE VARIABLE CONSTANT DEFER` are natives
+  that parse from the global input position (`input`).
+  - `FORTH_NATIVE_DICT` covers dictionary-changing natives. Dispatch refuses
+    them in tasks, observers and module tests (`testing`).
+  - `DOES>` uses the §4.7 layout with the `CD docol` prefix on the does-part.
+  - `compile_word` inlines `WK_DOES` children. `>BODY` is a PURE native.
+- **Phase 3.** `EVALUATE` runs nested words above a sentinel: the code of
+  `(EVAL-RETURN)`. Nesting is at most 4 levels, with a 512-byte text pool.
+  Nested text skips the outer hook, `SYNC` and `ABORT`, and is not recorded
+  into the source of a definition opened outside it.
+- **Phase 4.** `MARKER` and `(MARKER)`, with guards 1–6 and a further rule:
+  a marker must run from the interpreter (return depth 1, not inside
+  EVALUATE).
+- Natives are registered from one table. `NATIVES_MAX` is 150; the resident
+  core now owns 37 of them.
+
+### 12.2 Differences from the design
+
+- `CREATE`, `ALLOT`, `,`, `C,`, `HERE`, `VARIABLE`, `CONSTANT` and `DEFER`
+  became words instead of keywords. So they appear in `WORDS` and can be
+  ticked, postponed and compiled.
+- 18 new dictionary words: `STATE (KEYWORD) COMPILE, FIND CREATE VARIABLE
+  CONSTANT DEFER ALLOT , C, HERE (DOES>) >BODY EVALUATE (EVAL-RETURN) MARKER
+  (MARKER)`. The core word count is 83, up from 65.
+- `EXIT` and `RECURSE` are keywords in both states. Interpreting either fails
+  as before ("unknown word: EXIT", "RECURSE outside definition"), but a user
+  word named `EXIT` can no longer be reached.
+- `SEE` appends ` immediate` to the word line of an immediate word. Inspector
+  kinds 6 (`does`) and 7 (`marker`) are new, and `forth_word_info` has an
+  `immediate` field. The GUI inspector labels them.
+- `FIND-NAME` was not added.
+- STATE's data cell moves later data-space addresses by 3 bytes. A runtime
+  host test that assumed `DUMP`'s row alignment now aligns its buffer first.
+
+### 12.3 Measurements (*measured*)
+
+| | before (`46d94ce` / `76cca71`) | after |
+|---|---|---|
+| compile, eZ80 model | 340 µs/token | **220 µs/token (−35%)** |
+| DIRECT / TOKEN cycles per call: inline, colon, does-child | 399/706/1013 · 483/855/1227 | unchanged (±1) |
+| `struct word` | 55 B | **25 B** |
+| `system.o` text / rodata / BSS | 36,759 / 3,925 / 133,125 (`46d94ce`) | 39,542 / 5,404 / 123,684 |
+| `vios-resident.bin` | 194,710 B (`76cca71`) | 199,508 B |
+| RAM gap, `__bss_end` to the stack | 8,683 B (`76cca71`, under the gate) | **13,291 B** (gate 12 KB) |
+
+The name pool alone took the gap to 17,899 B, and Phases 0–4 then cost
+4,608 B. The remaining 1.3 KB above the gate is the budget for the next
+feature; the candidates in §8 and §10.2 still apply.
+
+**Next compile lever.** `__imulu` (the multiply that indexes the 25-byte
+header table, 167 call sites under `-Oz`) is now 18% of compile time. Moving
+the hot `name` and `link` fields into separate arrays would turn the index into
+a shift in `find`.
+
+### 12.4 Verification
+
+- **Host.** 309 tests pass. New: `tests/test_forth_extensible.py`, which
+  covers every word and the refusals, plus module install and rollback,
+  snapshot round-trips, tasks, observers and the failed-`ALLOT` paths.
+- **eZ80 code.** `tools/verification/forth_extensible_engines.py` runs 13
+  cases on DIRECT, TOKEN and C in the linked image: DOES> children (called,
+  inlined, executed), POSTPONEd control flow, `[ ] LITERAL`, `COMPILE,` and
+  EVALUATE inside running words and loops. All three engines agree.
+  `make verify-forth-engine` passes 156 probes.
+- **Cycle-model fix.** `cp` now sets P/V to signed overflow, as the eZ80 does.
+  Before, clang's signed-compare idiom (`cp a,0`, `call pe,__setflag`, `jp m`)
+  read 0 as negative.
+- **Not yet on the board:**
+  - the native-stack high-water with 4-level EVALUATE;
+  - the one-time boot-cache miss (header and snapshot layout changed);
+  - a full board suite run.
+
+### 12.5 Source map (coordinator's request, 2026-10-21)
+
+- `MARKER` reclaims source-map entries: it rewinds `map_used` to the first
+  entry of a removed word.
+- The boot-cache snapshot already carries the map region.
+- A redefinition cannot reclaim its predecessor's entries. Callers compiled
+  against the old word still run its code, and TRACE and LAST-ERROR need its
+  map.
+- Raising `SOURCE_MAP_MAX` costs 8 B per entry. Within the 1.3 KB spare above
+  the gate that is at most +160 entries. Two ways to make room:
+  - Shrink entries to 6 B by dropping the `word` field and storing each word's
+    first map index in its header (+2 B × 512).
+  - Move the map to ESP PSRAM (§10.2), which removes the cap's RAM cost
+    altogether.

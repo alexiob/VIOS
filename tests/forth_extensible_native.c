@@ -85,6 +85,10 @@ static void defining_words(void){
  refused(": LATE CREATE , ; 3 LATE L1 : OTHER ; : SETDOES DOES> @ ; SETDOES","DOES> needs a CREATE word");
  /* A failed first ALLOT still removes the CREATEd word (from a defining word too). */
  ok(": BIG CREATE 9000 ALLOT ;");refused("BIG HUGE","data space full");assert(!forth_find_xt("HUGE"));
+ /* ... also after DOES> rewrote the child's code: every pool is back where it was. */
+ ok(": MK CREATE DOES> @ ;");struct forth_resources before,after;forth_inspect_resources(&before);
+ refused("MK X 9000 ALLOT","data space full");forth_inspect_resources(&after);
+ assert(!forth_find_xt("X")&&after.words==before.words&&after.token_bytes==before.token_bytes&&after.direct_bytes==before.direct_bytes&&after.source_bytes==before.source_bytes);
 }
 static void evaluate(void){
  fresh();
