@@ -7,7 +7,7 @@ same system from a Mac; you browse, edit and replace running code in
 Smalltalk-style windows; and you keep what you build as checked source modules
 on the SD card.
 
-![The VIOS desktop right after boot: the Console window on the dithered Smalltalk desktop](media/desktop.png)
+![Live development: a word added to a module in the Browser, accepted, then used in the Workspace](media/anim-browser.gif)
 
 **Source code, releases and issues:** [github.com/alexiob/VIOS](https://github.com/alexiob/VIOS)
 
@@ -88,7 +88,7 @@ pipes, everything reachable as a named device):
   Everything you can do at the keyboard can be done from the host, and the
   console shows what the host does.
 
-![Live development: a word added to a module in the Browser, accepted, then used in the Workspace](media/anim-browser.gif)
+![The VIOS desktop right after boot: the Console window on the dithered Smalltalk desktop](media/desktop.png)
 
 ### What VIOS is not (yet)
 
